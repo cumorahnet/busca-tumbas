@@ -505,8 +505,9 @@
 
             const lines = text.split('\n')
                 .map(l => l.trim())
-                .filter(l => l.length > 3 && !l.match(/\b(pax|rip|qepd|memoria|nacido|fallecido|recuerdo|tumba|sepultura|yacimiento|cripta|en|el|la|los|las)\b/i) && !/\d{4}/.test(l))
-                .filter(l => l.split(' ').filter(word => word.length > 1 && word[0] === word[0].toUpperCase()).length >= 1);
+                .filter(l => l.length > 3 && !l.match(/\b(pax|rip|qepd|memoria|nacido|fallecido|recuerdo|tumba|sepultura|yacimiento|cripta|en|el|la|los|las)\b/i) && !/\d{4}/.test(l));
+                // Eliminado el filtro restrictivo de capitalización.
+                // .filter(l => l.split(' ').filter(word => word.length > 1 && word[0] === word[0].toUpperCase()).length >= 1);
 
             if (lines.length > 0) {
                 let nameCandidate = lines[0];
@@ -635,11 +636,30 @@
                     canvas.height = img.height;
                     ctx.drawImage(img, 0, 0);
 
-                    // Se eliminó el filtro de alto contraste.
-                    // Este filtro puede ser muy agresivo para algunas imágenes,
-                    // y a menudo degrada la precisión del OCR en lugar de mejorarla.
-                    // Tesseract.js suele funcionar mejor con la imagen original
-                    // o con preprocesamientos más sutiles si es necesario.
+                    // --- Image Preprocessing for OCR ---
+                    // Convert to grayscale and then apply binarization (thresholding)
+                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    const data = imageData.data;
+                    const threshold = 180; // Un valor de umbral común, se puede ajustar para diferentes condiciones de imagen.
+
+                    for (let i = 0; i < data.length; i += 4) {
+                        const r = data[i];
+                        const g = data[i + 1];
+                        const b = data[i + 2];
+
+                        // Convertir a escala de grises (método de luminosidad)
+                        const gray = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+
+                        // Aplicar binarización (umbral)
+                        const value = gray > threshold ? 255 : 0; // Blanco o negro
+                        data[i] = value;     // R
+                        data[i + 1] = value; // G
+                        data[i + 2] = value; // B
+                        // data[i + 3] = 255; // Alpha (mantener opaco)
+                    }
+
+                    ctx.putImageData(imageData, 0, 0);
+                    // --- End Image Preprocessing ---
                     
                     const result = await Tesseract.recognize(canvas, 'spa');
                     console.log("Raw OCR Result:", result.data.text);
