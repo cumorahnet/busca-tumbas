@@ -121,7 +121,7 @@
                             <input type="text" id="dead-death" placeholder="Año Def." class="w-1/2 p-3 border rounded-lg outline-none focus:ring-2 focus:ring-slate-400 text-base">
                         </div>
                         <label for="cemetery-name" class="sr-only">Nombre del Panteón</label>
-                        <input type="text" id="cemetery-name" placeholder="Nombre del Panteón" class="p-3 border rounded-lg outline-none focus:ring-2 focus:ring-2 focus:ring-slate-400 text-base">
+                        <input type="text" id="cemetery-name" placeholder="Nombre del Panteón" class="p-3 border rounded-lg outline-none focus:ring-2 focus:ring-slate-400 text-base">
                         <label for="location-muni" class="sr-only">Municipio, Estado</label>
                         <input type="text" id="location-muni" placeholder="Municipio, Estado" class="p-3 border rounded-lg outline-none focus:ring-2 focus:ring-slate-400 text-base">
                     </div>
@@ -211,12 +211,13 @@
 
         // TUS CREDENCIALES CONFIGURADAS Y CONSOLIDADAS
         const firebaseConfig = {
-            apiKey: "AIzaSyDVjbcOjDr8o3yiNqbwPW3W6WhIsplGUUk",
-            authDomain: "buscatumbas-2e7cc.firebaseapp.com",
-            projectId: "buscatumbas-2e7cc",
-            storageBucket: "buscatumbas-2e7cc.firebasestorage.app",
-            messagingSenderId: "920637749030",
-            appId: "1:920637749030:web:21568d7680f12946fdf3e7"
+            apiKey: "AIzaSyDZcfxSG6SexcA4YueWSRCyksfd3kXTPIk",
+            authDomain: "busca-tumbas.firebaseapp.com",
+            projectId: "busca-tumbas",
+            storageBucket: "busca-tumbas.firebasestorage.app",
+            messagingSenderId: "30567666691",
+            appId: "1:30567666691:web:cfc61b206c380f6017ea36",
+            measurementId: "G-FJ03360GTC"
         };
 
         const app = initializeApp(firebaseConfig);
@@ -505,9 +506,8 @@
 
             const lines = text.split('\n')
                 .map(l => l.trim())
-                .filter(l => l.length > 3 && !l.match(/\b(pax|rip|qepd|memoria|nacido|fallecido|recuerdo|tumba|sepultura|yacimiento|cripta|en|el|la|los|las)\b/i) && !/\d{4}/.test(l));
-                // Eliminado el filtro restrictivo de capitalización.
-                // .filter(l => l.split(' ').filter(word => word.length > 1 && word[0] === word[0].toUpperCase()).length >= 1);
+                .filter(l => l.length > 3 && !l.match(/\b(pax|rip|qepd|memoria|nacido|fallecido|recuerdo|tumba|sepultura|yacimiento|cripta|en|el|la|los|las)\b/i) && !/\d{4}/.test(l))
+                .filter(l => l.split(' ').filter(word => word.length > 1 && word[0] === word[0].toUpperCase()).length >= 1);
 
             if (lines.length > 0) {
                 let nameCandidate = lines[0];
@@ -636,33 +636,19 @@
                     canvas.height = img.height;
                     ctx.drawImage(img, 0, 0);
 
-                    // --- Image Preprocessing for OCR ---
-                    // Convert to grayscale and then apply binarization (thresholding)
-                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                    const data = imageData.data;
-                    const threshold = 180; // Un valor de umbral común, se puede ajustar para diferentes condiciones de imagen.
-
+                    // Filtro de alto contraste para mejorar legibilidad para OCR
+                    const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    const data = imgData.data;
                     for (let i = 0; i < data.length; i += 4) {
-                        const r = data[i];
-                        const g = data[i + 1];
-                        const b = data[i + 2];
-
-                        // Convertir a escala de grises (método de luminosidad)
-                        const gray = 0.2126 * r + 0.7152 * g + 0.0722 * b;
-
-                        // Aplicar binarización (umbral)
-                        const value = gray > threshold ? 255 : 0; // Blanco o negro
-                        data[i] = value;     // R
-                        data[i + 1] = value; // G
-                        data[i + 2] = value; // B
-                        // data[i + 3] = 255; // Alpha (mantener opaco)
+                        const grayscale = data[i] * 0.3 + data[i + 1] * 0.59 + data[i + 2] * 0.11;
+                        const contrast = (grayscale - 128) * 2.0 + 128;
+                        data[i] = contrast;
+                        data[i + 1] = contrast;
+                        data[i + 2] = contrast;
                     }
+                    ctx.putImageData(imgData, 0, 0);
 
-                    ctx.putImageData(imageData, 0, 0);
-                    // --- End Image Preprocessing ---
-                    
                     const result = await Tesseract.recognize(canvas, 'spa');
-                    console.log("Raw OCR Result:", result.data.text);
                     parseOCRResults(result.data.text);
                     playSuccessBeep();
                 } catch (e) {
