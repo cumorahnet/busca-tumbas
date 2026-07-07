@@ -212,12 +212,12 @@
         // TUS CREDENCIALES CONFIGURADAS Y CONSOLIDADAS
         const firebaseConfig = {
             apiKey: "AIzaSyDVjbcOjDr8o3yiNqbwPW3W6WhIsplGUUk",
-  authDomain: "buscatumbas-2e7cc.firebaseapp.com",
-  projectId: "buscatumbas-2e7cc",
-  storageBucket: "buscatumbas-2e7cc.firebasestorage.app",
-  messagingSenderId: "920637749030",
-  appId: "1:920637749030:web:21568d7680f12946fdf3e7"
-};
+            authDomain: "buscatumbas-2e7cc.firebaseapp.com",
+            projectId: "buscatumbas-2e7cc",
+            storageBucket: "buscatumbas-2e7cc.firebasestorage.app",
+            messagingSenderId: "920637749030",
+            appId: "1:920637749030:web:21568d7680f12946fdf3e7"
+        };
 
         const app = initializeApp(firebaseConfig);
 
@@ -497,21 +497,40 @@
                 DOM.deadBirthInput.value = validYears[0];
                 DOM.deadDeathInput.value = validYears[validYears.length - 1];
             } else if (validYears.length === 1) {
+                // Si solo hay un año, asumimos que es el de defunción
                 DOM.deadDeathInput.value = validYears[0];
+                DOM.deadBirthInput.value = ''; // Asegurarse de que el de nacimiento esté vacío
             } else {
                 DOM.deadBirthInput.value = '';
                 DOM.deadDeathInput.value = '';
             }
 
+            // Intento de extraer el nombre
             const lines = text.split('\n')
                 .map(l => l.trim())
-                .filter(l => l.length > 3 && !l.match(/\b(pax|rip|qepd|memoria|nacido|fallecido|recuerdo|tumba|sepultura|yacimiento|cripta|en|el|la|los|las)\b/i) && !/\d{4}/.test(l))
-                .filter(l => l.split(' ').filter(word => word.length > 1 && word[0] === word[0].toUpperCase()).length >= 1);
-
+                .filter(l => l.length > 3 && !l.match(/\b(pax|rip|qepd|memoria|nacido|fallecido|recuerdo|tumba|sepultura|yacimiento|cripta|en|el|la|los|las|de|del)\b/i) && !/\d{4}/.test(l));
+            
+            let nameCandidate = '';
             if (lines.length > 0) {
-                let nameCandidate = lines[0];
-                nameCandidate = nameCandidate.replace(/^(D|Doña|Don|Sr|Sra)\.?\s+/i, '').replace(/\s+(y|de|del|en)$/i, '');
-                DOM.deadNameInput.value = nameCandidate.split(/\s+/).map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ');
+                // Buscar la primera línea que contenga al menos una palabra capitalizada de más de 1 letra
+                const nameLine = lines.find(line => {
+                    const words = line.split(/\s+/).filter(word => word.length > 1);
+                    return words.some(word => word[0] === word[0].toUpperCase() && word.slice(1) === word.slice(1).toLowerCase());
+                });
+
+                if (nameLine) {
+                    nameCandidate = nameLine;
+                    nameCandidate = nameCandidate.replace(/^(D|Doña|Don|Sr|Sra)\.?\s+/i, '')
+                                                 .replace(/\s+(y|de|del|en)$/i, '')
+                                                 .replace(/[\d\.]/g, ''); // Eliminar números y puntos adicionales
+                    nameCandidate = nameCandidate.split(/\s+/)
+                                                 .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+                                                 .join(' ');
+                }
+            }
+
+            if (nameCandidate) {
+                DOM.deadNameInput.value = nameCandidate;
                 uiController.showToast(MESSAGES.OCR_SUCCESS);
             } else {
                 DOM.deadNameInput.value = '';
@@ -636,14 +655,23 @@
                     ctx.drawImage(img, 0, 0);
 
                     // Filtro de alto contraste para mejorar legibilidad para OCR
+                    // Se itera sobre los píxeles para ajustar el contraste
                     const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
                     const data = imgData.data;
+                    const factor = 1.8; // Factor de contraste, puedes ajustarlo
+                    const intercept = 128 * (1 - factor); // Intercepto para centrar el contraste
+                    
                     for (let i = 0; i < data.length; i += 4) {
-                        const grayscale = data[i] * 0.3 + data[i + 1] * 0.59 + data[i + 2] * 0.11;
-                        const contrast = (grayscale - 128) * 2.0 + 128;
-                        data[i] = contrast;
-                        data[i + 1] = contrast;
-                        data[i + 2] = contrast;
+                        // Calcular el valor promedio de RGB para obtener un nivel de gris
+                        const grayscale = (data[i] + data[i + 1] + data[i + 2]) / 3;
+                        // Aplicar la transformación de contraste (g' = factor * g + intercept)
+                        const contrast = factor * grayscale + intercept;
+                        
+                        // Asegurarse de que los valores estén en el rango [0, 255]
+                        data[i] = Math.max(0, Math.min(255, contrast));     // Rojo
+                        data[i + 1] = Math.max(0, Math.min(255, contrast)); // Verde
+                        data[i + 2] = Math.max(0, Math.min(255, contrast)); // Azul
+                        // data[i + 3] es el canal alfa (transparencia), no se modifica
                     }
                     ctx.putImageData(imgData, 0, 0);
 
@@ -686,7 +714,19 @@
                 uiController.hideModal(DOM.modalMatch);
                 uiController.setLoadingState(true);
                 try {
-                    const gps = await new Promise(res => navigator.geolocation.getCurrentPosition(res, () => res({ coords: { latitude: 0, longitude: 0 } })));
+                    // Obtener la ubicación GPS del usuario
+                    const gps = await new Promise(resolve => {
+                        navigator.geolocation.getCurrentPosition(
+                            position => resolve({ coords: { latitude: position.coords.latitude, longitude: position.coords.longitude } }),
+                            error => {
+                                console.warn('Error al obtener la ubicación:', error.message);
+                                // Si hay un error o el usuario deniega, usar 0,0
+                                resolve({ coords: { latitude: 0, longitude: 0 } });
+                            },
+                            { enableHighAccuracy: false, timeout: 5000, maximumAge: 0 } // Opciones: no alta precisión, timeout de 5s, no caché
+                        );
+                    });
+
                     const imageUrl = await firebaseService.uploadImage(currentFile);
 
                     await firebaseService.addTumbaRecord({
@@ -714,10 +754,26 @@
                 }
             },
 
+            // Handlers para asegurar que los listeners no se dupliquen al recrear elementos
+            openChatHandler: null,
+            openEditHandler: null,
+
             async searchRecords() {
                 const term = DOM.searchInput.value.toLowerCase();
                 const snap = await firebaseService.searchTumbaRecords();
                 DOM.resultsList.innerHTML = "";
+
+                // Limpiar handlers anteriores si existen
+                if (this.openChatHandler) {
+                    document.querySelectorAll('.btn-open-chat').forEach(btn => {
+                        btn.removeEventListener('click', this.openChatHandler);
+                    });
+                }
+                if (this.openEditHandler) {
+                    document.querySelectorAll('.btn-open-edit').forEach(btn => {
+                        btn.removeEventListener('click', this.openEditHandler);
+                    });
+                }
 
                 snap.forEach(dDoc => {
                     const d = dDoc.data();
@@ -738,26 +794,24 @@
                             </div>`;
                     }
                 });
-                // Adjuntar event listeners a los botones creados dinámicamente
+
+                // Definir e adjuntar los nuevos handlers
+                this.openChatHandler = (event) => {
+                    const targetUid = event.target.dataset.uid;
+                    const targetName = event.target.dataset.name;
+                    appController.openChat(targetUid, targetName);
+                };
+                this.openEditHandler = (event) => {
+                    const recordId = event.target.dataset.recordId;
+                    appController.openEdit(recordId);
+                };
+
                 document.querySelectorAll('.btn-open-chat').forEach(btn => {
-                    btn.removeEventListener('click', this.openChatHandler); // Prevenir listeners duplicados
                     btn.addEventListener('click', this.openChatHandler);
                 });
                 document.querySelectorAll('.btn-open-edit').forEach(btn => {
-                    btn.removeEventListener('click', this.openEditHandler); // Prevenir listeners duplicados
                     btn.addEventListener('click', this.openEditHandler);
                 });
-            },
-
-            openChatHandler(event) {
-                const targetUid = event.target.dataset.uid;
-                const targetName = event.target.dataset.name;
-                appController.openChat(targetUid, targetName);
-            },
-
-            openEditHandler(event) {
-                const recordId = event.target.dataset.recordId;
-                appController.openEdit(recordId);
             },
 
             openChat(targetUid, targetName) {
