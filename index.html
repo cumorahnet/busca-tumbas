@@ -782,4 +782,214 @@
                     try {
                         // Intentar parsear el JSON. Gemini a veces lo envuelve en markdown.
                         // Extraer el contenido JSON si está dentro de un bloque de código markdown
-                        const jsonMatch = responseText.match(/
+                        const jsonMatch = responseText.match(/```json\n([\s\S]*?)\n```/) || responseText.match(/```\n([\s\S]*?)\n```/);
+                        const jsonString = jsonMatch ? jsonMatch[1] : responseText;
+                        parsedGeminiData = JSON.parse(jsonString);
+                    } catch (err) {
+                        console.error("Error parsing Gemini JSON response:", err);
+                        uiController.showToast("Error al procesar la respuesta de la IA. Intenta de nuevo.");
+                        return;
+                    }
+
+                    // Rellenar los campos con los datos extraídos por Gemini
+                    DOM.deadNameInput.value = parsedGeminiData.nombre_finado || '';
+                    DOM.deadBirthInput.value = parsedGeminiData.anio_nacimiento || '';
+                    DOM.deadDeathInput.value = parsedGeminiData.anio_defuncion || '';
+                    DOM.cemeteryNameInput.value = parsedGeminiData.panteon || '';
+                    DOM.locationMuniInput.value = parsedGeminiData.municipio || '';
+
+                    // Mostrar la imagen capturada en la vista previa
+                    DOM.imgPreview.src = reader.result;
+                    DOM.previewContainer.classList.remove('hidden');
+                    DOM.uploadPlaceholder.classList.add('hidden');
+
+                    uiController.showToast("Imagen procesada con éxito por IA. Revisa los datos.");
+                } catch (err) {
+                    console.error("Error processing image with Gemini:", err);
+                    uiController.showToast("Error al procesar la imagen: " + err.message);
+                } finally {
+                    DOM.ocrLoader.classList.add('hidden');
+                    DOM.fileInputCamera.value = '';
+                    DOM.fileInputGallery.value = '';
+                }
+            },
+
+            async validateAndSave() {
+                const name = DOM.deadNameInput.value.trim();
+                const cemetery = DOM.cemeteryNameInput.value.trim();
+                const municipio = DOM.locationMuniInput.value.trim();
+
+                if (!name || !cemetery || !municipio) {
+                    return uiController.showToast(MESSAGES.REQUIRED_FIELDS);
+                }
+
+                try {
+                    const existingRecords = await firebaseService.checkIfRecordExists(name, municipio);
+                    if (existingRecords.size > 0) {
+                        const existing = existingRecords.docs[0].data();
+                        DOM.matchDataPreview.innerHTML = `<strong>${existing.nombre}</strong><br>Panteón: ${existing.panteon}`;
+                        uiController.showModal(DOM.modalMatch);
+                        appController.currentEditingRecord = existingRecords.docs[0].id;
+                    } else {
+                        this.finalSave();
+                    }
+                } catch (e) {
+                    uiController.showToast(e.message);
+                }
+            },
+
+            async finalSave() {
+                const recordData = {
+                    nombre: DOM.deadNameInput.value.trim(),
+                    fechaNacimiento: DOM.deadBirthInput.value.trim(),
+                    fechaDefuncion: DOM.deadDeathInput.value.trim(),
+                    panteon: DOM.cemeteryNameInput.value.trim(),
+                    municipio: DOM.locationMuniInput.value.trim(),
+                    idUsuario: firebaseService.auth.currentUser?.uid,
+                    timestamp: serverTimestamp(),
+                    notas: ''
+                };
+
+                DOM.saveLoader.classList.remove('hidden');
+                DOM.saveText.innerText = 'Guardando...';
+
+                try {
+                    await firebaseService.addTumbaRecord(recordData);
+                    uiController.hideModal(DOM.modalMatch);
+                    DOM.deadNameInput.value = '';
+                    DOM.deadBirthInput.value = '';
+                    DOM.deadDeathInput.value = '';
+                    DOM.cemeteryNameInput.value = '';
+                    DOM.locationMuniInput.value = '';
+                    DOM.previewContainer.classList.add('hidden');
+                    DOM.uploadPlaceholder.classList.remove('hidden');
+                    uiController.showToast(MESSAGES.RECORD_SAVED);
+                    this.searchRecords();
+                } catch (e) {
+                    uiController.showToast(e.message);
+                } finally {
+                    DOM.saveLoader.classList.add('hidden');
+                    DOM.saveText.innerText = 'Guardar Registro';
+                }
+            },
+
+            async searchRecords() {
+                try {
+                    const allRecords = await firebaseService.searchTumbaRecords();
+                    appController.allRecords = allRecords.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    this.displaySearchResults([]);
+                } catch (e) {
+                    uiController.showToast(e.message);
+                }
+            },
+
+            searchRecords() {
+                const query = DOM.searchInput.value.toLowerCase();
+                if (!appController.allRecords) return;
+
+                const filtered = appController.allRecords.filter(record =>
+                    record.nombre.toLowerCase().includes(query) ||
+                    record.panteon.toLowerCase().includes(query) ||
+                    record.municipio.toLowerCase().includes(query)
+                );
+
+                this.displaySearchResults(filtered);
+            },
+
+            displaySearchResults(records) {
+                DOM.resultsList.innerHTML = '';
+                if (records.length === 0) {
+                    DOM.resultsList.innerHTML = '<p class="text-center text-slate-500 text-sm">Sin resultados...</p>';
+                    return;
+                }
+
+                records.forEach(record => {
+                    const card = document.createElement('div');
+                    card.className = 'bg-white p-4 rounded-xl shadow-sm border border-slate-200 cursor-pointer hover:shadow-md transition';
+                    card.innerHTML = `
+                        <h4 class="font-bold text-slate-800">${record.nombre}</h4>
+                        <p class="text-xs text-slate-500">${record.fechaNacimiento} - ${record.fechaDefuncion}</p>
+                        <p class="text-xs text-slate-600">${record.panteon}, ${record.municipio}</p>
+                    `;
+                    card.addEventListener('click', () => this.openEdit(record));
+                    DOM.resultsList.appendChild(card);
+                });
+            },
+
+            openEdit(record) {
+                appController.currentEditingRecord = record.id;
+                DOM.editName.value = record.nombre;
+                DOM.editCemetery.value = record.panteon;
+                DOM.editMuni.value = record.municipio;
+                uiController.showModal(DOM.editWindow);
+            },
+
+            async updateRecord() {
+                const recordRef = doc(firebaseService.db, COLLECTION_NAMES.TUMBAS, appController.currentEditingRecord);
+                const updateData = {
+                    nombre: DOM.editName.value.trim(),
+                    panteon: DOM.editCemetery.value.trim(),
+                    municipio: DOM.editMuni.value.trim(),
+                };
+
+                try {
+                    await updateDoc(recordRef, updateData);
+                    uiController.hideModal(DOM.editWindow);
+                    this.searchRecords();
+                    uiController.showToast(MESSAGES.RECORD_UPDATED);
+                } catch (e) {
+                    uiController.showToast(e.message);
+                }
+            },
+
+            closeEdit() {
+                uiController.hideModal(DOM.editWindow);
+            },
+
+            async sendChatMessage() {
+                const text = DOM.chatInput.value.trim();
+                if (!text) return;
+
+                const messageData = {
+                    idUsuario: firebaseService.auth.currentUser.uid,
+                    username: firebaseService.auth.currentUser.displayName || firebaseService.auth.currentUser.email,
+                    text,
+                    timestamp: serverTimestamp(),
+                    fecha: new Date().toLocaleString()
+                };
+
+                try {
+                    await firebaseService.addChatMessage(appController.currentChatId, messageData);
+                    DOM.chatInput.value = '';
+                } catch (e) {
+                    uiController.showToast(e.message);
+                }
+            },
+
+            closeChat() {
+                uiController.hideModal(DOM.chatWindow);
+            },
+
+            toggleAuthMode() {
+                isRegistering = !isRegistering;
+                uiController.toggleAuthModeDisplay();
+            },
+
+            async logout() {
+                try {
+                    await firebaseService.logoutUser();
+                    uiController.showToast(MESSAGES.LOGGED_OUT);
+                } catch (e) {
+                    uiController.showToast(e.message);
+                }
+            }
+        };
+
+        // --- INICIALIZAR APLICACIÓN AL CARGAR EL DOCUMENTO ---
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log("DOM Content Loaded: Starting app initialization...");
+            appController.init();
+        });
+    </script>
+</body>
+</html>
