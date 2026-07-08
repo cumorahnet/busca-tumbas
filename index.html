@@ -103,37 +103,6 @@
             background: #f1f5f9;
         }
 
-        #output-area {
-            background: #f1f5f9;
-            border: 2px solid #e2e8f0;
-            border-radius: 14px;
-            padding: 15px;
-            min-height: 120px;
-            max-height: 300px;
-            overflow-y: auto;
-            white-space: pre-wrap;
-            word-break: break-word;
-            font-family: 'Courier New', monospace;
-            font-size: 0.9rem;
-            color: #0f172a;
-        }
-
-        #output-area.empty {
-            color: #94a3b8;
-            font-style: italic;
-        }
-
-        .scan-result-item {
-            background: white;
-            border-left: 4px solid var(--accent);
-            padding: 12px;
-            margin-bottom: 8px;
-            border-radius: 8px;
-            font-size: 0.85rem;
-            line-height: 1.5;
-            word-wrap: break-word; /* Ensure text breaks within the item */
-        }
-
         /* SPLASH SCREEN */
         #splash-screen {
             position: fixed;
@@ -217,6 +186,24 @@
         }
         .input-group > .btn:hover {
             background-color: #f1f5f9; /* Subtle hover effect */
+        }
+
+        /* Form styling for extracted data */
+        .form-label {
+            font-size: 0.75rem;
+            font-weight: bold;
+            color: #475569; /* slate-700 */
+            margin-bottom: 0.25rem;
+            display: block;
+        }
+        #extracted-data-card .form-control {
+            background-color: #f8fafc; /* slate-50 for readonly inputs */
+            border: 1px solid #e2e8f0; /* slate-200 */
+            color: #334155; /* slate-700 */
+            margin-bottom: 0.75rem;
+        }
+        #extracted-data-card .form-control:read-only {
+            cursor: default;
         }
 
 
@@ -413,13 +400,13 @@
 <!-- RESULT MODAL -->
 <div id="result-modal">
     <div id="result-panel">
-        <p class="fw-bold mb-3" style="font-size:0.7rem; color:#94a3b8; letter-spacing:1px;">TEXTO EXTRAÍDO</p>
+        <p class="fw-bold mb-3" style="font-size:0.7rem; color:#94a3b8; letter-spacing:1px;">TEXTO EXTRAÍDO (RAW)</p>
         <textarea id="result-text" class="form-control mb-3" rows="6" readonly style="resize:none; font-family:'Courier New',monospace;"></textarea>
         <button class="btn btn-success w-100 rounded-pill fw-bold mb-2" onclick="copyResultText()">
             <i class="fas fa-copy me-2"></i>COPIAR TEXTO
         </button>
         <button class="btn btn-primary w-100 rounded-pill fw-bold mb-2" onclick="addToOutput()">
-            <i class="fas fa-plus me-2"></i>AGREGAR AL HISTORIAL
+            <i class="fas fa-plus me-2"></i>USAR DATOS Y AGREGAR A HISTORIAL
         </button>
         <button class="btn btn-outline-secondary w-100 rounded-pill" onclick="closeResult()" style="border:none;">
             ✕ CERRAR
@@ -460,6 +447,41 @@
         </button>
     </div>
 
+    <!-- NEW: Form for displaying extracted data -->
+    <div class="card-custom" id="extracted-data-card" style="display: none;">
+        <h6 class="fw-bold mb-3" style="color:var(--primary);">Últimos Datos Escaneados</h6>
+        <form>
+            <div class="mb-2">
+                <label for="display-nombre-finado" class="form-label">Nombre del Finado</label>
+                <input type="text" id="display-nombre-finado" class="form-control" readonly>
+            </div>
+            <div class="mb-2">
+                <label for="display-fecha-nacimiento" class="form-label">Fecha de Nacimiento</label>
+                <input type="text" id="display-fecha-nacimiento" class="form-control" readonly>
+            </div>
+            <div class="mb-2">
+                <label for="display-fecha-defuncion" class="form-label">Fecha de Defunción</label>
+                <input type="text" id="display-fecha-defuncion" class="form-control" readonly>
+            </div>
+            <div class="mb-2">
+                <label for="display-nombre-panteon" class="form-label">Nombre del Panteón</label>
+                <input type="text" id="display-nombre-panteon" class="form-control" readonly>
+            </div>
+            <div class="mb-2">
+                <label for="display-geolocation" class="form-label">Ubicación (Lat, Long)</label>
+                <input type="text" id="display-geolocation" class="form-control" readonly>
+            </div>
+            <div class="mb-2">
+                <label for="display-raw-text" class="form-label">Texto Completo (Raw)</label>
+                <textarea id="display-raw-text" class="form-control" rows="4" readonly style="resize:none; font-family:'Courier New',monospace;"></textarea>
+            </div>
+        </form>
+        <button class="btn btn-outline-secondary w-100 rounded-pill mt-3" onclick="clearDisplayedData()">
+            <i class="fas fa-eraser me-2"></i>LIMPIAR FORMULARIO
+        </button>
+    </div>
+
+    <!-- OLD History section - REMOVED AS PER REQUEST
     <div class="card-custom">
         <h6 class="fw-bold mb-3" style="color:var(--primary);">Historial de Escaneos</h6>
         <div id="output-area" class="empty">
@@ -469,6 +491,7 @@
             <i class="fas fa-trash me-2"></i>LIMPIAR HISTORIAL
         </button>
     </div>
+    -->
 </div>
 
 
@@ -500,7 +523,7 @@ const auth = firebase.auth();
 let scannerStream = null;
 let pendingScannedText = '';
 let pendingCanvas = null;
-let outputArray = [];
+let outputArray = []; // Keep internal array for potential future "view all history" feature
 let currentGeolocation = null; // Para guardar la ubicación actual
 
 // Original text for auth buttons to restore after loading
@@ -817,10 +840,10 @@ function addToOutput() {
     }
 
     let parsedData = {
-        nombre_finado: null,
-        fecha_nacimiento: null,
-        fecha_defuncion: null,
-        nombre_panteon: null,
+        nombre_finado: '',
+        fecha_nacimiento: '',
+        fecha_defuncion: '',
+        nombre_panteon: '',
         raw_text: text
     };
 
@@ -828,81 +851,86 @@ function addToOutput() {
         const jsonMatch = text.match(/\{[\s\S]*\}/);
         if (jsonMatch) {
             const data = JSON.parse(jsonMatch[0]);
-            parsedData.nombre_finado = data.nombre_finado || null;
-            parsedData.fecha_nacimiento = data.fecha_nacimiento || null;
-            parsedData.fecha_defuncion = data.fecha_defuncion || null;
-            parsedData.nombre_panteon = data.nombre_panteon || null;
+            parsedData.nombre_finado = data.nombre_finado || '';
+            parsedData.fecha_nacimiento = data.fecha_nacimiento || '';
+            parsedData.fecha_defuncion = data.fecha_defuncion || '';
+            parsedData.nombre_panteon = data.nombre_panteon || '';
         }
     } catch (e) {
         console.warn("Could not parse JSON from Gemini output, using raw text.", e);
+        // Fallback to raw text for structured fields if JSON parsing fails and raw_text is the only content
+        if (!parsedData.nombre_finado && !parsedData.fecha_nacimiento && !parsedData.fecha_defuncion && !parsedData.nombre_panteon) {
+            // A very simple attempt to put raw text into a single field if no JSON.
+            // This is a basic fallback, could be improved with more robust regex for dates/names.
+            parsedData.nombre_finado = text.substring(0, 50) + (text.length > 50 ? '...' : ''); // Take first 50 chars as finado name if no other data
+        }
     }
 
+    // Populate the form fields with the (parsed or raw) data
+    document.getElementById('display-nombre-finado').value = parsedData.nombre_finado;
+    document.getElementById('display-fecha-nacimiento').value = parsedData.fecha_nacimiento;
+    document.getElementById('display-fecha-defuncion').value = parsedData.fecha_defuncion;
+    document.getElementById('display-nombre-panteon').value = parsedData.nombre_panteon;
+    
+    // Display geolocation if available
+    if (currentGeolocation) {
+        document.getElementById('display-geolocation').value = `Lat: ${currentGeolocation.latitude.toFixed(4)}, Long: ${currentGeolocation.longitude.toFixed(4)}`;
+    } else {
+        document.getElementById('display-geolocation').value = 'No disponible';
+    }
+    document.getElementById('display-raw-text').value = parsedData.raw_text;
+
+    // Show the extracted data card
+    document.getElementById('extracted-data-card').style.display = 'flex';
+
+    // Add to internal history array (outputArray)
     outputArray.push({
         timestamp: new Date().toLocaleString(),
         geolocation: currentGeolocation,
         data: parsedData
     });
 
-    updateOutput();
-    showToast('✅ Agregado al historial');
+    showToast('✅ Datos listos y agregados a historial interno');
     closeResult();
 }
 
 /* ══════════════════════════════════════════════════════════════════
-   OUTPUT MANAGEMENT
+   OUTPUT MANAGEMENT (Internal only now)
 ══════════════════════════════════════════════════════════════════ */
+
+// This function is no longer used for display, but could be adapted for a "view all history" modal later.
+// Keeping it structured for now.
 function updateOutput() {
-    const outputArea = document.getElementById('output-area');
-    
-    if (outputArray.length === 0) {
-        outputArea.innerHTML = '';
-        outputArea.className = 'empty';
-        outputArea.textContent = 'Aquí aparecerá el texto de tus escaneos...';
-        return;
-    }
-
-    outputArea.className = '';
-    outputArea.innerHTML = outputArray.map((item, idx) => {
-        const data = item.data;
-        let content = '';
-
-        if (data.nombre_finado || data.fecha_nacimiento || data.fecha_defuncion || data.nombre_panteon) {
-            content += `<strong>Finado:</strong> ${data.nombre_finado || 'N/A'}<br>`;
-            content += `<strong>Nacimiento:</strong> ${data.fecha_nacimiento || 'N/A'}<br>`;
-            content += `<strong>Defunción:</strong> ${data.fecha_defuncion || 'N/A'}<br>`;
-            content += `<strong>Panteón:</strong> ${data.nombre_panteon || 'N/A'}<br>`;
-        } else {
-            content += `<strong>Texto Completo:</strong><br>${data.raw_text.replace(/</g, '&lt;').replace(/>/g, '&gt;')}<br>`;
-        }
-
-        if (item.geolocation) {
-            content += `<strong>Ubicación:</strong> Lat: ${item.geolocation.latitude.toFixed(4)}, Long: ${item.geolocation.longitude.toFixed(4)}`;
-        }
-
-        return `
-            <div class="scan-result-item">
-                <div style="color:#94a3b8; font-size:0.75rem; margin-bottom:8px;">
-                    <strong>#${idx + 1}</strong> — ${item.timestamp}
-                </div>
-                <div style="color:#0f172a; white-space:pre-wrap; word-break:break-word;">
-                    ${content}
-                </div>
-            </div>
-        `;
-    }).join('');
+    // No direct UI update needed for 'output-area' anymore, as it's removed.
+    // The `outputArray` is maintained internally.
+    console.log("Internal history updated:", outputArray);
 }
 
 function clearOutput() {
     if (outputArray.length === 0) {
-        showToast('⚠ Historial vacío', '#f59e0b');
+        showToast('⚠ Historial interno vacío', '#f59e0b');
         return;
     }
-    if (confirm('¿Deseas borrar todo el historial de escaneos?')) {
+    if (confirm('¿Deseas borrar todo el historial de escaneos (interno)?')) {
         outputArray = [];
-        updateOutput();
-        showToast('✅ Historial limpiado');
+        // Optionally clear displayed data as well
+        clearDisplayedData();
+        showToast('✅ Historial interno limpiado');
     }
 }
+
+// New function to clear the displayed form data
+function clearDisplayedData() {
+    document.getElementById('display-nombre-finado').value = '';
+    document.getElementById('display-fecha-nacimiento').value = '';
+    document.getElementById('display-fecha-defuncion').value = '';
+    document.getElementById('display-nombre-panteon').value = '';
+    document.getElementById('display-geolocation').value = '';
+    document.getElementById('display-raw-text').value = '';
+    document.getElementById('extracted-data-card').style.display = 'none'; // Hide if cleared
+    showToast('✅ Formulario limpiado');
+}
+
 
 /* ══════════════════════════════════════════════════════════════════
    PASSWORD VISIBILITY TOGGLE
