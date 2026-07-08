@@ -2,994 +2,893 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Busca Tumbas | Base de Datos Comunitaria</title>
-    
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Busca Tumbas</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <style>
-        /* Evitar que el gesto pull-to-refresh recargue la página en las listas */
-        .no-overscroll { overscroll-behavior-y: none; }
-        .glass-morphism { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
-        .loader { border-top-color: #3498db; animation: spinner 1.5s linear infinite; }
-        @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .chat-bubble-me { background: #2c3e50; color: white; border-radius: 15px 15px 0 15px; }
-        .chat-bubble-other { background: #ecf0f1; color: #2c3e50; border-radius: 15px 15px 15px 0; }
-        
-        /* Ajuste inteligente de teclado para dispositivos móviles */
-        .keyboard-aware-container {
+        :root {
+            --primary: #0f172a;
+            --accent: #3b82f6;
+            --success: #10b981;
+            --danger: #ef4444;
+            --bg: #f8fafc;
+        }
+
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background: var(--bg);
+            font-family: 'Inter', system-ui, sans-serif;
+            overflow: hidden; /* Prevent scroll on splash/auth screens */
+        }
+
+        body {
             display: flex;
             flex-direction: column;
-            min-height: 100dvh;
+            align-items: center;
+            justify-content: center;
         }
-        /* Transiciones sutiles para inputs */
-        input[type="text"], input[type="email"], input[type="password"] {
-            transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+
+        .container-main {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+            width: 100%;
+            overflow-y: auto; /* Allow scrolling for main content */
+            height: 100%;
+            box-sizing: border-box;
+            display: none; /* Hidden by default, shown after auth */
         }
-        input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus {
-            border-color: #60a5fa; /* Tailwind blue-400 */
-            box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.4); /* Focus ring effect */
+
+        .card-custom {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            border: 1px solid #f1f5f9;
+            box-shadow: 0 4px 20px rgba(15,23,42,0.08);
+        }
+
+        .form-control, .form-select {
+            padding: 0.8rem 1rem;
+            font-size: 0.95rem;
+            border-radius: 14px;
+            border: 2px solid #f1f5f9;
+            background: #fff;
+            color: var(--primary);
+        }
+
+        .form-control:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px rgba(59,130,246,0.1);
+            outline: none;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            border: none;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2563eb;
+            color: white;
+        }
+
+        .btn-success {
+            background: var(--success);
+            border: none;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+            color: white;
+        }
+
+        .btn-outline-secondary {
+            border: 1px solid #e2e8f0;
+            color: var(--primary);
+        }
+
+        .btn-outline-secondary:hover {
+            background: #f1f5f9;
+        }
+
+        #output-area {
+            background: #f1f5f9;
+            border: 2px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 15px;
+            min-height: 120px;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-break: break-word;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            color: #0f172a;
+        }
+
+        #output-area.empty {
+            color: #94a3b8;
+            font-style: italic;
+        }
+
+        .scan-result-item {
+            background: white;
+            border-left: 4px solid var(--accent);
+            padding: 12px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            word-wrap: break-word; /* Ensure text breaks within the item */
+        }
+
+        /* SPLASH SCREEN */
+        #splash-screen {
+            position: fixed;
+            inset: 0;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            font-weight: bold;
+            z-index: 50000;
+            opacity: 1;
+            transition: opacity 0.5s ease-out;
+        }
+        #splash-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* AUTH SCREEN */
+        #auth-screen {
+            position: fixed;
+            inset: 0;
+            background: var(--bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 40000;
+            display: none; /* Hidden by default, shown after splash */
+        }
+        #auth-screen .card-custom {
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+        }
+        #auth-screen h5 {
+            color: var(--primary);
+            margin-bottom: 20px;
+        }
+
+        /* SCANNER MODAL */
+        #ia-modal {
+            position: fixed;
+            inset: 0;
+            background: #000;
+            z-index: 10000;
+            display: none;
+            flex-direction: column;
+        }
+
+        #cam-preview-ia {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .scan-guide {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%,-50%);
+            width: 82%;
+            aspect-ratio: 4/3;
+            border: 2px solid rgba(0,229,192,0.6);
+            border-radius: 16px;
+            pointer-events: none;
+            z-index: 20;
+        }
+
+        .scan-guide::before, .scan-guide::after {
+            content: '';
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            border-color: #00e5c0;
+            border-style: solid;
+        }
+
+        .scan-guide::before {
+            top: -2px;
+            left: -2px;
+            border-width: 3px 0 0 3px;
+            border-radius: 4px 0 0 0;
+        }
+
+        .scan-guide::after {
+            bottom: -2px;
+            right: -2px;
+            border-width: 0 3px 3px 0;
+            border-radius: 0 0 4px 0;
+        }
+
+        #cam-top-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 20;
+            padding: 40px 18px 20px;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.55), transparent);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #snap-btn {
+            position: absolute;
+            bottom: 35px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: white;
+            border: 5px solid rgba(255,255,255,0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 20;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+        }
+
+        #snap-btn:hover {
+            background: #f0f0f0;
+        }
+
+        /* RESULT MODAL */
+        #result-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.75);
+            z-index: 20000;
+            display: none;
+            align-items: flex-end;
+            justify-content: center;
+            padding: 16px;
+        }
+
+        #result-panel {
+            background: white;
+            border-radius: 24px;
+            padding: 22px;
+            width: 100%;
+            max-width: 420px;
+        }
+
+        .toast-msg {
+            position: fixed;
+            top: 22px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 30000;
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-weight: 800;
+            font-size: 0.8rem;
+            display: none;
+            color: white;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+            max-width: 88%;
+            text-align: center;
+        }
+
+        /* API KEY MODAL */
+        #key-config-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.98);
+            z-index: 25000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        label.text-uppercase {
+            font-size: 0.65rem;
+            margin-bottom: 4px;
+            font-weight: 800;
+            color: #94a3b8;
+            display: block;
+            letter-spacing: 0.5px;
         }
     </style>
 </head>
-<body class="bg-slate-100 min-h-screen font-sans no-overscroll">
+<body>
 
-    <!-- PANTALLA DE BIENVENIDA (SPLASH SCREEN - 3 SEGUNDOS) -->
-    <div id="splash-screen" class="fixed inset-0 bg-slate-900 flex flex-col items-center justify-center z-[100] transition-opacity duration-500">
-        <div class="text-center space-y-4">
-            <span class="text-7xl animate-pulse">🪦</span>
-            <h1 class="text-3xl font-black tracking-tight text-white">Viyautepec Busca Tumbas</h1>
-            <p class="text-sm text-slate-400">Ver. 1.0 - Base de Datos Familiar</p>
-        </div>
+<div id="toast-msg" class="toast-msg"></div>
+
+<!-- SPLASH SCREEN -->
+<div id="splash-screen">
+    BUSCA TUMBAS
+</div>
+
+<!-- AUTH SCREEN -->
+<div id="auth-screen">
+    <div class="card-custom">
+        <h5 class="fw-bold mb-4">Bienvenido a Busca Tumbas</h5>
+        <input type="email" id="auth-email" class="form-control mb-2" placeholder="Correo electrónico">
+        <input type="password" id="auth-password" class="form-control mb-3" placeholder="Contraseña">
+        <button class="btn btn-primary w-100 py-2 rounded-pill fw-bold mb-2" onclick="handleAuth(true)">INICIAR SESIÓN</button>
+        <button class="btn btn-outline-secondary w-100 py-2 rounded-pill fw-bold" onclick="handleAuth(false)">REGISTRARSE</button>
+        <button class="btn btn-link text-danger mt-3" onclick="logout()" id="logout-btn" style="display:none;">Cerrar Sesión</button>
+    </div>
+</div>
+
+<!-- API KEY MODAL -->
+<div id="key-config-modal">
+    <div class="card-custom" style="max-width:350px; text-align:center;">
+        <h6 class="fw-bold mb-3">⚙ CONFIGURAR ESCÁNER</h6>
+        <p style="font-size:0.7rem;" class="text-muted mb-3">
+            Ingresa tu API Key de Google Gemini.<br>Se guarda solo en este dispositivo.<br><br>
+            Obtén la tuya gratis en<br>
+            <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--accent);">aistudio.google.com/app/apikey</a>
+        </p>
+        <input type="password" id="user-gemini-key" class="form-control mb-3" placeholder="AIzaSy...">
+        <button class="btn btn-primary w-100 rounded-pill fw-bold" onclick="saveGeminiKey()">GUARDAR KEY</button>
+    </div>
+</div>
+
+<!-- RESULT MODAL -->
+<div id="result-modal">
+    <div id="result-panel">
+        <p class="fw-bold mb-3" style="font-size:0.7rem; color:#94a3b8; letter-spacing:1px;">TEXTO EXTRAÍDO</p>
+        <textarea id="result-text" class="form-control mb-3" rows="6" readonly style="resize:none; font-family:'Courier New',monospace;"></textarea>
+        <button class="btn btn-success w-100 rounded-pill fw-bold mb-2" onclick="copyResultText()">
+            <i class="fas fa-copy me-2"></i>COPIAR TEXTO
+        </button>
+        <button class="btn btn-primary w-100 rounded-pill fw-bold mb-2" onclick="addToOutput()">
+            <i class="fas fa-plus me-2"></i>AGREGAR AL HISTORIAL
+        </button>
+        <button class="btn btn-outline-secondary w-100 rounded-pill" onclick="closeResult()" style="border:none;">
+            ✕ CERRAR
+        </button>
+    </div>
+</div>
+
+<!-- SCANNER MODAL -->
+<div id="ia-modal">
+    <video id="cam-preview-ia" autoplay playsinline muted></video>
+    <div class="scan-guide"></div>
+    <div id="cam-top-bar">
+        <button class="btn btn-sm rounded-pill" style="background:rgba(0,0,0,0.5); color:white; border:1px solid rgba(255,255,255,0.3);" onclick="closeScanner()">✕ SALIR</button>
+        <button class="btn btn-sm rounded-pill" style="background:rgba(0,0,0,0.5); color:#fbbf24; border:1px solid rgba(255,255,255,0.2); font-size:0.65rem;" onclick="changeGeminiKey()">⚙ API KEY</button>
+    </div>
+    <div id="snap-btn" onclick="captureIA()">
+        <i class="fas fa-camera fa-2x text-primary" id="snap-icon"></i>
+    </div>
+</div>
+
+<!-- MAIN INTERFACE -->
+<div class="container-main" id="main-app">
+    <div class="card-custom">
+        <h5 class="fw-bold mb-4 text-center" style="color:var(--primary);">
+            <i class="fas fa-image me-2" style="color:var(--accent);"></i>Escáner de Tumbas
+        </h5>
+        <button class="btn btn-primary w-100 py-3 rounded-pill fw-bold mb-3" onclick="openScannerModal()">
+            <i class="fas fa-camera me-2"></i>ABRIR CÁMARA
+        </button>
+        <input type="file" id="image-upload-input" accept="image/*" style="display:none;" onchange="handleImageUpload(event)">
+        <button class="btn btn-outline-secondary w-100 py-3 rounded-pill fw-bold" onclick="document.getElementById('image-upload-input').click()">
+            <i class="fas fa-upload me-2"></i>SUBIR ARCHIVO
+        </button>
     </div>
 
-    <div id="main-app" class="max-w-md mx-auto p-4 keyboard-aware-container hidden">
-        
-        <!-- HEADER -->
-        <header class="flex items-center justify-between mb-6 pt-safe">
-            <h1 class="text-xl font-black text-slate-800 flex items-center gap-2">
-                <span>🪦</span> Busca Tumbas
-            </h1>
-            <div id="user-info" class="hidden flex items-center gap-2">
-                <span id="display-username" class="text-xs font-semibold text-slate-600 bg-white px-2 py-1 rounded-full shadow-sm"></span>
-                <button id="btn-logout" class="text-[10px] font-bold bg-red-100 text-red-600 px-2 py-1 rounded-lg hover:bg-red-200 uppercase">Salir</button>
-            </div>
-        </header>
-
-        <!-- SECCIÓN DE AUTENTICACIÓN -->
-        <div id="auth-section" class="glass-morphism p-6 rounded-2xl shadow-xl space-y-4 my-auto">
-            <h2 id="auth-title" class="text-xl font-bold text-center text-slate-800">Iniciar Sesión</h2>
-            <div id="reg-fields" class="hidden space-y-4">
-                <label for="reg-name" class="sr-only">Tu nombre completo</label>
-                <input type="text" id="reg-name" placeholder="Tu nombre completo" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-slate-800 text-base">
-            </div>
-            <label for="auth-email" class="sr-only">Correo electrónico</label>
-            <input type="email" id="auth-email" placeholder="Correo electrónico" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-slate-800 text-base">
-            
-            <!-- Entrada de contraseña con visualizador integrado -->
-            <div class="relative">
-                <label for="auth-pass" class="sr-only">Contraseña</label>
-                <input type="password" id="auth-pass" placeholder="Contraseña" class="w-full p-3 pr-10 border rounded-xl outline-none focus:ring-2 focus:ring-slate-800 text-base">
-                <button type="button" id="toggle-password-visibility-btn" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-xs uppercase">Ver</button>
-            </div>
-
-            <button id="btn-auth-action" class="w-full bg-slate-800 text-white py-3 rounded-xl font-bold hover:bg-slate-700 transition">Entrar</button>
-            <p class="text-center text-sm text-slate-500">
-                <span id="auth-toggle-text">¿No tienes cuenta?</span>
-                <button id="btn-auth-toggle" class="text-blue-600 font-semibold">Regístrate</button>
-            </p>
+    <div class="card-custom">
+        <h6 class="fw-bold mb-3" style="color:var(--primary);">Historial de Escaneos</h6>
+        <div id="output-area" class="empty">
+            Aquí aparecerá el texto de tus escaneos...
         </div>
-
-        <!-- SECCIÓN DE APLICACIÓN -->
-        <div id="app-content" class="hidden space-y-6 flex-1 flex flex-col">
-            <div class="flex bg-white rounded-xl shadow-sm p-1">
-                <button data-tab="upload" id="tab-upload" class="flex-1 py-2 text-sm font-bold rounded-lg bg-slate-800 text-white transition">Registrar</button>
-                <button data-tab="search" id="tab-search" class="flex-1 py-2 text-sm font-bold rounded-lg text-slate-500 transition">Buscar</button>
-            </div>
-            
-            <!-- Botón para cambiar API Key de Gemini -->
-            <button id="btn-change-gemini-api-key" class="mt-4 w-full bg-slate-100 text-slate-600 py-2 rounded-xl text-xs font-semibold hover:bg-slate-200">Cambiar API Key de Gemini</button>
-
-            <!-- VISTA: REGISTRO -->
-            <div id="view-upload" class="space-y-4 flex-1">
-                <div class="bg-white p-5 rounded-2xl shadow-sm space-y-4 border border-slate-200">
-                    <h3 class="font-bold text-slate-700 border-b pb-2">Nueva Entrada</h3>
-                    
-                    <div id="image-input-options-wrapper" class="relative border-2 border-dashed border-slate-300 rounded-xl p-4 text-center">
-                        <div id="preview-container" class="hidden mb-2">
-                            <img id="img-preview" class="w-full h-auto max-h-64 object-contain rounded-lg shadow-sm">
-                        </div>
-                        <div id="upload-placeholder" class="space-y-2">
-                            <p class="text-xs text-slate-500 text-balance">Elige cómo deseas introducir la imagen de la lápida o esquela para extraer datos:</p>
-                            <div class="flex justify-center gap-4 mt-2">
-                                <button id="btn-take-photo" class="flex flex-col items-center gap-1 p-3 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition">
-                                    <span class="text-xl">📸</span>
-                                    <span class="text-xs font-semibold">Tomar Foto</span>
-                                </button>
-                                <button id="btn-upload-image" class="flex flex-col items-center gap-1 p-3 bg-green-50 text-green-700 rounded-lg hover:bg-green-100 transition">
-                                    <span class="text-xl">📁</span>
-                                    <span class="text-xs font-semibold">Subir Imagen</span>
-                                </button>
-                            </div>
-                        </div>
-                        <!-- Inputs de archivo ocultos, activados por los botones -->
-                        <input type="file" id="file-input-camera" accept="image/*" capture="environment" class="hidden">
-                        <input type="file" id="file-input-gallery" accept="image/*" class="hidden">
-                    </div>
-
-                    <!-- Mensaje de estado de la IA -->
-                    <div id="ocr-loader" class="hidden flex items-center justify-center gap-2 p-3 bg-blue-50 text-blue-700 rounded-xl text-xs font-semibold">
-                        <div class="loader rounded-full border-2 border-t-2 border-blue-700 h-4 w-4"></div>
-                        <span>Procesando inscripción con Inteligencia Artificial (Gemini)...</span>
-                    </div>
-
-                    <div class="grid grid-cols-1 gap-3">
-                        <label for="dead-name" class="sr-only">Nombre del finado</label>
-                        <input type="text" id="dead-name" placeholder="Nombre del finado (IA)" class="p-3 border rounded-lg outline-none focus:ring-2 focus:ring-slate-400 text-base">
-                        <div class="flex gap-2">
-                            <label for="dead-birth" class="sr-only">Año de nacimiento</label>
-                            <input type="text" id="dead-birth" placeholder="Año Nac." class="w-1/2 p-3 border rounded-lg outline-none focus:ring-2 focus:ring-slate-400 text-base">
-                            <label for="dead-death" class="sr-only">Año de defunción</label>
-                            <input type="text" id="dead-death" placeholder="Año Def." class="w-1/2 p-3 border rounded-lg outline-none focus:ring-2 focus:ring-slate-400 text-base">
-                        </div>
-                        <label for="cemetery-name" class="sr-only">Nombre del Panteón</label>
-                        <input type="text" id="cemetery-name" placeholder="Nombre del Panteón" class="p-3 border rounded-lg outline-none focus:ring-2 focus:ring-slate-400 text-base">
-                        <label for="location-muni" class="sr-only">Municipio, Estado</label>
-                        <input type="text" id="location-muni" placeholder="Municipio, Estado" class="p-3 border rounded-lg outline-none focus:ring-2 focus:ring-slate-400 text-base">
-                    </div>
-                    
-                    <button id="btn-save" class="w-full bg-emerald-600 text-white py-3 rounded-xl font-bold shadow-lg hover:bg-emerald-700 flex justify-center items-center gap-2">
-                        <span id="save-text">Guardar Registro</span>
-                        <div id="save-loader" class="hidden loader rounded-full border-2 border-t-2 border-white h-5 w-5"></div>
-                    </button>
-                </div>
-            </div>
-
-            <!-- VISTA: BÚSQUEDA -->
-            <div id="view-search" class="hidden space-y-4 pb-20 flex-1">
-                <div class="bg-white p-4 rounded-xl shadow-sm flex items-center gap-2 border border-slate-200">
-                    <span class="text-slate-400">🔍</span>
-                    <label for="search-input" class="sr-only">Buscar registros</label>
-                    <input type="text" id="search-input" placeholder="Buscar por nombre, panteón o municipio..." class="w-full outline-none text-base">
-                </div>
-                <div id="results-list" class="space-y-4"></div>
-            </div>
-        </div>
-
-        <!-- MODAL: COINCIDENCIA AUTOMÁTICA -->
-        <div id="modal-match" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-            <div class="bg-white rounded-2xl w-full max-w-sm p-6 space-y-4">
-                <h3 class="text-xl font-bold text-slate-800">¡Ya existe este registro!</h3>
-                <p class="text-sm text-slate-600 text-balance">Detectamos que esta persona ya fue registrada en este municipio. Puedes revisar los datos o forzar un nuevo registro.</p>
-                <div id="match-data-preview" class="border p-3 rounded-lg bg-slate-50 text-xs text-slate-700"></div>
-                <div class="flex gap-2">
-                    <button id="btn-match-correct" class="flex-1 py-2 bg-slate-200 rounded-lg text-sm font-semibold">Corregir datos</button>
-                    <button id="btn-match-save-new" class="flex-1 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold">Guardar nuevo</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- VISTA: CHAT (OVERLAY) -->
-        <div id="chat-window" class="hidden fixed inset-0 bg-white z-[60] flex flex-col">
-            <header class="bg-slate-800 text-white p-4 flex justify-between items-center shadow-lg pt-safe">
-                <div class="flex items-center gap-3">
-                    <button id="btn-close-chat" class="text-2xl">←</button>
-                    <h3 id="chat-with-name" class="font-bold text-sm">Chat de Colaboración</h3>
-                </div>
-            </header>
-            <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-3 bg-slate-50"></div>
-            <div class="p-4 border-t flex gap-2 bg-white pb-safe">
-                <label for="chat-input" class="sr-only">Escribe un mensaje</label>
-                <input type="text" id="chat-input" placeholder="Escribe un mensaje..." class="flex-1 p-3 bg-slate-100 rounded-full outline-none border focus:border-slate-300 text-base">
-                <button id="btn-send-chat-message" class="bg-slate-800 text-white p-3 rounded-full w-12 h-12 flex items-center justify-center shadow-md">➤</button>
-            </div>
-        </div>
-
-        <!-- VISTA: EDICIÓN MANUAL -->
-        <div id="edit-window" class="hidden fixed inset-0 bg-white z-[60] flex flex-col p-6 overflow-y-auto pt-safe">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-xl font-bold text-slate-800">Corregir Registro</h3>
-                <button id="btn-close-edit" class="text-slate-400 text-2xl">✕</button>
-            </div>
-            <div class="space-y-4">
-                <label for="edit-name" class="block text-xs font-bold text-slate-500 uppercase">Nombre del Finado</label>
-                <input type="text" id="edit-name" class="w-full p-3 border rounded-xl text-base">
-                
-                <label for="edit-cemetery" class="block text-xs font-bold text-slate-500 uppercase">Panteón</label>
-                <input type="text" id="edit-cemetery" class="w-full p-3 border rounded-xl text-base">
-
-                <label for="edit-muni" class="block text-xs font-bold text-slate-500 uppercase">Municipio</label>
-                <input type="text" id="edit-muni" class="w-full p-3 border rounded-xl text-base">
-
-                <div class="bg-slate-50 p-3 rounded-xl border">
-                    <h4 class="text-xs font-bold text-slate-400 mb-2 uppercase">Historial de correcciones</h4>
-                    <div id="edit-history" class="text-[10px] space-y-1 max-h-32 overflow-y-auto"></div>
-                </div>
-
-                <button id="btn-update-record" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold shadow-lg">Guardar Cambios</button>
-            </div>
-        </div>
-
-        <!-- MODAL: API KEY GEMINI -->
-        <div id="gemini-api-key-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-            <div class="bg-white rounded-2xl w-full max-w-sm p-6 space-y-4">
-                <h3 class="text-xl font-bold text-slate-800">API Key de Gemini</h3>
-                <p class="text-sm text-slate-600 text-balance">Para usar la inteligencia artificial en el escáner, introduce tu API Key de Google Gemini.</p>
-                <p class="text-xs text-slate-500">Puedes obtenerla en <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-blue-600 underline">Google AI Studio</a>.</p>
-                <input type="text" id="gemini-api-key-input" placeholder="Tu API Key de Gemini..." class="w-full p-3 border rounded-xl text-base">
-                <button id="btn-save-gemini-api-key" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold shadow-lg hover:bg-blue-700">Guardar API Key</button>
-                <button id="btn-cancel-gemini-api-key" class="w-full bg-slate-200 text-slate-700 py-3 rounded-xl font-semibold mt-2">Cancelar</button>
-            </div>
-        </div>
-
-        <!-- TOAST NOTIFICATION -->
-        <div id="toast" class="fixed bottom-10 left-1/2 transform -translate-x-1/2 bg-slate-800 text-white px-6 py-3 rounded-full text-sm shadow-2xl transition-opacity duration-300 opacity-0 pointer-events-none z-[100]"></div>
+        <button class="btn btn-outline-secondary w-100 rounded-pill mt-3" onclick="clearOutput()">
+            <i class="fas fa-trash me-2"></i>LIMPIAR HISTORIAL
+        </button>
     </div>
+</div>
 
-    <!-- FIREBASE MODULES -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, getDocs, query, where, orderBy, serverTimestamp, doc, updateDoc, onSnapshot, arrayUnion, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
-        
-        // Importar Google Generative AI SDK
-        import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
 
-        // TUS CREDENCIALES CONFIGURADAS Y CONSOLIDADAS
-        const firebaseConfig = {
-            apiKey: "AIzaSyDVjbcOjDr8o3yiNqbwPW3W6WhIsplGUUk", // Tu API Key de Firebase
-            authDomain: "buscatumbas-2e7cc.firebaseapp.com",
-            projectId: "buscatumbas-2e7cc",
-            storageBucket: "buscatumbas-2e7cc.firebasestorage.app",
-            messagingSenderId: "920637749030",
-            appId: "1:920637749030:web:21568d7680f12946fdf3e7",
-            // La geminiApiKey ya NO se configura aquí, sino que se solicita al usuario.
-        };
+<script>
+/* ══════════════════════════════════════════════════════════════════
+   CONFIGURACIÓN FIREBASE
+══════════════════════════════════════════════════════════════════ */
+const firebaseConfig = {
+    apiKey: "AIzaSyDVjbcOjDr8o3yiNqbwPW3W6WhIsplGUUk",
+    authDomain: "buscatumbas-2e7cc.firebaseapp.com",
+    projectId: "buscatumbas-2e7cc",
+    storageBucket: "buscatumbas-2e7cc.firebasestorage.app",
+    messagingSenderId: "920637749030",
+    appId: "1:920637749030:web:21568d7680f12946fdf3e7"
+};
 
-        const app = initializeApp(firebaseConfig);
+// Inicializar Firebase
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
 
-        // Variables para Gemini API Key y modelo, inicializadas cuando la clave esté disponible
-        let geminiAPIKey = ''; 
-        let geminiModel = null;
+/* ══════════════════════════════════════════════════════════════════
+   ESTADO GLOBAL
+══════════════════════════════════════════════════════════════════ */
+let scannerStream = null;
+let pendingScannedText = '';
+let pendingCanvas = null;
+let outputArray = [];
+let currentGeolocation = null; // Para guardar la ubicación actual
 
-        // --- Constants y Elementos DOM ---
-        const DOM = {
-            splashScreen: document.getElementById('splash-screen'),
-            mainApp: document.getElementById('main-app'),
-            userInfo: document.getElementById('user-info'),
-            displayUsername: document.getElementById('display-username'),
-            logoutBtn: document.getElementById('btn-logout'),
+/* ══════════════════════════════════════════════════════════════════
+   TOAST
+══════════════════════════════════════════════════════════════════ */
+const showToast = (msg, color = '#10b981') => {
+    const el = document.getElementById('toast-msg');
+    el.textContent = msg;
+    el.style.background = color;
+    el.style.display = 'block';
+    clearTimeout(el._t);
+    el._t = setTimeout(() => el.style.display = 'none', 3000);
+};
 
-            authSection: document.getElementById('auth-section'),
-            authTitle: document.getElementById('auth-title'),
-            regFields: document.getElementById('reg-fields'),
-            regNameInput: document.getElementById('reg-name'),
-            authEmailInput: document.getElementById('auth-email'),
-            authPassInput: document.getElementById('auth-pass'),
-            togglePasswordVisibilityBtn: document.getElementById('toggle-password-visibility-btn'),
-            authActionBtn: document.getElementById('btn-auth-action'),
-            authToggleText: document.getElementById('auth-toggle-text'),
-            authToggleBtn: document.getElementById('btn-auth-toggle'),
-
-            appContent: document.getElementById('app-content'),
-            tabUploadBtn: document.getElementById('tab-upload'),
-            tabSearchBtn: document.getElementById('tab-search'),
-            viewUpload: document.getElementById('view-upload'),
-            viewSearch: document.getElementById('view-search'),
-
-            // Elementos para la selección y previsualización de imagen
-            imageInputOptionsWrapper: document.getElementById('image-input-options-wrapper'),
-            btnTakePhoto: document.getElementById('btn-take-photo'),
-            btnUploadImage: document.getElementById('btn-upload-image'),
-            fileInputCamera: document.getElementById('file-input-camera'), // Nuevo input para cámara
-            fileInputGallery: document.getElementById('file-input-gallery'), // Nuevo input para galería
-            previewContainer: document.getElementById('preview-container'),
-            imgPreview: document.getElementById('img-preview'),
-            uploadPlaceholder: document.getElementById('upload-placeholder'),
-            ocrLoader: document.getElementById('ocr-loader'),
-
-            deadNameInput: document.getElementById('dead-name'),
-            deadBirthInput: document.getElementById('dead-birth'),
-            deadDeathInput: document.getElementById('dead-death'),
-            cemeteryNameInput: document.getElementById('cemetery-name'),
-            locationMuniInput: document.getElementById('location-muni'),
-            saveBtn: document.getElementById('btn-save'),
-            saveText: document.getElementById('save-text'),
-            saveLoader: document.getElementById('save-loader'),
-
-            searchInput: document.getElementById('search-input'),
-            resultsList: document.getElementById('results-list'),
-
-            modalMatch: document.getElementById('modal-match'),
-            matchDataPreview: document.getElementById('match-data-preview'),
-            btnMatchCorrect: document.getElementById('btn-match-correct'),
-            btnMatchSaveNew: document.getElementById('btn-match-save-new'),
-
-            chatWindow: document.getElementById('chat-window'),
-            chatWithName: document.getElementById('chat-with-name'),
-            chatMessages: document.getElementById('chat-messages'),
-            chatInput: document.getElementById('chat-input'),
-            chatSendBtn: document.getElementById('btn-send-chat-message'),
-            chatCloseBtn: document.getElementById('btn-close-chat'),
-
-            editWindow: document.getElementById('edit-window'),
-            editNameInput: document.getElementById('edit-name'),
-            editCemeteryInput: document.getElementById('edit-cemetery'),
-            editMuniInput: document.getElementById('edit-muni'),
-            editHistory: document.getElementById('edit-history'),
-            updateRecordBtn: document.getElementById('btn-update-record'),
-            editCloseBtn: document.getElementById('btn-close-edit'),
-
-            // Elementos para la API Key de Gemini
-            geminiApiKeyModal: document.getElementById('gemini-api-key-modal'),
-            geminiApiKeyInput: document.getElementById('gemini-api-key-input'),
-            btnSaveGeminiApiKey: document.getElementById('btn-save-gemini-api-key'),
-            btnCancelGeminiApiKey: document.getElementById('btn-cancel-gemini-api-key'),
-            btnChangeGeminiApiKey: document.getElementById('btn-change-gemini-api-key'),
-
-            toast: document.getElementById('toast'),
-        };
-
-        const COLLECTION_NAMES = {
-            TUMBAS: 'registros_tumbas',
-            CHATS: 'chats',
-            MESSAGES: 'mensajes',
-        };
-
-        const MESSAGES = {
-            PASSWORD_SHORT: "La contraseña debe tener al menos 6 caracteres.",
-            OCR_FAILED: "No se pudo leer la inscripción automáticamente. Ingrese los datos manualmente.",
-            OCR_SUCCESS: "Inscripción leída. Verifique los datos completados.",
-            MISSING_FIELDS: "Falta foto, nombre o municipio.",
-            RECORD_SAVED: "Registro guardado correctamente.",
-            OWN_RECORD_CHAT: "Es tu propio registro, no puedes chatear contigo mismo.",
-            CHANGES_SAVED: "Cambios guardados.",
-            NO_PREVIOUS_EDITS: "Sin ediciones previas.",
-            RECORD_NOT_FOUND: "Registro no encontrado.",
-            GEMINI_API_KEY_MISSING: "API Key de Gemini no configurada. Por favor, introdúcela.",
-            GEMINI_API_KEY_SAVED: "API Key de Gemini guardada correctamente.",
-            GEMINI_API_KEY_INVALID: "API Key de Gemini inválida o no activa.",
-        };
-
-        // --- Estado Global de la Aplicación ---
-        let isRegistering = false;
-        let currentFile = null;
-        let activeChatId = null;
-        let chatUnsubscribe = null;
-        let currentEditRecordId = null;
-        let audioContext = null;
-
-        // --- Funciones para manejar la API Key de Gemini ---
-        function getGeminiApiKey() {
-            return localStorage.getItem('geminiApiKey');
+/* ══════════════════════════════════════════════════════════════════
+   GEOLOCALIZACIÓN
+══════════════════════════════════════════════════════════════════ */
+function getGeolocation() {
+    return new Promise((resolve) => {
+        if ("geolocation" in navigator) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    resolve({
+                        latitude: position.coords.latitude,
+                        longitude: position.coords.longitude
+                    });
+                },
+                (error) => {
+                    console.error("Error getting geolocation:", error);
+                    showToast('❌ Error de geolocalización', '#f59e0b');
+                    resolve(null);
+                },
+                { enableHighAccuracy: false, timeout: 5000, maximumAge: 0 }
+            );
+        } else {
+            showToast('❌ Geolocalización no soportada', '#f59e0b');
+            resolve(null);
         }
+    });
+}
 
-        function setGeminiApiKey(key) {
-            localStorage.setItem('geminiApiKey', key);
-            geminiAPIKey = key;
-            if (key) {
-                try {
-                    console.log("Intentando inicializar Gemini con la API Key...");
-                    const genAI = new GoogleGenerativeAI(key);
-                    geminiModel = genAI.getGenerativeModel({ model: "gemini-pro-vision" });
-                    uiController.showToast(MESSAGES.GEMINI_API_KEY_SAVED);
-                    hideGeminiApiKeyModal();
-                    console.log("Gemini Model inicializado correctamente.");
-                } catch (e) {
-                    console.error("Error al inicializar Gemini con la API Key:", e);
-                    uiController.showToast(MESSAGES.GEMINI_API_KEY_INVALID);
-                    geminiModel = null;
-                    // Mantener el modal abierto o volver a mostrarlo si la inicialización falló
-                    showGeminiApiKeyModal(); 
+
+/* ══════════════════════════════════════════════════════════════════
+   API KEY MANAGEMENT
+══════════════════════════════════════════════════════════════════ */
+function saveGeminiKey() {
+    const val = document.getElementById('user-gemini-key').value.trim();
+    if (val && val.length > 10) {
+        localStorage.setItem('yaute_key_v3310', val);
+        document.getElementById('key-config-modal').style.display = 'none';
+        showToast('✅ Key guardada correctamente');
+    } else {
+        showToast('⚠ Key inválida', '#ef4444');
+    }
+}
+
+function changeGeminiKey() {
+    document.getElementById('user-gemini-key').value = localStorage.getItem('yaute_key_v3310') || '';
+    document.getElementById('key-config-modal').style.display = 'flex';
+}
+
+function checkApiKey() {
+    if (!localStorage.getItem('yaute_key_v3310')) {
+        document.getElementById('key-config-modal').style.display = 'flex';
+        return false;
+    }
+    return true;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   SCANNER CAMERA
+══════════════════════════════════════════════════════════════════ */
+async function openScannerModal() {
+    if (!checkApiKey()) return;
+    document.getElementById('ia-modal').style.display = 'flex';
+    try {
+        scannerStream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: 'environment', width: { ideal: 1920 }, height: { ideal: 1080 } }
+        });
+        document.getElementById('cam-preview-ia').srcObject = scannerStream;
+        currentGeolocation = await getGeolocation(); // Obtener ubicación al abrir la cámara
+    } catch(e) {
+        showToast('❌ Error de cámara: ' + e.message, '#ef4444');
+        closeScanner();
+    }
+}
+
+function closeScanner() {
+    if (scannerStream) scannerStream.getTracks().forEach(t => t.stop());
+    scannerStream = null;
+    document.getElementById('ia-modal').style.display = 'none';
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   CAPTURE AND ORIENTATION CORRECTION
+══════════════════════════════════════════════════════════════════ */
+function captureOrientado(video) {
+    const vw = video.videoWidth;
+    const vh = video.videoHeight;
+    const c = document.createElement('canvas');
+    const ctx = c.getContext('2d');
+
+    if (vh >= vw) {
+        // Ya es portrait
+        c.width = vw;
+        c.height = vh;
+        ctx.drawImage(video, 0, 0);
+    } else {
+        // Landscape → rotar 90° a portrait
+        c.width = vh;
+        c.height = vw;
+        ctx.translate(c.width / 2, c.height / 2);
+        ctx.rotate(Math.PI / 2);
+        ctx.drawImage(video, -vw / 2, -vh / 2, vw, vh);
+    }
+    return c;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   IMAGE UPLOAD
+══════════════════════════════════════════════════════════════════ */
+async function handleImageUpload(event) {
+    if (!checkApiKey()) return;
+
+    const file = event.target.files[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+        showToast('⚠ Por favor, sube un archivo de imagen.', '#f59e0b');
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+        const img = new Image();
+        img.onload = async () => {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+
+            // Resize image if too large to avoid memory issues and API limits
+            const MAX_DIM = 1920;
+            let width = img.width;
+            let height = img.height;
+
+            if (width > height) {
+                if (width > MAX_DIM) {
+                    height *= MAX_DIM / width;
+                    width = MAX_DIM;
                 }
             } else {
-                geminiModel = null;
-                console.log("Gemini API Key eliminada o vacía. Modelo Gemini desinicializado.");
+                if (height > MAX_DIM) {
+                    width *= MAX_DIM / height;
+                    height = MAX_DIM;
+                }
             }
-        }
-
-        function showGeminiApiKeyModal() {
-            DOM.geminiApiKeyModal.classList.remove('hidden');
-            DOM.geminiApiKeyInput.value = getGeminiApiKey() || '';
-            console.log("Mostrando modal de API Key de Gemini.");
-        }
-
-        function hideGeminiApiKeyModal() {
-            DOM.geminiApiKeyModal.classList.add('hidden');
-            console.log("Ocultando modal de API Key de Gemini.");
-        }
-
-        // --- Servicio de Firebase ---
-        const firebaseService = {
-            auth: getAuth(app),
-            db: getFirestore(app),
-            storage: getStorage(app),
-
-            async registerUser(email, password, displayName) {
-                const res = await createUserWithEmailAndPassword(this.auth, email, password);
-                await updateProfile(res.user, { displayName });
-                return res.user;
-            },
-
-            async loginUser(email, password) {
-                const res = await signInWithEmailAndPassword(this.auth, email, password);
-                return res.user;
-            },
-
-            logoutUser() {
-                return signOut(this.auth);
-            },
-
-            onAuthStateChange(callback) {
-                onAuthStateChanged(this.auth, callback);
-            },
-
-            async uploadImage(file) {
-                const storageRef = ref(this.storage, `tumbas/${Date.now()}_${file.name}`);
-                await uploadBytes(storageRef, file);
-                return getDownloadURL(storageRef);
-            },
-
-            async addTumbaRecord(data) {
-                return addDoc(collection(this.db, COLLECTION_NAMES.TUMBAS), data);
-            },
-
-            async searchTumbaRecords() {
-                return getDocs(query(collection(this.db, COLLECTION_NAMES.TUMBAS), orderBy("timestamp", "desc")));
-            },
-
-            async checkIfRecordExists(name, municipio) {
-                const q = query(collection(this.db, COLLECTION_NAMES.TUMBAS), where("nombre", "==", name), where("municipio", "==", municipio));
-                return getDocs(q);
-            },
-
-            subscribeToChat(chatId, callback) {
-                const q = query(collection(this.db, COLLECTION_NAMES.CHATS, chatId, COLLECTION_NAMES.MESSAGES), orderBy("fecha", "asc"));
-                return onSnapshot(q, callback);
-            },
-
-            async sendChatMessage(chatId, senderUid, messageText) {
-                return addDoc(collection(this.db, COLLECTION_NAMES.CHATS, chatId, COLLECTION_NAMES.MESSAGES), {
-                    de: senderUid,
-                    texto: messageText,
-                    fecha: serverTimestamp()
-                });
-            },
+            canvas.width = width;
+            canvas.height = height;
+            ctx.drawImage(img, 0, 0, width, height);
             
-            async getSingleRecordById(id) {
-                const docRef = doc(this.db, COLLECTION_NAMES.TUMBAS, id);
-                const docSnap = await getDoc(docRef);
-                return docSnap.exists() ? { id: docSnap.id, ...docSnap.data() } : null;
-            },
-
-            async updateRecord(id, data, historyEntry) {
-                const docRef = doc(this.db, COLLECTION_NAMES.TUMBAS, id);
-                return updateDoc(docRef, {
-                    ...data,
-                    historial: arrayUnion(historyEntry)
-                });
-            }
+            pendingCanvas = canvas;
+            currentGeolocation = await getGeolocation(); // Obtener ubicación al subir archivo
+            const b64 = canvas.toDataURL('image/jpeg', 0.88).split(',')[1];
+            await processImageWithGemini(b64, null); // Pass null for snapIcon as it's not a camera capture
         };
+        img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+}
 
-        // --- Controlador de Interfaz de Usuario (UI) ---
-        const uiController = {
-            showToast(message) {
-                DOM.toast.innerText = message;
-                DOM.toast.style.opacity = "1";
-                setTimeout(() => DOM.toast.style.opacity = "0", 3000);
-            },
 
-            setLoadingState(isLoading) {
-                DOM.saveBtn.disabled = isLoading;
-                DOM.saveLoader.classList.toggle('hidden', !isLoading);
-                DOM.saveText.innerText = isLoading ? "Subiendo..." : "Guardar Registro";
-            },
+/* ══════════════════════════════════════════════════════════════════
+   CAPTURE + GEMINI OCR
+══════════════════════════════════════════════════════════════════ */
+async function captureIA() {
+    const video = document.getElementById('cam-preview-ia');
+    if (!video.srcObject || video.videoWidth === 0) {
+        showToast('⚠ Cámara no lista', '#f59e0b');
+        return;
+    }
 
-            resetUploadForm() {
-                DOM.deadNameInput.value = "";
-                DOM.deadBirthInput.value = "";
-                DOM.deadDeathInput.value = "";
-                DOM.cemeteryNameInput.value = "";
-                DOM.locationMuniInput.value = "";
-                DOM.previewContainer.classList.add('hidden');
-                DOM.uploadPlaceholder.classList.remove('hidden'); // Mostrar los botones de nuevo
-                currentFile = null;
-                DOM.fileInputCamera.value = ''; // Limpiar el input de cámara
-                DOM.fileInputGallery.value = ''; // Limpiar el input de galería
-            },
+    pendingCanvas = captureOrientado(video);
+    const b64 = pendingCanvas.toDataURL('image/jpeg', 0.88).split(',')[1];
 
-            togglePasswordVisibility(inputElement) {
-                inputElement.type = inputElement.type === 'password' ? 'text' : 'password';
-                DOM.togglePasswordVisibilityBtn.innerText = inputElement.type === 'password' ? 'Ver' : 'Ocultar';
-            },
+    const snapIcon = document.getElementById('snap-icon');
+    await processImageWithGemini(b64, snapIcon);
+    closeScanner(); // Close scanner only after processing
+}
 
-            switchView(viewId) {
-                DOM.viewUpload.classList.toggle('hidden', viewId !== 'upload');
-                DOM.viewSearch.classList.toggle('hidden', viewId !== 'search');
+async function processImageWithGemini(base64Image, snapIconElement) {
+    const key = localStorage.getItem('yaute_key_v3310');
+    if (!key) {
+        changeGeminiKey();
+        return;
+    }
 
-                DOM.tabUploadBtn.classList.toggle('bg-slate-800', viewId === 'upload');
-                DOM.tabUploadBtn.classList.toggle('text-white', viewId === 'upload');
-                DOM.tabUploadBtn.classList.toggle('text-slate-500', viewId !== 'upload');
+    if (snapIconElement) {
+        snapIconElement.className = 'fas fa-spinner fa-spin fa-2x text-primary';
+        document.getElementById('snap-btn').style.pointerEvents = 'none';
+    } else {
+        showToast('Cargando y escaneando imagen...', 'rgba(59,130,246,0.9)');
+    }
 
-                DOM.tabSearchBtn.classList.toggle('bg-slate-800', viewId === 'search');
-                DOM.tabSearchBtn.classList.toggle('text-white', viewId === 'search');
-                DOM.tabSearchBtn.classList.toggle('text-slate-500', viewId !== 'search');
-            },
 
-            showModal(modalElement) { modalElement.classList.remove('hidden'); },
-            hideModal(modalElement) { modalElement.classList.add('hidden'); },
-            
-            updateAuthUI(user) {
-                console.log("Updating Auth UI for user:", user ? user.displayName || user.email : "none");
-                DOM.authSection.classList.toggle('hidden', !!user);
-                DOM.appContent.classList.toggle('hidden', !user);
-                DOM.userInfo.classList.toggle('hidden', !user);
-                if (user) {
-                    DOM.displayUsername.innerText = user.displayName || user.email;
-                    uiController.switchView('search');
-                    appController.searchRecords();
-                } else {
-                    // Resetear formulario de autenticación al cerrar sesión
-                    DOM.authEmailInput.value = '';
-                    DOM.authPassInput.value = '';
-                    DOM.regNameInput.value = '';
-                    isRegistering = false;
-                    uiController.toggleAuthModeDisplay(); // Asegurar que el modo de auth sea "Iniciar Sesión"
-                }
-            },
-            toggleAuthModeDisplay() {
-                DOM.authTitle.innerText = isRegistering ? 'Regístrate' : 'Iniciar Sesión';
-                DOM.regFields.classList.toggle('hidden', !isRegistering);
-                DOM.authToggleText.innerText = isRegistering ? '¿Ya tienes cuenta?' : '¿No tienes cuenta?';
-                DOM.authToggleBtn.innerText = isRegistering ? 'Inicia Sesión' : 'Regístrate';
-                DOM.authActionBtn.innerText = isRegistering ? 'Registrarse' : 'Entrar';
+    try {
+        const promptText = `
+            Extrae la siguiente información de la imagen de una lápida o documento fúnebre.
+            Si un dato no está presente o no es claro, usa null.
+            Formato de salida JSON:
+            {
+                "nombre_finado": "string | null",
+                "fecha_nacimiento": "YYYY-MM-DD | null",
+                "fecha_defuncion": "YYYY-MM-DD | null",
+                "nombre_panteon": "string | null"
             }
-        };
+            Si no puedes extraer nada de lo anterior, devuelve el texto crudo extraído de la imagen como una cadena de texto sin formato JSON.
+        `;
 
-        // --- Funciones de Audio ---
-        function initAudio() {
-            if (!audioContext) {
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const res = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro-vision:generateContent?key=${key}`, // Using gemini-pro-vision for better image understanding
+            {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [{
+                        parts: [
+                            { inline_data: { mime_type: 'image/jpeg', data: base64Image } },
+                            { text: promptText }
+                        ]
+                    }],
+                    generationConfig: { temperature: 0.3, maxOutputTokens: 1000 }
+                })
             }
+        );
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error?.message || `HTTP ${res.status}`);
+
+        let extractedText = data.candidates[0].content.parts[0].text.trim();
+        pendingScannedText = extractedText;
+        
+        showResultModal();
+
+    } catch(e) {
+        showToast('❌ Error IA: ' + e.message, '#ef4444');
+    } finally {
+        if (snapIconElement) {
+            snapIconElement.className = 'fas fa-camera fa-2x text-primary';
+            document.getElementById('snap-btn').style.pointerEvents = 'auto';
+        }
+        document.getElementById('image-upload-input').value = ''; // Clear file input
+    }
+}
+
+
+/* ══════════════════════════════════════════════════════════════════
+   RESULT MODAL
+══════════════════════════════════════════════════════════════════ */
+function showResultModal() {
+    document.getElementById('result-text').value = pendingScannedText;
+    document.getElementById('result-modal').style.display = 'flex';
+}
+
+function closeResult() {
+    document.getElementById('result-modal').style.display = 'none';
+    pendingScannedText = '';
+    pendingCanvas = null;
+    currentGeolocation = null;
+}
+
+function copyResultText() {
+    const text = document.getElementById('result-text').value;
+    navigator.clipboard.writeText(text).then(() => {
+        showToast('✅ Texto copiado');
+    }).catch(() => {
+        showToast('⚠ No se pudo copiar', '#f59e0b');
+    });
+}
+
+function addToOutput() {
+    const text = document.getElementById('result-text').value;
+    if (!text.trim()) {
+        showToast('⚠ Texto vacío', '#f59e0b');
+        return;
+    }
+
+    let parsedData = {
+        nombre_finado: null,
+        fecha_nacimiento: null,
+        fecha_defuncion: null,
+        nombre_panteon: null,
+        raw_text: text
+    };
+
+    try {
+        const jsonMatch = text.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+            const data = JSON.parse(jsonMatch[0]);
+            parsedData.nombre_finado = data.nombre_finado || null;
+            parsedData.fecha_nacimiento = data.fecha_nacimiento || null;
+            parsedData.fecha_defuncion = data.fecha_defuncion || null;
+            parsedData.nombre_panteon = data.nombre_panteon || null;
+        }
+    } catch (e) {
+        console.warn("Could not parse JSON from Gemini output, using raw text.", e);
+    }
+
+    outputArray.push({
+        timestamp: new Date().toLocaleString(),
+        geolocation: currentGeolocation,
+        data: parsedData
+    });
+
+    updateOutput();
+    showToast('✅ Agregado al historial');
+    closeResult();
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   OUTPUT MANAGEMENT
+══════════════════════════════════════════════════════════════════ */
+function updateOutput() {
+    const outputArea = document.getElementById('output-area');
+    
+    if (outputArray.length === 0) {
+        outputArea.innerHTML = '';
+        outputArea.className = 'empty';
+        outputArea.textContent = 'Aquí aparecerá el texto de tus escaneos...';
+        return;
+    }
+
+    outputArea.className = '';
+    outputArea.innerHTML = outputArray.map((item, idx) => {
+        const data = item.data;
+        let content = '';
+
+        if (data.nombre_finado || data.fecha_nacimiento || data.fecha_defuncion || data.nombre_panteon) {
+            content += `<strong>Finado:</strong> ${data.nombre_finado || 'N/A'}<br>`;
+            content += `<strong>Nacimiento:</strong> ${data.fecha_nacimiento || 'N/A'}<br>`;
+            content += `<strong>Defunción:</strong> ${data.fecha_defuncion || 'N/A'}<br>`;
+            content += `<strong>Panteón:</strong> ${data.nombre_panteon || 'N/A'}<br>`;
+        } else {
+            content += `<strong>Texto Completo:</strong><br>${data.raw_text.replace(/</g, '&lt;').replace(/>/g, '&gt;')}<br>`;
         }
 
-        function playSuccessBeep() {
-            try {
-                initAudio();
-                const osc = audioContext.createOscillator();
-                const gain = audioContext.createGain();
-                osc.connect(gain);
-                gain.connect(audioContext.destination);
-                
-                osc.type = "sine";
-                osc.frequency.setValueAtTime(880, audioContext.currentTime);
-                gain.gain.setValueAtTime(0.3, audioContext.currentTime);
-                
-                osc.start();
-                gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
-                osc.stop(audioContext.currentTime + 0.15);
-            } catch (e) {
-                console.log("Audio no habilitado todavía o error al reproducir:", e);
-            }
+        if (item.geolocation) {
+            content += `<strong>Ubicación:</strong> Lat: ${item.geolocation.latitude.toFixed(4)}, Long: ${item.geolocation.longitude.toFixed(4)}`;
         }
 
-        // --- Controlador Principal de la Aplicación ---
-        const appController = {
-            init() {
-                console.log("App Controller: Initializing...");
-                this.setupEventListeners();
-                firebaseService.onAuthStateChange(this.handleAuthStateChange.bind(this)); // Registrar listener de auth inmediatamente
-                this.initSplashScreen(); // Iniciar pantalla de bienvenida
-            },
+        return `
+            <div class="scan-result-item">
+                <div style="color:#94a3b8; font-size:0.75rem; margin-bottom:8px;">
+                    <strong>#${idx + 1}</strong> — ${item.timestamp}
+                </div>
+                <div style="color:#0f172a; white-space:pre-wrap; word-break:break-word;">
+                    ${content}
+                </div>
+            </div>
+        `;
+    }).join('');
+}
 
-            initSplashScreen() {
-                console.log("Splash Screen: Starting 3s timer.");
-                setTimeout(() => {
-                    DOM.splashScreen.style.opacity = '0';
-                    console.log("Splash Screen: Fading out...");
-                    setTimeout(() => {
-                        DOM.splashScreen.classList.add('hidden');
-                        DOM.mainApp.classList.remove('hidden'); // Revelar la aplicación principal
-                        console.log("Splash Screen: Hidden. Main App: Visible.");
-                        
-                        // Asegurar que el UI de autenticación/app se muestre correctamente
-                        this.handleAuthStateChange(firebaseService.auth.currentUser); 
-                        this.checkAndInitializeGemini(); // Después de que mainApp sea visible, verificar y cargar Gemini
-                    }, 500); // Esperar la duración de la transición de opacidad
-                }, 3000); // Duración inicial de la splash screen
-            },
+function clearOutput() {
+    if (outputArray.length === 0) {
+        showToast('⚠ Historial vacío', '#f59e0b');
+        return;
+    }
+    if (confirm('¿Deseas borrar todo el historial de escaneos?')) {
+        outputArray = [];
+        updateOutput();
+        showToast('✅ Historial limpiado');
+    }
+}
 
-            setupEventListeners() {
-                // Autenticación
-                DOM.authActionBtn.addEventListener('click', () => this.handleAuthAction());
-                DOM.authToggleBtn.addEventListener('click', () => this.toggleAuthMode());
-                DOM.logoutBtn.addEventListener('click', () => this.logout());
-                DOM.togglePasswordVisibilityBtn.addEventListener('click', () => uiController.togglePasswordVisibility(DOM.authPassInput));
-                
-                // Disparador de Input de Archivo - NUEVOS BOTONES
-                DOM.btnTakePhoto.addEventListener('click', () => DOM.fileInputCamera.click());
-                DOM.btnUploadImage.addEventListener('click', () => DOM.fileInputGallery.click());
+/* ══════════════════════════════════════════════════════════════════
+   FIREBASE AUTHENTICATION
+══════════════════════════════════════════════════════════════════ */
+async function handleAuth(isLogin) {
+    const email = document.getElementById('auth-email').value;
+    const password = document.getElementById('auth-password').value;
 
-                // Manejar cambios en los inputs de archivo
-                DOM.fileInputCamera.addEventListener('change', (e) => this.processImageWithGemini(e.target));
-                DOM.fileInputGallery.addEventListener('change', (e) => this.processImageWithGemini(e.target));
+    if (!email || !password) {
+        showToast('⚠ Por favor, ingresa email y contraseña', '#f59e0b');
+        return;
+    }
 
-                // Pestañas
-                DOM.tabUploadBtn.addEventListener('click', () => uiController.switchView('upload'));
-                DOM.tabSearchBtn.addEventListener('click', () => uiController.switchView('search'));
+    try {
+        if (isLogin) {
+            await auth.signInWithEmailAndPassword(email, password);
+            showToast('✅ Sesión iniciada correctamente');
+        } else {
+            await auth.createUserWithEmailAndPassword(email, password);
+            showToast('✅ Registro exitoso. ¡Bienvenido!');
+        }
+    } catch (error) {
+        console.error("Firebase Auth Error:", error);
+        let msg = "Error de autenticación.";
+        if (error.code === 'auth/email-already-in-use') {
+            msg = 'El correo ya está en uso. Intenta iniciar sesión.';
+        } else if (error.code === 'auth/invalid-email') {
+            msg = 'Formato de correo electrónico inválido.';
+        } else if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+            msg = 'Credenciales inválidas.';
+        } else if (error.code === 'auth/weak-password') {
+            msg = 'La contraseña debe tener al menos 6 caracteres.';
+        }
+        showToast(`❌ ${msg}`, '#ef4444');
+    }
+}
 
-                // Guardar
-                DOM.saveBtn.addEventListener('click', () => this.validateAndSave());
+function logout() {
+    auth.signOut().then(() => {
+        showToast('✅ Sesión cerrada correctamente');
+    }).catch((error) => {
+        console.error("Firebase Sign Out Error:", error);
+        showToast('❌ Error al cerrar sesión', '#ef4444');
+    });
+}
 
-                // Búsqueda
-                DOM.searchInput.addEventListener('keyup', () => this.searchRecords());
 
-                // Modal de Coincidencia
-                DOM.btnMatchCorrect.addEventListener('click', () => uiController.hideModal(DOM.modalMatch));
-                DOM.btnMatchSaveNew.addEventListener('click', () => this.finalSave());
+/* ══════════════════════════════════════════════════════════════════
+   INIT
+══════════════════════════════════════════════════════════════════ */
+window.onload = () => {
+    // Show splash screen first
+    document.getElementById('splash-screen').style.display = 'flex';
+    setTimeout(() => {
+        document.getElementById('splash-screen').classList.add('hidden');
+        setTimeout(() => {
+            document.getElementById('splash-screen').style.display = 'none';
+            document.getElementById('auth-screen').style.display = 'flex'; // Show auth screen after splash
+        }, 500); // Wait for transition
+    }, 2500); // Show splash for 2.5 seconds
 
-                // Chat
-                DOM.chatSendBtn.addEventListener('click', () => this.sendChatMessage());
-                DOM.chatInput.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') this.sendChatMessage();
-                });
-                DOM.chatCloseBtn.addEventListener('click', () => this.closeChat());
-
-                // Edición
-                DOM.updateRecordBtn.addEventListener('click', () => this.updateRecord());
-                DOM.editCloseBtn.addEventListener('click', () => this.closeEdit());
-
-                // Eventos de Gemini API Key
-                DOM.btnSaveGeminiApiKey.addEventListener('click', () => {
-                    const key = DOM.geminiApiKeyInput.value.trim();
-                    if (key) {
-                        setGeminiApiKey(key);
-                    } else {
-                        uiController.showToast("La API Key no puede estar vacía.");
-                    }
-                });
-                DOM.btnCancelGeminiApiKey.addEventListener('click', hideGeminiApiKeyModal);
-                DOM.btnChangeGeminiApiKey.addEventListener('click', showGeminiApiKeyModal);
-            },
-
-            checkAndInitializeGemini() {
-                console.log("Checking and initializing Gemini API Key.");
-                const key = getGeminiApiKey();
-                if (key) {
-                    setGeminiApiKey(key); // Intentará inicializar el modelo
-                } else {
-                    showGeminiApiKeyModal();
-                    uiController.showToast(MESSAGES.GEMINI_API_KEY_MISSING);
-                }
-            },
-
-            handleAuthStateChange(user) {
-                uiController.updateAuthUI(user);
-            },
-
-            async handleAuthAction() {
-                initAudio();
-                const email = DOM.authEmailInput.value;
-                const pass = DOM.authPassInput.value;
-                const name = DOM.regNameInput.value;
-
-                if (pass.length < 6) {
-                    return uiController.showToast(MESSAGES.PASSWORD_SHORT);
-                }
-
-                try {
-                    if (isRegistering) {
-                        await firebaseService.registerUser(email, pass, name);
-                    } else {
-                        await firebaseService.loginUser(email, pass);
-                    }
-                } catch (e) {
-                    uiController.showToast(e.message);
-                }
-            },
-
-            toggleAuthMode() {
-                isRegistering = !isRegistering;
-                uiController.toggleAuthModeDisplay();
-            },
-
-            logout() {
-                firebaseService.logoutUser();
-            },
-
-            async processImageWithGemini(input) {
-                if (!input.files?.[0]) return;
-
-                if (!geminiModel) {
-                    uiController.showToast(MESSAGES.GEMINI_API_KEY_MISSING);
-                    showGeminiApiKeyModal();
-                    return;
-                }
-
-                initAudio();
-                currentFile = input.files[0];
-
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    DOM.imgPreview.src = e.target.result;
-                    DOM.previewContainer.classList.remove('hidden');
-                    DOM.uploadPlaceholder.classList.add('hidden'); // Ocultar los botones después de la selección
-                };
-                reader.readAsDataURL(currentFile);
-
-                DOM.ocrLoader.classList.remove('hidden'); // Mostrar loader al inicio del proceso
-
-                try {
-                    const img = new Image();
-                    img.src = URL.createObjectURL(currentFile);
-                    await new Promise((resolve) => img.onload = resolve);
-
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
-
-                    // --- LÓGICA DE REDIMENSIONAMIENTO DE IMAGEN ---
-                    const MAX_DIMENSION = 1200; // Define un tamaño máximo para la dimensión más larga (ej. 1200px)
-                    let width = img.width;
-                    let height = img.height;
-
-                    if (width > height) {
-                        if (width > MAX_DIMENSION) {
-                            height *= MAX_DIMENSION / width;
-                            width = MAX_DIMENSION;
-                        }
-                    } else {
-                        if (height > MAX_DIMENSION) {
-                            width *= MAX_DIMENSION / height;
-                            height = MAX_DIMENSION;
-                        }
-                    }
-
-                    canvas.width = width;
-                    canvas.height = height;
-                    ctx.drawImage(img, 0, 0, width, height); // Dibujar la imagen escalada
-
-                    // Convertir la imagen redimensionada a Base64 para Gemini
-                    // Usar calidad 0.8 para JPEG, esto también reduce el tamaño del archivo
-                    const base64Image = canvas.toDataURL('image/jpeg', 0.8).split(',')[1]; 
-
-                    const prompt = `Extrae la siguiente información de la imagen de una lápida o esquela. Responde ÚNICAMENTE en formato JSON válido.
-                    {
-                      "nombre_finado": "string (nombre completo de la persona fallecida, capitalizando cada palabra)",
-                      "anio_nacimiento": "number (solo el año de nacimiento, 0 si no se encuentra)",
-                      "anio_defuncion": "number (solo el año de defunción, 0 si no se encuentra)",
-                      "panteon": "string (nombre del panteón, si se menciona o es inferible, capitalizando cada palabra)",
-                      "municipio": "string (municipio o localidad, si se menciona o es inferible, capitalizando cada palabra)"
-                    }
-                    Si no se encuentra un dato string, usa un string vacío "". Si no se encuentra un año, usa 0.`;
-
-                    const imagePart = {
-                        inlineData: {
-                            data: base64Image,
-                            mimeType: "image/jpeg",
-                        },
-                    };
-
-                    const result = await geminiModel.generateContent({
-                        contents: [{ parts: [{ text: prompt }, imagePart] }],
-                    });
-
-                    const responseText = result.response.text();
-                    console.log("Gemini Raw Response:", responseText); // Para depuración
-
-                    let parsedGeminiData;
-                    try {
-                        // Intentar parsear el JSON. Gemini a veces lo envuelve en markdown.
-                        // Extraer el contenido JSON si está dentro de un bloque de código markdown
-                        const jsonMatch = responseText.match(/```json\n([\s\S]*?)\n```/) || responseText.match(/```\n([\s\S]*?)\n```/);
-                        const jsonString = jsonMatch ? jsonMatch[1] : responseText;
-                        parsedGeminiData = JSON.parse(jsonString);
-                    } catch (err) {
-                        console.error("Error parsing Gemini JSON response:", err);
-                        uiController.showToast("Error al procesar la respuesta de la IA. Intenta de nuevo.");
-                        return;
-                    }
-
-                    // Rellenar los campos con los datos extraídos por Gemini
-                    DOM.deadNameInput.value = parsedGeminiData.nombre_finado || '';
-                    DOM.deadBirthInput.value = parsedGeminiData.anio_nacimiento || '';
-                    DOM.deadDeathInput.value = parsedGeminiData.anio_defuncion || '';
-                    DOM.cemeteryNameInput.value = parsedGeminiData.panteon || '';
-                    DOM.locationMuniInput.value = parsedGeminiData.municipio || '';
-
-                    // Mostrar la imagen capturada en la vista previa
-                    DOM.imgPreview.src = reader.result;
-                    DOM.previewContainer.classList.remove('hidden');
-                    DOM.uploadPlaceholder.classList.add('hidden');
-
-                    uiController.showToast("Imagen procesada con éxito por IA. Revisa los datos.");
-                } catch (err) {
-                    console.error("Error processing image with Gemini:", err);
-                    uiController.showToast("Error al procesar la imagen: " + err.message);
-                } finally {
-                    DOM.ocrLoader.classList.add('hidden');
-                    DOM.fileInputCamera.value = '';
-                    DOM.fileInputGallery.value = '';
-                }
-            },
-
-            async validateAndSave() {
-                const name = DOM.deadNameInput.value.trim();
-                const cemetery = DOM.cemeteryNameInput.value.trim();
-                const municipio = DOM.locationMuniInput.value.trim();
-
-                if (!name || !cemetery || !municipio) {
-                    return uiController.showToast(MESSAGES.REQUIRED_FIELDS);
-                }
-
-                try {
-                    const existingRecords = await firebaseService.checkIfRecordExists(name, municipio);
-                    if (existingRecords.size > 0) {
-                        const existing = existingRecords.docs[0].data();
-                        DOM.matchDataPreview.innerHTML = `<strong>${existing.nombre}</strong><br>Panteón: ${existing.panteon}`;
-                        uiController.showModal(DOM.modalMatch);
-                        appController.currentEditingRecord = existingRecords.docs[0].id;
-                    } else {
-                        this.finalSave();
-                    }
-                } catch (e) {
-                    uiController.showToast(e.message);
-                }
-            },
-
-            async finalSave() {
-                const recordData = {
-                    nombre: DOM.deadNameInput.value.trim(),
-                    fechaNacimiento: DOM.deadBirthInput.value.trim(),
-                    fechaDefuncion: DOM.deadDeathInput.value.trim(),
-                    panteon: DOM.cemeteryNameInput.value.trim(),
-                    municipio: DOM.locationMuniInput.value.trim(),
-                    idUsuario: firebaseService.auth.currentUser?.uid,
-                    timestamp: serverTimestamp(),
-                    notas: ''
-                };
-
-                DOM.saveLoader.classList.remove('hidden');
-                DOM.saveText.innerText = 'Guardando...';
-
-                try {
-                    await firebaseService.addTumbaRecord(recordData);
-                    uiController.hideModal(DOM.modalMatch);
-                    DOM.deadNameInput.value = '';
-                    DOM.deadBirthInput.value = '';
-                    DOM.deadDeathInput.value = '';
-                    DOM.cemeteryNameInput.value = '';
-                    DOM.locationMuniInput.value = '';
-                    DOM.previewContainer.classList.add('hidden');
-                    DOM.uploadPlaceholder.classList.remove('hidden');
-                    uiController.showToast(MESSAGES.RECORD_SAVED);
-                    this.searchRecords();
-                } catch (e) {
-                    uiController.showToast(e.message);
-                } finally {
-                    DOM.saveLoader.classList.add('hidden');
-                    DOM.saveText.innerText = 'Guardar Registro';
-                }
-            },
-
-            async searchRecords() {
-                try {
-                    const allRecords = await firebaseService.searchTumbaRecords();
-                    appController.allRecords = allRecords.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                    this.displaySearchResults([]);
-                } catch (e) {
-                    uiController.showToast(e.message);
-                }
-            },
-
-            searchRecords() {
-                const query = DOM.searchInput.value.toLowerCase();
-                if (!appController.allRecords) return;
-
-                const filtered = appController.allRecords.filter(record =>
-                    record.nombre.toLowerCase().includes(query) ||
-                    record.panteon.toLowerCase().includes(query) ||
-                    record.municipio.toLowerCase().includes(query)
-                );
-
-                this.displaySearchResults(filtered);
-            },
-
-            displaySearchResults(records) {
-                DOM.resultsList.innerHTML = '';
-                if (records.length === 0) {
-                    DOM.resultsList.innerHTML = '<p class="text-center text-slate-500 text-sm">Sin resultados...</p>';
-                    return;
-                }
-
-                records.forEach(record => {
-                    const card = document.createElement('div');
-                    card.className = 'bg-white p-4 rounded-xl shadow-sm border border-slate-200 cursor-pointer hover:shadow-md transition';
-                    card.innerHTML = `
-                        <h4 class="font-bold text-slate-800">${record.nombre}</h4>
-                        <p class="text-xs text-slate-500">${record.fechaNacimiento} - ${record.fechaDefuncion}</p>
-                        <p class="text-xs text-slate-600">${record.panteon}, ${record.municipio}</p>
-                    `;
-                    card.addEventListener('click', () => this.openEdit(record));
-                    DOM.resultsList.appendChild(card);
-                });
-            },
-
-            openEdit(record) {
-                appController.currentEditingRecord = record.id;
-                DOM.editName.value = record.nombre;
-                DOM.editCemetery.value = record.panteon;
-                DOM.editMuni.value = record.municipio;
-                uiController.showModal(DOM.editWindow);
-            },
-
-            async updateRecord() {
-                const recordRef = doc(firebaseService.db, COLLECTION_NAMES.TUMBAS, appController.currentEditingRecord);
-                const updateData = {
-                    nombre: DOM.editName.value.trim(),
-                    panteon: DOM.editCemetery.value.trim(),
-                    municipio: DOM.editMuni.value.trim(),
-                };
-
-                try {
-                    await updateDoc(recordRef, updateData);
-                    uiController.hideModal(DOM.editWindow);
-                    this.searchRecords();
-                    uiController.showToast(MESSAGES.RECORD_UPDATED);
-                } catch (e) {
-                    uiController.showToast(e.message);
-                }
-            },
-
-            closeEdit() {
-                uiController.hideModal(DOM.editWindow);
-            },
-
-            async sendChatMessage() {
-                const text = DOM.chatInput.value.trim();
-                if (!text) return;
-
-                const messageData = {
-                    idUsuario: firebaseService.auth.currentUser.uid,
-                    username: firebaseService.auth.currentUser.displayName || firebaseService.auth.currentUser.email,
-                    text,
-                    timestamp: serverTimestamp(),
-                    fecha: new Date().toLocaleString()
-                };
-
-                try {
-                    await firebaseService.addChatMessage(appController.currentChatId, messageData);
-                    DOM.chatInput.value = '';
-                } catch (e) {
-                    uiController.showToast(e.message);
-                }
-            },
-
-            closeChat() {
-                uiController.hideModal(DOM.chatWindow);
-            },
-
-            toggleAuthMode() {
-                isRegistering = !isRegistering;
-                uiController.toggleAuthModeDisplay();
-            },
-
-            async logout() {
-                try {
-                    await firebaseService.logoutUser();
-                    uiController.showToast(MESSAGES.LOGGED_OUT);
-                } catch (e) {
-                    uiController.showToast(e.message);
-                }
-            }
-        };
-
-        // --- INICIALIZAR APLICACIÓN AL CARGAR EL DOCUMENTO ---
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log("DOM Content Loaded: Starting app initialization...");
-            appController.init();
-        });
-    </script>
+    // Firebase Auth State Listener
+    auth.onAuthStateChanged((user) => {
+        if (user) {
+            // User is signed in
+            document.getElementById('auth-screen').style.display = 'none';
+            document.getElementById('main-app').style.display = 'flex';
+            document.getElementById('logout-btn').style.display = 'block'; // Show logout button in auth screen for convenience
+            checkApiKey(); // Prompt for Gemini key if not set
+        } else {
+            // User is signed out
+            document.getElementById('main-app').style.display = 'none';
+            document.getElementById('key-config-modal').style.display = 'none'; // Hide key modal if user logs out
+            document.getElementById('auth-screen').style.display = 'flex';
+            document.getElementById('logout-btn').style.display = 'none';
+        }
+    });
+};
+</script>
 </body>
 </html>
