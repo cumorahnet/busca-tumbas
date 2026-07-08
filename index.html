@@ -5,9 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Busca Tumbas | Base de Datos Comunitaria</title>
     
-    <!-- Tailwind CSS y Tesseract.js (OCR) -->
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/tesseract.js@5.0.3/dist/tesseract.min.js"></script>
     
     <style>
         /* Evitar que el gesto pull-to-refresh recargue la página en las listas */
@@ -88,32 +87,46 @@
                 <button data-tab="upload" id="tab-upload" class="flex-1 py-2 text-sm font-bold rounded-lg bg-slate-800 text-white transition">Registrar</button>
                 <button data-tab="search" id="tab-search" class="flex-1 py-2 text-sm font-bold rounded-lg text-slate-500 transition">Buscar</button>
             </div>
+            
+            <!-- Botón para cambiar API Key de Gemini -->
+            <button id="btn-change-gemini-api-key" class="mt-4 w-full bg-slate-100 text-slate-600 py-2 rounded-xl text-xs font-semibold hover:bg-slate-200">Cambiar API Key de Gemini</button>
 
             <!-- VISTA: REGISTRO -->
             <div id="view-upload" class="space-y-4 flex-1">
                 <div class="bg-white p-5 rounded-2xl shadow-sm space-y-4 border border-slate-200">
                     <h3 class="font-bold text-slate-700 border-b pb-2">Nueva Entrada</h3>
                     
-                    <div id="file-input-container" class="relative cursor-pointer border-2 border-dashed border-slate-300 rounded-xl p-4 text-center hover:bg-slate-50">
+                    <div id="image-input-options-wrapper" class="relative border-2 border-dashed border-slate-300 rounded-xl p-4 text-center">
                         <div id="preview-container" class="hidden mb-2">
                             <img id="img-preview" class="w-full h-auto max-h-64 object-contain rounded-lg shadow-sm">
                         </div>
-                        <div id="upload-placeholder">
-                            <span class="text-4xl">📸</span>
-                            <p class="text-xs text-slate-500 mt-2 text-balance">Tomar foto de la lápida o esquela para extraer datos automáticamente</p>
+                        <div id="upload-placeholder" class="space-y-2">
+                            <p class="text-xs text-slate-500 text-balance">Elige cómo deseas introducir la imagen de la lápida o esquela para extraer datos:</p>
+                            <div class="flex justify-center gap-4 mt-2">
+                                <button id="btn-take-photo" class="flex flex-col items-center gap-1 p-3 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition">
+                                    <span class="text-xl">📸</span>
+                                    <span class="text-xs font-semibold">Tomar Foto</span>
+                                </button>
+                                <button id="btn-upload-image" class="flex flex-col items-center gap-1 p-3 bg-green-50 text-green-700 rounded-lg hover:bg-green-100 transition">
+                                    <span class="text-xl">📁</span>
+                                    <span class="text-xs font-semibold">Subir Imagen</span>
+                                </button>
+                            </div>
                         </div>
-                        <input type="file" id="file-input" accept="image/*" capture="environment" class="hidden">
+                        <!-- Inputs de archivo ocultos, activados por los botones -->
+                        <input type="file" id="file-input-camera" accept="image/*" capture="environment" class="hidden">
+                        <input type="file" id="file-input-gallery" accept="image/*" class="hidden">
                     </div>
 
                     <!-- Mensaje de estado de la IA -->
                     <div id="ocr-loader" class="hidden flex items-center justify-center gap-2 p-3 bg-blue-50 text-blue-700 rounded-xl text-xs font-semibold">
                         <div class="loader rounded-full border-2 border-t-2 border-blue-700 h-4 w-4"></div>
-                        <span>Procesando inscripción con Inteligencia Artificial...</span>
+                        <span>Procesando inscripción con Inteligencia Artificial (Gemini)...</span>
                     </div>
 
                     <div class="grid grid-cols-1 gap-3">
                         <label for="dead-name" class="sr-only">Nombre del finado</label>
-                        <input type="text" id="dead-name" placeholder="Nombre del finado (OCR)" class="p-3 border rounded-lg outline-none focus:ring-2 focus:ring-slate-400 text-base">
+                        <input type="text" id="dead-name" placeholder="Nombre del finado (IA)" class="p-3 border rounded-lg outline-none focus:ring-2 focus:ring-slate-400 text-base">
                         <div class="flex gap-2">
                             <label for="dead-birth" class="sr-only">Año de nacimiento</label>
                             <input type="text" id="dead-birth" placeholder="Año Nac." class="w-1/2 p-3 border rounded-lg outline-none focus:ring-2 focus:ring-slate-400 text-base">
@@ -134,13 +147,13 @@
             </div>
 
             <!-- VISTA: BÚSQUEDA -->
-            <div id="view-search" class="hidden space-y-4 flex-1">
+            <div id="view-search" class="hidden space-y-4 pb-20 flex-1">
                 <div class="bg-white p-4 rounded-xl shadow-sm flex items-center gap-2 border border-slate-200">
                     <span class="text-slate-400">🔍</span>
                     <label for="search-input" class="sr-only">Buscar registros</label>
                     <input type="text" id="search-input" placeholder="Buscar por nombre, panteón o municipio..." class="w-full outline-none text-base">
                 </div>
-                <div id="results-list" class="space-y-4 pb-20"></div>
+                <div id="results-list" class="space-y-4"></div>
             </div>
         </div>
 
@@ -198,6 +211,18 @@
             </div>
         </div>
 
+        <!-- MODAL: API KEY GEMINI -->
+        <div id="gemini-api-key-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+            <div class="bg-white rounded-2xl w-full max-w-sm p-6 space-y-4">
+                <h3 class="text-xl font-bold text-slate-800">API Key de Gemini</h3>
+                <p class="text-sm text-slate-600 text-balance">Para usar la inteligencia artificial en el escáner, introduce tu API Key de Google Gemini.</p>
+                <p class="text-xs text-slate-500">Puedes obtenerla en <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-blue-600 underline">Google AI Studio</a>.</p>
+                <input type="text" id="gemini-api-key-input" placeholder="Tu API Key de Gemini..." class="w-full p-3 border rounded-xl text-base">
+                <button id="btn-save-gemini-api-key" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold shadow-lg hover:bg-blue-700">Guardar API Key</button>
+                <button id="btn-cancel-gemini-api-key" class="w-full bg-slate-200 text-slate-700 py-3 rounded-xl font-semibold mt-2">Cancelar</button>
+            </div>
+        </div>
+
         <!-- TOAST NOTIFICATION -->
         <div id="toast" class="fixed bottom-10 left-1/2 transform -translate-x-1/2 bg-slate-800 text-white px-6 py-3 rounded-full text-sm shadow-2xl transition-opacity duration-300 opacity-0 pointer-events-none z-[100]"></div>
     </div>
@@ -208,18 +233,26 @@
         import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, getDocs, query, where, orderBy, serverTimestamp, doc, updateDoc, onSnapshot, arrayUnion, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+        
+        // Importar Google Generative AI SDK
+        import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
 
         // TUS CREDENCIALES CONFIGURADAS Y CONSOLIDADAS
         const firebaseConfig = {
-            apiKey: "AIzaSyDVjbcOjDr8o3yiNqbwPW3W6WhIsplGUUk",
+            apiKey: "AIzaSyDVjbcOjDr8o3yiNqbwPW3W6WhIsplGUUk", // Tu API Key de Firebase
             authDomain: "buscatumbas-2e7cc.firebaseapp.com",
             projectId: "buscatumbas-2e7cc",
             storageBucket: "buscatumbas-2e7cc.firebasestorage.app",
             messagingSenderId: "920637749030",
-            appId: "1:920637749030:web:21568d7680f12946fdf3e7"
+            appId: "1:920637749030:web:21568d7680f12946fdf3e7",
+            // La geminiApiKey ya NO se configura aquí, sino que se solicita al usuario.
         };
 
         const app = initializeApp(firebaseConfig);
+
+        // Variables para Gemini API Key y modelo, inicializadas cuando la clave esté disponible
+        let geminiAPIKey = ''; 
+        let geminiModel = null;
 
         // --- Constants y Elementos DOM ---
         const DOM = {
@@ -246,8 +279,12 @@
             viewUpload: document.getElementById('view-upload'),
             viewSearch: document.getElementById('view-search'),
 
-            fileInputContainer: document.getElementById('file-input-container'),
-            fileInput: document.getElementById('file-input'),
+            // Elementos para la selección y previsualización de imagen
+            imageInputOptionsWrapper: document.getElementById('image-input-options-wrapper'),
+            btnTakePhoto: document.getElementById('btn-take-photo'),
+            btnUploadImage: document.getElementById('btn-upload-image'),
+            fileInputCamera: document.getElementById('file-input-camera'), // Nuevo input para cámara
+            fileInputGallery: document.getElementById('file-input-gallery'), // Nuevo input para galería
             previewContainer: document.getElementById('preview-container'),
             imgPreview: document.getElementById('img-preview'),
             uploadPlaceholder: document.getElementById('upload-placeholder'),
@@ -285,6 +322,13 @@
             updateRecordBtn: document.getElementById('btn-update-record'),
             editCloseBtn: document.getElementById('btn-close-edit'),
 
+            // Elementos para la API Key de Gemini
+            geminiApiKeyModal: document.getElementById('gemini-api-key-modal'),
+            geminiApiKeyInput: document.getElementById('gemini-api-key-input'),
+            btnSaveGeminiApiKey: document.getElementById('btn-save-gemini-api-key'),
+            btnCancelGeminiApiKey: document.getElementById('btn-cancel-gemini-api-key'),
+            btnChangeGeminiApiKey: document.getElementById('btn-change-gemini-api-key'),
+
             toast: document.getElementById('toast'),
         };
 
@@ -304,6 +348,9 @@
             CHANGES_SAVED: "Cambios guardados.",
             NO_PREVIOUS_EDITS: "Sin ediciones previas.",
             RECORD_NOT_FOUND: "Registro no encontrado.",
+            GEMINI_API_KEY_MISSING: "API Key de Gemini no configurada. Por favor, introdúcela.",
+            GEMINI_API_KEY_SAVED: "API Key de Gemini guardada correctamente.",
+            GEMINI_API_KEY_INVALID: "API Key de Gemini inválida o no activa.",
         };
 
         // --- Estado Global de la Aplicación ---
@@ -313,6 +360,46 @@
         let chatUnsubscribe = null;
         let currentEditRecordId = null;
         let audioContext = null;
+
+        // --- Funciones para manejar la API Key de Gemini ---
+        function getGeminiApiKey() {
+            return localStorage.getItem('geminiApiKey');
+        }
+
+        function setGeminiApiKey(key) {
+            localStorage.setItem('geminiApiKey', key);
+            geminiAPIKey = key;
+            if (key) {
+                try {
+                    console.log("Intentando inicializar Gemini con la API Key...");
+                    const genAI = new GoogleGenerativeAI(key);
+                    geminiModel = genAI.getGenerativeModel({ model: "gemini-pro-vision" });
+                    uiController.showToast(MESSAGES.GEMINI_API_KEY_SAVED);
+                    hideGeminiApiKeyModal();
+                    console.log("Gemini Model inicializado correctamente.");
+                } catch (e) {
+                    console.error("Error al inicializar Gemini con la API Key:", e);
+                    uiController.showToast(MESSAGES.GEMINI_API_KEY_INVALID);
+                    geminiModel = null;
+                    // Mantener el modal abierto o volver a mostrarlo si la inicialización falló
+                    showGeminiApiKeyModal(); 
+                }
+            } else {
+                geminiModel = null;
+                console.log("Gemini API Key eliminada o vacía. Modelo Gemini desinicializado.");
+            }
+        }
+
+        function showGeminiApiKeyModal() {
+            DOM.geminiApiKeyModal.classList.remove('hidden');
+            DOM.geminiApiKeyInput.value = getGeminiApiKey() || '';
+            console.log("Mostrando modal de API Key de Gemini.");
+        }
+
+        function hideGeminiApiKeyModal() {
+            DOM.geminiApiKeyModal.classList.add('hidden');
+            console.log("Ocultando modal de API Key de Gemini.");
+        }
 
         // --- Servicio de Firebase ---
         const firebaseService = {
@@ -407,9 +494,10 @@
                 DOM.cemeteryNameInput.value = "";
                 DOM.locationMuniInput.value = "";
                 DOM.previewContainer.classList.add('hidden');
-                DOM.uploadPlaceholder.classList.remove('hidden');
+                DOM.uploadPlaceholder.classList.remove('hidden'); // Mostrar los botones de nuevo
                 currentFile = null;
-                DOM.fileInput.value = ''; // Limpiar el input de tipo file
+                DOM.fileInputCamera.value = ''; // Limpiar el input de cámara
+                DOM.fileInputGallery.value = ''; // Limpiar el input de galería
             },
 
             togglePasswordVisibility(inputElement) {
@@ -430,18 +518,11 @@
                 DOM.tabSearchBtn.classList.toggle('text-slate-500', viewId !== 'search');
             },
 
-            toggleAuthModeDisplay() {
-                DOM.authTitle.innerText = isRegistering ? 'Crea tu Cuenta' : 'Iniciar Sesión';
-                DOM.regFields.classList.toggle('hidden', !isRegistering);
-                DOM.authActionBtn.innerText = isRegistering ? 'Registrarse' : 'Entrar';
-                DOM.authToggleBtn.innerText = isRegistering ? 'Inicia sesión' : 'Regístrate';
-                DOM.authToggleText.innerText = isRegistering ? '¿Ya tienes cuenta?' : '¿No tienes cuenta?';
-            },
-
             showModal(modalElement) { modalElement.classList.remove('hidden'); },
             hideModal(modalElement) { modalElement.classList.add('hidden'); },
             
             updateAuthUI(user) {
+                console.log("Updating Auth UI for user:", user ? user.displayName || user.email : "none");
                 DOM.authSection.classList.toggle('hidden', !!user);
                 DOM.appContent.classList.toggle('hidden', !user);
                 DOM.userInfo.classList.toggle('hidden', !user);
@@ -455,8 +536,15 @@
                     DOM.authPassInput.value = '';
                     DOM.regNameInput.value = '';
                     isRegistering = false;
-                    uiController.toggleAuthModeDisplay();
+                    uiController.toggleAuthModeDisplay(); // Asegurar que el modo de auth sea "Iniciar Sesión"
                 }
+            },
+            toggleAuthModeDisplay() {
+                DOM.authTitle.innerText = isRegistering ? 'Regístrate' : 'Iniciar Sesión';
+                DOM.regFields.classList.toggle('hidden', !isRegistering);
+                DOM.authToggleText.innerText = isRegistering ? '¿Ya tienes cuenta?' : '¿No tienes cuenta?';
+                DOM.authToggleBtn.innerText = isRegistering ? 'Inicia Sesión' : 'Regístrate';
+                DOM.authActionBtn.innerText = isRegistering ? 'Registrarse' : 'Entrar';
             }
         };
 
@@ -483,77 +571,34 @@
                 gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
                 osc.stop(audioContext.currentTime + 0.15);
             } catch (e) {
-                console.log("Audio no habilitado todavía.");
-            }
-        }
-
-        // Parseador de resultados OCR
-        function parseOCRResults(text) {
-            const yearRegex = /\b(18|19|20)\d{2}\b/g;
-            const years = (text.match(yearRegex) || []).map(Number).sort((a, b) => a - b);
-            const validYears = years.filter(year => year > 1800 && year <= new Date().getFullYear());
-
-            if (validYears.length >= 2) {
-                DOM.deadBirthInput.value = validYears[0];
-                DOM.deadDeathInput.value = validYears[validYears.length - 1];
-            } else if (validYears.length === 1) {
-                // Si solo hay un año, asumimos que es el de defunción
-                DOM.deadDeathInput.value = validYears[0];
-                DOM.deadBirthInput.value = ''; // Asegurarse de que el de nacimiento esté vacío
-            } else {
-                DOM.deadBirthInput.value = '';
-                DOM.deadDeathInput.value = '';
-            }
-
-            // Intento de extraer el nombre
-            const lines = text.split('\n')
-                .map(l => l.trim())
-                .filter(l => l.length > 3 && !l.match(/\b(pax|rip|qepd|memoria|nacido|fallecido|recuerdo|tumba|sepultura|yacimiento|cripta|en|el|la|los|las|de|del)\b/i) && !/\d{4}/.test(l));
-            
-            let nameCandidate = '';
-            if (lines.length > 0) {
-                // Buscar la primera línea que contenga al menos una palabra capitalizada de más de 1 letra
-                const nameLine = lines.find(line => {
-                    const words = line.split(/\s+/).filter(word => word.length > 1);
-                    return words.some(word => word[0] === word[0].toUpperCase() && word.slice(1) === word.slice(1).toLowerCase());
-                });
-
-                if (nameLine) {
-                    nameCandidate = nameLine;
-                    nameCandidate = nameCandidate.replace(/^(D|Doña|Don|Sr|Sra)\.?\s+/i, '')
-                                                 .replace(/\s+(y|de|del|en)$/i, '')
-                                                 .replace(/[\d\.]/g, ''); // Eliminar números y puntos adicionales
-                    nameCandidate = nameCandidate.split(/\s+/)
-                                                 .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-                                                 .join(' ');
-                }
-            }
-
-            if (nameCandidate) {
-                DOM.deadNameInput.value = nameCandidate;
-                uiController.showToast(MESSAGES.OCR_SUCCESS);
-            } else {
-                DOM.deadNameInput.value = '';
-                uiController.showToast(MESSAGES.OCR_FAILED);
+                console.log("Audio no habilitado todavía o error al reproducir:", e);
             }
         }
 
         // --- Controlador Principal de la Aplicación ---
         const appController = {
             init() {
+                console.log("App Controller: Initializing...");
                 this.setupEventListeners();
-                this.initSplashScreen();
-                firebaseService.onAuthStateChange(this.handleAuthStateChange.bind(this)); // Bind 'this' context
+                firebaseService.onAuthStateChange(this.handleAuthStateChange.bind(this)); // Registrar listener de auth inmediatamente
+                this.initSplashScreen(); // Iniciar pantalla de bienvenida
             },
 
             initSplashScreen() {
+                console.log("Splash Screen: Starting 3s timer.");
                 setTimeout(() => {
                     DOM.splashScreen.style.opacity = '0';
+                    console.log("Splash Screen: Fading out...");
                     setTimeout(() => {
                         DOM.splashScreen.classList.add('hidden');
-                        DOM.mainApp.classList.remove('hidden');
-                    }, 500);
-                }, 3000);
+                        DOM.mainApp.classList.remove('hidden'); // Revelar la aplicación principal
+                        console.log("Splash Screen: Hidden. Main App: Visible.");
+                        
+                        // Asegurar que el UI de autenticación/app se muestre correctamente
+                        this.handleAuthStateChange(firebaseService.auth.currentUser); 
+                        this.checkAndInitializeGemini(); // Después de que mainApp sea visible, verificar y cargar Gemini
+                    }, 500); // Esperar la duración de la transición de opacidad
+                }, 3000); // Duración inicial de la splash screen
             },
 
             setupEventListeners() {
@@ -563,15 +608,19 @@
                 DOM.logoutBtn.addEventListener('click', () => this.logout());
                 DOM.togglePasswordVisibilityBtn.addEventListener('click', () => uiController.togglePasswordVisibility(DOM.authPassInput));
                 
-                // Disparador de Input de Archivo
-                DOM.fileInputContainer.addEventListener('click', () => DOM.fileInput.click());
+                // Disparador de Input de Archivo - NUEVOS BOTONES
+                DOM.btnTakePhoto.addEventListener('click', () => DOM.fileInputCamera.click());
+                DOM.btnUploadImage.addEventListener('click', () => DOM.fileInputGallery.click());
+
+                // Manejar cambios en los inputs de archivo
+                DOM.fileInputCamera.addEventListener('change', (e) => this.processImageWithGemini(e.target));
+                DOM.fileInputGallery.addEventListener('change', (e) => this.processImageWithGemini(e.target));
 
                 // Pestañas
                 DOM.tabUploadBtn.addEventListener('click', () => uiController.switchView('upload'));
                 DOM.tabSearchBtn.addEventListener('click', () => uiController.switchView('search'));
 
-                // Carga/OCR
-                DOM.fileInput.addEventListener('change', (e) => this.processImageOCR(e.target));
+                // Guardar
                 DOM.saveBtn.addEventListener('click', () => this.validateAndSave());
 
                 // Búsqueda
@@ -591,6 +640,29 @@
                 // Edición
                 DOM.updateRecordBtn.addEventListener('click', () => this.updateRecord());
                 DOM.editCloseBtn.addEventListener('click', () => this.closeEdit());
+
+                // Eventos de Gemini API Key
+                DOM.btnSaveGeminiApiKey.addEventListener('click', () => {
+                    const key = DOM.geminiApiKeyInput.value.trim();
+                    if (key) {
+                        setGeminiApiKey(key);
+                    } else {
+                        uiController.showToast("La API Key no puede estar vacía.");
+                    }
+                });
+                DOM.btnCancelGeminiApiKey.addEventListener('click', hideGeminiApiKeyModal);
+                DOM.btnChangeGeminiApiKey.addEventListener('click', showGeminiApiKeyModal);
+            },
+
+            checkAndInitializeGemini() {
+                console.log("Checking and initializing Gemini API Key.");
+                const key = getGeminiApiKey();
+                if (key) {
+                    setGeminiApiKey(key); // Intentará inicializar el modelo
+                } else {
+                    showGeminiApiKeyModal();
+                    uiController.showToast(MESSAGES.GEMINI_API_KEY_MISSING);
+                }
             },
 
             handleAuthStateChange(user) {
@@ -627,8 +699,14 @@
                 firebaseService.logoutUser();
             },
 
-            async processImageOCR(input) {
+            async processImageWithGemini(input) {
                 if (!input.files?.[0]) return;
+
+                if (!geminiModel) {
+                    uiController.showToast(MESSAGES.GEMINI_API_KEY_MISSING);
+                    showGeminiApiKeyModal();
+                    return;
+                }
 
                 initAudio();
                 currentFile = input.files[0];
@@ -637,11 +715,11 @@
                 reader.onload = (e) => {
                     DOM.imgPreview.src = e.target.result;
                     DOM.previewContainer.classList.remove('hidden');
-                    DOM.uploadPlaceholder.classList.add('hidden');
+                    DOM.uploadPlaceholder.classList.add('hidden'); // Ocultar los botones después de la selección
                 };
                 reader.readAsDataURL(currentFile);
 
-                DOM.ocrLoader.classList.remove('hidden');
+                DOM.ocrLoader.classList.remove('hidden'); // Mostrar loader al inicio del proceso
 
                 try {
                     const img = new Image();
@@ -650,263 +728,58 @@
 
                     const canvas = document.createElement('canvas');
                     const ctx = canvas.getContext('2d');
-                    canvas.width = img.width;
-                    canvas.height = img.height;
-                    ctx.drawImage(img, 0, 0);
 
-                    // Filtro de alto contraste para mejorar legibilidad para OCR
-                    // Se itera sobre los píxeles para ajustar el contraste
-                    const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                    const data = imgData.data;
-                    const factor = 1.8; // Factor de contraste, puedes ajustarlo
-                    const intercept = 128 * (1 - factor); // Intercepto para centrar el contraste
-                    
-                    for (let i = 0; i < data.length; i += 4) {
-                        // Calcular el valor promedio de RGB para obtener un nivel de gris
-                        const grayscale = (data[i] + data[i + 1] + data[i + 2]) / 3;
-                        // Aplicar la transformación de contraste (g' = factor * g + intercept)
-                        const contrast = factor * grayscale + intercept;
-                        
-                        // Asegurarse de que los valores estén en el rango [0, 255]
-                        data[i] = Math.max(0, Math.min(255, contrast));     // Rojo
-                        data[i + 1] = Math.max(0, Math.min(255, contrast)); // Verde
-                        data[i + 2] = Math.max(0, Math.min(255, contrast)); // Azul
-                        // data[i + 3] es el canal alfa (transparencia), no se modifica
-                    }
-                    ctx.putImageData(imgData, 0, 0);
+                    // --- LÓGICA DE REDIMENSIONAMIENTO DE IMAGEN ---
+                    const MAX_DIMENSION = 1200; // Define un tamaño máximo para la dimensión más larga (ej. 1200px)
+                    let width = img.width;
+                    let height = img.height;
 
-                    const result = await Tesseract.recognize(canvas, 'spa');
-                    parseOCRResults(result.data.text);
-                    playSuccessBeep();
-                } catch (e) {
-                    console.error("Error al procesar el OCR:", e);
-                    uiController.showToast(MESSAGES.OCR_FAILED);
-                } finally {
-                    DOM.ocrLoader.classList.add('hidden');
-                }
-            },
-
-            async validateAndSave() {
-                const name = DOM.deadNameInput.value.trim();
-                const muni = DOM.locationMuniInput.value.trim();
-                if (!currentFile || !name || !muni) {
-                    return uiController.showToast(MESSAGES.MISSING_FIELDS);
-                }
-
-                uiController.setLoadingState(true);
-                try {
-                    const snap = await firebaseService.checkIfRecordExists(name, muni);
-                    if (!snap.empty) {
-                        const d = snap.docs[0].data();
-                        DOM.matchDataPreview.innerHTML = `<b>${d.nombre}</b><br>📍 Panteón: ${d.panteon || 'Desconocido'}`;
-                        uiController.showModal(DOM.modalMatch);
-                        uiController.setLoadingState(false);
-                    } else {
-                        appController.finalSave();
-                    }
-                } catch (e) {
-                    uiController.showToast(e.message);
-                    uiController.setLoadingState(false);
-                }
-            },
-
-            async finalSave() {
-                uiController.hideModal(DOM.modalMatch);
-                uiController.setLoadingState(true);
-                try {
-                    // Obtener la ubicación GPS del usuario
-                    const gps = await new Promise(resolve => {
-                        navigator.geolocation.getCurrentPosition(
-                            position => resolve({ coords: { latitude: position.coords.latitude, longitude: position.coords.longitude } }),
-                            error => {
-                                console.warn('Error al obtener la ubicación:', error.message);
-                                // Si hay un error o el usuario deniega, usar 0,0
-                                resolve({ coords: { latitude: 0, longitude: 0 } });
-                            },
-                            { enableHighAccuracy: false, timeout: 5000, maximumAge: 0 } // Opciones: no alta precisión, timeout de 5s, no caché
-                        );
-                    });
-
-                    const imageUrl = await firebaseService.uploadImage(currentFile);
-
-                    await firebaseService.addTumbaRecord({
-                        nombre: DOM.deadNameInput.value,
-                        fecha_nacimiento: DOM.deadBirthInput.value,
-                        fecha_defuncion: DOM.deadDeathInput.value,
-                        panteon: DOM.cemeteryNameInput.value,
-                        municipio: DOM.locationMuniInput.value,
-                        foto: imageUrl,
-                        coords: { lat: gps.coords.latitude, lng: gps.coords.longitude },
-                        creado_por: firebaseService.auth.currentUser.uid,
-                        autor_nombre: firebaseService.auth.currentUser.displayName,
-                        timestamp: serverTimestamp(),
-                        historial: []
-                    });
-
-                    uiController.showToast(MESSAGES.RECORD_SAVED);
-                    uiController.resetUploadForm();
-                    uiController.switchView('search');
-                } catch (e) {
-                    uiController.showToast(e.message);
-                    console.error(e);
-                } finally {
-                    uiController.setLoadingState(false);
-                }
-            },
-
-            // Handlers para asegurar que los listeners no se dupliquen al recrear elementos
-            openChatHandler: null,
-            openEditHandler: null,
-
-            async searchRecords() {
-                const term = DOM.searchInput.value.toLowerCase();
-                const snap = await firebaseService.searchTumbaRecords();
-                DOM.resultsList.innerHTML = "";
-
-                // Limpiar handlers anteriores si existen
-                if (this.openChatHandler) {
-                    document.querySelectorAll('.btn-open-chat').forEach(btn => {
-                        btn.removeEventListener('click', this.openChatHandler);
-                    });
-                }
-                if (this.openEditHandler) {
-                    document.querySelectorAll('.btn-open-edit').forEach(btn => {
-                        btn.removeEventListener('click', this.openEditHandler);
-                    });
-                }
-
-                snap.forEach(dDoc => {
-                    const d = dDoc.data();
-                    const recordId = dDoc.id;
-                    if (d.nombre.toLowerCase().includes(term) || d.municipio.toLowerCase().includes(term) || d.panteon.toLowerCase().includes(term)) {
-                        DOM.resultsList.innerHTML += `
-                            <div class="bg-white rounded-2xl overflow-hidden shadow-sm border border-slate-200">
-                                <img src="${d.foto}" class="w-full h-auto max-h-56 object-contain bg-slate-50 border-b">
-                                <div class="p-4">
-                                    <h4 class="font-bold text-slate-800 text-lg">${d.nombre}</h4>
-                                    <p class="text-xs text-slate-500">${d.fecha_nacimiento || '?'} - ${d.fecha_defuncion || '?'}</p>
-                                    <p class="text-sm text-slate-600 mt-2">📍 ${d.panteon}, ${d.municipio}</p>
-                                    <div class="mt-4 flex justify-between border-t pt-3 items-center">
-                                        <button data-uid="${d.creado_por}" data-name="${d.autor_nombre}" class="text-blue-600 text-[10px] font-bold uppercase tracking-wide btn-open-chat">De: ${d.autor_nombre}</button>
-                                        <button data-record-id="${recordId}" class="bg-slate-100 px-3 py-1 rounded-full text-[10px] font-bold text-slate-500 uppercase btn-open-edit">Corregir</button>
-                                    </div>
-                                </div>
-                            </div>`;
-                    }
-                });
-
-                // Definir e adjuntar los nuevos handlers
-                this.openChatHandler = (event) => {
-                    const targetUid = event.target.dataset.uid;
-                    const targetName = event.target.dataset.name;
-                    appController.openChat(targetUid, targetName);
-                };
-                this.openEditHandler = (event) => {
-                    const recordId = event.target.dataset.recordId;
-                    appController.openEdit(recordId);
-                };
-
-                document.querySelectorAll('.btn-open-chat').forEach(btn => {
-                    btn.addEventListener('click', this.openChatHandler);
-                });
-                document.querySelectorAll('.btn-open-edit').forEach(btn => {
-                    btn.addEventListener('click', this.openEditHandler);
-                });
-            },
-
-            openChat(targetUid, targetName) {
-                if (targetUid === firebaseService.auth.currentUser.uid) {
-                    return uiController.showToast(MESSAGES.OWN_RECORD_CHAT);
-                }
-                const chatId = [firebaseService.auth.currentUser.uid, targetUid].sort().join("_");
-                activeChatId = chatId;
-                DOM.chatWithName.innerText = "Chat con " + targetName;
-                uiController.showModal(DOM.chatWindow);
-
-                if (chatUnsubscribe) chatUnsubscribe();
-                chatUnsubscribe = firebaseService.subscribeToChat(chatId, (snap) => {
-                    DOM.chatMessages.innerHTML = "";
-                    snap.forEach(msgDoc => {
-                        const m = msgDoc.data();
-                        const isMe = m.de === firebaseService.auth.currentUser.uid;
-                        DOM.chatMessages.innerHTML += `<div class="flex ${isMe ? 'justify-end' : 'justify-start'}">
-                            <div class="p-3 text-sm max-w-[80%] ${isMe ? 'chat-bubble-me' : 'chat-bubble-other'}">${m.texto}</div>
-                        </div>`;
-                    });
-                    DOM.chatMessages.scrollTop = DOM.chatMessages.scrollHeight;
-                });
-            },
-
-            async sendChatMessage() {
-                const txt = DOM.chatInput.value.trim();
-                if (!txt || !activeChatId) return;
-                await firebaseService.sendChatMessage(activeChatId, firebaseService.auth.currentUser.uid, txt);
-                DOM.chatInput.value = "";
-            },
-
-            closeChat() {
-                if (chatUnsubscribe) chatUnsubscribe();
-                uiController.hideModal(DOM.chatWindow);
-            },
-
-            async openEdit(id) {
-                currentEditRecordId = id;
-                const record = await firebaseService.getSingleRecordById(id);
-                if (!record) {
-                    return uiController.showToast(MESSAGES.RECORD_NOT_FOUND);
-                }
-
-                DOM.editNameInput.value = record.nombre;
-                DOM.editCemeteryInput.value = record.panteon;
-                DOM.editMuniInput.value = record.municipio;
-
-                const historyBox = DOM.editHistory;
-                historyBox.innerHTML = record.historial?.length ? "" : MESSAGES.NO_PREVIOUS_EDITS;
-                record.historial?.forEach(h => {
-                    // Convertir Timestamp de Firebase a objeto Date para visualización
-                    const date = h.fecha.toDate ? h.fecha.toDate() : new Date(h.fecha);
-                    historyBox.innerHTML += `<div class="p-1 border-b">Editado por ${h.usuario} el ${date.toLocaleString()}</div>`;
-                });
-
-                uiController.showModal(DOM.editWindow);
-            },
-
-            async updateRecord() {
-                if (!currentEditRecordId) return;
-                
-                try {
-                    await firebaseService.updateRecord(
-                        currentEditRecordId,
-                        {
-                            nombre: DOM.editNameInput.value,
-                            panteon: DOM.editCemeteryInput.value,
-                            municipio: DOM.editMuniInput.value,
-                        },
-                        {
-                            usuario: firebaseService.auth.currentUser.displayName,
-                            uid: firebaseService.auth.currentUser.uid,
-                            fecha: new Date()
+                    if (width > height) {
+                        if (width > MAX_DIMENSION) {
+                            height *= MAX_DIMENSION / width;
+                            width = MAX_DIMENSION;
                         }
-                    );
-                    uiController.showToast(MESSAGES.CHANGES_SAVED);
-                    this.closeEdit();
-                    this.searchRecords();
-                } catch (e) {
-                    uiController.showToast(e.message);
-                    console.error(e);
-                }
-            },
+                    } else {
+                        if (height > MAX_DIMENSION) {
+                            width *= MAX_DIMENSION / height;
+                            height = MAX_DIMENSION;
+                        }
+                    }
 
-            closeEdit() {
-                uiController.hideModal(DOM.editWindow);
-            }
-        };
+                    canvas.width = width;
+                    canvas.height = height;
+                    ctx.drawImage(img, 0, 0, width, height); // Dibujar la imagen escalada
 
-        // Inicializar la aplicación cuando el DOM esté completamente cargado
-        window.addEventListener('DOMContentLoaded', () => {
-            appController.init();
-        });
+                    // Convertir la imagen redimensionada a Base64 para Gemini
+                    // Usar calidad 0.8 para JPEG, esto también reduce el tamaño del archivo
+                    const base64Image = canvas.toDataURL('image/jpeg', 0.8).split(',')[1]; 
 
-    </script>
-</body>
-</html>
+                    const prompt = `Extrae la siguiente información de la imagen de una lápida o esquela. Responde ÚNICAMENTE en formato JSON válido.
+                    {
+                      "nombre_finado": "string (nombre completo de la persona fallecida, capitalizando cada palabra)",
+                      "anio_nacimiento": "number (solo el año de nacimiento, 0 si no se encuentra)",
+                      "anio_defuncion": "number (solo el año de defunción, 0 si no se encuentra)",
+                      "panteon": "string (nombre del panteón, si se menciona o es inferible, capitalizando cada palabra)",
+                      "municipio": "string (municipio o localidad, si se menciona o es inferible, capitalizando cada palabra)"
+                    }
+                    Si no se encuentra un dato string, usa un string vacío "". Si no se encuentra un año, usa 0.`;
+
+                    const imagePart = {
+                        inlineData: {
+                            data: base64Image,
+                            mimeType: "image/jpeg",
+                        },
+                    };
+
+                    const result = await geminiModel.generateContent({
+                        contents: [{ parts: [{ text: prompt }, imagePart] }],
+                    });
+
+                    const responseText = result.response.text();
+                    console.log("Gemini Raw Response:", responseText); // Para depuración
+
+                    let parsedGeminiData;
+                    try {
+                        // Intentar parsear el JSON. Gemini a veces lo envuelve en markdown.
+                        // Extraer el contenido JSON si está dentro de un bloque de código markdown
+                        const jsonMatch = responseText.match(/
