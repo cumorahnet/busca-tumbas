@@ -46,6 +46,7 @@
             height: 100%;
             box-sizing: border-box;
             display: none; /* Hidden by default, shown after auth */
+            position: relative; /* Needed for absolute positioning of logout button */
         }
 
         .card-custom {
@@ -175,25 +176,42 @@
             margin-bottom: 20px;
         }
 
-        .input-group .form-control:not(:last-child) {
-            border-top-right-radius: 14px;
-            border-bottom-right-radius: 14px;
+        /* Password input group styling */
+        .input-group {
+            display: flex;
+            align-items: stretch;
+            border-radius: 14px;
+            border: 2px solid #f1f5f9;
+            overflow: hidden;
+            background-color: #fff; /* Ensure consistent background */
         }
-        .input-group .btn {
-            border-top-left-radius: 0;
-            border-bottom-left-radius: 0;
-            padding: 0.8rem 1rem; /* Match input padding */
+        .input-group .form-control {
+            border: none; /* Remove individual border from input */
+            padding: 0.8rem 1rem;
+            height: auto;
+            flex-grow: 1;
+            box-shadow: none; /* Remove default form-control shadow */
         }
-        .input-group:not(.has-validation) > .dropdown-toggle:nth-last-child(n+3), .input-group:not(.has-validation) > :not(:last-child):not(.dropdown-toggle):not(.custom-file-input):not(.custom-file-label), .input-group:not(.has-validation) > .custom-file:not(:last-child) .custom-file-label {
-             border-top-right-radius: 14px !important;
-             border-bottom-right-radius: 14px !important;
+        .input-group .form-control:focus {
+            box-shadow: none; /* Remove individual focus shadow */
+            /* Border color will be handled by .input-group:focus-within */
         }
-        .input-group > .form-control, .input-group > .form-select, .input-group > .custom-file {
-            position: relative;
-            flex: 1 1 auto;
-            width: 1%;
-            min-width: 0;
+        .input-group:focus-within { /* Apply focus style to the entire group */
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px rgba(59,130,246,0.1);
         }
+        .input-group > .btn {
+            border: none; /* Remove individual border from button */
+            background-color: #fff; /* Match input background */
+            color: var(--primary); /* Match input text color */
+            padding: 0.8rem 1rem;
+            flex-shrink: 0;
+            box-shadow: none; /* Remove default button shadow */
+        }
+        .input-group > .btn:hover {
+            background-color: #f1f5f9; /* Subtle hover effect */
+        }
+
 
         /* SCANNER MODAL */
         #ia-modal {
@@ -365,7 +383,6 @@
         </div>
         <button class="btn btn-primary w-100 py-2 rounded-pill fw-bold mb-2" id="login-btn" onclick="handleAuth(true, event)">INICIAR SESIÓN</button>
         <button class="btn btn-outline-secondary w-100 py-2 rounded-pill fw-bold" id="register-btn" onclick="handleAuth(false, event)">REGISTRARSE</button>
-        <button class="btn btn-link text-danger mt-3" onclick="logout()" id="logout-btn" style="display:none;">Cerrar Sesión</button>
     </div>
 </div>
 
@@ -415,6 +432,11 @@
 
 <!-- MAIN INTERFACE -->
 <div class="container-main" id="main-app">
+    <!-- Logout button moved here -->
+    <button class="btn btn-link text-danger mt-3" onclick="logout()" id="logout-btn" style="display:none; position: absolute; top: 10px; right: 10px; z-index: 1000;">
+        <i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión
+    </button>
+
     <div class="card-custom">
         <h5 class="fw-bold mb-4 text-center" style="color:var(--primary);">
             <i class="fas fa-image me-2" style="color:var(--accent);"></i>Escáner de Tumbas
@@ -474,13 +496,13 @@ let originalRegisterBtnText = 'REGISTRARSE';
 /* ══════════════════════════════════════════════════════════════════
    TOAST
 ══════════════════════════════════════════════════════════════════ */
-const showToast = (msg, color = '#10b981') => {
+const showToast = (msg, color = '#10b981', duration = 3000) => {
     const el = document.getElementById('toast-msg');
     el.textContent = msg;
     el.style.background = color;
     el.style.display = 'block';
     clearTimeout(el._t);
-    el._t = setTimeout(() => el.style.display = 'none', 3000);
+    el._t = setTimeout(() => el.style.display = 'none', duration);
 };
 
 /* ══════════════════════════════════════════════════════════════════
@@ -514,35 +536,46 @@ function getGeolocation() {
 /* ══════════════════════════════════════════════════════════════════
    API KEY MANAGEMENT
 ══════════════════════════════════════════════════════════════════ */
+
+// Checks if the Gemini API key is set in localStorage
+function isGeminiKeySet() {
+    return !!localStorage.getItem('yaute_key_v3310');
+}
+
+// Opens the API key configuration modal
+function changeGeminiKey() {
+    document.getElementById('user-gemini-key').value = localStorage.getItem('yaute_key_v3310') || '';
+    document.getElementById('key-config-modal').style.display = 'flex';
+}
+
+// Closes the API key configuration modal
+function closeGeminiKeyModal() {
+    document.getElementById('key-config-modal').style.display = 'none';
+}
+
+// Saves the Gemini API key
 function saveGeminiKey() {
     const val = document.getElementById('user-gemini-key').value.trim();
     if (val && val.length > 10) {
         localStorage.setItem('yaute_key_v3310', val);
-        document.getElementById('key-config-modal').style.display = 'none';
+        closeGeminiKeyModal(); // Use the new close function
         showToast('✅ Key guardada correctamente');
     } else {
         showToast('⚠ Key inválida', '#ef4444');
     }
 }
 
-function changeGeminiKey() {
-    document.getElementById('user-gemini-key').value = localStorage.getItem('yaute_key_v3310') || '';
-    document.getElementById('key-config-modal').style.display = 'flex';
-}
-
-function checkApiKey() {
-    if (!localStorage.getItem('yaute_key_v3310')) {
-        document.getElementById('key-config-modal').style.display = 'flex';
-        return false;
-    }
-    return true;
-}
-
 /* ══════════════════════════════════════════════════════════════════
    SCANNER CAMERA
 ══════════════════════════════════════════════════════════════════ */
 async function openScannerModal() {
-    if (!checkApiKey()) return;
+    // Check API Key before proceeding
+    if (!isGeminiKeySet()) {
+        changeGeminiKey(); // Show the API Key modal
+        showToast('⚠ Primero guarda tu API Key de Gemini.', '#f59e0b');
+        return;
+    }
+
     document.getElementById('ia-modal').style.display = 'flex';
     try {
         scannerStream = await navigator.mediaDevices.getUserMedia({
@@ -591,13 +624,20 @@ function captureOrientado(video) {
    IMAGE UPLOAD
 ══════════════════════════════════════════════════════════════════ */
 async function handleImageUpload(event) {
-    if (!checkApiKey()) return;
+    // Check API Key before proceeding
+    if (!isGeminiKeySet()) {
+        changeGeminiKey(); // Show the API Key modal
+        showToast('⚠ Primero guarda tu API Key de Gemini.', '#f59e0b');
+        event.target.value = ''; // Clear file input
+        return;
+    }
 
     const file = event.target.files[0];
     if (!file) return;
 
     if (!file.type.startsWith('image/')) {
         showToast('⚠ Por favor, sube un archivo de imagen.', '#f59e0b');
+        event.target.value = ''; // Clear file input
         return;
     }
 
@@ -660,7 +700,8 @@ async function captureIA() {
 async function processImageWithGemini(base64Image, snapIconElement) {
     const key = localStorage.getItem('yaute_key_v3310');
     if (!key) {
-        changeGeminiKey();
+        changeGeminiKey(); 
+        showToast('⚠ API Key de Gemini no encontrada.', '#ef4444');
         return;
     }
 
@@ -687,7 +728,7 @@ async function processImageWithGemini(base64Image, snapIconElement) {
         `;
 
         const res = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro-vision:generateContent?key=${key}`, // Using gemini-pro-vision for better image understanding
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${key}`, // Usando gemini-2.5-flash-lite
             {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -704,15 +745,21 @@ async function processImageWithGemini(base64Image, snapIconElement) {
         );
 
         const data = await res.json();
-        if (!res.ok) throw new Error(data.error?.message || `HTTP ${res.status}`);
+        if (!res.ok) {
+            // Specific error handling for model not found / unsupported
+            if (data.error && data.error.message.includes("models/gemini-2.5-flash-lite is not found") || 
+                data.error && data.error.message.includes("is not supported for generateContent")) {
+                throw new Error("El modelo Gemini 'gemini-2.5-flash-lite' no está disponible o accesible con tu API Key. Por favor, verifica tu API Key en Google AI Studio y asegúrate de que tenga los permisos necesarios para acceder a este modelo.");
+            }
+            throw new Error(data.error?.message || `HTTP ${res.status}`);
+        }
 
-        let extractedText = data.candidates[0].content.parts[0].text.trim();
-        pendingScannedText = extractedText;
+        pendingScannedText = data.candidates[0].content.parts[0].text.trim();
         
         showResultModal();
 
     } catch(e) {
-        showToast('❌ Error IA: ' + e.message, '#ef4444');
+        showToast('❌ Error IA: ' + e.message, '#ef4444', 6000); // Longer toast for important errors
     } finally {
         if (snapIconElement) {
             snapIconElement.className = 'fas fa-camera fa-2x text-primary';
@@ -877,15 +924,15 @@ async function handleAuth(isLogin, event) {
     const clickedButton = event.currentTarget; // Use currentTarget to get the button element
 
     // Store original text if not already stored
-    if (!originalLoginBtnText && loginBtn) originalLoginBtnText = loginBtn.textContent;
-    if (!originalRegisterBtnText && registerBtn) originalRegisterBtnText = registerBtn.textContent;
+    if (loginBtn && !loginBtn.dataset.originalText) loginBtn.dataset.originalText = loginBtn.textContent;
+    if (registerBtn && !registerBtn.dataset.originalText) registerBtn.dataset.originalText = registerBtn.textContent;
 
     // Disable all auth buttons and show spinner on the clicked one
     if (loginBtn) loginBtn.disabled = true;
     if (registerBtn) registerBtn.disabled = true;
 
     if (clickedButton && !clickedButton.querySelector('.spinner-border')) {
-        clickedButton.innerHTML = `<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>${clickedButton.textContent}`;
+        clickedButton.innerHTML = `<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>${clickedButton.dataset.originalText}`;
     }
 
     try {
@@ -913,11 +960,11 @@ async function handleAuth(isLogin, event) {
         // Re-enable buttons and restore original text
         if (loginBtn) {
             loginBtn.disabled = false;
-            loginBtn.innerHTML = originalLoginBtnText;
+            loginBtn.innerHTML = loginBtn.dataset.originalText;
         }
         if (registerBtn) {
             registerBtn.disabled = false;
-            registerBtn.innerHTML = originalRegisterBtnText;
+            registerBtn.innerHTML = registerBtn.dataset.originalText;
         }
     }
 }
@@ -936,13 +983,22 @@ function logout() {
    INIT
 ══════════════════════════════════════════════════════════════════ */
 window.onload = () => {
+    // Store original button texts on load
+    const loginBtn = document.getElementById('login-btn');
+    const registerBtn = document.getElementById('register-btn');
+    if (loginBtn) loginBtn.dataset.originalText = loginBtn.textContent;
+    if (registerBtn) registerBtn.dataset.originalText = registerBtn.textContent;
+
     // Show splash screen first
     document.getElementById('splash-screen').style.display = 'flex';
     setTimeout(() => {
         document.getElementById('splash-screen').classList.add('hidden');
         setTimeout(() => {
             document.getElementById('splash-screen').style.display = 'none';
-            document.getElementById('auth-screen').style.display = 'flex'; // Show auth screen after splash
+            // Only show auth screen if user is not already logged in (Firebase state listener handles this)
+            if (!auth.currentUser) {
+                document.getElementById('auth-screen').style.display = 'flex'; 
+            }
         }, 500); // Wait for transition
     }, 2500); // Show splash for 2.5 seconds
 
@@ -952,12 +1008,17 @@ window.onload = () => {
             // User is signed in
             document.getElementById('auth-screen').style.display = 'none';
             document.getElementById('main-app').style.display = 'flex';
-            document.getElementById('logout-btn').style.display = 'block'; // Show logout button in auth screen for convenience
-            checkApiKey(); // Prompt for Gemini key if not set
+            document.getElementById('logout-btn').style.display = 'block'; // Show logout button in main app
+            
+            // Check API key after main app is visible
+            if (!isGeminiKeySet()) {
+                changeGeminiKey(); // This will display the modal
+                showToast('⚠ Ingresa tu API Key de Gemini para escanear.', '#f59e0b', 5000); // Longer toast for importance
+            }
         } else {
             // User is signed out
             document.getElementById('main-app').style.display = 'none';
-            document.getElementById('key-config-modal').style.display = 'none'; // Hide key modal if user logs out
+            closeGeminiKeyModal(); // Hide key modal if user logs out
             document.getElementById('auth-screen').style.display = 'flex';
             document.getElementById('logout-btn').style.display = 'none';
         }
