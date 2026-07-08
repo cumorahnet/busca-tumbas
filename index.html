@@ -155,6 +155,13 @@
             pointer-events: none;
         }
 
+        #splash-screen .version-text {
+            font-size: 1.2rem;
+            font-weight: normal;
+            margin-top: 10px;
+            color: rgba(255,255,255,0.8);
+        }
+
         /* AUTH SCREEN */
         #auth-screen {
             position: fixed;
@@ -367,7 +374,10 @@
 
 <!-- SPLASH SCREEN -->
 <div id="splash-screen">
-    BUSCA TUMBAS
+    <div>
+        BUSCA TUMBAS
+        <div class="version-text" id="splash-version"></div>
+    </div>
 </div>
 
 <!-- AUTH SCREEN -->
@@ -439,7 +449,7 @@
 
     <div class="card-custom">
         <h5 class="fw-bold mb-4 text-center" style="color:var(--primary);">
-            <i class="fas fa-image me-2" style="color:var(--accent);"></i>Escáner de Tumbas
+            <i class="fas fa-image me-2" style="color:var(--accent);"></i>Busca Tumbas <span style="font-size: 0.7em; font-weight: normal; color: #6b7280;" id="app-header-version"></span>
         </h5>
         <button class="btn btn-primary w-100 py-3 rounded-pill fw-bold mb-3" onclick="openScannerModal()">
             <i class="fas fa-camera me-2"></i>ABRIR CÁMARA
@@ -463,6 +473,11 @@
 
 
 <script>
+/* ══════════════════════════════════════════════════════════════════
+   CONFIGURACIÓN DE LA APLICACIÓN
+══════════════════════════════════════════════════════════════════ */
+const APP_VERSION = "v1.0.0"; // Definir la versión de la aplicación aquí
+
 /* ══════════════════════════════════════════════════════════════════
    CONFIGURACIÓN FIREBASE
 ══════════════════════════════════════════════════════════════════ */
@@ -983,6 +998,10 @@ function logout() {
    INIT
 ══════════════════════════════════════════════════════════════════ */
 window.onload = () => {
+    // Populate version text in splash screen and header
+    document.getElementById('splash-version').textContent = APP_VERSION;
+    document.getElementById('app-header-version').textContent = APP_VERSION;
+
     // Store original button texts on load
     const loginBtn = document.getElementById('login-btn');
     const registerBtn = document.getElementById('register-btn');
