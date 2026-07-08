@@ -463,8 +463,9 @@ async function openScannerModal() {
 
     document.getElementById('ia-modal').style.display = 'flex';
     try {
+        // Simplified video constraints to let the browser pick optimal resolution/aspect ratio
         scannerStream = await navigator.mediaDevices.getUserMedia({
-            video: { facingMode: 'environment', width: { ideal: 1920 }, height: { ideal: 1080 } }
+            video: { facingMode: 'environment' }
         });
         document.getElementById('cam-preview-ia').srcObject = scannerStream;
         currentGeolocation = await getGeolocation(); // Obtener ubicación al abrir la cámara
@@ -489,17 +490,18 @@ function captureOrientado(video) {
     const c = document.createElement('canvas');
     const ctx = c.getContext('2d');
 
+    // Detect orientation and draw correctly
+    // If video height is greater than or equal to width, it's already in portrait or square-ish
     if (vh >= vw) {
-        // Ya es portrait
         c.width = vw;
         c.height = vh;
-        ctx.drawImage(video, 0, 0);
+        ctx.drawImage(video, 0, 0, vw, vh);
     } else {
-        // Landscape → rotar 90° a portrait
+        // If video is landscape, rotate it to portrait (or attempt to)
         c.width = vh;
         c.height = vw;
         ctx.translate(c.width / 2, c.height / 2);
-        ctx.rotate(Math.PI / 2);
+        ctx.rotate(Math.PI / 2); // Rotate 90 degrees clockwise
         ctx.drawImage(video, -vw / 2, -vh / 2, vw, vh);
     }
     return c;
@@ -534,16 +536,16 @@ async function handleImageUpload(event) {
             const ctx = canvas.getContext('2d');
 
             // Resize image if too large to avoid memory issues and API limits
-            const MAX_DIM = 1920;
+            const MAX_DIM = 1920; // Max dimension for width or height
             let width = img.width;
             let height = img.height;
 
-            if (width > height) {
+            if (width > height) { // Landscape image
                 if (width > MAX_DIM) {
                     height *= MAX_DIM / width;
                     width = MAX_DIM;
                 }
-            } else {
+            } else { // Portrait or square image
                 if (height > MAX_DIM) {
                     width *= MAX_DIM / height;
                     height = MAX_DIM;
