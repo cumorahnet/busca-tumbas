@@ -175,6 +175,26 @@
             margin-bottom: 20px;
         }
 
+        .input-group .form-control:not(:last-child) {
+            border-top-right-radius: 14px;
+            border-bottom-right-radius: 14px;
+        }
+        .input-group .btn {
+            border-top-left-radius: 0;
+            border-bottom-left-radius: 0;
+            padding: 0.8rem 1rem; /* Match input padding */
+        }
+        .input-group:not(.has-validation) > .dropdown-toggle:nth-last-child(n+3), .input-group:not(.has-validation) > :not(:last-child):not(.dropdown-toggle):not(.custom-file-input):not(.custom-file-label), .input-group:not(.has-validation) > .custom-file:not(:last-child) .custom-file-label {
+             border-top-right-radius: 14px !important;
+             border-bottom-right-radius: 14px !important;
+        }
+        .input-group > .form-control, .input-group > .form-select, .input-group > .custom-file {
+            position: relative;
+            flex: 1 1 auto;
+            width: 1%;
+            min-width: 0;
+        }
+
         /* SCANNER MODAL */
         #ia-modal {
             position: fixed;
@@ -337,9 +357,14 @@
     <div class="card-custom">
         <h5 class="fw-bold mb-4">Bienvenido a Busca Tumbas</h5>
         <input type="email" id="auth-email" class="form-control mb-2" placeholder="Correo electrónico">
-        <input type="password" id="auth-password" class="form-control mb-3" placeholder="Contraseña">
-        <button class="btn btn-primary w-100 py-2 rounded-pill fw-bold mb-2" onclick="handleAuth(true)">INICIAR SESIÓN</button>
-        <button class="btn btn-outline-secondary w-100 py-2 rounded-pill fw-bold" onclick="handleAuth(false)">REGISTRARSE</button>
+        <div class="input-group mb-3">
+            <input type="password" id="auth-password" class="form-control" placeholder="Contraseña">
+            <button class="btn btn-outline-secondary" type="button" id="toggle-password-visibility" onclick="togglePasswordVisibility('auth-password', this)">
+                <i class="fas fa-eye"></i>
+            </button>
+        </div>
+        <button class="btn btn-primary w-100 py-2 rounded-pill fw-bold mb-2" id="login-btn" onclick="handleAuth(true, event)">INICIAR SESIÓN</button>
+        <button class="btn btn-outline-secondary w-100 py-2 rounded-pill fw-bold" id="register-btn" onclick="handleAuth(false, event)">REGISTRARSE</button>
         <button class="btn btn-link text-danger mt-3" onclick="logout()" id="logout-btn" style="display:none;">Cerrar Sesión</button>
     </div>
 </div>
@@ -440,6 +465,11 @@ let pendingScannedText = '';
 let pendingCanvas = null;
 let outputArray = [];
 let currentGeolocation = null; // Para guardar la ubicación actual
+
+// Original text for auth buttons to restore after loading
+let originalLoginBtnText = 'INICIAR SESIÓN';
+let originalRegisterBtnText = 'REGISTRARSE';
+
 
 /* ══════════════════════════════════════════════════════════════════
    TOAST
@@ -813,15 +843,49 @@ function clearOutput() {
 }
 
 /* ══════════════════════════════════════════════════════════════════
+   PASSWORD VISIBILITY TOGGLE
+══════════════════════════════════════════════════════════════════ */
+function togglePasswordVisibility(inputId, buttonElement) {
+    const input = document.getElementById(inputId);
+    const icon = buttonElement.querySelector('i');
+
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+    } else {
+        input.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+    }
+}
+
+/* ══════════════════════════════════════════════════════════════════
    FIREBASE AUTHENTICATION
 ══════════════════════════════════════════════════════════════════ */
-async function handleAuth(isLogin) {
+async function handleAuth(isLogin, event) {
     const email = document.getElementById('auth-email').value;
     const password = document.getElementById('auth-password').value;
 
     if (!email || !password) {
         showToast('⚠ Por favor, ingresa email y contraseña', '#f59e0b');
         return;
+    }
+
+    const loginBtn = document.getElementById('login-btn');
+    const registerBtn = document.getElementById('register-btn');
+    const clickedButton = event.currentTarget; // Use currentTarget to get the button element
+
+    // Store original text if not already stored
+    if (!originalLoginBtnText && loginBtn) originalLoginBtnText = loginBtn.textContent;
+    if (!originalRegisterBtnText && registerBtn) originalRegisterBtnText = registerBtn.textContent;
+
+    // Disable all auth buttons and show spinner on the clicked one
+    if (loginBtn) loginBtn.disabled = true;
+    if (registerBtn) registerBtn.disabled = true;
+
+    if (clickedButton && !clickedButton.querySelector('.spinner-border')) {
+        clickedButton.innerHTML = `<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>${clickedButton.textContent}`;
     }
 
     try {
@@ -845,6 +909,16 @@ async function handleAuth(isLogin) {
             msg = 'La contraseña debe tener al menos 6 caracteres.';
         }
         showToast(`❌ ${msg}`, '#ef4444');
+    } finally {
+        // Re-enable buttons and restore original text
+        if (loginBtn) {
+            loginBtn.disabled = false;
+            loginBtn.innerHTML = originalLoginBtnText;
+        }
+        if (registerBtn) {
+            registerBtn.disabled = false;
+            registerBtn.innerHTML = originalRegisterBtnText;
+        }
     }
 }
 
