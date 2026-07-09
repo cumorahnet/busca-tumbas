@@ -302,6 +302,15 @@
         </button>
     </div>
 
+    <!-- NEW: Image Preview Card -->
+    <div class="card-custom" id="image-preview-card" style="display: none;">
+        <h6 class="fw-bold mb-3" style="color:var(--primary);">Imagen Cargada</h6>
+        <img id="uploaded-image-preview" src="#" alt="Vista previa de imagen" class="img-fluid rounded" style="max-height: 300px; width: auto; display: block; margin: 0 auto; object-fit: contain;">
+        <button class="btn btn-outline-secondary btn-sm w-100 mt-3 rounded-pill" onclick="clearImagePreview()">
+            <i class="fas fa-times-circle me-2"></i>Quitar imagen
+        </button>
+    </div>
+
     <!-- NEW: Form for displaying extracted data -->
     <div class="card-custom" id="extracted-data-card" style="display: none;">
         <h6 class="fw-bold mb-3" style="color:var(--primary);">Últimos Datos Escaneados</h6>
@@ -457,7 +466,7 @@ async function openScannerModal() {
     // Check API Key before proceeding
     if (!isGeminiKeySet()) {
         changeGeminiKey(); // Show the API Key modal
-        showToast('⚠ Primero guarda tu API Key de Gemini.', '#f59e0b');
+        showToast('⚠ Primero guarda tu API Key de Gemini.', '#f59e0b', 5000); // Longer toast
         return;
     }
 
@@ -514,7 +523,7 @@ async function handleImageUpload(event) {
     // Check API Key before proceeding
     if (!isGeminiKeySet()) {
         changeGeminiKey(); // Show the API Key modal
-        showToast('⚠ Primero guarda tu API Key de Gemini.', '#f59e0b');
+        showToast('⚠ Primero guarda tu API Key de Gemini.', '#f59e0b', 5000); // Longer toast
         event.target.value = ''; // Clear file input
         return;
     }
@@ -558,6 +567,11 @@ async function handleImageUpload(event) {
             pendingCanvas = canvas;
             currentGeolocation = await getGeolocation(); // Obtener ubicación al subir archivo
             const b64 = canvas.toDataURL('image/jpeg', 0.88).split(',')[1];
+
+            // Display image preview
+            document.getElementById('uploaded-image-preview').src = e.target.result;
+            document.getElementById('image-preview-card').style.display = 'block';
+
             await processImageWithGemini(b64, null); // Pass null for snapIcon as it's not a camera capture
         };
         img.src = e.target.result;
@@ -579,6 +593,10 @@ async function captureIA() {
     pendingCanvas = captureOrientado(video);
     const b64 = pendingCanvas.toDataURL('image/jpeg', 0.88).split(',')[1];
 
+    // Display image preview
+    document.getElementById('uploaded-image-preview').src = pendingCanvas.toDataURL('image/jpeg', 0.88);
+    document.getElementById('image-preview-card').style.display = 'block';
+
     const snapIcon = document.getElementById('snap-icon');
     await processImageWithGemini(b64, snapIcon);
     closeScanner(); // Close scanner only after processing
@@ -588,7 +606,7 @@ async function processImageWithGemini(base64Image, snapIconElement) {
     const key = localStorage.getItem('yaute_key_v3310');
     if (!key) {
         changeGeminiKey(); 
-        showToast('⚠ API Key de Gemini no encontrada.', '#ef4444');
+        showToast('⚠ API Key de Gemini no encontrada.', '#ef4444', 5000); // Longer toast
         return;
     }
 
@@ -700,7 +718,7 @@ function populateExtractedDataForm(scannedText, geolocation) {
     document.getElementById('extracted-data-card').style.display = 'flex'; // Show the card
 }
 
-// Function to save the currently displayed (and potentially edited) form data to history
+// Function to save the currently displayed (y potencialmente editado) form data to history
 function saveCurrentFormDataToHistory() {
     const nombreFinado = document.getElementById('display-nombre-finado').value;
     const fechaNacimiento = document.getElementById('display-fecha-nacimiento').value;
@@ -734,7 +752,6 @@ function saveCurrentFormDataToHistory() {
     // Keep data in form after saving for user to verify or further edit.
 }
 
-
 // Function to clear the displayed form data
 function clearDisplayedData() {
     document.getElementById('display-nombre-finado').value = '';
@@ -744,7 +761,17 @@ function clearDisplayedData() {
     document.getElementById('display-geolocation').value = '';
     document.getElementById('display-raw-text').value = '';
     document.getElementById('extracted-data-card').style.display = 'none'; // Hide if cleared
+    clearImagePreview(); // Clear image preview as well
     showToast('✅ Formulario limpiado');
+}
+
+// Function to clear the image preview
+function clearImagePreview() {
+    const previewImg = document.getElementById('uploaded-image-preview');
+    const previewCard = document.getElementById('image-preview-card');
+    previewImg.src = '#'; // Reset image source
+    previewImg.alt = "Vista previa de imagen";
+    previewCard.style.display = 'none'; // Hide the card
 }
 
 
@@ -884,6 +911,7 @@ window.onload = () => {
             closeGeminiKeyModal(); // Hide key modal if user logs out
             document.getElementById('auth-screen').style.display = 'flex';
             document.getElementById('logout-btn').style.display = 'none';
+            clearDisplayedData(); // Clear any displayed data/image on logout
         }
     });
 };
