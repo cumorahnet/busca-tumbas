@@ -395,16 +395,14 @@
         }
 
         /* ============================================================
-           NUEVO DISEÑO DE EXTRACCIÓN DE DATOS - LIMPIO Y ORGANIZADO
+           DISEÑO DE EXTRACCIÓN DE DATOS - CON TÍTULOS DE CAMPO
            ============================================================ */
         
-        /* Contenedor principal de escaneo */
         .scan-container {
             display: none;
             gap: 1.5rem;
         }
 
-        /* Columna izquierda: imagen */
         .scan-image-col {
             flex: 0 0 42%;
             min-width: 0;
@@ -418,13 +416,12 @@
             background: #f8fafc;
         }
 
-        /* Columna derecha: formulario */
         .scan-form-col {
             flex: 1;
             min-width: 0;
         }
 
-        /* Encabezado del formulario - una sola línea */
+        /* Encabezado del formulario */
         .form-header {
             display: flex;
             justify-content: space-between;
@@ -443,27 +440,43 @@
             color: var(--accent);
         }
 
-        /* Grid de campos - más ancho y ordenado */
+        /* Grid de campos con títulos debajo */
         .fields-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 0.6rem;
+            gap: 0.75rem;
         }
         .fields-grid .full-width {
             grid-column: 1 / -1;
         }
 
-        .fields-grid .form-control {
+        .field-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.2rem;
+        }
+
+        .field-group .form-control {
             font-size: 0.9rem;
             padding: 0.6rem 0.8rem;
             height: 42px;
         }
-        .fields-grid textarea.form-control {
+
+        .field-group textarea.form-control {
             height: auto;
             min-height: 60px;
             resize: vertical;
             font-family: 'Courier New', monospace;
             font-size: 0.8rem;
+        }
+
+        .field-label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-top: 0.1rem;
         }
 
         /* Botones de acción pequeños en la parte inferior */
@@ -483,7 +496,6 @@
             margin-right: 0.35rem;
         }
 
-        /* Botones de captura/subida */
         .capture-buttons {
             display: flex;
             gap: 0.75rem;
@@ -493,7 +505,18 @@
             padding: 0.85rem 1.25rem;
         }
 
-        /* Ajustes responsivos */
+        /* Ocultar elementos cuando no se usan */
+        #mode-selection-card, #add-tomb-section {
+            display: none;
+        }
+        #upload-capture-card {
+            display: block;
+        }
+        #scan-container {
+            display: none;
+        }
+
+        /* Responsive */
         @media (max-width: 768px) {
             .scan-container {
                 flex-direction: column;
@@ -540,9 +563,9 @@
             }
             .fields-grid {
                 grid-template-columns: 1fr;
-                gap: 0.4rem;
+                gap: 0.5rem;
             }
-            .fields-grid .form-control {
+            .field-group .form-control {
                 height: 38px;
                 font-size: 0.85rem;
                 padding: 0.5rem 0.7rem;
@@ -562,6 +585,9 @@
                 font-size: 0.75rem;
                 padding: 0.35rem 0.8rem;
             }
+            .field-label {
+                font-size: 0.65rem;
+            }
         }
 
         @media (max-width: 400px) {
@@ -571,17 +597,6 @@
                 padding: 0.5rem 0.7rem;
             }
             .app-header h4 { font-size: 1rem; }
-        }
-
-        /* Ocultar elementos cuando no se usan */
-        #mode-selection-card, #add-tomb-section {
-            display: none;
-        }
-        #upload-capture-card {
-            display: block;
-        }
-        #scan-container {
-            display: none;
         }
     </style>
 </head>
@@ -691,7 +706,7 @@
             </div>
         </div>
 
-        <!-- NUEVO: Layout de escaneo limpio y organizado -->
+        <!-- Layout de escaneo con títulos de campo -->
         <div class="card-custom" id="scan-container">
             <div class="scan-container" style="display:flex;">
                 <!-- Columna izquierda: Imagen -->
@@ -716,25 +731,31 @@
                         </span>
                     </div>
 
-                    <!-- Campos del formulario en grid -->
+                    <!-- Campos del formulario con títulos debajo -->
                     <div class="fields-grid">
-                        <div>
+                        <div class="field-group">
                             <input type="text" id="display-nombre-finado" class="form-control" placeholder="Nombre del finado">
+                            <span class="field-label">Nombre del finado</span>
                         </div>
-                        <div>
-                            <input type="text" id="display-fecha-nacimiento" class="form-control" placeholder="Fecha de nacimiento">
+                        <div class="field-group">
+                            <input type="text" id="display-fecha-nacimiento" class="form-control" placeholder="DD de Mes de AAAA">
+                            <span class="field-label">Fecha de nacimiento</span>
                         </div>
-                        <div>
-                            <input type="text" id="display-fecha-defuncion" class="form-control" placeholder="Fecha de defunción">
+                        <div class="field-group">
+                            <input type="text" id="display-fecha-defuncion" class="form-control" placeholder="DD de Mes de AAAA">
+                            <span class="field-label">Fecha de defunción</span>
                         </div>
-                        <div>
+                        <div class="field-group">
                             <input type="text" id="display-nombre-panteon" class="form-control" placeholder="Nombre del panteón">
+                            <span class="field-label">Nombre del panteón</span>
                         </div>
-                        <div class="full-width">
+                        <div class="field-group full-width">
                             <input type="text" id="display-geolocation" class="form-control" readonly placeholder="Ubicación">
+                            <span class="field-label">Ubicación</span>
                         </div>
-                        <div class="full-width">
+                        <div class="field-group full-width">
                             <textarea id="display-raw-text" class="form-control" rows="2" placeholder="Texto completo extraído"></textarea>
+                            <span class="field-label">Texto completo</span>
                         </div>
                     </div>
 
@@ -757,7 +778,7 @@
 /* ══════════════════════════════════════════════════════════════════
    CONFIGURACIÓN DE LA APLICACIÓN
 ══════════════════════════════════════════════════════════════════ */
-const APP_VERSION = "v1.0.3";
+const APP_VERSION = "v1.0.4";
 
 /* ══════════════════════════════════════════════════════════════════
    CONFIGURACIÓN FIREBASE
@@ -1024,6 +1045,50 @@ function clearFormFields() {
     document.getElementById('display-raw-text').value = '';
 }
 
+/* ══════════════════════════════════════════════════════════════════
+   PROCESAMIENTO CON GEMINI - FORMATO DE FECHA DÍA MES AÑO
+══════════════════════════════════════════════════════════════════ */
+
+/**
+ * Convierte una fecha en formato ISO (YYYY-MM-DD) o cualquier otro
+ * a formato legible: "DD de Mes de AAAA"
+ */
+function formatDateToSpanish(dateStr) {
+    if (!dateStr || dateStr === '' || dateStr === 'null') return '';
+    
+    // Intentar parsear la fecha
+    let date = null;
+    let year, month, day;
+    
+    // Intentar formato ISO YYYY-MM-DD
+    const isoMatch = dateStr.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (isoMatch) {
+        year = parseInt(isoMatch[1]);
+        month = parseInt(isoMatch[2]) - 1;
+        day = parseInt(isoMatch[3]);
+        date = new Date(year, month, day);
+    } else {
+        // Intentar otras variantes
+        date = new Date(dateStr);
+        if (isNaN(date.getTime())) {
+            // Si no se puede parsear, devolver el original
+            return dateStr;
+        }
+        year = date.getFullYear();
+        month = date.getMonth();
+        day = date.getDate();
+    }
+    
+    if (isNaN(date.getTime())) return dateStr;
+    
+    const meses = [
+        'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+        'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+    ];
+    
+    return `${day} de ${meses[month]} de ${year}`;
+}
+
 async function processImageWithGemini(base64Image) {
     const key = localStorage.getItem('yaute_key_v3310');
     if (!key) {
@@ -1037,14 +1102,16 @@ async function processImageWithGemini(base64Image) {
         const promptText = `
             Extrae la siguiente información de la imagen de una lápida o documento fúnebre.
             Si un dato no está presente o no es claro, usa null.
-            Formato de salida JSON:
+            
+            IMPORTANTE: Las fechas DEBEN estar en formato ISO: "YYYY-MM-DD"
+            
+            Formato de salida JSON (SOLO JSON, sin texto adicional):
             {
                 "nombre_finado": "string | null",
                 "fecha_nacimiento": "YYYY-MM-DD | null",
                 "fecha_defuncion": "YYYY-MM-DD | null",
                 "nombre_panteon": "string | null"
             }
-            Si no puedes extraer nada de lo anterior, devuelve el texto crudo extraído de la imagen como una cadena de texto sin formato JSON.
         `;
 
         const res = await fetch(
@@ -1068,7 +1135,7 @@ async function processImageWithGemini(base64Image) {
         if (!res.ok) {
             if (data.error && data.error.message.includes("models/gemini-2.5-flash-lite is not found") || 
                 data.error && data.error.message.includes("is not supported for generateContent")) {
-                throw new Error("El modelo Gemini 'gemini-2.5-flash-lite' no está disponible o accesible con tu API Key. Por favor, verifica tu API Key en Google AI Studio y asegúrate de que tenga los permisos necesarios para acceder a este modelo.");
+                throw new Error("El modelo Gemini 'gemini-2.5-flash-lite' no está disponible o accesible con tu API Key.");
             }
             throw new Error(data.error?.message || `HTTP ${res.status}`);
         }
@@ -1084,7 +1151,7 @@ async function processImageWithGemini(base64Image) {
 }
 
 /* ══════════════════════════════════════════════════════════════════
-   RESULTADOS DE ESCANEO (Directamente en formulario)
+   RESULTADOS DE ESCANEO - CON FORMATO DE FECHA LEGIBLE
 ══════════════════════════════════════════════════════════════════ */
 function populateExtractedDataForm(scannedText, geolocation) {
     let parsedData = {
@@ -1096,12 +1163,15 @@ function populateExtractedDataForm(scannedText, geolocation) {
     };
 
     try {
+        // Buscar JSON en la respuesta
         const jsonMatch = scannedText.match(/\{[\s\S]*\}/);
         if (jsonMatch) {
             const data = JSON.parse(jsonMatch[0]);
             parsedData.nombre_finado = data.nombre_finado || '';
-            parsedData.fecha_nacimiento = data.fecha_nacimiento || '';
-            parsedData.fecha_defuncion = data.fecha_defuncion || '';
+            
+            // Convertir fechas ISO a formato legible en español
+            parsedData.fecha_nacimiento = formatDateToSpanish(data.fecha_nacimiento);
+            parsedData.fecha_defuncion = formatDateToSpanish(data.fecha_defuncion);
             parsedData.nombre_panteon = data.nombre_panteon || '';
         }
     } catch (e) {
