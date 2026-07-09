@@ -23,6 +23,10 @@
             box-sizing: border-box;
         }
 
+        html {
+            font-size: 16px; /* Base for rem units, adjust as needed */
+        }
+
         html, body {
             height: 100%;
             margin: 0;
@@ -30,7 +34,7 @@
             background: linear-gradient(135deg, #f8fafc 0%, #eef4ff 100%);
             font-family: 'Inter', system-ui, sans-serif;
             color: var(--primary);
-            overflow-x: hidden;
+            overflow-x: hidden; /* Prevent horizontal scrolling */
         }
 
         body {
@@ -44,11 +48,11 @@
         .container-main {
             display: none;
             flex-direction: column;
-            gap: 18px;
-            padding: 24px 18px 36px;
+            gap: 1.125rem; /* 18px */
+            padding: 1.5rem 1rem 2.25rem; /* 24px 16px 36px */
             max-width: 760px;
             margin: 0 auto;
-            width: min(100%, 760px);
+            width: 100%; /* Always take full width on smaller screens */
             overflow-y: auto;
             min-height: 100vh;
             box-sizing: border-box;
@@ -57,10 +61,10 @@
 
         .card-custom {
             background: rgba(255,255,255,0.96);
-            border-radius: 24px;
-            padding: 22px;
+            border-radius: 1.5rem; /* 24px */
+            padding: 1.375rem; /* 22px */
             border: 1px solid rgba(226,232,240,0.9);
-            box-shadow: 0 18px 45px rgba(15,23,42,0.08);
+            box-shadow: 0 1.125rem 2.8125rem rgba(15,23,42,0.08); /* 18px 45px */
             backdrop-filter: blur(10px);
         }
 
@@ -80,7 +84,7 @@
         .hero-badge {
             display: inline-flex;
             align-items: center;
-            gap: 8px;
+            gap: 0.5rem; /* 8px */
             padding: 0.4rem 0.75rem;
             border-radius: 999px;
             background: rgba(59,130,246,0.12);
@@ -94,7 +98,7 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            min-width: 56px;
+            min-width: 3.5rem; /* 56px */
             padding: 0.4rem 0.6rem;
             border-radius: 999px;
             background: #f1f5f9;
@@ -106,7 +110,7 @@
         .section-title {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 0.5rem; /* 8px */
             font-size: 0.95rem;
             font-weight: 700;
             color: var(--primary);
@@ -123,22 +127,22 @@
         .action-stack {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 0.625rem; /* 10px */
         }
 
         .info-grid {
             display: grid;
-            gap: 10px;
-            margin-top: 12px;
+            gap: 0.625rem; /* 10px */
+            margin-top: 0.75rem; /* 12px */
         }
 
         .info-pill {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 0.625rem; /* 10px */
             padding: 0.85rem 0.95rem;
             background: #f8fafc;
-            border-radius: 16px;
+            border-radius: 1rem; /* 16px */
             color: #334155;
             font-size: 0.9rem;
             border: 1px solid #e2e8f0;
@@ -149,9 +153,9 @@
         }
 
         .form-control, .form-select {
-            padding: 0.8rem 1rem;
-            font-size: 0.95rem;
-            border-radius: 14px;
+            padding: 0.7rem 0.9rem; /* Slightly reduced padding */
+            font-size: 0.9rem; /* Slightly smaller font for inputs */
+            border-radius: 0.875rem; /* 14px */
             border: 2px solid #f1f5f9;
             background: #fff;
             color: var(--primary);
@@ -159,7 +163,7 @@
 
         .form-control:focus {
             border-color: var(--accent);
-            box-shadow: 0 0 0 4px rgba(59,130,246,0.1);
+            box-shadow: 0 0 0 0.25rem rgba(59,130,246,0.1); /* 4px */
             outline: none;
         }
 
@@ -167,6 +171,7 @@
             border-radius: 999px;
             font-weight: 700;
             transition: transform 0.2s ease, box-shadow 0.2s ease;
+            padding: 0.85rem 1.25rem; /* Consistent padding for all buttons */
         }
 
         .btn:hover {
@@ -215,7 +220,7 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            font-size: 3rem;
+            font-size: 3rem; /* Default for larger screens */
             font-weight: 800;
             z-index: 50000;
             opacity: 1;
@@ -230,7 +235,7 @@
         #splash-screen .version-text {
             font-size: 1.05rem;
             font-weight: 500;
-            margin-top: 10px;
+            margin-top: 0.625rem; /* 10px */
             color: rgba(255,255,255,0.8);
         }
 
@@ -244,34 +249,35 @@
             justify-content: center;
             z-index: 40000;
             display: none;
-            padding: 16px;
+            padding: 1rem; /* 16px */
         }
         #auth-screen .card-custom {
             max-width: 430px;
             width: 100%;
             text-align: center;
+            padding: 1.5rem; /* Consistent padding for auth card */
         }
         #auth-screen h5 {
             color: var(--primary);
-            margin-bottom: 8px;
+            margin-bottom: 0.8rem; /* 12.8px */
         }
         #auth-screen p {
             color: #64748b;
-            font-size: 0.92rem;
-            margin-bottom: 18px;
+            font-size: 0.875rem; /* 14px */
+            margin-bottom: 1.125rem; /* 18px */
         }
 
         .input-group {
             display: flex;
             align-items: stretch;
-            border-radius: 14px;
+            border-radius: 0.875rem; /* 14px */
             border: 2px solid #f1f5f9;
             overflow: hidden;
             background-color: #fff;
         }
         .input-group .form-control {
             border: none;
-            padding: 0.8rem 1rem;
+            padding: 0.7rem 0.9rem; /* Match new form-control padding */
             height: auto;
             flex-grow: 1;
             box-shadow: none;
@@ -281,13 +287,13 @@
         }
         .input-group:focus-within {
             border-color: var(--accent);
-            box-shadow: 0 0 0 4px rgba(59,130,246,0.1);
+            box-shadow: 0 0 0 0.25rem rgba(59,130,246,0.1);
         }
         .input-group > .btn {
             border: none;
             background-color: #fff;
             color: var(--primary);
-            padding: 0.8rem 1rem;
+            padding: 0.7rem 0.9rem; /* Match new form-control padding */
             flex-shrink: 0;
             box-shadow: none;
         }
@@ -303,25 +309,31 @@
             justify-content: center;
             background: rgba(15,23,42,0.72);
             z-index: 5000;
-            padding: 16px;
+            padding: 1rem; /* 16px */
         }
 
         #key-config-modal .card-custom {
             max-width: 390px;
             width: 100%;
             text-align: center;
+            padding: 1.5rem; /* Consistent padding */
+        }
+        #key-config-modal p {
+            font-size: 0.75rem; /* 12px */
+            line-height: 1.4;
+            margin-bottom: 1rem; /* 16px */
         }
 
         #result-modal #result-panel {
             width: min(100%, 420px);
             background: #fff;
-            border-radius: 24px;
-            padding: 20px;
-            box-shadow: 0 18px 45px rgba(15,23,42,0.18);
+            border-radius: 1.5rem; /* 24px */
+            padding: 1.25rem; /* 20px */
+            box-shadow: 0 1.125rem 2.8125rem rgba(15,23,42,0.18);
         }
 
         .form-label {
-            font-size: 0.75rem;
+            font-size: 0.7rem; /* 11.2px, slightly smaller for labels */
             font-weight: 700;
             color: #475569;
             margin-bottom: 0.25rem;
@@ -337,19 +349,19 @@
         }
         #extracted-data-card .form-control:focus {
             border-color: var(--accent);
-            box-shadow: 0 0 0 4px rgba(59,130,246,0.1);
+            box-shadow: 0 0 0 0.25rem rgba(59,130,246,0.1);
             outline: none;
         }
 
         #extracted-data-card form {
             display: grid;
-            gap: 12px;
-            margin-top: 8px;
+            gap: 0.75rem; /* 12px */
+            margin-top: 0.5rem; /* 8px */
         }
 
         .form-grid {
             display: grid;
-            gap: 12px;
+            gap: 0.75rem; /* 12px */
         }
 
         .form-grid .full {
@@ -358,24 +370,25 @@
 
         #image-preview-card {
             display: none;
-            gap: 12px;
+            flex-direction: column;
+            gap: 0.75rem; /* 12px */
         }
 
         #uploaded-image-preview {
             width: 100%;
-            max-height: 320px;
+            max-height: 20rem; /* 320px */
             object-fit: contain;
-            border-radius: 16px;
+            border-radius: 1rem; /* 16px */
             border: 1px solid #e2e8f0;
             background: #f8fafc;
             display: block;
-            margin: 0 auto;
+            margin: 0.75rem auto 0; /* 12px auto 0 */
         }
 
         #logout-btn {
             position: absolute;
-            top: 12px;
-            right: 12px;
+            top: 0.75rem; /* 12px */
+            right: 0.75rem; /* 12px */
             z-index: 1000;
             padding: 0.45rem 0.75rem;
             border-radius: 999px;
@@ -391,6 +404,7 @@
 
         #ia-modal {
             flex-direction: column;
+            padding: 0; /* No padding needed, video will fill */
         }
 
         #ia-modal video {
@@ -404,53 +418,147 @@
             position: absolute;
             inset: 0;
             border: 2px solid rgba(255,255,255,0.4);
-            border-radius: 24px;
+            border-radius: 1.5rem; /* 24px */
             pointer-events: none;
-            margin: 14px;
+            margin: 0.875rem; /* 14px */
         }
 
         #cam-top-bar {
             position: absolute;
-            top: 16px;
-            left: 16px;
-            right: 16px;
+            top: 1rem; /* 16px */
+            left: 1rem; /* 16px */
+            right: 1rem; /* 16px */
             display: flex;
             justify-content: space-between;
             align-items: center;
             z-index: 2;
         }
+        #cam-top-bar .btn { /* Smaller buttons for camera top bar */
+            padding: 0.3rem 0.6rem;
+            font-size: 0.7rem;
+        }
+
 
         #snap-btn {
             position: absolute;
-            bottom: 24px;
+            bottom: 1.5rem; /* 24px */
             left: 50%;
             transform: translateX(-50%);
-            width: 74px;
-            height: 74px;
+            width: 4.625rem; /* 74px */
+            height: 4.625rem; /* 74px */
             border-radius: 50%;
             background: white;
-            box-shadow: 0 10px 24px rgba(0,0,0,0.2);
+            box-shadow: 0 0.625rem 1.5rem rgba(0,0,0,0.2); /* 10px 24px */
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
             z-index: 2;
         }
+        
+        /* Toast Message Styling */
+        #toast-msg {
+            display: none;
+            position: fixed;
+            bottom: 1.25rem; /* 20px */
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333; /* Default, overridden by JS */
+            color: white;
+            padding: 0.75rem 1.25rem; /* 12px 20px */
+            border-radius: 0.625rem; /* 10px */
+            font-size: 0.9rem;
+            text-align: center;
+            z-index: 10000;
+            box-shadow: 0 0.25rem 0.9375rem rgba(0,0,0,0.2); /* 4px 15px */
+            max-width: 90%; /* Max width relative to viewport */
+            min-width: 12.5rem; /* 200px minimum width */
+            white-space: pre-wrap; /* Allow long messages to wrap */
+            word-break: break-word; /* Ensure long words break */
+            box-sizing: border-box;
+        }
 
-        @media (min-width: 700px) {
+
+        /* Media Queries for Responsiveness */
+        @media (max-width: 768px) { /* Tablet size and below */
+            #splash-screen {
+                font-size: 2.5rem;
+            }
+            #auth-screen .card-custom,
+            #key-config-modal .card-custom {
+                padding: 1.25rem; /* Slightly less padding on smaller screens */
+            }
+            #auth-screen p {
+                font-size: 0.85rem;
+            }
+            .section-title {
+                font-size: 0.9rem;
+            }
+            .section-subtitle {
+                font-size: 0.85rem;
+            }
+        }
+
+        @media (max-width: 576px) { /* Mobile phones (Bootstrap 'sm' breakpoint) */
+            .container-main {
+                padding: 1.25rem 0.75rem 1.75rem; /* ~20px, ~12px, ~28px */
+            }
+            .card-custom {
+                padding: 1rem; /* ~16px */
+            }
+            #splash-screen {
+                font-size: 2rem;
+            }
+            #splash-screen .version-text {
+                font-size: 0.95rem;
+            }
+            .info-pill {
+                padding: 0.75rem 0.85rem;
+                font-size: 0.85rem;
+            }
+            .btn {
+                padding: 0.75rem 1rem; /* Smaller padding for main buttons */
+                font-size: 0.9rem;
+            }
+            #uploaded-image-preview {
+                max-height: 15rem; /* Smaller max height for image preview */
+            }
+        }
+
+        @media (max-width: 400px) { /* Smaller mobile phones */
+            #splash-screen {
+                font-size: 1.8rem;
+            }
+            #splash-screen .version-text {
+                font-size: 0.85rem;
+            }
+            .form-control, .form-select, .input-group .form-control, .input-group > .btn {
+                font-size: 0.85rem;
+                padding: 0.6rem 0.8rem;
+            }
+            .form-label {
+                font-size: 0.65rem;
+            }
+        }
+
+        /* Responsive for grid layouts */
+        @media (min-width: 700px) { /* Desktop/larger tablet screens */
             .info-grid {
                 grid-template-columns: repeat(3, minmax(0, 1fr));
             }
-
             .form-grid {
                 grid-template-columns: repeat(2, minmax(0, 1fr));
             }
         }
+
+        /* Hero card content stacking for mobile */
+        /* d-flex flex-column flex-md-row justify-content-between align-items-start gap-3 text-center text-md-start */
+        /* These Bootstrap classes handle the stacking and alignment based on screen size */
     </style>
 </head>
 <body>
 
-<div id="toast-msg" class="toast-msg"></div>
+<div id="toast-msg"></div>
 
 <!-- SPLASH SCREEN -->
 <div id="splash-screen">
@@ -478,9 +586,9 @@
 
 <!-- API KEY MODAL -->
 <div id="key-config-modal">
-    <div class="card-custom" style="max-width:350px; text-align:center;">
+    <div class="card-custom">
         <h6 class="fw-bold mb-3">⚙ CONFIGURAR ESCÁNER</h6>
-        <p style="font-size:0.7rem;" class="text-muted mb-3">
+        <p class="text-muted mb-3">
             Ingresa tu API Key de Google Gemini.<br>Se guarda solo en este dispositivo.<br><br>
             Obtén la tuya gratis en<br>
             <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--accent);">aistudio.google.com/app/apikey</a>
@@ -514,7 +622,7 @@
     <div class="scan-guide"></div>
     <div id="cam-top-bar">
         <button class="btn btn-sm rounded-pill" style="background:rgba(0,0,0,0.5); color:white; border:1px solid rgba(255,255,255,0.3);" onclick="closeScanner()">✕ SALIR</button>
-        <button class="btn btn-sm rounded-pill" style="background:rgba(0,0,0,0.5); color:#fbbf24; border:1px solid rgba(255,255,255,0.2); font-size:0.65rem;" onclick="changeGeminiKey()">⚙ API KEY</button>
+        <button class="btn btn-sm rounded-pill" style="background:rgba(0,0,0,0.5); color:#fbbf24; border:1px solid rgba(255,255,255,0.2);" onclick="changeGeminiKey()">⚙ API KEY</button>
     </div>
     <div id="snap-btn" onclick="captureIA()">
         <i class="fas fa-camera fa-2x text-primary" id="snap-icon"></i>
@@ -527,24 +635,24 @@
         <i class="fas fa-sign-out-alt me-2"></i>Cerrar sesión
     </button>
 
-    <div class="card-custom hero-card">
-        <div class="d-flex justify-content-between align-items-start gap-3">
+    <div class="card-custom hero-card" id="main-actions-card">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start gap-3 text-center text-md-start">
             <div>
-                <div class="hero-badge">
+                <div class="hero-badge mx-auto mx-md-0">
                     <i class="fas fa-shield-alt"></i>Proceso de escaneo profesional
                 </div>
                 <h5 class="fw-bold mt-3 mb-2" style="color:var(--primary);">Busca Tumbas</h5>
                 <p class="section-subtitle mb-0">Captura o sube una imagen de una lápida y extrae los datos principales de forma ordenada y rápida.</p>
             </div>
-            <span class="version-pill" id="app-header-version"></span>
+            <span class="version-pill mt-3 mt-md-0 mx-auto mx-md-0" id="app-header-version"></span>
         </div>
 
         <div class="action-stack mt-3">
-            <button class="btn btn-primary w-100 py-3" onclick="openScannerModal()">
+            <button class="btn btn-primary w-100 py-3" id="open-camera-btn" onclick="openScannerModal()">
                 <i class="fas fa-camera me-2"></i>ABRIR CÁMARA
             </button>
             <input type="file" id="image-upload-input" accept="image/*" style="display:none;" onchange="handleImageUpload(event)">
-            <button class="btn btn-outline-secondary w-100 py-3" onclick="document.getElementById('image-upload-input').click()">
+            <button class="btn btn-outline-secondary w-100 py-3" id="upload-file-btn" onclick="document.getElementById('image-upload-input').click()">
                 <i class="fas fa-upload me-2"></i>SUBIR ARCHIVO
             </button>
         </div>
@@ -568,11 +676,16 @@
             <i class="fas fa-image" style="color:var(--accent);"></i>
             <span>Vista previa de la imagen</span>
         </div>
-        <p class="section-subtitle">La imagen se muestra aquí para confirmar el resultado antes de procesarla.</p>
+        <p class="section-subtitle">Confirma la imagen para proceder con el escaneo o reintenta la captura.</p>
         <img id="uploaded-image-preview" src="#" alt="Vista previa de imagen" class="img-fluid rounded">
-        <button class="btn btn-outline-secondary w-100 mt-2" onclick="clearImagePreview()">
-            <i class="fas fa-times-circle me-2"></i>Quitar imagen
-        </button>
+        <div class="action-stack mt-3">
+            <button class="btn btn-primary w-100 py-3" id="accept-scan-btn" onclick="acceptImageAndScan()">
+                <i class="fas fa-check me-2"></i>Aceptar y Escanear
+            </button>
+            <button class="btn btn-outline-secondary w-100 py-3" id="retry-image-btn" onclick="retryImageCapture()">
+                <i class="fas fa-redo-alt me-2"></i>Volver a intentar
+            </button>
+        </div>
     </div>
 
     <div class="card-custom" id="extracted-data-card" style="display: none;">
@@ -630,7 +743,7 @@ const firebaseConfig = {
     apiKey: "AIzaSyDVjbcOjDr8o3yiNqbwPW3W6WhIsplGUUk",
     authDomain: "buscatumbas-2e7cc.firebaseapp.com",
     projectId: "buscatumbas-2e7cc",
-    storageBucket: "buscatumbas-2e7cc.firebasestorage.app",
+    storageBucket: "buscatumbas-2e7cc.firebaseastorage.app",
     messagingSenderId: "920637749030",
     appId: "1:920637749030:web:21568d7680f12946fdf3e7"
 };
@@ -643,8 +756,7 @@ const auth = firebase.auth();
    ESTADO GLOBAL
 ══════════════════════════════════════════════════════════════════ */
 let scannerStream = null;
-let pendingScannedText = ''; // Still used temporarily to pass text to populate function
-let pendingCanvas = null;
+let pendingCanvas = null; // Canvas con la imagen actual para previsualizar/procesar
 let outputArray = []; // Keep internal array for potential future "view all history" feature
 let currentGeolocation = null; // Para guardar la ubicación actual
 
@@ -738,7 +850,6 @@ async function openScannerModal() {
 
     document.getElementById('ia-modal').style.display = 'flex';
     try {
-        // Simplified video constraints to let the browser pick optimal resolution/aspect ratio
         scannerStream = await navigator.mediaDevices.getUserMedia({
             video: { facingMode: 'environment' }
         });
@@ -765,14 +876,11 @@ function captureOrientado(video) {
     const c = document.createElement('canvas');
     const ctx = c.getContext('2d');
 
-    // Detect orientation and draw correctly
-    // If video height is greater than or equal to width, it's already in portrait or square-ish
     if (vh >= vw) {
         c.width = vw;
         c.height = vh;
         ctx.drawImage(video, 0, 0, vw, vh);
     } else {
-        // If video is landscape, rotate it to portrait (or attempt to)
         c.width = vh;
         c.height = vw;
         ctx.translate(c.width / 2, c.height / 2);
@@ -783,14 +891,13 @@ function captureOrientado(video) {
 }
 
 /* ══════════════════════════════════════════════════════════════════
-   IMAGE UPLOAD
+   IMAGE UPLOAD / CAPTURE -> PREVIEW FLOW
 ══════════════════════════════════════════════════════════════════ */
 async function handleImageUpload(event) {
-    // Check API Key before proceeding
     if (!isGeminiKeySet()) {
-        changeGeminiKey(); // Show the API Key modal
-        showToast('⚠ Primero guarda tu API Key de Gemini.', '#f59e0b', 5000); // Longer toast
-        event.target.value = ''; // Clear file input
+        changeGeminiKey();
+        showToast('⚠ Primero guarda tu API Key de Gemini.', '#f59e0b', 5000);
+        event.target.value = '';
         return;
     }
 
@@ -799,9 +906,15 @@ async function handleImageUpload(event) {
 
     if (!file.type.startsWith('image/')) {
         showToast('⚠ Por favor, sube un archivo de imagen.', '#f59e0b');
-        event.target.value = ''; // Clear file input
+        event.target.value = '';
         return;
     }
+
+    // Hide main action buttons
+    document.getElementById('open-camera-btn').style.display = 'none';
+    document.getElementById('upload-file-btn').style.display = 'none';
+
+    showToast('Cargando imagen...', 'rgba(59,130,246,0.9)');
 
     const reader = new FileReader();
     reader.onload = async (e) => {
@@ -810,17 +923,16 @@ async function handleImageUpload(event) {
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
 
-            // Resize image if too large to avoid memory issues and API limits
-            const MAX_DIM = 1920; // Max dimension for width or height
+            const MAX_DIM = 1920; 
             let width = img.width;
             let height = img.height;
 
-            if (width > height) { // Landscape image
+            if (width > height) {
                 if (width > MAX_DIM) {
                     height *= MAX_DIM / width;
                     width = MAX_DIM;
                 }
-            } else { // Portrait or square image
+            } else {
                 if (height > MAX_DIM) {
                     width *= MAX_DIM / height;
                     height = MAX_DIM;
@@ -831,24 +943,17 @@ async function handleImageUpload(event) {
             ctx.drawImage(img, 0, 0, width, height);
             
             pendingCanvas = canvas;
-            currentGeolocation = await getGeolocation(); // Obtener ubicación al subir archivo
-            const b64 = canvas.toDataURL('image/jpeg', 0.88).split(',')[1];
+            currentGeolocation = await getGeolocation();
 
-            // Display image preview
             document.getElementById('uploaded-image-preview').src = e.target.result;
-            document.getElementById('image-preview-card').style.display = 'block';
-
-            await processImageWithGemini(b64, null); // Pass null for snapIcon as it's not a camera capture
+            document.getElementById('image-preview-card').style.display = 'flex';
+            showToast('✅ Imagen lista para previsualizar y escanear.', '#10b981');
         };
         img.src = e.target.result;
     };
     reader.readAsDataURL(file);
 }
 
-
-/* ══════════════════════════════════════════════════════════════════
-   CAPTURE + GEMINI OCR
-══════════════════════════════════════════════════════════════════ */
 async function captureIA() {
     const video = document.getElementById('cam-preview-ia');
     if (!video.srcObject || video.videoWidth === 0) {
@@ -856,33 +961,79 @@ async function captureIA() {
         return;
     }
 
-    pendingCanvas = captureOrientado(video);
-    const b64 = pendingCanvas.toDataURL('image/jpeg', 0.88).split(',')[1];
-
-    // Display image preview
-    document.getElementById('uploaded-image-preview').src = pendingCanvas.toDataURL('image/jpeg', 0.88);
-    document.getElementById('image-preview-card').style.display = 'block';
-
+    // Hide main action buttons
+    document.getElementById('open-camera-btn').style.display = 'none';
+    document.getElementById('upload-file-btn').style.display = 'none';
+    
+    // Show spinner on snap button
     const snapIcon = document.getElementById('snap-icon');
-    await processImageWithGemini(b64, snapIcon);
-    closeScanner(); // Close scanner only after processing
+    snapIcon.className = 'fas fa-spinner fa-spin fa-2x text-primary';
+    document.getElementById('snap-btn').style.pointerEvents = 'none';
+
+    pendingCanvas = captureOrientado(video);
+    currentGeolocation = await getGeolocation();
+
+    document.getElementById('uploaded-image-preview').src = pendingCanvas.toDataURL('image/jpeg', 0.88);
+    document.getElementById('image-preview-card').style.display = 'flex';
+    closeScanner();
+    showToast('✅ Imagen capturada. Confirma para escanear.', '#10b981');
+
+    // Restore snap button state
+    snapIcon.className = 'fas fa-camera fa-2x text-primary';
+    document.getElementById('snap-btn').style.pointerEvents = 'auto';
 }
 
-async function processImageWithGemini(base64Image, snapIconElement) {
-    const key = localStorage.getItem('yaute_key_v3310');
-    if (!key) {
-        changeGeminiKey(); 
-        showToast('⚠ API Key de Gemini no encontrada.', '#ef4444', 5000); // Longer toast
+async function acceptImageAndScan() {
+    if (!pendingCanvas) {
+        showToast('⚠ No hay imagen para escanear.', '#f59e0b');
         return;
     }
 
-    if (snapIconElement) {
-        snapIconElement.className = 'fas fa-spinner fa-spin fa-2x text-primary';
-        document.getElementById('snap-btn').style.pointerEvents = 'none';
-    } else {
-        showToast('Cargando y escaneando imagen...', 'rgba(59,130,246,0.9)');
+    const acceptBtn = document.getElementById('accept-scan-btn');
+    const retryBtn = document.getElementById('retry-image-btn');
+
+    // Disable buttons and show spinner
+    acceptBtn.disabled = true;
+    retryBtn.disabled = true;
+    acceptBtn.innerHTML = `<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Escaneando...`;
+
+    try {
+        const b64 = pendingCanvas.toDataURL('image/jpeg', 0.88).split(',')[1];
+        await processImageWithGemini(b64);
+        document.getElementById('image-preview-card').style.display = 'none'; // Hide preview after successful scan
+    } catch (error) {
+        console.error("Error al escanear imagen:", error);
+        showToast('❌ Error al escanear: ' + error.message, '#ef4444', 6000);
+        // Keep preview visible, allow retry
+    } finally {
+        // Re-enable buttons and restore text
+        acceptBtn.disabled = false;
+        retryBtn.disabled = false;
+        acceptBtn.innerHTML = `<i class="fas fa-check me-2"></i>Aceptar y Escanear`;
+        // Ensure main action buttons are visible if we are done with image preview
+        if(document.getElementById('image-preview-card').style.display === 'none') {
+            document.getElementById('open-camera-btn').style.display = 'block';
+            document.getElementById('upload-file-btn').style.display = 'block';
+        }
+    }
+}
+
+function retryImageCapture() {
+    clearImagePreview();
+    // Re-enable main action buttons immediately
+    document.getElementById('open-camera-btn').style.display = 'block';
+    document.getElementById('upload-file-btn').style.display = 'block';
+    showToast('📸 Listo para una nueva captura o subida.', 'rgba(59,130,246,0.9)');
+}
+
+async function processImageWithGemini(base64Image) {
+    const key = localStorage.getItem('yaute_key_v3310');
+    if (!key) {
+        changeGeminiKey(); 
+        throw new Error('API Key de Gemini no encontrada.');
     }
 
+    showToast('Escaneando imagen con IA...', 'rgba(59,130,246,0.9)');
 
     try {
         const promptText = `
@@ -899,7 +1050,7 @@ async function processImageWithGemini(base64Image, snapIconElement) {
         `;
 
         const res = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${key}`, // Usando gemini-2.5-flash-lite
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${key}`,
             {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -917,7 +1068,6 @@ async function processImageWithGemini(base64Image, snapIconElement) {
 
         const data = await res.json();
         if (!res.ok) {
-            // Specific error handling for model not found / unsupported
             if (data.error && data.error.message.includes("models/gemini-2.5-flash-lite is not found") || 
                 data.error && data.error.message.includes("is not supported for generateContent")) {
                 throw new Error("El modelo Gemini 'gemini-2.5-flash-lite' no está disponible o accesible con tu API Key. Por favor, verifica tu API Key en Google AI Studio y asegúrate de que tenga los permisos necesarios para acceder a este modelo.");
@@ -926,17 +1076,13 @@ async function processImageWithGemini(base64Image, snapIconElement) {
         }
 
         const extractedText = data.candidates[0].content.parts[0].text.trim();
-        populateExtractedDataForm(extractedText, currentGeolocation); // Directly populate the form
+        populateExtractedDataForm(extractedText, currentGeolocation);
         showToast('✅ Datos extraídos. Revisa y guarda el formulario.', '#10b981', 4000);
 
     } catch(e) {
-        showToast('❌ Error IA: ' + e.message, '#ef4444', 6000); // Longer toast for important errors
+        throw e; // Re-throw to be caught by acceptImageAndScan's catch block
     } finally {
-        if (snapIconElement) {
-            snapIconElement.className = 'fas fa-camera fa-2x text-primary';
-            document.getElementById('snap-btn').style.pointerEvents = 'auto';
-        }
-        document.getElementById('image-upload-input').value = ''; // Clear file input
+        document.getElementById('image-upload-input').value = '';
     }
 }
 
@@ -945,7 +1091,6 @@ async function processImageWithGemini(base64Image, snapIconElement) {
    RESULTADOS DE ESCANEO (Directamente en formulario)
 ══════════════════════════════════════════════════════════════════ */
 
-// This function is no longer called by a modal, but directly by AI processing
 function populateExtractedDataForm(scannedText, geolocation) {
     let parsedData = {
         nombre_finado: '',
@@ -966,7 +1111,6 @@ function populateExtractedDataForm(scannedText, geolocation) {
         }
     } catch (e) {
         console.warn("Could not parse JSON from Gemini output, using raw text.", e);
-        // Fallback for when no structured data is found, apply raw_text to "raw_text" field
     }
 
     document.getElementById('display-nombre-finado').value = parsedData.nombre_finado;
@@ -981,10 +1125,9 @@ function populateExtractedDataForm(scannedText, geolocation) {
     }
     document.getElementById('display-raw-text').value = parsedData.raw_text;
 
-    document.getElementById('extracted-data-card').style.display = 'flex'; // Show the card
+    document.getElementById('extracted-data-card').style.display = 'flex';
 }
 
-// Function to save the currently displayed (y potencialmente editado) form data to history
 function saveCurrentFormDataToHistory() {
     const nombreFinado = document.getElementById('display-nombre-finado').value;
     const fechaNacimiento = document.getElementById('display-fecha-nacimiento').value;
@@ -1015,10 +1158,8 @@ function saveCurrentFormDataToHistory() {
 
     console.log("Data saved to internal history:", outputArray[outputArray.length - 1]);
     showToast('✅ Datos guardados en historial interno.', '#10b981');
-    // Keep data in form after saving for user to verify or further edit.
 }
 
-// Function to clear the displayed form data
 function clearDisplayedData() {
     document.getElementById('display-nombre-finado').value = '';
     document.getElementById('display-fecha-nacimiento').value = '';
@@ -1026,18 +1167,23 @@ function clearDisplayedData() {
     document.getElementById('display-nombre-panteon').value = '';
     document.getElementById('display-geolocation').value = '';
     document.getElementById('display-raw-text').value = '';
-    document.getElementById('extracted-data-card').style.display = 'none'; // Hide if cleared
+    document.getElementById('extracted-data-card').style.display = 'none';
     clearImagePreview(); // Clear image preview as well
     showToast('✅ Formulario limpiado');
 }
 
-// Function to clear the image preview
 function clearImagePreview() {
     const previewImg = document.getElementById('uploaded-image-preview');
     const previewCard = document.getElementById('image-preview-card');
-    previewImg.src = '#'; // Reset image source
+    previewImg.src = '#';
     previewImg.alt = "Vista previa de imagen";
-    previewCard.style.display = 'none'; // Hide the card
+    previewCard.style.display = 'none';
+    pendingCanvas = null; // Clear pending canvas
+    currentGeolocation = null; // Clear pending geolocation
+
+    // Show main action buttons again
+    document.getElementById('open-camera-btn').style.display = 'block';
+    document.getElementById('upload-file-btn').style.display = 'block';
 }
 
 
@@ -1073,13 +1219,11 @@ async function handleAuth(isLogin, event) {
 
     const loginBtn = document.getElementById('login-btn');
     const registerBtn = document.getElementById('register-btn');
-    const clickedButton = event.currentTarget; // Use currentTarget to get the button element
+    const clickedButton = event.currentTarget;
 
-    // Store original text if not already stored
     if (loginBtn && !loginBtn.dataset.originalText) loginBtn.dataset.originalText = loginBtn.textContent;
     if (registerBtn && !registerBtn.dataset.originalText) registerBtn.dataset.originalText = registerBtn.textContent;
 
-    // Disable all auth buttons and show spinner on the clicked one
     if (loginBtn) loginBtn.disabled = true;
     if (registerBtn) registerBtn.disabled = true;
 
@@ -1109,7 +1253,6 @@ async function handleAuth(isLogin, event) {
         }
         showToast(`❌ ${msg}`, '#ef4444');
     } finally {
-        // Re-enable buttons and restore original text
         if (loginBtn) {
             loginBtn.disabled = false;
             loginBtn.innerHTML = loginBtn.dataset.originalText;
@@ -1151,7 +1294,6 @@ window.onload = () => {
         document.getElementById('splash-screen').classList.add('hidden');
         setTimeout(() => {
             document.getElementById('splash-screen').style.display = 'none';
-            // Only show auth screen if user is not already logged in (Firebase state listener handles this)
             if (!auth.currentUser) {
                 document.getElementById('auth-screen').style.display = 'flex'; 
             }
@@ -1164,20 +1306,19 @@ window.onload = () => {
             // User is signed in
             document.getElementById('auth-screen').style.display = 'none';
             document.getElementById('main-app').style.display = 'flex';
-            document.getElementById('logout-btn').style.display = 'block'; // Show logout button in main app
+            document.getElementById('logout-btn').style.display = 'block';
             
-            // Check API key after main app is visible
             if (!isGeminiKeySet()) {
-                changeGeminiKey(); // This will display the modal
-                showToast('⚠ Ingresa tu API Key de Gemini para escanear.', '#f59e0b', 5000); // Longer toast for importance
+                changeGeminiKey();
+                showToast('⚠ Ingresa tu API Key de Gemini para escanear.', '#f59e0b', 5000);
             }
         } else {
             // User is signed out
             document.getElementById('main-app').style.display = 'none';
-            closeGeminiKeyModal(); // Hide key modal if user logs out
+            closeGeminiKeyModal();
             document.getElementById('auth-screen').style.display = 'flex';
             document.getElementById('logout-btn').style.display = 'none';
-            clearDisplayedData(); // Clear any displayed data/image on logout
+            clearDisplayedData();
         }
     });
 };
