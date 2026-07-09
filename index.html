@@ -694,7 +694,7 @@
 
     <!-- Add Tomb Section -->
     <div id="add-tomb-section" style="display: none;">
-        <div class="card-custom">
+        <div class="card-custom" id="upload-capture-card">
             <p class="section-subtitle">Captura o sube una imagen de una lápida para extraer sus datos.</p>
             <div class="action-stack mt-3">
                 <button class="btn btn-primary w-100 py-3" id="open-camera-btn" onclick="openScannerModal()">
@@ -947,9 +947,8 @@ async function handleImageUpload(event) {
         return;
     }
 
-    // Hide main action buttons
-    document.getElementById('open-camera-btn').style.display = 'none';
-    document.getElementById('upload-file-btn').style.display = 'none';
+    // Hide the upload/capture card
+    document.getElementById('upload-capture-card').style.display = 'none';
 
     showToast('Cargando imagen...', 'rgba(59,130,246,0.9)');
 
@@ -998,9 +997,8 @@ async function captureIA() {
         return;
     }
 
-    // Hide main action buttons
-    document.getElementById('open-camera-btn').style.display = 'none';
-    document.getElementById('upload-file-btn').style.display = 'none';
+    // Hide the upload/capture card
+    document.getElementById('upload-capture-card').style.display = 'none';
     
     // Show spinner on snap button
     const snapIcon = document.getElementById('snap-icon');
@@ -1047,19 +1045,15 @@ async function acceptImageAndScan() {
         acceptBtn.disabled = false;
         retryBtn.disabled = false;
         acceptBtn.innerHTML = `<i class="fas fa-check me-2"></i>Aceptar y Escanear`;
-        // Ensure main action buttons are visible if we are done with image preview
-        if(document.getElementById('image-preview-card').style.display === 'none') {
-            document.getElementById('open-camera-btn').style.display = 'block';
-            document.getElementById('upload-file-btn').style.display = 'block';
-        }
+        // We do NOT show upload-capture-card here, as we proceed to extracted-data-card
+        // The upload-capture-card will only show when going back to mode selection or clearing all data.
     }
 }
 
 function retryImageCapture() {
     clearImagePreview();
-    // Re-enable main action buttons immediately
-    document.getElementById('open-camera-btn').style.display = 'block';
-    document.getElementById('upload-file-btn').style.display = 'block';
+    // Re-enable the upload/capture card
+    document.getElementById('upload-capture-card').style.display = 'block';
     showToast('📸 Listo para una nueva captura o subida.', 'rgba(59,130,246,0.9)');
 }
 
@@ -1218,9 +1212,8 @@ function clearImagePreview() {
     pendingCanvas = null; // Clear pending canvas
     currentGeolocation = null; // Clear pending geolocation
 
-    // Show main action buttons again
-    document.getElementById('open-camera-btn').style.display = 'block';
-    document.getElementById('upload-file-btn').style.display = 'block';
+    // Show the upload/capture card again
+    document.getElementById('upload-capture-card').style.display = 'block';
 }
 
 
@@ -1322,6 +1315,9 @@ function showModeSelection() {
     document.getElementById('mode-selection-card').style.display = 'flex';
     document.getElementById('back-to-mode-selection').style.display = 'none'; // Hide "Back to main menu" button
     document.getElementById('logout-btn').style.display = 'block'; // Ensure logout button is visible
+
+    // Ensure upload-capture-card is hidden when showing mode selection
+    document.getElementById('upload-capture-card').style.display = 'none';
 }
 
 // Shows the "Add Tomb" section (camera/upload buttons)
@@ -1330,9 +1326,10 @@ function selectAddTombMode() {
     document.getElementById('add-tomb-section').style.display = 'block';
     document.getElementById('back-to-mode-selection').style.display = 'block'; // Show "Back to main menu" button
     
-    // Ensure initial action buttons are visible
-    document.getElementById('open-camera-btn').style.display = 'block';
-    document.getElementById('upload-file-btn').style.display = 'block';
+    // Ensure initial action buttons are visible when starting "Add Tomb" flow
+    document.getElementById('upload-capture-card').style.display = 'block';
+    document.getElementById('image-preview-card').style.display = 'none'; // Ensure preview is hidden
+    document.getElementById('extracted-data-card').style.display = 'none'; // Ensure data card is hidden
 }
 
 // Placeholder for "Search Tomb" functionality
@@ -1377,8 +1374,13 @@ window.onload = () => {
             
             showModeSelection(); // Show the mode selection after successful login
             
-            if (!isGeminiKeySet()) {
+            // On first login, prompt for Gemini API Key if not set
+            if (!localStorage.getItem('initial_gemini_key_prompted') && !isGeminiKeySet()) {
                 changeGeminiKey();
+                showToast('⚠ Ingresa tu API Key de Gemini para escanear.', '#f59e0b', 7000); // Longer toast for first time
+                localStorage.setItem('initial_gemini_key_prompted', 'true'); // Mark as prompted
+            } else if (!isGeminiKeySet()) {
+                // If not first time, but still no key, just remind
                 showToast('⚠ Ingresa tu API Key de Gemini para escanear.', '#f59e0b', 5000);
             }
         } else {
