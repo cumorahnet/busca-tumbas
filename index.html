@@ -16,15 +16,21 @@
             --success: #10b981;
             --danger: #ef4444;
             --bg: #f8fafc;
+            --border: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
         }
 
         html, body {
             height: 100%;
             margin: 0;
             padding: 0;
-            background: var(--bg);
+            background: linear-gradient(135deg, #f8fafc 0%, #eef4ff 100%);
             font-family: 'Inter', system-ui, sans-serif;
-            overflow: hidden; /* Prevent scroll on splash/auth screens */
+            color: var(--primary);
+            overflow-x: hidden;
         }
 
         body {
@@ -32,29 +38,114 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            min-height: 100vh;
         }
 
         .container-main {
-            display: flex;
+            display: none;
             flex-direction: column;
-            gap: 20px;
-            padding: 20px;
-            max-width: 600px;
+            gap: 18px;
+            padding: 24px 18px 36px;
+            max-width: 760px;
             margin: 0 auto;
-            width: 100%;
-            overflow-y: auto; /* Allow scrolling for main content */
-            height: 100%;
+            width: min(100%, 760px);
+            overflow-y: auto;
+            min-height: 100vh;
             box-sizing: border-box;
-            display: none; /* Hidden by default, shown after auth */
-            position: relative; /* Needed for absolute positioning of logout button */
+            position: relative;
         }
 
         .card-custom {
-            background: white;
-            border-radius: 20px;
-            padding: 20px;
-            border: 1px solid #f1f5f9;
-            box-shadow: 0 4px 20px rgba(15,23,42,0.08);
+            background: rgba(255,255,255,0.96);
+            border-radius: 24px;
+            padding: 22px;
+            border: 1px solid rgba(226,232,240,0.9);
+            box-shadow: 0 18px 45px rgba(15,23,42,0.08);
+            backdrop-filter: blur(10px);
+        }
+
+        .hero-card {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(120deg, rgba(59,130,246,0.08), transparent 70%);
+            pointer-events: none;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0.4rem 0.75rem;
+            border-radius: 999px;
+            background: rgba(59,130,246,0.12);
+            color: var(--accent);
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+        }
+
+        .version-pill {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 56px;
+            padding: 0.4rem 0.6rem;
+            border-radius: 999px;
+            background: #f1f5f9;
+            color: #475569;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .section-subtitle {
+            margin: 0;
+            color: #64748b;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .action-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .info-grid {
+            display: grid;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .info-pill {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0.85rem 0.95rem;
+            background: #f8fafc;
+            border-radius: 16px;
+            color: #334155;
+            font-size: 0.9rem;
+            border: 1px solid #e2e8f0;
+        }
+
+        .info-pill strong {
+            color: var(--primary);
         }
 
         .form-control, .form-select {
@@ -70,6 +161,16 @@
             border-color: var(--accent);
             box-shadow: 0 0 0 4px rgba(59,130,246,0.1);
             outline: none;
+        }
+
+        .btn {
+            border-radius: 999px;
+            font-weight: 700;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
         }
 
         .btn-primary {
@@ -97,6 +198,7 @@
         .btn-outline-secondary {
             border: 1px solid #e2e8f0;
             color: var(--primary);
+            background: #fff;
         }
 
         .btn-outline-secondary:hover {
@@ -107,17 +209,18 @@
         #splash-screen {
             position: fixed;
             inset: 0;
-            background: var(--primary);
+            background: linear-gradient(135deg, #0f172a 0%, #111827 100%);
             color: white;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             font-size: 3rem;
-            font-weight: bold;
+            font-weight: 800;
             z-index: 50000;
             opacity: 1;
             transition: opacity 0.5s ease-out;
+            letter-spacing: 0.04em;
         }
         #splash-screen.hidden {
             opacity: 0;
@@ -125,8 +228,8 @@
         }
 
         #splash-screen .version-text {
-            font-size: 1.2rem;
-            font-weight: normal;
+            font-size: 1.05rem;
+            font-weight: 500;
             margin-top: 10px;
             color: rgba(255,255,255,0.8);
         }
@@ -135,77 +238,213 @@
         #auth-screen {
             position: fixed;
             inset: 0;
-            background: var(--bg);
+            background: radial-gradient(circle at top, rgba(59,130,246,0.14), transparent 50%), var(--bg);
             display: flex;
             align-items: center;
             justify-content: center;
             z-index: 40000;
-            display: none; /* Hidden by default, shown after splash */
+            display: none;
+            padding: 16px;
         }
         #auth-screen .card-custom {
-            max-width: 400px;
-            width: 90%;
+            max-width: 430px;
+            width: 100%;
             text-align: center;
         }
         #auth-screen h5 {
             color: var(--primary);
-            margin-bottom: 20px;
+            margin-bottom: 8px;
+        }
+        #auth-screen p {
+            color: #64748b;
+            font-size: 0.92rem;
+            margin-bottom: 18px;
         }
 
-        /* Password input group styling */
         .input-group {
             display: flex;
             align-items: stretch;
             border-radius: 14px;
             border: 2px solid #f1f5f9;
             overflow: hidden;
-            background-color: #fff; /* Ensure consistent background */
+            background-color: #fff;
         }
         .input-group .form-control {
-            border: none; /* Remove individual border from input */
+            border: none;
             padding: 0.8rem 1rem;
             height: auto;
             flex-grow: 1;
-            box-shadow: none; /* Remove default form-control shadow */
+            box-shadow: none;
         }
         .input-group .form-control:focus {
-            box-shadow: none; /* Remove individual focus shadow */
-            /* Border color will be handled by .input-group:focus-within */
+            box-shadow: none;
         }
-        .input-group:focus-within { /* Apply focus style to the entire group */
+        .input-group:focus-within {
             border-color: var(--accent);
             box-shadow: 0 0 0 4px rgba(59,130,246,0.1);
         }
         .input-group > .btn {
-            border: none; /* Remove individual border from button */
-            background-color: #fff; /* Match input background */
-            color: var(--primary); /* Match input text color */
+            border: none;
+            background-color: #fff;
+            color: var(--primary);
             padding: 0.8rem 1rem;
             flex-shrink: 0;
-            box-shadow: none; /* Remove default button shadow */
+            box-shadow: none;
         }
         .input-group > .btn:hover {
-            background-color: #f1f5f9; /* Subtle hover effect */
+            background-color: #f1f5f9;
         }
 
-        /* Form styling for extracted data */
+        #key-config-modal, #result-modal, #ia-modal {
+            position: fixed;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: rgba(15,23,42,0.72);
+            z-index: 5000;
+            padding: 16px;
+        }
+
+        #key-config-modal .card-custom {
+            max-width: 390px;
+            width: 100%;
+            text-align: center;
+        }
+
+        #result-modal #result-panel {
+            width: min(100%, 420px);
+            background: #fff;
+            border-radius: 24px;
+            padding: 20px;
+            box-shadow: 0 18px 45px rgba(15,23,42,0.18);
+        }
+
         .form-label {
             font-size: 0.75rem;
-            font-weight: bold;
-            color: #475569; /* slate-700 */
+            font-weight: 700;
+            color: #475569;
             margin-bottom: 0.25rem;
             display: block;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
         }
         #extracted-data-card .form-control {
-            background-color: #ffffff; /* Make editable inputs white */
-            border: 2px solid #f1f5f9; /* Consistent border */
+            background-color: #ffffff;
+            border: 2px solid #f1f5f9;
             color: var(--primary);
-            margin-bottom: 0.75rem;
+            margin-bottom: 0;
         }
         #extracted-data-card .form-control:focus {
             border-color: var(--accent);
             box-shadow: 0 0 0 4px rgba(59,130,246,0.1);
             outline: none;
+        }
+
+        #extracted-data-card form {
+            display: grid;
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        .form-grid {
+            display: grid;
+            gap: 12px;
+        }
+
+        .form-grid .full {
+            grid-column: 1 / -1;
+        }
+
+        #image-preview-card {
+            display: none;
+            gap: 12px;
+        }
+
+        #uploaded-image-preview {
+            width: 100%;
+            max-height: 320px;
+            object-fit: contain;
+            border-radius: 16px;
+            border: 1px solid #e2e8f0;
+            background: #f8fafc;
+            display: block;
+            margin: 0 auto;
+        }
+
+        #logout-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            z-index: 1000;
+            padding: 0.45rem 0.75rem;
+            border-radius: 999px;
+            background: rgba(239,68,68,0.08);
+            color: #dc2626;
+            text-decoration: none;
+        }
+
+        #logout-btn:hover {
+            background: rgba(239,68,68,0.12);
+            color: #b91c1c;
+        }
+
+        #ia-modal {
+            flex-direction: column;
+        }
+
+        #ia-modal video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            background: #000;
+        }
+
+        .scan-guide {
+            position: absolute;
+            inset: 0;
+            border: 2px solid rgba(255,255,255,0.4);
+            border-radius: 24px;
+            pointer-events: none;
+            margin: 14px;
+        }
+
+        #cam-top-bar {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            right: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 2;
+        }
+
+        #snap-btn {
+            position: absolute;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 74px;
+            height: 74px;
+            border-radius: 50%;
+            background: white;
+            box-shadow: 0 10px 24px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 2;
+        }
+
+        @media (min-width: 700px) {
+            .info-grid {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+
+            .form-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
         }
     </style>
 </head>
@@ -284,70 +523,97 @@
 
 <!-- MAIN INTERFACE -->
 <div class="container-main" id="main-app">
-    <!-- Logout button moved here -->
-    <button class="btn btn-link text-danger mt-3" onclick="logout()" id="logout-btn" style="display:none; position: absolute; top: 10px; right: 10px; z-index: 1000;">
-        <i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión
+    <button class="btn btn-link text-danger" onclick="logout()" id="logout-btn" style="display:none;">
+        <i class="fas fa-sign-out-alt me-2"></i>Cerrar sesión
     </button>
 
-    <div class="card-custom">
-        <h5 class="fw-bold mb-4 text-center" style="color:var(--primary);">
-            <i class="fas fa-image me-2" style="color:var(--accent);"></i>Busca Tumbas <span style="font-size: 0.7em; font-weight: normal; color: #6b7280;" id="app-header-version"></span>
-        </h5>
-        <button class="btn btn-primary w-100 py-3 rounded-pill fw-bold mb-3" onclick="openScannerModal()">
-            <i class="fas fa-camera me-2"></i>ABRIR CÁMARA
-        </button>
-        <input type="file" id="image-upload-input" accept="image/*" style="display:none;" onchange="handleImageUpload(event)">
-        <button class="btn btn-outline-secondary w-100 py-3 rounded-pill fw-bold" onclick="document.getElementById('image-upload-input').click()">
-            <i class="fas fa-upload me-2"></i>SUBIR ARCHIVO
-        </button>
+    <div class="card-custom hero-card">
+        <div class="d-flex justify-content-between align-items-start gap-3">
+            <div>
+                <div class="hero-badge">
+                    <i class="fas fa-shield-alt"></i>Proceso de escaneo profesional
+                </div>
+                <h5 class="fw-bold mt-3 mb-2" style="color:var(--primary);">Busca Tumbas</h5>
+                <p class="section-subtitle mb-0">Captura o sube una imagen de una lápida y extrae los datos principales de forma ordenada y rápida.</p>
+            </div>
+            <span class="version-pill" id="app-header-version"></span>
+        </div>
+
+        <div class="action-stack mt-3">
+            <button class="btn btn-primary w-100 py-3" onclick="openScannerModal()">
+                <i class="fas fa-camera me-2"></i>ABRIR CÁMARA
+            </button>
+            <input type="file" id="image-upload-input" accept="image/*" style="display:none;" onchange="handleImageUpload(event)">
+            <button class="btn btn-outline-secondary w-100 py-3" onclick="document.getElementById('image-upload-input').click()">
+                <i class="fas fa-upload me-2"></i>SUBIR ARCHIVO
+            </button>
+        </div>
     </div>
 
-    <!-- NEW: Image Preview Card -->
+    <div class="card-custom">
+        <div class="section-title">
+            <i class="fas fa-list-check" style="color:var(--accent);"></i>
+            <span>Cómo trabajar con la herramienta</span>
+        </div>
+        <p class="section-subtitle">Sigue estos pasos para obtener resultados más claros y organizados.</p>
+        <div class="info-grid">
+            <div class="info-pill"><strong>1.</strong> Captura la imagen desde la cámara o sube un archivo.</div>
+            <div class="info-pill"><strong>2.</strong> Revisa la previsualización y valida que la información sea legible.</div>
+            <div class="info-pill"><strong>3.</strong> Guarda los datos extraídos en el historial interno.</div>
+        </div>
+    </div>
+
     <div class="card-custom" id="image-preview-card" style="display: none;">
-        <h6 class="fw-bold mb-3" style="color:var(--primary);">Imagen Cargada</h6>
-        <img id="uploaded-image-preview" src="#" alt="Vista previa de imagen" class="img-fluid rounded" style="max-height: 300px; width: auto; display: block; margin: 0 auto; object-fit: contain;">
-        <button class="btn btn-outline-secondary btn-sm w-100 mt-3 rounded-pill" onclick="clearImagePreview()">
+        <div class="section-title">
+            <i class="fas fa-image" style="color:var(--accent);"></i>
+            <span>Vista previa de la imagen</span>
+        </div>
+        <p class="section-subtitle">La imagen se muestra aquí para confirmar el resultado antes de procesarla.</p>
+        <img id="uploaded-image-preview" src="#" alt="Vista previa de imagen" class="img-fluid rounded">
+        <button class="btn btn-outline-secondary w-100 mt-2" onclick="clearImagePreview()">
             <i class="fas fa-times-circle me-2"></i>Quitar imagen
         </button>
     </div>
 
-    <!-- NEW: Form for displaying extracted data -->
     <div class="card-custom" id="extracted-data-card" style="display: none;">
-        <h6 class="fw-bold mb-3" style="color:var(--primary);">Últimos Datos Escaneados</h6>
-        <form>
-            <div class="mb-2">
-                <label for="display-nombre-finado" class="form-label">Nombre del Finado</label>
+        <div class="section-title">
+            <i class="fas fa-file-lines" style="color:var(--accent);"></i>
+            <span>Datos extraídos</span>
+        </div>
+        <p class="section-subtitle">Revisa y corrige la información antes de almacenarla.</p>
+        <form class="form-grid">
+            <div>
+                <label for="display-nombre-finado" class="form-label">Nombre del finado</label>
                 <input type="text" id="display-nombre-finado" class="form-control">
             </div>
-            <div class="mb-2">
-                <label for="display-fecha-nacimiento" class="form-label">Fecha de Nacimiento</label>
+            <div>
+                <label for="display-fecha-nacimiento" class="form-label">Fecha de nacimiento</label>
                 <input type="text" id="display-fecha-nacimiento" class="form-control">
             </div>
-            <div class="mb-2">
-                <label for="display-fecha-defuncion" class="form-label">Fecha de Defunción</label>
+            <div>
+                <label for="display-fecha-defuncion" class="form-label">Fecha de defunción</label>
                 <input type="text" id="display-fecha-defuncion" class="form-control">
             </div>
-            <div class="mb-2">
-                <label for="display-nombre-panteon" class="form-label">Nombre del Panteón</label>
+            <div>
+                <label for="display-nombre-panteon" class="form-label">Nombre del panteón</label>
                 <input type="text" id="display-nombre-panteon" class="form-control">
             </div>
-            <div class="mb-2">
-                <label for="display-geolocation" class="form-label">Ubicación (Lat, Long)</label>
+            <div>
+                <label for="display-geolocation" class="form-label">Ubicación</label>
                 <input type="text" id="display-geolocation" class="form-control" readonly>
             </div>
-            <div class="mb-2">
-                <label for="display-raw-text" class="form-label">Texto Completo (Raw)</label>
+            <div class="full">
+                <label for="display-raw-text" class="form-label">Texto completo</label>
                 <textarea id="display-raw-text" class="form-control" rows="4" style="resize:none; font-family:'Courier New',monospace;"></textarea>
             </div>
         </form>
-        <button class="btn btn-primary w-100 rounded-pill mt-3 mb-2" onclick="saveCurrentFormDataToHistory()">
+        <button class="btn btn-primary w-100 mt-3 mb-2" onclick="saveCurrentFormDataToHistory()">
             <i class="fas fa-save me-2"></i>GUARDAR DATOS
         </button>
-        <button class="btn btn-outline-secondary w-100 rounded-pill" onclick="clearDisplayedData()">
+        <button class="btn btn-outline-secondary w-100" onclick="clearDisplayedData()">
             <i class="fas fa-eraser me-2"></i>LIMPIAR FORMULARIO
         </button>
     </div>
-
 </div>
 
 
