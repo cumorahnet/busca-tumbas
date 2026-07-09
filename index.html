@@ -333,19 +333,20 @@
         }
 
         .form-label {
-            font-size: 0.7rem; /* 11.2px, slightly smaller for labels */
-            font-weight: 700;
-            color: #475569;
-            margin-bottom: 0.25rem;
+            font-size: 0.75rem; /* Adjusted for better readability below input */
+            font-weight: normal; /* Less bold for descriptive labels */
+            color: #64748b; /* Lighter color for descriptive labels */
+            margin-top: 0.25rem; /* For spacing when placed below input */
+            margin-bottom: 0; /* No margin below if it's the last element in its container */
             display: block;
-            text-transform: uppercase;
-            letter-spacing: 0.04em;
+            text-transform: none; /* No uppercase */
+            letter-spacing: normal; /* No letter spacing */
         }
         #extracted-data-card .form-control {
             background-color: #ffffff;
             border: 2px solid #f1f5f9;
             color: var(--primary);
-            margin-bottom: 0;
+            margin-bottom: 0; /* Important: no margin between input and its label */
         }
         #extracted-data-card .form-control:focus {
             border-color: var(--accent);
@@ -765,36 +766,38 @@
             <p class="section-subtitle">Revisa y corrige la información antes de almacenarla.</p>
             <form class="form-grid">
                 <div>
-                    <label for="display-nombre-finado" class="form-label">Nombre del finado</label>
                     <input type="text" id="display-nombre-finado" class="form-control">
+                    <label for="display-nombre-finado" class="form-label mt-1">Nombre del finado</label>
                 </div>
                 <div>
-                    <label for="display-fecha-nacimiento" class="form-label">Fecha de nacimiento</label>
                     <input type="text" id="display-fecha-nacimiento" class="form-control">
+                    <label for="display-fecha-nacimiento" class="form-label mt-1">Fecha de nacimiento</label>
                 </div>
                 <div>
-                    <label for="display-fecha-defuncion" class="form-label">Fecha de defunción</label>
                     <input type="text" id="display-fecha-defuncion" class="form-control">
+                    <label for="display-fecha-defuncion" class="form-label mt-1">Fecha de defunción</label>
                 </div>
                 <div>
-                    <label for="display-nombre-panteon" class="form-label">Nombre del panteón</label>
                     <input type="text" id="display-nombre-panteon" class="form-control">
+                    <label for="display-nombre-panteon" class="form-label mt-1">Nombre del panteón</label>
                 </div>
                 <div>
-                    <label for="display-geolocation" class="form-label">Ubicación</label>
                     <input type="text" id="display-geolocation" class="form-control" readonly>
+                    <label for="display-geolocation" class="form-label mt-1">Ubicación</label>
                 </div>
                 <div class="full">
-                    <label for="display-raw-text" class="form-label">Texto completo</label>
                     <textarea id="display-raw-text" class="form-control" rows="4" style="resize:none; font-family:'Courier New',monospace;"></textarea>
+                    <label for="display-raw-text" class="form-label mt-1">Texto completo</label>
                 </div>
             </form>
-            <button class="btn btn-primary w-100 mt-3 mb-2" onclick="saveCurrentFormDataToHistory()">
-                <i class="fas fa-save me-2"></i>GUARDAR DATOS
-            </button>
-            <button class="btn btn-outline-secondary w-100" onclick="clearDisplayedData()">
-                <i class="fas fa-eraser me-2"></i>LIMPIAR FORMULARIO
-            </button>
+            <div class="d-grid gap-2 d-sm-flex justify-content-sm-center mt-3">
+                <button class="btn btn-primary flex-grow-1" onclick="saveCurrentFormDataToHistory()">
+                    <i class="fas fa-save me-2"></i>GUARDAR DATOS
+                </button>
+                <button class="btn btn-outline-secondary flex-grow-1" onclick="clearDisplayedData()">
+                    <i class="fas fa-eraser me-2"></i>LIMPIAR FORMULARIO
+                </button>
+            </div>
         </div>
     </div>
 </div>
@@ -804,7 +807,7 @@
 /* ══════════════════════════════════════════════════════════════════
    CONFIGURACIÓN DE LA APLICACIÓN
 ══════════════════════════════════════════════════════════════════ */
-const APP_VERSION = "v1.0.0"; // Definir la versión de la aplicación aquí
+const APP_VERSION = "v1.0.1"; // Definir la versión de la aplicación aquí
 
 /* ══════════════════════════════════════════════════════════════════
    CONFIGURACIÓN FIREBASE
