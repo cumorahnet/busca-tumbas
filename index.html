@@ -9,6 +9,9 @@
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <!-- Cropper.js -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
     <style>
         :root {
             --primary: #0f172a;
@@ -68,16 +71,6 @@
             backdrop-filter: blur(10px);
         }
 
-        .section-title {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.95rem;
-            font-weight: 700;
-            color: var(--primary);
-            margin-bottom: 0.25rem;
-        }
-
         .section-subtitle {
             margin: 0;
             color: #64748b;
@@ -91,7 +84,7 @@
             gap: 0.625rem;
         }
 
-        .form-control, .form-select {
+        .form-control {
             padding: 0.7rem 0.9rem;
             font-size: 0.9rem;
             border-radius: 0.875rem;
@@ -155,6 +148,17 @@
             background: #f1f5f9;
         }
 
+        .btn-danger {
+            background: var(--danger);
+            border: none;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+            color: white;
+        }
+
         /* SPLASH SCREEN */
         #splash-screen {
             position: fixed;
@@ -206,11 +210,6 @@
             color: var(--primary);
             margin-bottom: 0.8rem;
         }
-        #auth-screen p {
-            color: #64748b;
-            font-size: 0.875rem;
-            margin-bottom: 1.125rem;
-        }
 
         .input-group {
             display: flex;
@@ -246,7 +245,7 @@
             background-color: #f1f5f9;
         }
 
-        #key-config-modal, #ia-modal {
+        #key-config-modal, #ia-modal, #crop-modal {
             position: fixed;
             inset: 0;
             display: none;
@@ -267,6 +266,26 @@
             font-size: 0.75rem;
             line-height: 1.4;
             margin-bottom: 1rem;
+        }
+
+        #crop-modal .card-custom {
+            max-width: 700px;
+            width: 100%;
+            padding: 1.5rem;
+        }
+        #crop-modal .card-custom img {
+            max-width: 100%;
+            max-height: 60vh;
+        }
+        .crop-actions {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1rem;
+            justify-content: center;
+        }
+        .crop-actions .btn {
+            padding: 0.5rem 1.5rem;
+            font-size: 0.9rem;
         }
 
         .version-pill {
@@ -395,7 +414,7 @@
         }
 
         /* ============================================================
-           DISEÑO DE EXTRACCIÓN DE DATOS - CON TÍTULOS DE CAMPO
+           DISEÑO DE EXTRACCIÓN DE DATOS - SIN TEXTO COMPLETO
            ============================================================ */
         
         .scan-container {
@@ -416,12 +435,23 @@
             background: #f8fafc;
         }
 
+        .scan-image-col .image-tools {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        .scan-image-col .image-tools .btn {
+            flex: 1;
+            padding: 0.4rem 0.6rem;
+            font-size: 0.75rem;
+            border-radius: 999px;
+        }
+
         .scan-form-col {
             flex: 1;
             min-width: 0;
         }
 
-        /* Encabezado del formulario */
         .form-header {
             display: flex;
             justify-content: space-between;
@@ -440,7 +470,6 @@
             color: var(--accent);
         }
 
-        /* Grid de campos con títulos debajo */
         .fields-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -462,14 +491,6 @@
             height: 42px;
         }
 
-        .field-group textarea.form-control {
-            height: auto;
-            min-height: 60px;
-            resize: vertical;
-            font-family: 'Courier New', monospace;
-            font-size: 0.8rem;
-        }
-
         .field-label {
             font-size: 0.7rem;
             font-weight: 600;
@@ -479,7 +500,6 @@
             margin-top: 0.1rem;
         }
 
-        /* Botones de acción pequeños en la parte inferior */
         .form-actions {
             display: flex;
             gap: 0.5rem;
@@ -505,7 +525,6 @@
             padding: 0.85rem 1.25rem;
         }
 
-        /* Ocultar elementos cuando no se usan */
         #mode-selection-card, #add-tomb-section {
             display: none;
         }
@@ -516,7 +535,11 @@
             display: none;
         }
 
-        /* Responsive */
+        /* Cropper ajustes */
+        .cropper-container {
+            max-height: 60vh;
+        }
+
         @media (max-width: 768px) {
             .scan-container {
                 flex-direction: column;
@@ -541,6 +564,10 @@
             .form-actions .btn {
                 flex: 1;
                 text-align: center;
+            }
+            #crop-modal .card-custom {
+                max-width: 95%;
+                padding: 1rem;
             }
         }
 
@@ -587,6 +614,10 @@
             }
             .field-label {
                 font-size: 0.65rem;
+            }
+            .scan-image-col .image-tools .btn {
+                font-size: 0.65rem;
+                padding: 0.3rem 0.5rem;
             }
         }
 
@@ -639,6 +670,23 @@
         </p>
         <input type="password" id="user-gemini-key" class="form-control mb-3" placeholder="AIzaSy...">
         <button class="btn btn-primary w-100 rounded-pill fw-bold" onclick="saveGeminiKey()">GUARDAR KEY</button>
+    </div>
+</div>
+
+<!-- CROP MODAL -->
+<div id="crop-modal">
+    <div class="card-custom">
+        <h6 class="fw-bold mb-3 text-center">✂️ Recortar imagen</h6>
+        <p class="text-muted text-center" style="font-size:0.8rem;">Ajusta el recuadro para seleccionar solo la lápida y eliminar ruido de fondo.</p>
+        <img id="crop-image" src="#" alt="Imagen para recortar">
+        <div class="crop-actions">
+            <button class="btn btn-success" onclick="applyCrop()">
+                <i class="fas fa-check me-2"></i>Aplicar recorte
+            </button>
+            <button class="btn btn-outline-secondary" onclick="closeCropModal()">
+                <i class="fas fa-times me-2"></i>Cancelar
+            </button>
+        </div>
     </div>
 </div>
 
@@ -706,32 +754,33 @@
             </div>
         </div>
 
-        <!-- Layout de escaneo con títulos de campo -->
+        <!-- Layout de escaneo - SIN TEXTO COMPLETO -->
         <div class="card-custom" id="scan-container">
             <div class="scan-container" style="display:flex;">
                 <!-- Columna izquierda: Imagen -->
                 <div class="scan-image-col">
                     <img id="uploaded-image-preview" src="#" alt="Vista previa de imagen">
-                    <div class="d-flex gap-2 mt-2">
-                        <button class="btn btn-primary w-50 py-2" id="accept-scan-btn" onclick="acceptImageAndScan()">
-                            <i class="fas fa-robot me-2"></i>ESCANEAR
+                    <div class="image-tools">
+                        <button class="btn btn-outline-secondary" onclick="openCropModal()">
+                            <i class="fas fa-crop-alt me-1"></i>Recortar
                         </button>
-                        <button class="btn btn-outline-secondary w-50 py-2" id="retry-image-btn" onclick="retryImageCapture()">
-                            <i class="fas fa-redo-alt me-2"></i>REINTENTAR
+                        <button class="btn btn-primary" id="accept-scan-btn" onclick="acceptImageAndScan()">
+                            <i class="fas fa-robot me-1"></i>ESCANEAR
+                        </button>
+                        <button class="btn btn-outline-secondary" id="retry-image-btn" onclick="retryImageCapture()">
+                            <i class="fas fa-redo-alt me-1"></i>REINTENTAR
                         </button>
                     </div>
                 </div>
 
                 <!-- Columna derecha: Formulario de datos -->
                 <div class="scan-form-col">
-                    <!-- Encabezado: instrucción en una sola línea -->
                     <div class="form-header">
                         <span class="hint">
                             <i class="fas fa-pencil-alt"></i>Revisa y corrige la información antes de almacenarla
                         </span>
                     </div>
 
-                    <!-- Campos del formulario con títulos debajo -->
                     <div class="fields-grid">
                         <div class="field-group">
                             <input type="text" id="display-nombre-finado" class="form-control" placeholder="Nombre del finado">
@@ -753,13 +802,8 @@
                             <input type="text" id="display-geolocation" class="form-control" readonly placeholder="Ubicación">
                             <span class="field-label">Ubicación</span>
                         </div>
-                        <div class="field-group full-width">
-                            <textarea id="display-raw-text" class="form-control" rows="2" placeholder="Texto completo extraído"></textarea>
-                            <span class="field-label">Texto completo</span>
-                        </div>
                     </div>
 
-                    <!-- Botones pequeños en la parte inferior -->
                     <div class="form-actions">
                         <button class="btn btn-success" onclick="saveCurrentFormDataToHistory()">
                             <i class="fas fa-save me-1"></i>GUARDAR
@@ -778,7 +822,7 @@
 /* ══════════════════════════════════════════════════════════════════
    CONFIGURACIÓN DE LA APLICACIÓN
 ══════════════════════════════════════════════════════════════════ */
-const APP_VERSION = "v1.0.4";
+const APP_VERSION = "v1.0.6";
 
 /* ══════════════════════════════════════════════════════════════════
    CONFIGURACIÓN FIREBASE
@@ -802,6 +846,8 @@ let scannerStream = null;
 let pendingCanvas = null;
 let outputArray = [];
 let currentGeolocation = null;
+let cropper = null;
+let cropImageData = null;
 
 /* ══════════════════════════════════════════════════════════════════
    TOAST
@@ -867,6 +913,66 @@ function saveGeminiKey() {
     } else {
         showToast('⚠ Key inválida', '#ef4444');
     }
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   CROP TOOL
+══════════════════════════════════════════════════════════════════ */
+function openCropModal() {
+    if (!pendingCanvas) {
+        showToast('⚠ Primero carga o captura una imagen.', '#f59e0b');
+        return;
+    }
+    const img = document.getElementById('crop-image');
+    img.src = pendingCanvas.toDataURL('image/jpeg', 0.92);
+    document.getElementById('crop-modal').style.display = 'flex';
+    
+    setTimeout(() => {
+        if (cropper) cropper.destroy();
+        cropper = new Cropper(img, {
+            aspectRatio: NaN,
+            viewMode: 1,
+            dragMode: 'move',
+            autoCropArea: 0.8,
+            restore: false,
+            guides: true,
+            center: true,
+            highlight: true,
+            cropBoxMovable: true,
+            cropBoxResizable: true,
+            toggleDragModeOnDblclick: false,
+        });
+    }, 100);
+}
+
+function closeCropModal() {
+    if (cropper) {
+        cropper.destroy();
+        cropper = null;
+    }
+    document.getElementById('crop-modal').style.display = 'none';
+}
+
+function applyCrop() {
+    if (!cropper) return;
+    
+    const croppedCanvas = cropper.getCroppedCanvas({
+        width: 1200,
+        height: 1200,
+        fillColor: '#fff',
+        imageSmoothingEnabled: true,
+        imageSmoothingQuality: 'high',
+    });
+    
+    // Actualizar el canvas pendiente con la imagen recortada
+    pendingCanvas = croppedCanvas;
+    
+    // Actualizar la vista previa
+    const previewImg = document.getElementById('uploaded-image-preview');
+    previewImg.src = croppedCanvas.toDataURL('image/jpeg', 0.92);
+    
+    closeCropModal();
+    showToast('✅ Imagen recortada correctamente.', '#10b981');
 }
 
 /* ══════════════════════════════════════════════════════════════════
@@ -963,7 +1069,7 @@ async function handleImageUpload(event) {
             document.getElementById('scan-container').style.display = 'block';
             clearFormFields();
 
-            showToast('✅ Imagen lista para escanear.', '#10b981');
+            showToast('✅ Imagen lista. Puedes recortar o escanear.', '#10b981');
         };
         img.src = e.target.result;
     };
@@ -986,13 +1092,13 @@ async function captureIA() {
     currentGeolocation = await getGeolocation();
 
     const previewImg = document.getElementById('uploaded-image-preview');
-    previewImg.src = pendingCanvas.toDataURL('image/jpeg', 0.88);
+    previewImg.src = pendingCanvas.toDataURL('image/jpeg', 0.92);
     previewImg.alt = "Vista previa de imagen";
 
     document.getElementById('scan-container').style.display = 'block';
     clearFormFields();
     closeScanner();
-    showToast('✅ Imagen capturada. Escanea para extraer datos.', '#10b981');
+    showToast('✅ Imagen capturada. Puedes recortar o escanear.', '#10b981');
 
     snapIcon.className = 'fas fa-camera fa-2x text-primary';
     document.getElementById('snap-btn').style.pointerEvents = 'auto';
@@ -1011,7 +1117,7 @@ async function acceptImageAndScan() {
     acceptBtn.innerHTML = `<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Escaneando...`;
 
     try {
-        const b64 = pendingCanvas.toDataURL('image/jpeg', 0.88).split(',')[1];
+        const b64 = pendingCanvas.toDataURL('image/jpeg', 0.92).split(',')[1];
         await processImageWithGemini(b64);
         showToast('✅ Datos extraídos. Revisa el formulario.', '#10b981', 4000);
     } catch (error) {
@@ -1020,7 +1126,7 @@ async function acceptImageAndScan() {
     } finally {
         acceptBtn.disabled = false;
         retryBtn.disabled = false;
-        acceptBtn.innerHTML = `<i class="fas fa-robot me-2"></i>ESCANEAR`;
+        acceptBtn.innerHTML = `<i class="fas fa-robot me-1"></i>ESCANEAR`;
     }
 }
 
@@ -1033,6 +1139,10 @@ function retryImageCapture() {
     currentGeolocation = null;
     clearFormFields();
     document.getElementById('image-upload-input').value = '';
+    if (cropper) {
+        cropper.destroy();
+        cropper = null;
+    }
     showToast('📸 Listo para una nueva captura o subida.', 'rgba(59,130,246,0.9)');
 }
 
@@ -1042,25 +1152,18 @@ function clearFormFields() {
     document.getElementById('display-fecha-defuncion').value = '';
     document.getElementById('display-nombre-panteon').value = '';
     document.getElementById('display-geolocation').value = '';
-    document.getElementById('display-raw-text').value = '';
 }
 
 /* ══════════════════════════════════════════════════════════════════
-   PROCESAMIENTO CON GEMINI - FORMATO DE FECHA DÍA MES AÑO
+   PROCESAMIENTO CON GEMINI
 ══════════════════════════════════════════════════════════════════ */
 
-/**
- * Convierte una fecha en formato ISO (YYYY-MM-DD) o cualquier otro
- * a formato legible: "DD de Mes de AAAA"
- */
 function formatDateToSpanish(dateStr) {
     if (!dateStr || dateStr === '' || dateStr === 'null') return '';
     
-    // Intentar parsear la fecha
     let date = null;
     let year, month, day;
     
-    // Intentar formato ISO YYYY-MM-DD
     const isoMatch = dateStr.match(/^(\d{4})-(\d{2})-(\d{2})$/);
     if (isoMatch) {
         year = parseInt(isoMatch[1]);
@@ -1068,10 +1171,8 @@ function formatDateToSpanish(dateStr) {
         day = parseInt(isoMatch[3]);
         date = new Date(year, month, day);
     } else {
-        // Intentar otras variantes
         date = new Date(dateStr);
         if (isNaN(date.getTime())) {
-            // Si no se puede parsear, devolver el original
             return dateStr;
         }
         year = date.getFullYear();
@@ -1100,12 +1201,14 @@ async function processImageWithGemini(base64Image) {
 
     try {
         const promptText = `
-            Extrae la siguiente información de la imagen de una lápida o documento fúnebre.
+            Analiza la imagen de una lápida y extrae SOLO los siguientes datos en formato JSON.
             Si un dato no está presente o no es claro, usa null.
             
             IMPORTANTE: Las fechas DEBEN estar en formato ISO: "YYYY-MM-DD"
             
-            Formato de salida JSON (SOLO JSON, sin texto adicional):
+            Responde SOLO con el JSON, sin texto adicional.
+            
+            Formato de salida:
             {
                 "nombre_finado": "string | null",
                 "fecha_nacimiento": "YYYY-MM-DD | null",
@@ -1126,7 +1229,7 @@ async function processImageWithGemini(base64Image) {
                             { text: promptText }
                         ]
                     }],
-                    generationConfig: { temperature: 0.3, maxOutputTokens: 1000 }
+                    generationConfig: { temperature: 0.2, maxOutputTokens: 500 }
                 })
             }
         );
@@ -1140,8 +1243,30 @@ async function processImageWithGemini(base64Image) {
             throw new Error(data.error?.message || `HTTP ${res.status}`);
         }
 
-        const extractedText = data.candidates[0].content.parts[0].text.trim();
-        populateExtractedDataForm(extractedText, currentGeolocation);
+        const responseText = data.candidates[0].content.parts[0].text.trim();
+        
+        // Extraer JSON de la respuesta
+        let jsonData = null;
+        const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+            try {
+                jsonData = JSON.parse(jsonMatch[0]);
+            } catch (e) {
+                console.warn("Error parsing JSON:", e);
+                jsonData = null;
+            }
+        }
+
+        if (!jsonData) {
+            jsonData = {
+                nombre_finado: null,
+                fecha_nacimiento: null,
+                fecha_defuncion: null,
+                nombre_panteon: null
+            };
+        }
+
+        populateExtractedDataForm(jsonData, currentGeolocation);
 
     } catch(e) {
         throw e;
@@ -1151,44 +1276,19 @@ async function processImageWithGemini(base64Image) {
 }
 
 /* ══════════════════════════════════════════════════════════════════
-   RESULTADOS DE ESCANEO - CON FORMATO DE FECHA LEGIBLE
+   RESULTADOS DE ESCANEO - SOLO DATOS ESTRUCTURADOS
 ══════════════════════════════════════════════════════════════════ */
-function populateExtractedDataForm(scannedText, geolocation) {
-    let parsedData = {
-        nombre_finado: '',
-        fecha_nacimiento: '',
-        fecha_defuncion: '',
-        nombre_panteon: '',
-        raw_text: scannedText
-    };
-
-    try {
-        // Buscar JSON en la respuesta
-        const jsonMatch = scannedText.match(/\{[\s\S]*\}/);
-        if (jsonMatch) {
-            const data = JSON.parse(jsonMatch[0]);
-            parsedData.nombre_finado = data.nombre_finado || '';
-            
-            // Convertir fechas ISO a formato legible en español
-            parsedData.fecha_nacimiento = formatDateToSpanish(data.fecha_nacimiento);
-            parsedData.fecha_defuncion = formatDateToSpanish(data.fecha_defuncion);
-            parsedData.nombre_panteon = data.nombre_panteon || '';
-        }
-    } catch (e) {
-        console.warn("Could not parse JSON from Gemini output, using raw text.", e);
-    }
-
-    document.getElementById('display-nombre-finado').value = parsedData.nombre_finado;
-    document.getElementById('display-fecha-nacimiento').value = parsedData.fecha_nacimiento;
-    document.getElementById('display-fecha-defuncion').value = parsedData.fecha_defuncion;
-    document.getElementById('display-nombre-panteon').value = parsedData.nombre_panteon;
+function populateExtractedDataForm(data, geolocation) {
+    document.getElementById('display-nombre-finado').value = data.nombre_finado || '';
+    document.getElementById('display-fecha-nacimiento').value = formatDateToSpanish(data.fecha_nacimiento);
+    document.getElementById('display-fecha-defuncion').value = formatDateToSpanish(data.fecha_defuncion);
+    document.getElementById('display-nombre-panteon').value = data.nombre_panteon || '';
     
     if (geolocation) {
         document.getElementById('display-geolocation').value = `Lat: ${geolocation.latitude.toFixed(4)}, Long: ${geolocation.longitude.toFixed(4)}`;
     } else {
         document.getElementById('display-geolocation').value = 'No disponible';
     }
-    document.getElementById('display-raw-text').value = parsedData.raw_text;
 }
 
 function saveCurrentFormDataToHistory() {
@@ -1196,7 +1296,6 @@ function saveCurrentFormDataToHistory() {
     const fechaNacimiento = document.getElementById('display-fecha-nacimiento').value;
     const fechaDefuncion = document.getElementById('display-fecha-defuncion').value;
     const nombrePanteon = document.getElementById('display-nombre-panteon').value;
-    const rawText = document.getElementById('display-raw-text').value;
     const geolocationText = document.getElementById('display-geolocation').value;
 
     let savedGeolocation = null;
@@ -1214,12 +1313,11 @@ function saveCurrentFormDataToHistory() {
             nombre_finado: nombreFinado,
             fecha_nacimiento: fechaNacimiento,
             fecha_defuncion: fechaDefuncion,
-            nombre_panteon: nombrePanteon,
-            raw_text: rawText
+            nombre_panteon: nombrePanteon
         }
     });
 
-    console.log("Data saved to internal history:", outputArray[outputArray.length - 1]);
+    console.log("Data saved:", outputArray[outputArray.length - 1]);
     showToast('✅ Datos guardados en historial interno.', '#10b981');
 
     clearDisplayedData();
@@ -1235,6 +1333,10 @@ function clearDisplayedData() {
     currentGeolocation = null;
     document.getElementById('image-upload-input').value = '';
     document.getElementById('upload-capture-card').style.display = 'block';
+    if (cropper) {
+        cropper.destroy();
+        cropper = null;
+    }
     showToast('✅ Formulario limpiado');
 }
 
@@ -1323,7 +1425,7 @@ function logout() {
 }
 
 /* ══════════════════════════════════════════════════════════════════
-   MAIN APP NAVIGATION / MODE SELECTION
+   MAIN APP NAVIGATION
 ══════════════════════════════════════════════════════════════════ */
 function showModeSelection() {
     document.getElementById('add-tomb-section').style.display = 'none';
@@ -1338,6 +1440,10 @@ function showModeSelection() {
     currentGeolocation = null;
     clearFormFields();
     document.getElementById('image-upload-input').value = '';
+    if (cropper) {
+        cropper.destroy();
+        cropper = null;
+    }
 }
 
 function selectAddTombMode() {
@@ -1352,6 +1458,10 @@ function selectAddTombMode() {
     currentGeolocation = null;
     clearFormFields();
     document.getElementById('image-upload-input').value = '';
+    if (cropper) {
+        cropper.destroy();
+        cropper = null;
+    }
 }
 
 function selectSearchTombMode() {
@@ -1408,6 +1518,10 @@ window.onload = () => {
             document.getElementById('uploaded-image-preview').src = '#';
             pendingCanvas = null;
             currentGeolocation = null;
+            if (cropper) {
+                cropper.destroy();
+                cropper = null;
+            }
         }
     });
 };
