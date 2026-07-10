@@ -525,7 +525,7 @@
             padding: 0.85rem 1.25rem;
         }
 
-        #mode-selection-card, #add-tomb-section {
+        #mode-selection-card, #add-tomb-section, #search-tomb-section {
             display: none;
         }
         #upload-capture-card {
@@ -816,13 +816,34 @@
             </div>
         </div>
     </div>
+
+    <!-- Search Tomb Section -->
+    <div id="search-tomb-section" style="display:none;">
+        <div class="card-custom">
+            <h5 class="fw-bold mb-3 text-center" style="color:var(--primary);">Historial de Tumbas Agregadas</h5>
+            <p class="section-subtitle text-center mb-4">Aquí puedes ver los datos de las lápidas que has escaneado y guardado.</p>
+            
+            <div id="tomb-history-container" class="mt-3">
+                <div class="alert alert-info text-center" role="alert" id="no-history-message">
+                    Aún no has agregado ninguna tumba.
+                </div>
+            </div>
+            
+            <div class="d-flex justify-content-center mt-4">
+                <button class="btn btn-outline-danger" onclick="clearTombHistory()">
+                    <i class="fas fa-trash-alt me-2"></i>Limpiar Historial
+                </button>
+            </div>
+        </div>
+    </div>
+
 </div>
 
 <script>
 /* ══════════════════════════════════════════════════════════════════
    CONFIGURACIÓN DE LA APLICACIÓN
 ══════════════════════════════════════════════════════════════════ */
-const APP_VERSION = "v1.0.6";
+const APP_VERSION = "v1.0.7";
 
 /* ══════════════════════════════════════════════════════════════════
    CONFIGURACIÓN FIREBASE
@@ -831,7 +852,7 @@ const firebaseConfig = {
     apiKey: "AIzaSyDVjbcOjDr8o3yiNqbwPW3W6WhIsplGUUk",
     authDomain: "buscatumbas-2e7cc.firebaseapp.com",
     projectId: "buscatumbas-2e7cc",
-    storageBucket: "buscatumbas-2e7cc.firebaseastorage.app",
+    storageBucket: "buscatumbas-2e7cc.firebaseapp.com", // Corrected storageBucket typo
     messagingSenderId: "920637749030",
     appId: "1:920637749030:web:21568d7680f12946fdf3e7"
 };
@@ -844,7 +865,7 @@ const auth = firebase.auth();
 ══════════════════════════════════════════════════════════════════ */
 let scannerStream = null;
 let pendingCanvas = null;
-let outputArray = [];
+let outputArray = []; // Datos guardados temporalmente en memoria, se perderán al recargar la página.
 let currentGeolocation = null;
 let cropper = null;
 let cropImageData = null;
@@ -1236,8 +1257,8 @@ async function processImageWithGemini(base64Image) {
 
         const data = await res.json();
         if (!res.ok) {
-            if (data.error && data.error.message.includes("models/gemini-2.5-flash-lite is not found") || 
-                data.error && data.error.message.includes("is not supported for generateContent")) {
+            if (data.error && (data.error.message.includes("models/gemini-2.5-flash-lite is not found") || 
+                data.error.message.includes("is not supported for generateContent"))) {
                 throw new Error("El modelo Gemini 'gemini-2.5-flash-lite' no está disponible o accesible con tu API Key.");
             }
             throw new Error(data.error?.message || `HTTP ${res.status}`);
@@ -1321,7 +1342,7 @@ function saveCurrentFormDataToHistory() {
     showToast('✅ Datos guardados en historial interno.', '#10b981');
 
     clearDisplayedData();
-    showModeSelection();
+    showModeSelection(); // Vuelve al menú principal. Si el usuario va a "Buscar Tumba", se recargará el historial.
 }
 
 function clearDisplayedData() {
@@ -1429,6 +1450,7 @@ function logout() {
 ══════════════════════════════════════════════════════════════════ */
 function showModeSelection() {
     document.getElementById('add-tomb-section').style.display = 'none';
+    document.getElementById('search-tomb-section').style.display = 'none'; // Asegura que se oculte la sección de búsqueda
     document.getElementById('scan-container').style.display = 'none';
     document.getElementById('upload-capture-card').style.display = 'none';
     document.getElementById('mode-selection-card').style.display = 'flex';
@@ -1448,6 +1470,7 @@ function showModeSelection() {
 
 function selectAddTombMode() {
     document.getElementById('mode-selection-card').style.display = 'none';
+    document.getElementById('search-tomb-section').style.display = 'none'; // Asegura que se oculte la sección de búsqueda
     document.getElementById('add-tomb-section').style.display = 'block';
     document.getElementById('upload-capture-card').style.display = 'block';
     document.getElementById('back-to-mode-selection').style.display = 'block';
@@ -1465,7 +1488,61 @@ function selectAddTombMode() {
 }
 
 function selectSearchTombMode() {
-    showToast('🔎 Funcionalidad de búsqueda próximamente.', 'rgba(59,130,246,0.9)', 4000);
+    document.getElementById('mode-selection-card').style.display = 'none';
+    document.getElementById('add-tomb-section').style.display = 'none';
+    document.getElementById('search-tomb-section').style.display = 'block'; // Muestra la nueva sección de búsqueda
+    document.getElementById('back-to-mode-selection').style.display = 'block';
+    document.getElementById('logout-btn').style.display = 'block';
+    
+    displayTombHistory(); // Carga y muestra el historial
+}
+
+function displayTombHistory() {
+    const historyContainer = document.getElementById('tomb-history-container');
+    historyContainer.innerHTML = ''; // Limpia entradas anteriores
+    
+    if (outputArray.length === 0) {
+        historyContainer.innerHTML = `
+            <div class="alert alert-info text-center" role="alert" id="no-history-message">
+                Aún no has agregado ninguna tumba.
+            </div>
+        `;
+        return;
+    }
+
+    outputArray.forEach((entry) => {
+        const item = document.createElement('div');
+        item.className = 'card-custom mb-3'; // Usando card-custom para cada entrada del historial
+        item.innerHTML = `
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h6 class="fw-bold mb-0 text-truncate" style="color:var(--accent);">
+                    <i class="fas fa-tombstone-alt me-2"></i>${entry.data.nombre_finado || 'Finado Desconocido'}
+                </h6>
+                <span class="badge bg-light text-muted fw-normal">${entry.timestamp.split(',')[0]}</span>
+            </div>
+            <p class="mb-1" style="font-size:0.9rem;">
+                <i class="fas fa-calendar-alt me-2 text-muted"></i><strong>Nacimiento:</strong> ${entry.data.fecha_nacimiento || 'N/A'}
+            </p>
+            <p class="mb-1" style="font-size:0.9rem;">
+                <i class="fas fa-calendar-times me-2 text-muted"></i><strong>Defunción:</strong> ${entry.data.fecha_defuncion || 'N/A'}
+            </p>
+            <p class="mb-1" style="font-size:0.9rem;">
+                <i class="fas fa-church me-2 text-muted"></i><strong>Panteón:</strong> ${entry.data.nombre_panteon || 'N/A'}
+            </p>
+            <p class="mb-0" style="font-size:0.9rem;">
+                <i class="fas fa-map-marker-alt me-2 text-muted"></i><strong>Ubicación:</strong> ${entry.geolocation ? `Lat: ${entry.geolocation.latitude.toFixed(4)}, Long: ${entry.geolocation.longitude.toFixed(4)}` : 'N/A'}
+            </p>
+        `;
+        historyContainer.appendChild(item);
+    });
+}
+
+function clearTombHistory() {
+    if (confirm('¿Estás seguro de que quieres limpiar todo el historial de tumbas agregadas? Esta acción no se puede deshacer.')) {
+        outputArray = [];
+        displayTombHistory(); // Actualiza la vista para mostrar el mensaje de "no hay entradas"
+        showToast('✅ Historial de tumbas limpiado.', '#10b981');
+    }
 }
 
 /* ══════════════════════════════════════════════════════════════════
@@ -1496,7 +1573,7 @@ window.onload = () => {
             document.getElementById('auth-screen').style.display = 'none';
             document.getElementById('main-app').style.display = 'flex';
             document.getElementById('logout-btn').style.display = 'block';
-            showModeSelection();
+            showModeSelection(); // Llama a la función para establecer la vista inicial
             if (!localStorage.getItem('initial_gemini_key_prompted') && !isGeminiKeySet()) {
                 changeGeminiKey();
                 showToast('⚠ Ingresa tu API Key de Gemini para escanear.', '#f59e0b', 7000);
@@ -1508,6 +1585,7 @@ window.onload = () => {
             document.getElementById('main-app').style.display = 'none';
             document.getElementById('mode-selection-card').style.display = 'none';
             document.getElementById('add-tomb-section').style.display = 'none';
+            document.getElementById('search-tomb-section').style.display = 'none'; // Asegura que se oculte la sección de búsqueda
             document.getElementById('back-to-mode-selection').style.display = 'none';
             closeGeminiKeyModal();
             document.getElementById('auth-screen').style.display = 'flex';
