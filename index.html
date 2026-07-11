@@ -9,6 +9,8 @@
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
     <!-- Cropper.js -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
@@ -540,6 +542,57 @@
             max-height: 60vh;
         }
 
+        /* Search Results Styles */
+        .search-results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.25rem;
+            margin-top: 1.5rem;
+        }
+        .tomb-result-card {
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            overflow: hidden;
+            background: #fff;
+            box-shadow: 0 0.5rem 1.5rem rgba(15,23,42,0.06);
+            display: flex;
+            flex-direction: column;
+        }
+        .tomb-result-card img {
+            width: 100%;
+            height: 200px; /* Fixed height for consistency */
+            object-fit: cover;
+            border-bottom: 1px solid var(--border);
+        }
+        .tomb-result-card .card-body {
+            padding: 1rem;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .tomb-result-card h6 {
+            color: var(--accent);
+            font-size: 1.1rem;
+            margin-bottom: 0.75rem;
+            line-height: 1.3;
+        }
+        .tomb-result-card p {
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
+            color: #475569;
+        }
+        .tomb-result-card p strong {
+            color: var(--primary);
+            font-weight: 600;
+        }
+        .tomb-result-card i {
+            width: 1rem; /* Align icons */
+            text-align: center;
+            margin-right: 0.5rem;
+            color: #94a3b8;
+        }
+
         @media (max-width: 768px) {
             .scan-container {
                 flex-direction: column;
@@ -568,6 +621,9 @@
             #crop-modal .card-custom {
                 max-width: 95%;
                 padding: 1rem;
+            }
+            .search-results-grid {
+                grid-template-columns: 1fr; /* Stack results on smaller screens */
             }
         }
 
@@ -818,21 +874,47 @@
     </div>
 
     <!-- Search Tomb Section -->
-    <div id="search-tomb-section" style="display:none;">
+    <div id="search-tomb-section">
         <div class="card-custom">
-            <h5 class="fw-bold mb-3 text-center" style="color:var(--primary);">Historial de Tumbas Agregadas</h5>
-            <p class="section-subtitle text-center mb-4">Aquí puedes ver los datos de las lápidas que has escaneado y guardado.</p>
+            <h5 class="fw-bold mb-3 text-center" style="color:var(--primary);">Buscar Tumbas</h5>
+            <p class="section-subtitle text-center mb-4">Encuentra tumbas por nombre del finado, panteón o rango de fechas.</p>
             
-            <div id="tomb-history-container" class="mt-3">
-                <div class="alert alert-info text-center" role="alert" id="no-history-message">
-                    Aún no has agregado ninguna tumba.
+            <div class="fields-grid mb-3">
+                <div class="field-group">
+                    <input type="text" id="search-nombre-finado" class="form-control" placeholder="Nombre del finado">
+                    <span class="field-label">Nombre del finado</span>
+                </div>
+                <div class="field-group">
+                    <input type="text" id="search-nombre-panteon" class="form-control" placeholder="Nombre del panteón">
+                    <span class="field-label">Nombre del panteón</span>
+                </div>
+                <div class="field-group">
+                    <input type="date" id="search-fecha-nacimiento-desde" class="form-control">
+                    <span class="field-label">Nacimiento Desde</span>
+                </div>
+                <div class="field-group">
+                    <input type="date" id="search-fecha-nacimiento-hasta" class="form-control">
+                    <span class="field-label">Nacimiento Hasta</span>
+                </div>
+                <div class="field-group">
+                    <input type="date" id="search-fecha-defuncion-desde" class="form-control">
+                    <span class="field-label">Defunción Desde</span>
+                </div>
+                <div class="field-group">
+                    <input type="date" id="search-fecha-defuncion-hasta" class="form-control">
+                    <span class="field-label">Defunción Hasta</span>
                 </div>
             </div>
+
+            <button class="btn btn-primary w-100 py-2 rounded-pill fw-bold" id="search-btn" onclick="performSearch()">
+                <i class="fas fa-search me-2"></i>BUSCAR
+            </button>
             
-            <div class="d-flex justify-content-center mt-4">
-                <button class="btn btn-outline-danger" onclick="clearTombHistory()">
-                    <i class="fas fa-trash-alt me-2"></i>Limpiar Historial
-                </button>
+            <div id="search-results-container" class="mt-4">
+                <div class="alert alert-info text-center" role="alert" id="no-search-results-message">
+                    Ingresa tus criterios de búsqueda para encontrar tumbas.
+                </div>
+                <!-- Search results will be loaded here -->
             </div>
         </div>
     </div>
@@ -843,7 +925,7 @@
 /* ══════════════════════════════════════════════════════════════════
    CONFIGURACIÓN DE LA APLICACIÓN
 ══════════════════════════════════════════════════════════════════ */
-const APP_VERSION = "v1.0.7";
+const APP_VERSION = "v1.0.9"; // Updated version
 
 /* ══════════════════════════════════════════════════════════════════
    CONFIGURACIÓN FIREBASE
@@ -852,20 +934,21 @@ const firebaseConfig = {
     apiKey: "AIzaSyDVjbcOjDr8o3yiNqbwPW3W6WhIsplGUUk",
     authDomain: "buscatumbas-2e7cc.firebaseapp.com",
     projectId: "buscatumbas-2e7cc",
-    storageBucket: "buscatumbas-2e7cc.firebaseapp.com", // Corrected storageBucket typo
+    storageBucket: "buscatumbas-2e7cc.appspot.com",
     messagingSenderId: "920637749030",
     appId: "1:920637749030:web:21568d7680f12946fdf3e7"
 };
 
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
+const db = firebase.firestore(); // Initialized Firestore
+const storage = firebase.storage(); // Initialized Storage
 
 /* ══════════════════════════════════════════════════════════════════
    ESTADO GLOBAL
 ══════════════════════════════════════════════════════════════════ */
 let scannerStream = null;
 let pendingCanvas = null;
-let outputArray = []; // Datos guardados temporalmente en memoria, se perderán al recargar la página.
 let currentGeolocation = null;
 let cropper = null;
 let cropImageData = null;
@@ -1179,6 +1262,11 @@ function clearFormFields() {
    PROCESAMIENTO CON GEMINI
 ══════════════════════════════════════════════════════════════════ */
 
+const mesesES = [
+    'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+    'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+];
+
 function formatDateToSpanish(dateStr) {
     if (!dateStr || dateStr === '' || dateStr === 'null') return '';
     
@@ -1203,13 +1291,28 @@ function formatDateToSpanish(dateStr) {
     
     if (isNaN(date.getTime())) return dateStr;
     
-    const meses = [
-        'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-        'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
-    ];
-    
-    return `${day} de ${meses[month]} de ${year}`;
+    return `${day} de ${mesesES[month]} de ${year}`;
 }
+
+// New function to parse "DD de Mes de AAAA" to "YYYY-MM-DD"
+function parseSpanishDateToISO(spanishDateStr) {
+    if (!spanishDateStr || spanishDateStr === 'N/A') return null;
+    const parts = spanishDateStr.match(/(\d{1,2}) de ([A-Za-z]+) de (\d{4})/);
+    if (!parts) return null;
+
+    const day = parseInt(parts[1], 10);
+    const monthName = parts[2];
+    const year = parseInt(parts[3], 10);
+
+    const monthIndex = mesesES.findIndex(m => m.toLowerCase() === monthName.toLowerCase());
+    if (monthIndex === -1) return null;
+
+    const monthPadded = String(monthIndex + 1).padStart(2, '0');
+    const dayPadded = String(day).padStart(2, '0');
+
+    return `${year}-${monthPadded}-${dayPadded}`;
+}
+
 
 async function processImageWithGemini(base64Image) {
     const key = localStorage.getItem('yaute_key_v3310');
@@ -1301,8 +1404,8 @@ async function processImageWithGemini(base64Image) {
 ══════════════════════════════════════════════════════════════════ */
 function populateExtractedDataForm(data, geolocation) {
     document.getElementById('display-nombre-finado').value = data.nombre_finado || '';
-    document.getElementById('display-fecha-nacimiento').value = formatDateToSpanish(data.fecha_nacimiento);
-    document.getElementById('display-fecha-defuncion').value = formatDateToSpanish(data.fecha_defuncion);
+    document.getElementById('display-fecha-nacimiento').value = formatDateToSpanish(data.fecha_nacimiento); // Display in Spanish
+    document.getElementById('display-fecha-defuncion').value = formatDateToSpanish(data.fecha_defuncion); // Display in Spanish
     document.getElementById('display-nombre-panteon').value = data.nombre_panteon || '';
     
     if (geolocation) {
@@ -1312,37 +1415,78 @@ function populateExtractedDataForm(data, geolocation) {
     }
 }
 
-function saveCurrentFormDataToHistory() {
+async function saveCurrentFormDataToHistory() {
+    if (!auth.currentUser) {
+        showToast('❌ Debes iniciar sesión para guardar datos.', '#ef4444');
+        return;
+    }
+    if (!pendingCanvas) {
+        showToast('⚠ No hay imagen para guardar.', '#f59e0b');
+        return;
+    }
+
     const nombreFinado = document.getElementById('display-nombre-finado').value;
-    const fechaNacimiento = document.getElementById('display-fecha-nacimiento').value;
-    const fechaDefuncion = document.getElementById('display-fecha-defuncion').value;
+    const fechaNacimientoDisplay = document.getElementById('display-fecha-nacimiento').value;
+    const fechaDefuncionDisplay = document.getElementById('display-fecha-defuncion').value;
     const nombrePanteon = document.getElementById('display-nombre-panteon').value;
     const geolocationText = document.getElementById('display-geolocation').value;
+
+    if (!nombreFinado && !nombrePanteon) {
+        showToast('⚠ El nombre del finado o del panteón son requeridos.', '#f59e0b');
+        return;
+    }
 
     let savedGeolocation = null;
     if (geolocationText && geolocationText !== 'No disponible') {
         const match = geolocationText.match(/Lat: ([-+]?\d*\.\d+), Long: ([-+]?\d*\.\d+)/);
         if (match) {
-            savedGeolocation = { latitude: parseFloat(match[1]), longitude: parseFloat(match[2]) };
+            savedGeolocation = new firebase.firestore.GeoPoint(parseFloat(match[1]), parseFloat(match[2]));
         }
     }
 
-    outputArray.push({
-        timestamp: new Date().toLocaleString(),
-        geolocation: savedGeolocation,
-        data: {
-            nombre_finado: nombreFinado,
-            fecha_nacimiento: fechaNacimiento,
-            fecha_defuncion: fechaDefuncion,
-            nombre_panteon: nombrePanteon
-        }
-    });
+    const saveBtn = document.querySelector('#add-tomb-section .form-actions .btn-success');
+    const originalSaveBtnText = saveBtn.innerHTML;
+    saveBtn.disabled = true;
+    saveBtn.innerHTML = `<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Guardando...`;
 
-    console.log("Data saved:", outputArray[outputArray.length - 1]);
-    showToast('✅ Datos guardados en historial interno.', '#10b981');
+    try {
+        // 1. Upload image to Firebase Storage
+        const imageBlob = await new Promise(resolve => pendingCanvas.toBlob(resolve, 'image/jpeg', 0.85));
+        const imageRef = storage.ref(`tumbas_images/${auth.currentUser.uid}/${Date.now()}_tomb.jpg`);
+        await imageRef.put(imageBlob);
+        const imageUrl = await imageRef.getDownloadURL();
 
-    clearDisplayedData();
-    showModeSelection(); // Vuelve al menú principal. Si el usuario va a "Buscar Tumba", se recargará el historial.
+        // Convert display dates to ISO format for storage
+        const fechaNacimientoISO = parseSpanishDateToISO(fechaNacimientoDisplay);
+        const fechaDefuncionISO = parseSpanishDateToISO(fechaDefuncionDisplay);
+
+        // 2. Save data to Firestore
+        await db.collection('tumbas').add({
+            userId: auth.currentUser.uid,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+            imageUrl: imageUrl,
+            geolocation: savedGeolocation,
+            nombre_finado: nombreFinado || null,
+            nombre_finado_lower: nombreFinado ? nombreFinado.toLowerCase() : null,
+            fecha_nacimiento: fechaNacimientoDisplay || null, // Human readable
+            fecha_nacimiento_iso: fechaNacimientoISO, // ISO for range queries
+            fecha_defuncion: fechaDefuncionDisplay || null, // Human readable
+            fecha_defuncion_iso: fechaDefuncionISO, // ISO for range queries
+            nombre_panteon: nombrePanteon || null,
+            nombre_panteon_lower: nombrePanteon ? nombrePanteon.toLowerCase() : null,
+        });
+
+        showToast('✅ Tumba guardada exitosamente.', '#10b981');
+        clearDisplayedData();
+        showModeSelection(); // Vuelve al menú principal.
+
+    } catch (error) {
+        console.error("Error saving tomb data:", error);
+        showToast('❌ Error al guardar la tumba: ' + error.message, '#ef4444', 6000);
+    } finally {
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = originalSaveBtnText;
+    }
 }
 
 function clearDisplayedData() {
@@ -1450,7 +1594,7 @@ function logout() {
 ══════════════════════════════════════════════════════════════════ */
 function showModeSelection() {
     document.getElementById('add-tomb-section').style.display = 'none';
-    document.getElementById('search-tomb-section').style.display = 'none'; // Asegura que se oculte la sección de búsqueda
+    document.getElementById('search-tomb-section').style.display = 'none';
     document.getElementById('scan-container').style.display = 'none';
     document.getElementById('upload-capture-card').style.display = 'none';
     document.getElementById('mode-selection-card').style.display = 'flex';
@@ -1470,7 +1614,7 @@ function showModeSelection() {
 
 function selectAddTombMode() {
     document.getElementById('mode-selection-card').style.display = 'none';
-    document.getElementById('search-tomb-section').style.display = 'none'; // Asegura que se oculte la sección de búsqueda
+    document.getElementById('search-tomb-section').style.display = 'none';
     document.getElementById('add-tomb-section').style.display = 'block';
     document.getElementById('upload-capture-card').style.display = 'block';
     document.getElementById('back-to-mode-selection').style.display = 'block';
@@ -1490,59 +1634,166 @@ function selectAddTombMode() {
 function selectSearchTombMode() {
     document.getElementById('mode-selection-card').style.display = 'none';
     document.getElementById('add-tomb-section').style.display = 'none';
-    document.getElementById('search-tomb-section').style.display = 'block'; // Muestra la nueva sección de búsqueda
+    document.getElementById('search-tomb-section').style.display = 'block';
     document.getElementById('back-to-mode-selection').style.display = 'block';
     document.getElementById('logout-btn').style.display = 'block';
     
-    displayTombHistory(); // Carga y muestra el historial
+    // Clear previous search results and reset message
+    const searchResultsContainer = document.getElementById('search-results-container');
+    searchResultsContainer.innerHTML = `
+        <div class="alert alert-info text-center" role="alert" id="no-search-results-message">
+            Ingresa tus criterios de búsqueda para encontrar tumbas.
+        </div>
+    `;
+    document.getElementById('search-nombre-finado').value = '';
+    document.getElementById('search-nombre-panteon').value = '';
+    document.getElementById('search-fecha-nacimiento-desde').value = '';
+    document.getElementById('search-fecha-nacimiento-hasta').value = '';
+    document.getElementById('search-fecha-defuncion-desde').value = '';
+    document.getElementById('search-fecha-defuncion-hasta').value = '';
 }
 
-function displayTombHistory() {
-    const historyContainer = document.getElementById('tomb-history-container');
-    historyContainer.innerHTML = ''; // Limpia entradas anteriores
+/* ══════════════════════════════════════════════════════════════════
+   SEARCH FUNCTIONALITY
+══════════════════════════════════════════════════════════════════ */
+async function performSearch() {
+    const finadoSearchTerm = document.getElementById('search-nombre-finado').value.trim().toLowerCase();
+    const panteonSearchTerm = document.getElementById('search-nombre-panteon').value.trim().toLowerCase();
     
-    if (outputArray.length === 0) {
-        historyContainer.innerHTML = `
-            <div class="alert alert-info text-center" role="alert" id="no-history-message">
-                Aún no has agregado ninguna tumba.
+    const birthDateDesde = document.getElementById('search-fecha-nacimiento-desde').value; // YYYY-MM-DD
+    const birthDateHasta = document.getElementById('search-fecha-nacimiento-hasta').value; // YYYY-MM-DD
+    const deathDateDesde = document.getElementById('search-fecha-defuncion-desde').value; // YYYY-MM-DD
+    const deathDateHasta = document.getElementById('search-fecha-defuncion-hasta').value; // YYYY-MM-DD
+
+    const searchResultsContainer = document.getElementById('search-results-container');
+    const searchBtn = document.getElementById('search-btn');
+
+    searchResultsContainer.innerHTML = ''; // Clear previous results
+
+    if (!finadoSearchTerm && !panteonSearchTerm && !birthDateDesde && !birthDateHasta && !deathDateDesde && !deathDateHasta) {
+        searchResultsContainer.innerHTML = `
+            <div class="alert alert-info text-center" role="alert" id="no-search-results-message">
+                Ingresa tus criterios de búsqueda para encontrar tumbas.
+            </div>
+        `;
+        showToast('⚠ Ingresa al menos un criterio de búsqueda.', '#f59e0b');
+        return;
+    }
+
+    searchBtn.disabled = true;
+    searchBtn.innerHTML = `<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Buscando...`;
+    showToast('Buscando tumbas...', 'rgba(59,130,246,0.9)');
+
+    try {
+        let query = db.collection('tumbas').where('userId', '==', auth.currentUser.uid);
+        let hasDateRangeFilter = false;
+        let dateRangeField = '';
+
+        if (finadoSearchTerm) {
+            query = query
+                .where('nombre_finado_lower', '>=', finadoSearchTerm)
+                .where('nombre_finado_lower', '<=', finadoSearchTerm + '\uf8ff');
+        }
+        if (panteonSearchTerm) {
+            query = query
+                .where('nombre_panteon_lower', '>=', panteonSearchTerm)
+                .where('nombre_panteon_lower', '<=', panteonSearchTerm + '\uf8ff');
+        }
+
+        // Check for birth date range
+        if (birthDateDesde || birthDateHasta) {
+            hasDateRangeFilter = true;
+            dateRangeField = 'fecha_nacimiento_iso';
+            if (birthDateDesde) query = query.where('fecha_nacimiento_iso', '>=', birthDateDesde);
+            if (birthDateHasta) query = query.where('fecha_nacimiento_iso', '<=', birthDateHasta);
+        }
+
+        // Check for death date range
+        if (deathDateDesde || deathDateHasta) {
+            // If another date range is already active, show a warning
+            if (hasDateRangeFilter) {
+                showToast('⚠ Atención: Sólo se puede buscar por un rango de fechas a la vez. Se usará el rango de Fecha de Nacimiento.', '#f59e0b', 7000);
+                // We'll ignore the death date filter in Firestore query, but it could be filtered client-side if needed.
+            } else {
+                hasDateRangeFilter = true;
+                dateRangeField = 'fecha_defuncion_iso';
+                if (deathDateDesde) query = query.where('fecha_defuncion_iso', '>=', deathDateDesde);
+                if (deathDateHasta) query = query.where('fecha_defuncion_iso', '<=', deathDateHasta);
+            }
+        }
+        
+        // Apply orderBy clause based on filters, respecting Firestore's single range query rule
+        if (hasDateRangeFilter) {
+            query = query.orderBy(dateRangeField);
+        } else if (finadoSearchTerm || panteonSearchTerm) {
+             // If only name/panteon search, order by name if possible, or timestamp
+             if (finadoSearchTerm) {
+                 query = query.orderBy('nombre_finado_lower');
+             } else if (panteonSearchTerm) {
+                 query = query.orderBy('nombre_panteon_lower');
+             } else {
+                 query = query.orderBy('timestamp', 'desc');
+             }
+        } else {
+            // If no specific text or date range, just order by timestamp
+            query = query.orderBy('timestamp', 'desc');
+        }
+
+
+        const snapshot = await query.get();
+        const results = [];
+        snapshot.forEach(doc => {
+            results.push({ id: doc.id, ...doc.data() });
+        });
+
+        displaySearchResults(results);
+        showToast(`✅ Se encontraron ${results.length} tumbas.`, '#10b981');
+
+    } catch (error) {
+        console.error("Error performing search:", error);
+        showToast('❌ Error al buscar tumbas: ' + error.message, '#ef4444', 6000);
+    } finally {
+        searchBtn.disabled = false;
+        searchBtn.innerHTML = `<i class="fas fa-search me-2"></i>BUSCAR`;
+    }
+}
+
+function displaySearchResults(results) {
+    const searchResultsContainer = document.getElementById('search-results-container');
+    searchResultsContainer.innerHTML = ''; // Clear previous results
+
+    if (results.length === 0) {
+        searchResultsContainer.innerHTML = `
+            <div class="alert alert-warning text-center" role="alert">
+                No se encontraron tumbas con los criterios de búsqueda.
             </div>
         `;
         return;
     }
 
-    outputArray.forEach((entry) => {
-        const item = document.createElement('div');
-        item.className = 'card-custom mb-3'; // Usando card-custom para cada entrada del historial
-        item.innerHTML = `
-            <div class="d-flex justify-content-between align-items-center mb-2">
-                <h6 class="fw-bold mb-0 text-truncate" style="color:var(--accent);">
-                    <i class="fas fa-tombstone-alt me-2"></i>${entry.data.nombre_finado || 'Finado Desconocido'}
-                </h6>
-                <span class="badge bg-light text-muted fw-normal">${entry.timestamp.split(',')[0]}</span>
-            </div>
-            <p class="mb-1" style="font-size:0.9rem;">
-                <i class="fas fa-calendar-alt me-2 text-muted"></i><strong>Nacimiento:</strong> ${entry.data.fecha_nacimiento || 'N/A'}
-            </p>
-            <p class="mb-1" style="font-size:0.9rem;">
-                <i class="fas fa-calendar-times me-2 text-muted"></i><strong>Defunción:</strong> ${entry.data.fecha_defuncion || 'N/A'}
-            </p>
-            <p class="mb-1" style="font-size:0.9rem;">
-                <i class="fas fa-church me-2 text-muted"></i><strong>Panteón:</strong> ${entry.data.nombre_panteon || 'N/A'}
-            </p>
-            <p class="mb-0" style="font-size:0.9rem;">
-                <i class="fas fa-map-marker-alt me-2 text-muted"></i><strong>Ubicación:</strong> ${entry.geolocation ? `Lat: ${entry.geolocation.latitude.toFixed(4)}, Long: ${entry.geolocation.longitude.toFixed(4)}` : 'N/A'}
-            </p>
-        `;
-        historyContainer.appendChild(item);
-    });
-}
+    const resultsGrid = document.createElement('div');
+    resultsGrid.className = 'search-results-grid';
 
-function clearTombHistory() {
-    if (confirm('¿Estás seguro de que quieres limpiar todo el historial de tumbas agregadas? Esta acción no se puede deshacer.')) {
-        outputArray = [];
-        displayTombHistory(); // Actualiza la vista para mostrar el mensaje de "no hay entradas"
-        showToast('✅ Historial de tumbas limpiado.', '#10b981');
-    }
+    results.forEach(tomb => {
+        const item = document.createElement('div');
+        item.className = 'tomb-result-card';
+        item.innerHTML = `
+            <img src="${tomb.imageUrl || 'https://via.placeholder.com/200x200?text=No+Image'}" alt="Imagen de la tumba de ${tomb.nombre_finado}">
+            <div class="card-body">
+                <h6 class="fw-bold">${tomb.nombre_finado || 'Finado Desconocido'}</h6>
+                <div>
+                    <p><i class="fas fa-calendar-alt"></i><strong>Nacimiento:</strong> ${tomb.fecha_nacimiento || 'N/A'}</p>
+                    <p><i class="fas fa-calendar-times"></i><strong>Defunción:</strong> ${tomb.fecha_defuncion || 'N/A'}</p>
+                    <p><i class="fas fa-church"></i><strong>Panteón:</strong> ${tomb.nombre_panteon || 'N/A'}</p>
+                    <p><i class="fas fa-map-marker-alt"></i><strong>Ubicación:</strong> ${tomb.geolocation ? `Lat: ${tomb.geolocation.latitude.toFixed(4)}, Long: ${tomb.geolocation.longitude.toFixed(4)}` : 'N/A'}</p>
+                    <p class="text-muted" style="font-size:0.75rem;"><i class="fas fa-clock"></i>Subido: ${tomb.timestamp ? new Date(tomb.timestamp.toDate()).toLocaleString() : 'N/A'}</p>
+                </div>
+            </div>
+        `;
+        resultsGrid.appendChild(item);
+    });
+
+    searchResultsContainer.appendChild(resultsGrid);
 }
 
 /* ══════════════════════════════════════════════════════════════════
@@ -1585,7 +1836,7 @@ window.onload = () => {
             document.getElementById('main-app').style.display = 'none';
             document.getElementById('mode-selection-card').style.display = 'none';
             document.getElementById('add-tomb-section').style.display = 'none';
-            document.getElementById('search-tomb-section').style.display = 'none'; // Asegura que se oculte la sección de búsqueda
+            document.getElementById('search-tomb-section').style.display = 'none';
             document.getElementById('back-to-mode-selection').style.display = 'none';
             closeGeminiKeyModal();
             document.getElementById('auth-screen').style.display = 'flex';
