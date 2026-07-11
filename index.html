@@ -925,10 +925,24 @@
 /* ══════════════════════════════════════════════════════════════════
    CONFIGURACIÓN DE LA APLICACIÓN
 ══════════════════════════════════════════════════════════════════ */
-const APP_VERSION = "v1.0.9"; // Updated version
+const APP_VERSION = "v1.0.10"; // Updated version
 
 /* ══════════════════════════════════════════════════════════════════
    CONFIGURACIÓN FIREBASE
+   
+   IMPORTANTE: Las consultas en Firestore con múltiples condiciones (ej.
+   WHERE + WHERE, o WHERE + ORDER BY en diferentes campos) a menudo
+   requieren la creación de "índices compuestos". Si recibes un error
+   como "The query requires an index...", Firebase te proporcionará un
+   enlace en la consola del navegador para crear el índice necesario
+   automáticamente. Asegúrate de visitar ese enlace para que tus
+   búsquedas funcionen.
+   
+   Ejemplos de índices compuestos que podrías necesitar:
+   - userId ASC, nombre_finado_lower ASC, timestamp DESC
+   - userId ASC, nombre_panteon_lower ASC, timestamp DESC
+   - userId ASC, fecha_nacimiento_iso ASC, timestamp DESC
+   - userId ASC, fecha_defuncion_iso ASC, timestamp DESC
 ══════════════════════════════════════════════════════════════════ */
 const firebaseConfig = {
     apiKey: "AIzaSyDVjbcOjDr8o3yiNqbwPW3W6WhIsplGUUk",
@@ -994,7 +1008,7 @@ function getGeolocation() {
 
 /* ══════════════════════════════════════════════════════════════════
    API KEY MANAGEMENT
-══════════════════════════════════════════════════════════════════ */
+════════════════════════════════════════════════════════════════════ */
 function isGeminiKeySet() {
     return !!localStorage.getItem('yaute_key_v3310');
 }
@@ -1431,8 +1445,8 @@ async function saveCurrentFormDataToHistory() {
     const nombrePanteon = document.getElementById('display-nombre-panteon').value;
     const geolocationText = document.getElementById('display-geolocation').value;
 
-    if (!nombreFinado && !nombrePanteon) {
-        showToast('⚠ El nombre del finado o del panteón son requeridos.', '#f59e0b');
+    if (!nombreFinado && !nombrePanteon && !fechaNacimientoDisplay && !fechaDefuncionDisplay) {
+        showToast('⚠ Al menos un campo de nombre o fecha es requerido para guardar.', '#f59e0b');
         return;
     }
 
@@ -1655,6 +1669,25 @@ function selectSearchTombMode() {
 
 /* ══════════════════════════════════════════════════════════════════
    SEARCH FUNCTIONALITY
+   
+   IMPORTANTE: Firestore solo permite UN filtro de rango (comparaciones
+   como '>=', '<=', '>', '<') por consulta.
+   Las búsquedas "starts with" para nombre/panteón se implementan con
+   filtros de rango. Esto significa que no se puede combinar, por ejemplo,
+   un "starts with" en nombre del finado con un rango de fechas de nacimiento
+   directamente en la misma consulta de Firestore.
+   
+   La lógica de abajo prioriza los filtros de rango en el siguiente orden:
+   1. Nombre del finado
+   2. Nombre del panteón
+   3. Rango de fecha de nacimiento
+   4. Rango de fecha de defunción
+   Si se seleccionan múltiples filtros de rango, solo se aplicará el de mayor
+   prioridad en la consulta de Firestore y se avisará al usuario.
+   
+   Adicionalmente, si se utiliza un filtro de rango, la cláusula `orderBy`
+   DEBE coincidir con el campo de ese filtro de rango para una consulta válida.
+   Si no hay filtros de rango, se ordena por `timestamp`.
 ══════════════════════════════════════════════════════════════════ */
 async function performSearch() {
     const finadoSearchTerm = document.getElementById('search-nombre-finado').value.trim().toLowerCase();
@@ -1685,60 +1718,63 @@ async function performSearch() {
     showToast('Buscando tumbas...', 'rgba(59,130,246,0.9)');
 
     try {
-        let query = db.collection('tumbas').where('userId', '==', auth.currentUser.uid);
-        let hasDateRangeFilter = false;
-        let dateRangeField = '';
+        if (!auth.currentUser) {
+            showToast('❌ Debes iniciar sesión para buscar tumbas.', '#ef4444');
+            return;
+        }
 
+        let query = db.collection('tumbas').where('userId', '==', auth.currentUser.uid);
+        let activeRangeFilterField = null; // To track the single allowed range filter
+        let ignoredFilters = [];
+
+        // Priority for range filters: Finado Name > Panteon Name > Birth Date > Death Date
         if (finadoSearchTerm) {
             query = query
                 .where('nombre_finado_lower', '>=', finadoSearchTerm)
                 .where('nombre_finado_lower', '<=', finadoSearchTerm + '\uf8ff');
-        }
-        if (panteonSearchTerm) {
+            activeRangeFilterField = 'nombre_finado_lower';
+        } else if (panteonSearchTerm) {
             query = query
                 .where('nombre_panteon_lower', '>=', panteonSearchTerm)
                 .where('nombre_panteon_lower', '<=', panteonSearchTerm + '\uf8ff');
-        }
-
-        // Check for birth date range
-        if (birthDateDesde || birthDateHasta) {
-            hasDateRangeFilter = true;
-            dateRangeField = 'fecha_nacimiento_iso';
+            activeRangeFilterField = 'nombre_panteon_lower';
+        } else if (birthDateDesde || birthDateHasta) {
             if (birthDateDesde) query = query.where('fecha_nacimiento_iso', '>=', birthDateDesde);
             if (birthDateHasta) query = query.where('fecha_nacimiento_iso', '<=', birthDateHasta);
+            activeRangeFilterField = 'fecha_nacimiento_iso';
+        } else if (deathDateDesde || deathDateHasta) {
+            if (deathDateDesde) query = query.where('fecha_defuncion_iso', '>=', deathDateDesde);
+            if (deathDateHasta) query = query.where('fecha_defuncion_iso', '<=', deathDateHasta);
+            activeRangeFilterField = 'fecha_defuncion_iso';
         }
 
-        // Check for death date range
-        if (deathDateDesde || deathDateHasta) {
-            // If another date range is already active, show a warning
-            if (hasDateRangeFilter) {
-                showToast('⚠ Atención: Sólo se puede buscar por un rango de fechas a la vez. Se usará el rango de Fecha de Nacimiento.', '#f59e0b', 7000);
-                // We'll ignore the death date filter in Firestore query, but it could be filtered client-side if needed.
-            } else {
-                hasDateRangeFilter = true;
-                dateRangeField = 'fecha_defuncion_iso';
-                if (deathDateDesde) query = query.where('fecha_defuncion_iso', '>=', deathDateDesde);
-                if (deathDateHasta) query = query.where('fecha_defuncion_iso', '<=', deathDateHasta);
+        // --- Handle warnings for ignored range filters (if any) ---
+        // Check which filters were specified but NOT applied as the primary range filter
+        if (finadoSearchTerm && activeRangeFilterField !== 'nombre_finado_lower') ignoredFilters.push('Nombre del finado');
+        if (panteonSearchTerm && activeRangeFilterField !== 'nombre_panteon_lower') ignoredFilters.push('Nombre del panteón');
+        if ((birthDateDesde || birthDateHasta) && activeRangeFilterField !== 'fecha_nacimiento_iso') ignoredFilters.push('Rango de Fecha de Nacimiento');
+        if ((deathDateDesde || deathDateHasta) && activeRangeFilterField !== 'fecha_defuncion_iso') ignoredFilters.push('Rango de Fecha de Defunción');
+
+        if (ignoredFilters.length > 0) {
+            let warningMsg = `⚠ Atención: Firestore solo permite un filtro de rango por consulta. Se están ignorando: ${ignoredFilters.join(', ')}.`;
+            if (activeRangeFilterField) {
+                // Formatting for user-friendly message
+                let fieldName = activeRangeFilterField;
+                if (fieldName.includes('nombre_')) fieldName = fieldName.replace('nombre_', 'Nombre del ').replace('_lower', '');
+                if (fieldName.includes('fecha_')) fieldName = fieldName.replace('fecha_', 'Fecha de ').replace('_iso', '');
+                warningMsg += ` Se está aplicando el filtro de rango en: "${fieldName}".`;
             }
-        }
-        
-        // Apply orderBy clause based on filters, respecting Firestore's single range query rule
-        if (hasDateRangeFilter) {
-            query = query.orderBy(dateRangeField);
-        } else if (finadoSearchTerm || panteonSearchTerm) {
-             // If only name/panteon search, order by name if possible, or timestamp
-             if (finadoSearchTerm) {
-                 query = query.orderBy('nombre_finado_lower');
-             } else if (panteonSearchTerm) {
-                 query = query.orderBy('nombre_panteon_lower');
-             } else {
-                 query = query.orderBy('timestamp', 'desc');
-             }
-        } else {
-            // If no specific text or date range, just order by timestamp
-            query = query.orderBy('timestamp', 'desc');
+            showToast(warningMsg, '#f59e0b', 9000);
         }
 
+        // Apply orderBy clause. It MUST match the range filter field if one exists.
+        // If a range filter is used, it must be the first orderBy field.
+        if (activeRangeFilterField) {
+            query = query.orderBy(activeRangeFilterField);
+        }
+        // Always add a secondary orderBy (e.g., timestamp) for consistent results and to break ties.
+        // This secondary orderBy field must also be part of the composite index if combined with another field.
+        query = query.orderBy('timestamp', 'desc'); 
 
         const snapshot = await query.get();
         const results = [];
@@ -1751,7 +1787,17 @@ async function performSearch() {
 
     } catch (error) {
         console.error("Error performing search:", error);
-        showToast('❌ Error al buscar tumbas: ' + error.message, '#ef4444', 6000);
+        let errorMessage = error.message;
+        if (error.code === 'failed-precondition' && error.message.includes('The query requires an index.')) {
+            // Extract the index creation URL from the Firebase error message
+            const indexLinkMatch = error.message.match(/(https:\/\/console\.firebase\.google\.com\/v1\/r\/project\/[^\s]+)/);
+            if (indexLinkMatch && indexLinkMatch[1]) {
+                errorMessage = `Para que esta búsqueda funcione, debes crear un índice en Firebase. Por favor, visita este enlace para crearlo: <a href="${indexLinkMatch[1]}" target="_blank" style="color:white; text-decoration:underline;">Crear Índice Aquí</a>. Luego intenta la búsqueda de nuevo.`;
+            } else {
+                errorMessage = "La consulta requiere un índice. Revisa la consola de Firebase para los enlaces de creación de índices.";
+            }
+        }
+        showToast(`❌ Error al buscar tumbas: ${errorMessage}`, '#ef4444', 10000);
     } finally {
         searchBtn.disabled = false;
         searchBtn.innerHTML = `<i class="fas fa-search me-2"></i>BUSCAR`;
