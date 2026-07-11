@@ -365,6 +365,13 @@
             word-break: break-word;
             box-sizing: border-box;
         }
+        /* Make the index link more prominent */
+        #toast-msg a {
+            color: #ffdd57 !important; /* Yellowish color for visibility */
+            font-weight: bold;
+            text-decoration: underline;
+        }
+
 
         #ia-modal video {
             width: 100%;
@@ -592,6 +599,52 @@
             margin-right: 0.5rem;
             color: #94a3b8;
         }
+
+        /* Add styling for the checkbox groups in search */
+        .search-fields-group {
+            background-color: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+        .search-fields-group .field-label {
+            font-size: 0.8rem; /* Slightly larger for checkbox labels */
+            color: var(--primary);
+            margin-bottom: 0.25rem;
+        }
+        .search-fields-group .form-control[disabled] {
+            opacity: 0.6;
+            background-color: #eceff1;
+        }
+        .search-fields-group .row.g-2 {
+            margin-top: 0.5rem;
+        }
+        .search-fields-group .form-check {
+            align-items: center;
+            display: flex; /* To align checkbox with text */
+            margin-bottom: 0.5rem; /* Space between check boxes */
+        }
+        .search-fields-group .form-check-input {
+            margin-right: 0.75rem; /* Space between checkbox and label */
+            flex-shrink: 0; /* Prevent checkbox from shrinking */
+        }
+        .search-fields-group .form-check-label {
+            margin-bottom: 0;
+            cursor: pointer;
+            font-weight: 600; /* Make checkbox labels bold */
+        }
+        /* Adjust field-label for individual date inputs when enabled */
+        .search-fields-group .col .field-label {
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-top: 0.1rem;
+            display: block; /* ensure label is on its own line */
+        }
+
 
         @media (max-width: 768px) {
             .scan-container {
@@ -877,32 +930,57 @@
     <div id="search-tomb-section">
         <div class="card-custom">
             <h5 class="fw-bold mb-3 text-center" style="color:var(--primary);">Buscar Tumbas</h5>
-            <p class="section-subtitle text-center mb-4">Encuentra tumbas por nombre del finado, panteón o rango de fechas.</p>
+            <p class="section-subtitle text-center mb-4">Selecciona los criterios de búsqueda que deseas utilizar.</p>
             
             <div class="fields-grid mb-3">
-                <div class="field-group">
-                    <input type="text" id="search-nombre-finado" class="form-control" placeholder="Nombre del finado">
-                    <span class="field-label">Nombre del finado</span>
+                <div class="field-group search-fields-group full-width">
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="enable-finado-search" checked onchange="toggleSearchField('search-nombre-finado', this.checked)">
+                        <label class="form-check-label field-label" for="enable-finado-search">Nombre del Finado</label>
+                    </div>
+                    <input type="text" id="search-nombre-finado" class="form-control" placeholder="Ej: Juan Pérez">
                 </div>
-                <div class="field-group">
-                    <input type="text" id="search-nombre-panteon" class="form-control" placeholder="Nombre del panteón">
-                    <span class="field-label">Nombre del panteón</span>
+                
+                <div class="field-group search-fields-group full-width">
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="enable-panteon-search" checked onchange="toggleSearchField('search-nombre-panteon', this.checked)">
+                        <label class="form-check-label field-label" for="enable-panteon-search">Nombre del Panteón</label>
+                    </div>
+                    <input type="text" id="search-nombre-panteon" class="form-control" placeholder="Ej: Recuerdo Eterno">
                 </div>
-                <div class="field-group">
-                    <input type="date" id="search-fecha-nacimiento-desde" class="form-control">
-                    <span class="field-label">Nacimiento Desde</span>
+
+                <div class="field-group search-fields-group full-width">
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="enable-birth-date-search" onchange="toggleDateRangeFields('search-fecha-nacimiento-desde', 'search-fecha-nacimiento-hasta', this.checked)">
+                        <label class="form-check-label field-label" for="enable-birth-date-search">Rango de Fecha de Nacimiento</label>
+                    </div>
+                    <div class="row g-2">
+                        <div class="col">
+                            <input type="date" id="search-fecha-nacimiento-desde" class="form-control" disabled>
+                            <span class="field-label">Desde</span>
+                        </div>
+                        <div class="col">
+                            <input type="date" id="search-fecha-nacimiento-hasta" class="form-control" disabled>
+                            <span class="field-label">Hasta</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="field-group">
-                    <input type="date" id="search-fecha-nacimiento-hasta" class="form-control">
-                    <span class="field-label">Nacimiento Hasta</span>
-                </div>
-                <div class="field-group">
-                    <input type="date" id="search-fecha-defuncion-desde" class="form-control">
-                    <span class="field-label">Defunción Desde</span>
-                </div>
-                <div class="field-group">
-                    <input type="date" id="search-fecha-defuncion-hasta" class="form-control">
-                    <span class="field-label">Defunción Hasta</span>
+
+                <div class="field-group search-fields-group full-width">
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="enable-death-date-search" onchange="toggleDateRangeFields('search-fecha-defuncion-desde', 'search-fecha-defuncion-hasta', this.checked)">
+                        <label class="form-check-label field-label" for="enable-death-date-search">Rango de Fecha de Defunción</label>
+                    </div>
+                    <div class="row g-2">
+                        <div class="col">
+                            <input type="date" id="search-fecha-defuncion-desde" class="form-control" disabled>
+                            <span class="field-label">Desde</span>
+                        </div>
+                        <div class="col">
+                            <input type="date" id="search-fecha-defuncion-hasta" class="form-control" disabled>
+                            <span class="field-label">Hasta</span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -925,7 +1003,7 @@
 /* ══════════════════════════════════════════════════════════════════
    CONFIGURACIÓN DE LA APLICACIÓN
 ══════════════════════════════════════════════════════════════════ */
-const APP_VERSION = "v1.0.10"; // Updated version
+const APP_VERSION = "v1.0.11"; // Updated version
 
 /* ══════════════════════════════════════════════════════════════════
    CONFIGURACIÓN FIREBASE
@@ -943,6 +1021,10 @@ const APP_VERSION = "v1.0.10"; // Updated version
    - userId ASC, nombre_panteon_lower ASC, timestamp DESC
    - userId ASC, fecha_nacimiento_iso ASC, timestamp DESC
    - userId ASC, fecha_defuncion_iso ASC, timestamp DESC
+   
+   El error que recibiste te pide este índice:
+   userId ASC, nombre_finado_lower ASC, timestamp DESC
+   Debes crear este índice en la consola de Firebase.
 ══════════════════════════════════════════════════════════════════ */
 const firebaseConfig = {
     apiKey: "AIzaSyDVjbcOjDr8o3yiNqbwPW3W6WhIsplGUUk",
@@ -972,7 +1054,7 @@ let cropImageData = null;
 ══════════════════════════════════════════════════════════════════ */
 const showToast = (msg, color = '#10b981', duration = 3000) => {
     const el = document.getElementById('toast-msg');
-    el.textContent = msg;
+    el.innerHTML = msg; /* Changed to innerHTML to allow HTML in message */
     el.style.background = color;
     el.style.display = 'block';
     clearTimeout(el._t);
@@ -1645,6 +1727,27 @@ function selectAddTombMode() {
     }
 }
 
+function toggleSearchField(inputId, enable) {
+    const inputElement = document.getElementById(inputId);
+    if (inputElement) {
+        inputElement.disabled = !enable;
+        if (!enable) inputElement.value = ''; // Clear if disabled
+    }
+}
+
+function toggleDateRangeFields(desdeId, hastaId, enable) {
+    const desdeInput = document.getElementById(desdeId);
+    const hastaInput = document.getElementById(hastaId);
+    if (desdeInput) {
+        desdeInput.disabled = !enable;
+        if (!enable) desdeInput.value = '';
+    }
+    if (hastaInput) {
+        hastaInput.disabled = !enable;
+        if (!enable) hastaInput.value = '';
+    }
+}
+
 function selectSearchTombMode() {
     document.getElementById('mode-selection-card').style.display = 'none';
     document.getElementById('add-tomb-section').style.display = 'none';
@@ -1659,12 +1762,20 @@ function selectSearchTombMode() {
             Ingresa tus criterios de búsqueda para encontrar tumbas.
         </div>
     `;
+    // Reset search fields and checkboxes to default state
+    document.getElementById('enable-finado-search').checked = true;
+    toggleSearchField('search-nombre-finado', true);
     document.getElementById('search-nombre-finado').value = '';
+
+    document.getElementById('enable-panteon-search').checked = true;
+    toggleSearchField('search-nombre-panteon', true);
     document.getElementById('search-nombre-panteon').value = '';
-    document.getElementById('search-fecha-nacimiento-desde').value = '';
-    document.getElementById('search-fecha-nacimiento-hasta').value = '';
-    document.getElementById('search-fecha-defuncion-desde').value = '';
-    document.getElementById('search-fecha-defuncion-hasta').value = '';
+
+    document.getElementById('enable-birth-date-search').checked = false;
+    toggleDateRangeFields('search-fecha-nacimiento-desde', 'search-fecha-nacimiento-hasta', false);
+
+    document.getElementById('enable-death-date-search').checked = false;
+    toggleDateRangeFields('search-fecha-defuncion-desde', 'search-fecha-defuncion-hasta', false);
 }
 
 /* ══════════════════════════════════════════════════════════════════
@@ -1677,26 +1788,36 @@ function selectSearchTombMode() {
    un "starts with" en nombre del finado con un rango de fechas de nacimiento
    directamente en la misma consulta de Firestore.
    
-   La lógica de abajo prioriza los filtros de rango en el siguiente orden:
-   1. Nombre del finado
-   2. Nombre del panteón
-   3. Rango de fecha de nacimiento
-   4. Rango de fecha de defunción
+   La lógica de abajo prioriza los filtros de rango en el siguiente orden si
+   están activados por las casillas de verificación:
+   1. Nombre del finado (si está activado y tiene término)
+   2. Nombre del panteón (si está activado y tiene término)
+   3. Rango de fecha de nacimiento (si está activado y tiene al menos "desde" o "hasta")
+   4. Rango de fecha de defunción (si está activado y tiene al menos "desde" o "hasta")
+   
    Si se seleccionan múltiples filtros de rango, solo se aplicará el de mayor
-   prioridad en la consulta de Firestore y se avisará al usuario.
+   prioridad en la consulta de Firestore y se avisará al usuario. Los filtros
+   de rango "ignorados" por Firestore se aplicarán mediante filtrado del lado
+   del cliente (JavaScript) para cumplir con todos los criterios seleccionados.
    
    Adicionalmente, si se utiliza un filtro de rango, la cláusula `orderBy`
    DEBE coincidir con el campo de ese filtro de rango para una consulta válida.
    Si no hay filtros de rango, se ordena por `timestamp`.
 ══════════════════════════════════════════════════════════════════ */
 async function performSearch() {
-    const finadoSearchTerm = document.getElementById('search-nombre-finado').value.trim().toLowerCase();
-    const panteonSearchTerm = document.getElementById('search-nombre-panteon').value.trim().toLowerCase();
-    
-    const birthDateDesde = document.getElementById('search-fecha-nacimiento-desde').value; // YYYY-MM-DD
-    const birthDateHasta = document.getElementById('search-fecha-nacimiento-hasta').value; // YYYY-MM-DD
-    const deathDateDesde = document.getElementById('search-fecha-defuncion-desde').value; // YYYY-MM-DD
-    const deathDateHasta = document.getElementById('search-fecha-defuncion-hasta').value; // YYYY-MM-DD
+    const enableFinado = document.getElementById('enable-finado-search').checked;
+    const finadoSearchTerm = enableFinado ? document.getElementById('search-nombre-finado').value.trim().toLowerCase() : '';
+
+    const enablePanteon = document.getElementById('enable-panteon-search').checked;
+    const panteonSearchTerm = enablePanteon ? document.getElementById('search-nombre-panteon').value.trim().toLowerCase() : '';
+
+    const enableBirthDate = document.getElementById('enable-birth-date-search').checked;
+    const birthDateDesde = enableBirthDate ? document.getElementById('search-fecha-nacimiento-desde').value : '';
+    const birthDateHasta = enableBirthDate ? document.getElementById('search-fecha-nacimiento-hasta').value : '';
+
+    const enableDeathDate = document.getElementById('enable-death-date-search').checked;
+    const deathDateDesde = enableDeathDate ? document.getElementById('search-fecha-defuncion-desde').value : '';
+    const deathDateHasta = enableDeathDate ? document.getElementById('search-fecha-defuncion-hasta').value : '';
 
     const searchResultsContainer = document.getElementById('search-results-container');
     const searchBtn = document.getElementById('search-btn');
@@ -1709,7 +1830,7 @@ async function performSearch() {
                 Ingresa tus criterios de búsqueda para encontrar tumbas.
             </div>
         `;
-        showToast('⚠ Ingresa al menos un criterio de búsqueda.', '#f59e0b');
+        showToast('⚠ Ingresa al menos un criterio de búsqueda activado.', '#f59e0b');
         return;
     }
 
@@ -1725,44 +1846,56 @@ async function performSearch() {
 
         let query = db.collection('tumbas').where('userId', '==', auth.currentUser.uid);
         let activeRangeFilterField = null; // To track the single allowed range filter
-        let ignoredFilters = [];
+        let appliedFiltersInFirestore = []; // What actually goes into the Firestore query
+        let ignoredFilters = []; // What was selected but couldn't be a primary range filter
 
-        // Priority for range filters: Finado Name > Panteon Name > Birth Date > Death Date
+        // Evaluate and apply filters based on priority, adhering to single range filter rule
         if (finadoSearchTerm) {
             query = query
                 .where('nombre_finado_lower', '>=', finadoSearchTerm)
                 .where('nombre_finado_lower', '<=', finadoSearchTerm + '\uf8ff');
             activeRangeFilterField = 'nombre_finado_lower';
-        } else if (panteonSearchTerm) {
-            query = query
-                .where('nombre_panteon_lower', '>=', panteonSearchTerm)
-                .where('nombre_panteon_lower', '<=', panteonSearchTerm + '\uf8ff');
-            activeRangeFilterField = 'nombre_panteon_lower';
-        } else if (birthDateDesde || birthDateHasta) {
-            if (birthDateDesde) query = query.where('fecha_nacimiento_iso', '>=', birthDateDesde);
-            if (birthDateHasta) query = query.where('fecha_nacimiento_iso', '<=', birthDateHasta);
-            activeRangeFilterField = 'fecha_nacimiento_iso';
-        } else if (deathDateDesde || deathDateHasta) {
-            if (deathDateDesde) query = query.where('fecha_defuncion_iso', '>=', deathDateDesde);
-            if (deathDateHasta) query = query.where('fecha_defuncion_iso', '<=', deathDateHasta);
-            activeRangeFilterField = 'fecha_defuncion_iso';
+            appliedFiltersInFirestore.push('Nombre del finado');
+        } 
+        
+        if (panteonSearchTerm) {
+            if (activeRangeFilterField) { // If a range filter is already active
+                ignoredFilters.push('Nombre del panteón');
+            } else {
+                query = query
+                    .where('nombre_panteon_lower', '>=', panteonSearchTerm)
+                    .where('nombre_panteon_lower', '<=', panteonSearchTerm + '\uf8ff');
+                activeRangeFilterField = 'nombre_panteon_lower';
+                appliedFiltersInFirestore.push('Nombre del panteón');
+            }
         }
 
-        // --- Handle warnings for ignored range filters (if any) ---
-        // Check which filters were specified but NOT applied as the primary range filter
-        if (finadoSearchTerm && activeRangeFilterField !== 'nombre_finado_lower') ignoredFilters.push('Nombre del finado');
-        if (panteonSearchTerm && activeRangeFilterField !== 'nombre_panteon_lower') ignoredFilters.push('Nombre del panteón');
-        if ((birthDateDesde || birthDateHasta) && activeRangeFilterField !== 'fecha_nacimiento_iso') ignoredFilters.push('Rango de Fecha de Nacimiento');
-        if ((deathDateDesde || deathDateHasta) && activeRangeFilterField !== 'fecha_defuncion_iso') ignoredFilters.push('Rango de Fecha de Defunción');
+        if (birthDateDesde || birthDateHasta) {
+            if (activeRangeFilterField) { // If a range filter is already active
+                ignoredFilters.push('Rango de Fecha de Nacimiento');
+            } else {
+                if (birthDateDesde) query = query.where('fecha_nacimiento_iso', '>=', birthDateDesde);
+                if (birthDateHasta) query = query.where('fecha_nacimiento_iso', '<=', birthDateHasta);
+                activeRangeFilterField = 'fecha_nacimiento_iso';
+                appliedFiltersInFirestore.push('Rango de Fecha de Nacimiento');
+            }
+        }
 
+        if (deathDateDesde || deathDateHasta) {
+            if (activeRangeFilterField) { // If a range filter is already active
+                ignoredFilters.push('Rango de Fecha de Defunción');
+            } else {
+                if (deathDateDesde) query = query.where('fecha_defuncion_iso', '>=', deathDateDesde);
+                if (deathDateHasta) query = query.where('fecha_defuncion_iso', '<=', deathDateHasta);
+                activeRangeFilterField = 'fecha_defuncion_iso';
+                appliedFiltersInFirestore.push('Rango de Fecha de Defunción');
+            }
+        }
+        
         if (ignoredFilters.length > 0) {
-            let warningMsg = `⚠ Atención: Firestore solo permite un filtro de rango por consulta. Se están ignorando: ${ignoredFilters.join(', ')}.`;
-            if (activeRangeFilterField) {
-                // Formatting for user-friendly message
-                let fieldName = activeRangeFilterField;
-                if (fieldName.includes('nombre_')) fieldName = fieldName.replace('nombre_', 'Nombre del ').replace('_lower', '');
-                if (fieldName.includes('fecha_')) fieldName = fieldName.replace('fecha_', 'Fecha de ').replace('_iso', '');
-                warningMsg += ` Se está aplicando el filtro de rango en: "${fieldName}".`;
+            let warningMsg = `⚠ Atención: Firestore solo permite **un filtro de rango** por consulta. Se están ignorando: **${ignoredFilters.join(', ')}**.`;
+            if (appliedFiltersInFirestore.length > 0) {
+                warningMsg += ` Se está aplicando el filtro de rango en: "**${appliedFiltersInFirestore[0]}**".`;
             }
             showToast(warningMsg, '#f59e0b', 9000);
         }
@@ -1777,10 +1910,37 @@ async function performSearch() {
         query = query.orderBy('timestamp', 'desc'); 
 
         const snapshot = await query.get();
-        const results = [];
+        let results = [];
         snapshot.forEach(doc => {
             results.push({ id: doc.id, ...doc.data() });
         });
+
+        // --- Client-side filtering for criteria that could not be applied as a primary range filter in Firestore ---
+        // These are the filters the user selected but were 'ignored' due to Firestore's limitation.
+        if (ignoredFilters.includes('Nombre del finado') && finadoSearchTerm) {
+            results = results.filter(tomb => tomb.nombre_finado_lower && tomb.nombre_finado_lower.startsWith(finadoSearchTerm));
+        }
+        if (ignoredFilters.includes('Nombre del panteón') && panteonSearchTerm) {
+            results = results.filter(tomb => tomb.nombre_panteon_lower && tomb.nombre_panteon_lower.startsWith(panteonSearchTerm));
+        }
+        if (ignoredFilters.includes('Rango de Fecha de Nacimiento') && (birthDateDesde || birthDateHasta)) {
+            results = results.filter(tomb => {
+                const isoDate = tomb.fecha_nacimiento_iso;
+                if (!isoDate) return false;
+                if (birthDateDesde && isoDate < birthDateDesde) return false;
+                if (birthDateHasta && isoDate > birthDateHasta) return false;
+                return true;
+            });
+        }
+        if (ignoredFilters.includes('Rango de Fecha de Defunción') && (deathDateDesde || deathDateHasta)) {
+            results = results.filter(tomb => {
+                const isoDate = tomb.fecha_defuncion_iso;
+                if (!isoDate) return false;
+                if (deathDateDesde && isoDate < deathDateDesde) return false;
+                if (deathDateHasta && isoDate > deathDateHasta) return false;
+                return true;
+            });
+        }
 
         displaySearchResults(results);
         showToast(`✅ Se encontraron ${results.length} tumbas.`, '#10b981');
@@ -1789,7 +1949,6 @@ async function performSearch() {
         console.error("Error performing search:", error);
         let errorMessage = error.message;
         if (error.code === 'failed-precondition' && error.message.includes('The query requires an index.')) {
-            // Extract the index creation URL from the Firebase error message
             const indexLinkMatch = error.message.match(/(https:\/\/console\.firebase\.google\.com\/v1\/r\/project\/[^\s]+)/);
             if (indexLinkMatch && indexLinkMatch[1]) {
                 errorMessage = `Para que esta búsqueda funcione, debes crear un índice en Firebase. Por favor, visita este enlace para crearlo: <a href="${indexLinkMatch[1]}" target="_blank" style="color:white; text-decoration:underline;">Crear Índice Aquí</a>. Luego intenta la búsqueda de nuevo.`;
