@@ -258,6 +258,13 @@
             padding: 1rem;
         }
 
+        /* El modal de API Key debe poder abrirse ENCIMA del escáner de cámara
+           (se abre desde el botón "⚙ API KEY" dentro de #ia-modal), por lo
+           que necesita un z-index más alto para no quedar oculto detrás. */
+        #key-config-modal {
+            z-index: 5001;
+        }
+
         #key-config-modal .card-custom {
             max-width: 390px;
             width: 100%;
@@ -1051,6 +1058,22 @@ let cropper = null;
 let cropImageData = null;
 
 /* ══════════════════════════════════════════════════════════════════
+   UTILIDADES
+══════════════════════════════════════════════════════════════════ */
+// Escapa caracteres HTML para evitar que datos guardados por el usuario
+// (nombre del finado, panteón, etc.) rompan el layout o inyecten HTML/JS
+// al insertarse con innerHTML en los resultados de búsqueda.
+function escapeHtml(str) {
+    if (str === null || str === undefined) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+/* ══════════════════════════════════════════════════════════════════
    TOAST
 ══════════════════════════════════════════════════════════════════ */
 const showToast = (msg, color = '#10b981', duration = 3000) => {
@@ -1272,7 +1295,17 @@ async function handleImageUpload(event) {
 
             showToast('✅ Imagen lista. Puedes recortar o escanear.', '#10b981');
         };
+        img.onerror = () => {
+            showToast('❌ No se pudo leer la imagen. Intenta con otro archivo.', '#ef4444', 5000);
+            document.getElementById('upload-capture-card').style.display = 'block';
+            document.getElementById('image-upload-input').value = '';
+        };
         img.src = e.target.result;
+    };
+    reader.onerror = () => {
+        showToast('❌ Error al leer el archivo seleccionado.', '#ef4444', 5000);
+        document.getElementById('upload-capture-card').style.display = 'block';
+        document.getElementById('image-upload-input').value = '';
     };
     reader.readAsDataURL(file);
 }
@@ -1462,6 +1495,14 @@ async function processImageWithGemini(base64Image) {
                 throw new Error("El modelo Gemini 'gemini-2.5-flash-lite' no está disponible o accesible con tu API Key.");
             }
             throw new Error(data.error?.message || `HTTP ${res.status}`);
+        }
+
+        if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
+            const blockReason = data.promptFeedback?.blockReason;
+            if (blockReason) {
+                throw new Error(`La IA no pudo procesar la imagen (motivo: ${blockReason}). Intenta con otra foto.`);
+            }
+            throw new Error('La IA no devolvió resultados. Intenta escanear de nuevo.');
         }
 
         const responseText = data.candidates[0].content.parts[0].text.trim();
@@ -1989,14 +2030,15 @@ function displaySearchResults(results) {
     results.forEach(tomb => {
         const item = document.createElement('div');
         item.className = 'tomb-result-card';
+        const nombreFinadoSafe = escapeHtml(tomb.nombre_finado) || 'Finado Desconocido';
         item.innerHTML = `
-            <img src="${tomb.imageUrl || 'https://via.placeholder.com/200x200?text=No+Image'}" alt="Imagen de la tumba de ${tomb.nombre_finado}">
+            <img src="${escapeHtml(tomb.imageUrl) || 'https://via.placeholder.com/200x200?text=No+Image'}" alt="Imagen de la tumba de ${nombreFinadoSafe}">
             <div class="card-body">
-                <h6 class="fw-bold">${tomb.nombre_finado || 'Finado Desconocido'}</h6>
+                <h6 class="fw-bold">${nombreFinadoSafe}</h6>
                 <div>
-                    <p><i class="fas fa-calendar-alt"></i><strong>Nacimiento:</strong> ${tomb.fecha_nacimiento || 'N/A'}</p>
-                    <p><i class="fas fa-calendar-times"></i><strong>Defunción:</strong> ${tomb.fecha_defuncion || 'N/A'}</p>
-                    <p><i class="fas fa-church"></i><strong>Panteón:</strong> ${tomb.nombre_panteon || 'N/A'}</p>
+                    <p><i class="fas fa-calendar-alt"></i><strong>Nacimiento:</strong> ${escapeHtml(tomb.fecha_nacimiento) || 'N/A'}</p>
+                    <p><i class="fas fa-calendar-times"></i><strong>Defunción:</strong> ${escapeHtml(tomb.fecha_defuncion) || 'N/A'}</p>
+                    <p><i class="fas fa-church"></i><strong>Panteón:</strong> ${escapeHtml(tomb.nombre_panteon) || 'N/A'}</p>
                     <p><i class="fas fa-map-marker-alt"></i><strong>Ubicación:</strong> ${tomb.geolocation ? `Lat: ${tomb.geolocation.latitude.toFixed(4)}, Long: ${tomb.geolocation.longitude.toFixed(4)}` : 'N/A'}</p>
                     <p class="text-muted" style="font-size:0.75rem;"><i class="fas fa-clock"></i>Subido: ${tomb.timestamp ? new Date(tomb.timestamp.toDate()).toLocaleString() : 'N/A'}</p>
                 </div>
