@@ -1003,7 +1003,7 @@
 /* ══════════════════════════════════════════════════════════════════
    CONFIGURACIÓN DE LA APLICACIÓN
 ══════════════════════════════════════════════════════════════════ */
-const APP_VERSION = "v1.0.11"; // Updated version
+const APP_VERSION = "v1.0.12"; // Updated version
 
 /* ══════════════════════════════════════════════════════════════════
    CONFIGURACIÓN FIREBASE
@@ -1022,9 +1022,10 @@ const APP_VERSION = "v1.0.11"; // Updated version
    - userId ASC, fecha_nacimiento_iso ASC, timestamp DESC
    - userId ASC, fecha_defuncion_iso ASC, timestamp DESC
    
-   El error que recibiste te pide este índice:
+   El error que recibiste te pedía este índice:
    userId ASC, nombre_finado_lower ASC, timestamp DESC
-   Debes crear este índice en la consola de Firebase.
+   Ahora que lo has creado, otras combinaciones de búsqueda podrían
+   requerir nuevos índices. Siempre revisa el mensaje de error del toast.
 ══════════════════════════════════════════════════════════════════ */
 const firebaseConfig = {
     apiKey: "AIzaSyDVjbcOjDr8o3yiNqbwPW3W6WhIsplGUUk",
@@ -1763,13 +1764,19 @@ function selectSearchTombMode() {
         </div>
     `;
     // Reset search fields and checkboxes to default state
+    document.getElementById('search-nombre-finado').value = '';
+    document.getElementById('search-nombre-panteon').value = '';
+    document.getElementById('search-fecha-nacimiento-desde').value = '';
+    document.getElementById('search-fecha-nacimiento-hasta').value = '';
+    document.getElementById('search-fecha-defuncion-desde').value = '';
+    document.getElementById('search-fecha-defuncion-hasta').value = '';
+    
+    // Set checkboxes to default: Finado and Panteon enabled, dates disabled
     document.getElementById('enable-finado-search').checked = true;
     toggleSearchField('search-nombre-finado', true);
-    document.getElementById('search-nombre-finado').value = '';
 
     document.getElementById('enable-panteon-search').checked = true;
     toggleSearchField('search-nombre-panteon', true);
-    document.getElementById('search-nombre-panteon').value = '';
 
     document.getElementById('enable-birth-date-search').checked = false;
     toggleDateRangeFields('search-fecha-nacimiento-desde', 'search-fecha-nacimiento-hasta', false);
@@ -1849,7 +1856,7 @@ async function performSearch() {
         let appliedFiltersInFirestore = []; // What actually goes into the Firestore query
         let ignoredFilters = []; // What was selected but couldn't be a primary range filter
 
-        // Evaluate and apply filters based on priority, adhering to single range filter rule
+        // Determine the primary range filter for Firestore query based on priority and user input
         if (finadoSearchTerm) {
             query = query
                 .where('nombre_finado_lower', '>=', finadoSearchTerm)
