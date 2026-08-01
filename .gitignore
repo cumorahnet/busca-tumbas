@@ -1,2 +1,7 @@
 *.backup
 .gitdata/
+.cdc/
+.firebase/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log

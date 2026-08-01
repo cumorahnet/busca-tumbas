@@ -1,0 +1,171 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null
+        && (request.auth.token.email_verified == true
+          || request.auth.token.email == 'cumorahnet@gmail.com');
+    }
+
+    function isAdmin() {
+      return signedIn() && request.auth.token.email == 'cumorahnet@gmail.com';
+    }
+
+    function ownsExistingRecord() {
+      return signedIn() && resource.data.userId == request.auth.uid;
+    }
+
+    function ownsIncomingRecord() {
+      return signedIn() && request.resource.data.userId == request.auth.uid;
+    }
+
+    function validTomb() {
+      return request.resource.data.keys().hasAll([
+          'userId',
+          'timestamp',
+          'imageUrl'
+        ])
+        && request.resource.data.keys().hasOnly([
+          'userId',
+          'contributorId',
+          'contributor_name',
+          'contributor_email',
+          'timestamp',
+          'imageUrl',
+          'geolocation',
+          'panteon_geolocation',
+          'nombre_finado',
+          'nombre_finado_lower',
+          'fecha_nacimiento',
+          'fecha_nacimiento_iso',
+          'fecha_nacimiento_estimada',
+          'fecha_defuncion',
+          'fecha_defuncion_iso',
+          'edad_defuncion',
+          'nombre_panteon',
+          'nombre_panteon_lower',
+          'estado_panteon',
+          'municipio_panteon',
+          'colonia_panteon',
+          'inegi_denue_id',
+          'cemetery_id',
+          'cemetery_source',
+          'record_key',
+          'person_key',
+          'image_hash',
+          'image_fingerprint',
+          'last_updated',
+          'last_updated_by',
+          'visibility',
+          'status'
+        ])
+        && request.resource.data.userId is string
+        && request.resource.data.imageUrl is string
+        && request.resource.data.imageUrl.size() <= 2048
+        && (!request.resource.data.keys().hasAny(['fecha_nacimiento_estimada'])
+          || request.resource.data.fecha_nacimiento_estimada is bool)
+        && (!request.resource.data.keys().hasAny(['edad_defuncion'])
+          || request.resource.data.edad_defuncion == null
+          || (request.resource.data.edad_defuncion is int
+            && request.resource.data.edad_defuncion >= 0
+            && request.resource.data.edad_defuncion <= 130))
+        && request.resource.data.visibility == 'public'
+        && request.resource.data.status in ['published', 'pending'];
+    }
+
+    match /tumbas/{tombId} {
+      // El catálogo es compartido entre todos los usuarios registrados.
+      allow read: if signedIn();
+      allow create: if ownsIncomingRecord() && validTomb();
+      allow update: if ownsExistingRecord()
+        && ownsIncomingRecord()
+        && validTomb()
+        && request.resource.data.userId == resource.data.userId;
+      allow delete: if ownsExistingRecord();
+    }
+
+    match /correction_requests/{requestId} {
+      allow read: if signedIn()
+        && request.auth.uid in resource.data.participants;
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly([
+          'tombId', 'tombName', 'tombOwnerId', 'requesterId',
+          'requesterName', 'description', 'status', 'participants',
+          'readBy', 'messages', 'recordType', 'createdAt', 'updatedAt'
+        ])
+        && request.resource.data.requesterId == request.auth.uid
+        && request.resource.data.tombOwnerId != request.auth.uid
+        && request.resource.data.participants is list
+        && request.resource.data.participants.size() == 2
+        && request.auth.uid in request.resource.data.participants
+        && request.resource.data.tombOwnerId in request.resource.data.participants
+        && request.resource.data.description is string
+        && request.resource.data.description.size() > 0
+        && request.resource.data.description.size() <= 1500
+        && request.resource.data.messages is list
+        && request.resource.data.messages.size() == 1
+        && (!request.resource.data.keys().hasAny(['recordType'])
+          || request.resource.data.recordType in ['tomb', 'cemetery'])
+        && request.resource.data.status == 'open';
+      allow update: if signedIn()
+        && request.auth.uid in resource.data.participants
+        && request.resource.data.participants == resource.data.participants
+        && request.resource.data.tombId == resource.data.tombId
+        && request.resource.data.tombOwnerId == resource.data.tombOwnerId
+        && request.resource.data.requesterId == resource.data.requesterId
+        && request.resource.data.status in ['open', 'resolved']
+        && (request.resource.data.status == resource.data.status
+          || request.auth.uid == resource.data.tombOwnerId)
+        && request.resource.data.messages is list
+        && request.resource.data.messages.size() <= 200
+        && request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['messages', 'readBy', 'status', 'updatedAt']);
+      allow delete: if false;
+    }
+
+    match /cemeteries/{cemeteryId} {
+      allow read: if signedIn();
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly([
+          'name', 'normalizedName', 'stateCode', 'state',
+          'municipalityCode', 'municipality', 'locality', 'address',
+          'notes', 'location', 'photoUrl', 'source', 'status',
+          'contributorId', 'contributorName', 'contributorEmail',
+          'createdAt', 'updatedAt', 'inegiCemeteryId'
+        ])
+        && request.resource.data.name is string
+        && request.resource.data.name.size() >= 3
+        && request.resource.data.name.size() <= 150
+        && request.resource.data.normalizedName is string
+        && request.resource.data.stateCode is string
+        && request.resource.data.municipalityCode is string
+        && request.resource.data.photoUrl is string
+        && (!request.resource.data.keys().hasAny(['inegiCemeteryId'])
+          || request.resource.data.inegiCemeteryId is string)
+        && request.resource.data.source == 'community'
+        && request.resource.data.status == 'pending'
+        && request.resource.data.contributorId == request.auth.uid;
+      allow update: if isAdmin()
+        || (signedIn()
+          && resource.data.contributorId == request.auth.uid
+          && resource.data.status == 'pending'
+          && request.resource.data.contributorId == resource.data.contributorId
+          && request.resource.data.source == resource.data.source
+          && request.resource.data.status == resource.data.status);
+      allow delete: if isAdmin()
+        || (signedIn()
+          && resource.data.contributorId == request.auth.uid
+          && resource.data.status == 'pending');
+    }
+
+    // Solo Cloud Functions usa esta colección con Admin SDK.
+    match /_rateLimits/{document=**} {
+      allow read, write: if false;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

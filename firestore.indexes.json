@@ -1,0 +1,61 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "tumbas",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "nombre_finado_lower",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "timestamp",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "tumbas",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "nombre_panteon_lower",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "timestamp",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "tumbas",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "fecha_nacimiento_iso",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "timestamp",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "tumbas",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "fecha_defuncion_iso",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "timestamp",
+          "order": "DESCENDING"
+        }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

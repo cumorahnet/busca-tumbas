@@ -1,0 +1,73 @@
+{
+  "functions": {
+    "source": "functions",
+    "runtime": "nodejs22"
+  },
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "storage": {
+    "rules": "storage.rules"
+  },
+  "hosting": {
+    "public": ".",
+    "ignore": [
+      "firebase.json",
+      ".firebase/**",
+      ".firebaserc",
+      ".git/**",
+      ".gitdata/**",
+      ".github/**",
+      ".cdc/**",
+      ".vscode/**",
+      ".gitignore",
+      "firebase-debug.log",
+      "README.md",
+      "firestore.rules",
+      "firestore.indexes.json",
+      "storage.rules",
+      "functions/**",
+      "scripts/**",
+      "**/.*",
+      "**/node_modules/**",
+      "index.html.backup"
+    ],
+    "headers": [
+      {
+        "source": "**",
+        "headers": [
+          {
+            "key": "X-Content-Type-Options",
+            "value": "nosniff"
+          },
+          {
+            "key": "Referrer-Policy",
+            "value": "strict-origin-when-cross-origin"
+          },
+          {
+            "key": "Permissions-Policy",
+            "value": "camera=(self), geolocation=(self)"
+          }
+        ]
+      }
+    ]
+  },
+  "emulators": {
+    "functions": {
+      "port": 5001
+    },
+    "firestore": {
+      "port": 8080
+    },
+    "storage": {
+      "port": 9199
+    },
+    "hosting": {
+      "port": 5000
+    },
+    "ui": {
+      "enabled": true
+    }
+  }
+}
