@@ -803,7 +803,7 @@
             border-radius: 1rem;
             background: #0f172a;
         }
-        .cemetery-review-photo-viewport {
+        .record-detail-photo-viewport {
             width: 100%;
             height: min(58vh, 480px);
             overflow: auto;
@@ -812,7 +812,7 @@
             border: 1px solid #334155;
             overscroll-behavior: contain;
         }
-        .cemetery-review-photo {
+        .record-detail-photo {
             display: block;
             width: 100%;
             height: 100%;
@@ -820,13 +820,13 @@
             max-width: none;
             transform-origin: top left;
         }
-        .cemetery-review-zoom-controls {
+        .record-detail-zoom-controls {
             display: flex;
             justify-content: center;
             gap: 0.4rem;
             margin-top: 0.6rem;
         }
-        .cemetery-review-zoom-controls .btn {
+        .record-detail-zoom-controls .btn {
             padding: 0.45rem 0.75rem;
         }
         .record-data-list {
@@ -1786,7 +1786,7 @@ let selectedInegiCommunityMatch = null;
 let adminContributionRecords = [];
 let currentCemeteryContribution = null;
 let currentCemeteryReview = null;
-let cemeteryReviewZoomLevel = 1;
+let recordDetailZoomLevel = 1;
 let myContributions = [];
 let stateChoices = null; // for Add Tomb section
 let municipalityChoices = null; // for Add Tomb section
@@ -4202,9 +4202,10 @@ async function openMyCemeteryContribution(cemeteryId) {
         if (cemetery.contributorId !== user?.uid) throw new Error('No tienes permiso para ver esta aportación.');
         currentCemeteryContribution = cemetery;
         document.getElementById('record-detail-title').textContent = cemetery.name || 'Aporte de panteón';
-        content.innerHTML = `<div class="record-detail-grid"><div>
-            <img class="record-detail-image zoomable-image" src="${escapeHtml(safeImageUrl(cemetery.photoUrl))}" alt="Fotografía del panteón" onclick="openImageZoom(this.src)">
-        </div><div><div class="record-data-list">
+        recordDetailZoomLevel = 1;
+        content.innerHTML = `<div class="record-detail-grid">
+        ${recordDetailPhotoHtml(cemetery.photoUrl, 'Fotografía del panteón')}
+        <div><div class="record-data-list">
             <div class="record-data-item"><small>Estado</small><span>${escapeHtml(cemetery.state)}</span></div>
             <div class="record-data-item"><small>Municipio</small><span>${escapeHtml(cemetery.municipality)}</span></div>
             <div class="record-data-item"><small>Localidad</small><span>${escapeHtml(cemetery.locality)}</span></div>
@@ -4225,7 +4226,8 @@ function enableMyCemeteryEditing() {
         ['notes', 'Observaciones', cemetery.notes, 'text']
     ];
     const form = fields.map(([field, label, value, type]) => `<div class="mb-2"><label class="field-label">${escapeHtml(label)}</label><input class="form-control" data-cemetery-edit="${field}" type="${type}" maxlength="500" value="${escapeHtml(value || '')}"></div>`).join('');
-    document.getElementById('record-detail-content').innerHTML = `<div class="record-detail-grid"><img class="record-detail-image" src="${escapeHtml(safeImageUrl(cemetery.photoUrl))}" alt="Fotografía del panteón"><div>${form}<button class="btn btn-success w-100 mt-2" onclick="saveMyCemeteryEdits()">GUARDAR CAMBIOS</button></div></div>`;
+    recordDetailZoomLevel = 1;
+    document.getElementById('record-detail-content').innerHTML = `<div class="record-detail-grid">${recordDetailPhotoHtml(cemetery.photoUrl, 'Fotografía del panteón')}<div>${form}<button class="btn btn-success w-100 mt-2" onclick="saveMyCemeteryEdits()">GUARDAR CAMBIOS</button></div></div>`;
 }
 
 async function saveMyCemeteryEdits() {
@@ -4431,29 +4433,50 @@ function communityCemeteryDataHtml(cemetery) {
     </div>`).join('');
 }
 
-function applyCemeteryReviewZoom() {
-    const image = document.getElementById('cemetery-review-photo');
-    const viewport = document.getElementById('cemetery-review-photo-viewport');
-    const label = document.getElementById('cemetery-review-zoom-label');
+function recordDetailPhotoHtml(photoUrl, altText = 'Fotografía del registro') {
+    return `<div>
+        <div class="record-detail-photo-viewport" id="record-detail-photo-viewport">
+            <img class="record-detail-photo" id="record-detail-photo"
+                src="${escapeHtml(safeImageUrl(photoUrl))}" alt="${escapeHtml(altText)}">
+        </div>
+        <div class="record-detail-zoom-controls" aria-label="Controles de ampliación">
+            <button type="button" class="btn btn-sm btn-outline-secondary"
+                onclick="changeRecordDetailZoom(-0.25)" aria-label="Alejar fotografía">
+                <i class="fas fa-search-minus"></i>
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-secondary"
+                id="record-detail-zoom-label" onclick="resetRecordDetailZoom()">100%</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary"
+                onclick="changeRecordDetailZoom(0.25)" aria-label="Acercar fotografía">
+                <i class="fas fa-search-plus"></i>
+            </button>
+        </div>
+    </div>`;
+}
+
+function applyRecordDetailZoom() {
+    const image = document.getElementById('record-detail-photo');
+    const viewport = document.getElementById('record-detail-photo-viewport');
+    const label = document.getElementById('record-detail-zoom-label');
     if (!image || !viewport) return;
-    image.style.width = `${cemeteryReviewZoomLevel * 100}%`;
-    image.style.height = cemeteryReviewZoomLevel === 1 ? '100%' : 'auto';
+    image.style.width = `${recordDetailZoomLevel * 100}%`;
+    image.style.height = recordDetailZoomLevel === 1 ? '100%' : 'auto';
     image.style.objectFit = 'contain';
-    if (label) label.textContent = `${Math.round(cemeteryReviewZoomLevel * 100)}%`;
-    if (cemeteryReviewZoomLevel === 1) {
+    if (label) label.textContent = `${Math.round(recordDetailZoomLevel * 100)}%`;
+    if (recordDetailZoomLevel === 1) {
         viewport.scrollTop = 0;
         viewport.scrollLeft = 0;
     }
 }
 
-function changeCemeteryReviewZoom(delta) {
-    cemeteryReviewZoomLevel = Math.min(4, Math.max(1, cemeteryReviewZoomLevel + delta));
-    applyCemeteryReviewZoom();
+function changeRecordDetailZoom(delta) {
+    recordDetailZoomLevel = Math.min(4, Math.max(1, recordDetailZoomLevel + delta));
+    applyRecordDetailZoom();
 }
 
-function resetCemeteryReviewZoom() {
-    cemeteryReviewZoomLevel = 1;
-    applyCemeteryReviewZoom();
+function resetRecordDetailZoom() {
+    recordDetailZoomLevel = 1;
+    applyRecordDetailZoom();
 }
 
 async function openCommunityCemeteryReview(cemeteryId) {
@@ -4467,27 +4490,9 @@ async function openCommunityCemeteryReview(cemeteryId) {
         currentCemeteryReview = {id: snapshot.id, ...snapshot.data()};
         const cemetery = currentCemeteryReview;
         document.getElementById('record-detail-title').textContent = `Revisar: ${cemetery.name || 'Panteón comunitario'}`;
-        cemeteryReviewZoomLevel = 1;
+        recordDetailZoomLevel = 1;
         content.innerHTML = `<div class="record-detail-grid">
-            <div>
-                <div class="cemetery-review-photo-viewport" id="cemetery-review-photo-viewport">
-                    <img class="cemetery-review-photo" id="cemetery-review-photo"
-                        src="${escapeHtml(safeImageUrl(cemetery.photoUrl))}"
-                        alt="Fotografía de ${escapeHtml(cemetery.name)}">
-                </div>
-                <div class="cemetery-review-zoom-controls" aria-label="Controles de ampliación">
-                    <button type="button" class="btn btn-sm btn-outline-secondary"
-                        onclick="changeCemeteryReviewZoom(-0.25)" aria-label="Alejar fotografía">
-                        <i class="fas fa-search-minus"></i>
-                    </button>
-                    <button type="button" class="btn btn-sm btn-outline-secondary"
-                        id="cemetery-review-zoom-label" onclick="resetCemeteryReviewZoom()">100%</button>
-                    <button type="button" class="btn btn-sm btn-outline-secondary"
-                        onclick="changeCemeteryReviewZoom(0.25)" aria-label="Acercar fotografía">
-                        <i class="fas fa-search-plus"></i>
-                    </button>
-                </div>
-            </div>
+            ${recordDetailPhotoHtml(cemetery.photoUrl, `Fotografía de ${cemetery.name || 'panteón comunitario'}`)}
             <div>
                 <div class="record-data-list">${communityCemeteryDataHtml(cemetery)}</div>
                 <label class="field-label mt-3" for="cemetery-review-note">Mensaje para el aportador</label>
@@ -5174,12 +5179,11 @@ function renderTombDetail() {
     const isOwner = tombOwnerId(tomb) === user.uid;
     document.getElementById('record-detail-title').textContent =
         tomb.nombre_finado || 'Detalle del registro';
+    recordDetailZoomLevel = 1;
     document.getElementById('record-detail-content').innerHTML = `
         <div class="record-detail-grid">
             <div>
-                <img class="record-detail-image zoomable-image"
-                    src="${escapeHtml(safeImageUrl(tomb.imageUrl))}"
-                    alt="Fotografía del registro" onclick="openImageZoom(this.src)">
+                ${recordDetailPhotoHtml(tomb.imageUrl, 'Fotografía del registro')}
                 <div class="contributor-summary">
                     <i class="fas fa-user-circle me-1"></i>
                     Aportado por <strong>${escapeHtml(tomb.contributor_name || 'Colaborador')}</strong>
@@ -5224,9 +5228,10 @@ function enableTombDetailEditing() {
         <input class="form-control" data-tomb-edit="${field}" type="${type}"
             ${type === 'number' ? 'min="0" max="130"' : ''}
             value="${escapeHtml(value ?? '')}"></div>`).join('');
+    recordDetailZoomLevel = 1;
     document.getElementById('record-detail-content').innerHTML = `
         <div class="record-detail-grid">
-            <img class="record-detail-image" src="${escapeHtml(safeImageUrl(tomb.imageUrl))}" alt="Fotografía">
+            ${recordDetailPhotoHtml(tomb.imageUrl, 'Fotografía del registro')}
             <div>${form}
                 <div class="d-flex gap-2 mt-3">
                     <button class="btn btn-success flex-fill" onclick="saveTombDetailEdits()">GUARDAR CAMBIOS</button>
