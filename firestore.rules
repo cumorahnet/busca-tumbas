@@ -164,6 +164,11 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
+    // Beneficios Plus y recompensas se calculan exclusivamente en el servidor.
+    match /_entitlements/{document=**} {
+      allow read, write: if false;
+    }
+
     match /{document=**} {
       allow read, write: if false;
     }

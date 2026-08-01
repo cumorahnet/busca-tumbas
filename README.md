@@ -75,6 +75,25 @@ Las funciones exigen autenticación y aplican límites por usuario. Antes de
 habilitar `enforceAppCheck` en producción se debe registrar la aplicación web
 con App Check y comprobar sus métricas.
 
+## Plan Plus y anuncios
+
+La aplicación consulta `obtenerEstadoBeneficios` al iniciar sesión. Las cuentas
+gratuitas muestran espacios publicitarios discretos en el menú y en la
+búsqueda. Plus elimina esos espacios.
+
+Cada 10 aportaciones válidas se conceden 30 días sin anuncios. Cuentan las
+tumbas publicadas y los panteones aprobados. Las recompensas son acumulables y
+se guardan en `_entitlements`, una colección accesible solamente mediante Cloud
+Functions. Al desplegar por primera vez, las aportaciones anteriores también se
+reconocen.
+
+El botón `Obtener Plus` prepara una solicitud por correo. Después de comprobar
+el pago, el administrador puede usar `Activar Plus` en el panel administrativo
+para conceder 30, 90 o 365 días; esta acción llama a `activarPlusAdmin`. Para
+cobro automático aún se debe elegir proveedor, definir
+precios y conectar su webhook para actualizar `paidUntil`; nunca se debe
+aceptar la confirmación de pago enviada directamente por el navegador.
+
 ## Mantenimiento
 
 Al publicar una versión, actualiza de forma conjunta:

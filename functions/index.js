@@ -20,6 +20,9 @@ const db = getFirestore();
 const INEGI_TOKEN = defineSecret("INEGI_TOKEN");
 const GEMINI_API_KEY = defineSecret("GEMINI_API_KEY");
 const ADMIN_EMAIL = "cumorahnet@gmail.com";
+const CONTRIBUTIONS_PER_REWARD = 10;
+const REWARD_DAYS = 30;
+const DAY_IN_MILLISECONDS = 24 * 60 * 60 * 1000;
 
 function requireUser(request) {
   if (!request.auth) {
@@ -42,6 +45,127 @@ function requireAdmin(request) {
     throw new HttpsError("permission-denied", "Acceso exclusivo del administrador.");
   }
 }
+
+function validDateMilliseconds(value) {
+  const milliseconds = value?.toMillis?.() || new Date(value || 0).getTime();
+  return Number.isFinite(milliseconds) ? milliseconds : 0;
+}
+
+async function countRewardableContributions(uid) {
+  const [byContributor, byOwner, approvedCemeteries] = await Promise.all([
+    db.collection("tumbas").where("contributorId", "==", uid).get(),
+    db.collection("tumbas").where("userId", "==", uid).get(),
+    db.collection("cemeteries")
+        .where("contributorId", "==", uid)
+        .where("status", "==", "approved").get(),
+  ]);
+  const tombIds = new Set([
+    ...byContributor.docs.map((document) => document.id),
+    ...byOwner.docs.map((document) => document.id),
+  ]);
+  return tombIds.size + approvedCemeteries.size;
+}
+
+exports.obtenerEstadoBeneficios = onCall(
+    {enforceAppCheck: false},
+    async (request) => {
+      const uid = requireUser(request);
+      const contributionCount = await countRewardableContributions(uid);
+      const earnedMilestones = Math.floor(
+          contributionCount / CONTRIBUTIONS_PER_REWARD,
+      );
+      const reference = db.collection("_entitlements").doc(uid);
+      const now = Date.now();
+      const result = await db.runTransaction(async (transaction) => {
+        const snapshot = await transaction.get(reference);
+        const current = snapshot.exists ? snapshot.data() : {};
+        const grantedMilestones = Math.max(
+            0,
+            Number(current.contributionMilestonesGranted || 0),
+        );
+        const newMilestones = Math.max(0, earnedMilestones - grantedMilestones);
+        let contributionAdFreeUntil = validDateMilliseconds(
+            current.contributionAdFreeUntil,
+        );
+        const paidUntil = validDateMilliseconds(current.paidUntil);
+        if (newMilestones > 0) {
+          contributionAdFreeUntil = Math.max(
+              now,
+              contributionAdFreeUntil,
+              paidUntil,
+          ) +
+            newMilestones * REWARD_DAYS * DAY_IN_MILLISECONDS;
+        }
+        const adFreeUntil = Math.max(contributionAdFreeUntil, paidUntil);
+        transaction.set(reference, {
+          contributionCount,
+          contributionMilestonesGranted: Math.max(
+              grantedMilestones,
+              earnedMilestones,
+          ),
+          contributionAdFreeUntil: contributionAdFreeUntil ?
+            new Date(contributionAdFreeUntil) : null,
+          updatedAt: FieldValue.serverTimestamp(),
+        }, {merge: true});
+        return {adFreeUntil, paidUntil, newMilestones};
+      });
+      const email = String(request.auth.token.email || "").toLowerCase();
+      const isAdmin = email === ADMIN_EMAIL;
+      return {
+        adFree: isAdmin || result.adFreeUntil > now,
+        source: isAdmin ? "admin" :
+          (result.paidUntil > now ? "paid" :
+            (result.adFreeUntil > now ? "contributions" : "free")),
+        contributionCount,
+        contributionsPerReward: CONTRIBUTIONS_PER_REWARD,
+        contributionsToNextReward: CONTRIBUTIONS_PER_REWARD -
+          (contributionCount % CONTRIBUTIONS_PER_REWARD),
+        adFreeUntil: result.adFreeUntil ?
+          new Date(result.adFreeUntil).toISOString() : null,
+        rewardDays: REWARD_DAYS,
+        newlyGrantedMonths: result.newMilestones,
+      };
+    },
+);
+
+exports.activarPlusAdmin = onCall(
+    {enforceAppCheck: false},
+    async (request) => {
+      requireAdmin(request);
+      const uid = String(request.data?.uid || "").trim();
+      const days = Number(request.data?.days);
+      if (!/^[A-Za-z0-9_-]{20,128}$/.test(uid) ||
+          ![30, 90, 365].includes(days)) {
+        throw new HttpsError(
+            "invalid-argument",
+            "Indica un usuario válido y 30, 90 o 365 días.",
+        );
+      }
+      await getAuth().getUser(uid);
+      const reference = db.collection("_entitlements").doc(uid);
+      const paidUntil = await db.runTransaction(async (transaction) => {
+        const snapshot = await transaction.get(reference);
+        const current = snapshot.exists ? snapshot.data() : {};
+        const currentUntil = validDateMilliseconds(current.paidUntil);
+        const contributionUntil = validDateMilliseconds(
+            current.contributionAdFreeUntil,
+        );
+        const updatedUntil = Math.max(
+            Date.now(),
+            currentUntil,
+            contributionUntil,
+        ) +
+          days * DAY_IN_MILLISECONDS;
+        transaction.set(reference, {
+          paidUntil: new Date(updatedUntil),
+          paymentSource: "manual_admin",
+          updatedAt: FieldValue.serverTimestamp(),
+        }, {merge: true});
+        return updatedUntil;
+      });
+      return {paidUntil: new Date(paidUntil).toISOString()};
+    },
+);
 
 exports.obtenerEstadisticasAdmin = onCall(
     {enforceAppCheck: false},
