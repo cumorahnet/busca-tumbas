@@ -46,6 +46,12 @@ Los archivos subidos no solicitan GPS; en ese flujo la búsqueda del panteón se
 hace por municipio o estado. Las coordenadas oficiales del panteón provenientes
 de INEGI se almacenan por separado.
 
+Cuando el nombre conocido por la comunidad difiere del nombre de INEGI, el
+aporte conserva ambos. El nombre comunitario queda pendiente de revisión y el
+nombre original de INEGI se mantiene como referencia y alias de búsqueda. Una
+propuesta aprobada se muestra como nombre preferido sin alterar el catálogo
+oficial de INEGI.
+
 ## Configuración de Firebase
 
 El proyecto usa Cloud Functions de segunda generación con Node.js 22. Para

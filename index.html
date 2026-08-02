@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Busca Tumbas — VERSION 2.12.3</title>
+    <title>Busca Tumbas — VERSION 2.13.0</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
@@ -1813,7 +1813,7 @@
 /* ══════════════════════════════════════════════════════════════════
    CONFIGURACIÓN DE LA APLICACIÓN
 ══════════════════════════════════════════════════════════════════ */
-const APP_VERSION = "v2.12.3";
+const APP_VERSION = "v2.13.0";
 const MAX_IMAGE_FILE_SIZE = 15 * 1024 * 1024;
 const MAX_IMAGE_DIMENSION = 1920;
 
@@ -2688,10 +2688,13 @@ async function loadCemeterySearchSuggestions() {
             ));
             communitySnapshot?.forEach(document => {
                 const item = document.data();
+                const location = [item.municipality, item.state].filter(Boolean).join(', ');
                 addSuggestion(
                     item.name,
-                    [item.municipality, item.state].filter(Boolean).join(', ')
+                    location
                 );
+                (item.aliases || []).forEach(alias => addSuggestion(alias, location));
+                if (item.inegiName) addSuggestion(item.inegiName, location);
             });
             const fragment = document.createDocumentFragment();
             [...suggestions.values()]
@@ -2829,10 +2832,18 @@ async function searchNearbyCemeteries() {
                 .where('stateCode', '==', entityCode)
                 .get()
         ]);
+        const communityDocuments = communitySnapshot.docs
+            .map(document => ({ id: document.id, ...document.data() }))
+            .filter(item => item.municipalityCode === municipalityCode &&
+                item.status !== 'rejected');
+        const approvedInegiOverrides = new Set(communityDocuments
+            .filter(item => item.status === 'approved' && item.inegiCemeteryId)
+            .map(item => String(item.inegiCemeteryId)));
         const inegiResults = catalog
             .filter(item =>
                 item.stateCode === entityCode &&
-                item.municipalityCode === municipalityCode)
+                item.municipalityCode === municipalityCode &&
+                !approvedInegiOverrides.has(String(item.id)))
             .map(item => ({
                 id: item.id,
                 nombre: formatProperName(item.name),
@@ -2846,10 +2857,7 @@ async function searchNearbyCemeteries() {
                 distance: null,
                 source: 'inegi'
             }));
-        const communityResults = communitySnapshot.docs
-            .map(document => ({ id: document.id, ...document.data() }))
-            .filter(item => item.municipalityCode === municipalityCode &&
-                item.status !== 'rejected')
+        const communityResults = communityDocuments
             .map(item => ({
                 id: item.id,
                 nombre: formatProperName(item.name),
@@ -2862,7 +2870,8 @@ async function searchNearbyCemeteries() {
                 longitude: Number(item.location?.longitude),
                 distance: null,
                 source: 'community',
-                status: item.status
+                status: item.status,
+                inegiName: item.inegiName || ''
             }));
         inegiCemeteryResults = [...inegiResults, ...communityResults]
             .sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
@@ -2883,8 +2892,12 @@ async function searchNearbyCemeteries() {
             const sourceLabel = cemetery.source === 'inegi'
                 ? 'INEGI'
                 : (cemetery.status === 'approved' ? 'Comunidad verificada' : 'Aporte comunitario');
+            const aliasLabel = cemetery.inegiName &&
+                normalizeSearchText(cemetery.inegiName) !== normalizeSearchText(cemetery.nombre)
+                ? ` (INEGI: ${cemetery.inegiName})`
+                : '';
             select.add(new Option(
-                `${cemetery.nombre} — ${locationLabel || cemetery.ubicacion.municipio} · ${sourceLabel}`,
+                `${cemetery.nombre}${aliasLabel} — ${locationLabel || cemetery.ubicacion.municipio} · ${sourceLabel}`,
                 String(index)
             ));
         });
@@ -4134,13 +4147,21 @@ async function checkCemeteryMatches() {
                     name: item.name,
                     locality: item.locality,
                     source: 'Comunidad',
-                    location: item.location
+                    location: item.location,
+                    aliases: [...new Set([
+                        ...(item.aliases || []),
+                        item.inegiName
+                    ].filter(Boolean))]
                 }))
         ];
         communityCemeteryMatches = candidates
             .map(item => ({
                 ...item,
-                similarity: cemeteryNameSimilarity(name, item.name),
+                similarity: Math.max(
+                    cemeteryNameSimilarity(name, item.name),
+                    ...(item.aliases || []).map(alias =>
+                        cemeteryNameSimilarity(name, alias))
+                ),
                 distance: distanceInMeters(communityCemeteryLocation, item.location)
             }))
             .filter(item => item.similarity >= 0.55 || item.distance <= 750)
@@ -4186,8 +4207,10 @@ function useInegiCemeteryMatch(index) {
     if (!cemetery || cemetery.source !== 'INEGI') return;
 
     selectedInegiCommunityMatch = cemetery;
-    document.getElementById('cemetery-name').value = formatProperName(cemetery.name);
-    document.getElementById('cemetery-locality').value = formatProperName(cemetery.locality || '');
+    const communityName = formatProperName(document.getElementById('cemetery-name').value);
+    if (!document.getElementById('cemetery-locality').value.trim()) {
+        document.getElementById('cemetery-locality').value = formatProperName(cemetery.locality || '');
+    }
     const keepDeviceLocation = communityCemeteryPhotoSource === 'camera' &&
         communityCemeteryLocationSource === 'device';
     if (!keepDeviceLocation) {
@@ -4204,8 +4227,9 @@ function useInegiCemeteryMatch(index) {
     document.getElementById('cemetery-distinct-confirmation').style.display = 'none';
     document.getElementById('cemetery-match-results').innerHTML =
         `<div class="alert alert-success py-2 mb-0"><i class="fas fa-circle-check me-1"></i>` +
-        `Usarás los datos de <strong>${escapeHtml(formatProperName(cemetery.name))}</strong> de INEGI. ` +
-        `Selecciona o conserva tu fotografía y presiona <strong>Guardar aportación</strong>.</div>`;
+        `Vincularemos <strong>${escapeHtml(communityName)}</strong> con el registro INEGI ` +
+        `<strong>${escapeHtml(formatProperName(cemetery.name))}</strong>. Conservaremos ambos nombres ` +
+        `y la propuesta quedará pendiente de revisión.</div>`;
 }
 
 async function prepareCemeteryPhotoBlob(file) {
@@ -4285,6 +4309,15 @@ async function saveCommunityCemetery() {
             15000,
             'No se pudo obtener el enlace de la fotografía.'
         );
+        const inegiName = selectedInegiCommunityMatch
+            ? formatProperName(selectedInegiCommunityMatch.name)
+            : '';
+        const aliases = [...new Set([name, inegiName].filter(Boolean))];
+        const correctionType = selectedInegiCommunityMatch
+            ? (normalizeSearchText(name) === normalizeSearchText(inegiName)
+                ? 'inegi_photo'
+                : 'inegi_alias')
+            : 'new_cemetery';
         await documentReference.set({
             name,
             normalizedName: normalizeSearchText(name),
@@ -4309,12 +4342,18 @@ async function saveCommunityCemetery() {
             contributorEmail: user.email,
             createdAt: firebase.firestore.FieldValue.serverTimestamp(),
             updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+            aliases,
+            correctionType,
             ...(selectedInegiCommunityMatch
-                ? {inegiCemeteryId: selectedInegiCommunityMatch.id}
+                ? {
+                    inegiCemeteryId: selectedInegiCommunityMatch.id,
+                    inegiName,
+                    normalizedInegiName: normalizeSearchText(inegiName)
+                }
                 : {})
         });
         showToast(selectedInegiCommunityMatch
-            ? '✅ Fotografía y referencia de INEGI guardadas como aporte pendiente de revisión.'
+            ? '✅ Nombre comunitario y nombre INEGI guardados como propuesta pendiente de revisión.'
             : '✅ Panteón agregado como aporte comunitario pendiente de revisión.', '#10b981', 9000);
         showModeSelection();
     } catch (error) {
@@ -4403,7 +4442,14 @@ function showMyContributionDetail(contributionId, selectedButton = null) {
     const photoUrl = isCemetery ? contribution.photoUrl : contribution.imageUrl;
     const title = isCemetery ? contribution.name : (contribution.nombre_finado || 'Tumba sin nombre');
     const fields = isCemetery
-        ? [['Estado', contribution.state], ['Municipio', contribution.municipality], ['Localidad', contribution.locality], ['Estado de revisión', contribution.status]]
+        ? [
+            ['Nombre comunitario', contribution.name],
+            ['Nombre en INEGI', contribution.inegiName],
+            ['Estado', contribution.state],
+            ['Municipio', contribution.municipality],
+            ['Localidad', contribution.locality],
+            ['Estado de revisión', contribution.status]
+        ].filter(([, value]) => value !== null && value !== undefined && value !== '')
         : [
             ['Panteón', contribution.nombre_panteon],
             ['Estado', contribution.estado_panteon],
@@ -4446,6 +4492,8 @@ async function openMyCemeteryContribution(cemeteryId) {
         content.innerHTML = `<div class="record-detail-grid">
         ${recordDetailPhotoHtml(cemetery.photoUrl, 'Fotografía del panteón')}
         <div><div class="record-data-list">
+            <div class="record-data-item"><small>Nombre comunitario</small><span>${escapeHtml(cemetery.name)}</span></div>
+            ${cemetery.inegiName ? `<div class="record-data-item"><small>Nombre original de INEGI</small><span>${escapeHtml(cemetery.inegiName)}</span></div>` : ''}
             <div class="record-data-item"><small>Estado</small><span>${escapeHtml(cemetery.state)}</span></div>
             <div class="record-data-item"><small>Municipio</small><span>${escapeHtml(cemetery.municipality)}</span></div>
             <div class="record-data-item"><small>Localidad</small><span>${escapeHtml(cemetery.locality)}</span></div>
@@ -4467,7 +4515,10 @@ function enableMyCemeteryEditing() {
     ];
     const form = fields.map(([field, label, value, type]) => `<div class="mb-2"><label class="field-label">${escapeHtml(label)}</label><input class="form-control" data-cemetery-edit="${field}" type="${type}" maxlength="500" value="${escapeHtml(value || '')}"></div>`).join('');
     recordDetailZoomLevel = 1;
-    document.getElementById('record-detail-content').innerHTML = `<div class="record-detail-grid">${recordDetailPhotoHtml(cemetery.photoUrl, 'Fotografía del panteón')}<div>${form}<button class="btn btn-success w-100 mt-2" onclick="saveMyCemeteryEdits()">GUARDAR CAMBIOS</button></div></div>`;
+    const inegiReference = cemetery.inegiName
+        ? `<div class="alert alert-info py-2"><small>Nombre original de INEGI</small><br><strong>${escapeHtml(cemetery.inegiName)}</strong></div>`
+        : '';
+    document.getElementById('record-detail-content').innerHTML = `<div class="record-detail-grid">${recordDetailPhotoHtml(cemetery.photoUrl, 'Fotografía del panteón')}<div>${inegiReference}${form}<button class="btn btn-success w-100 mt-2" onclick="saveMyCemeteryEdits()">GUARDAR CAMBIOS</button></div></div>`;
 }
 
 async function saveMyCemeteryEdits() {
@@ -4484,6 +4535,7 @@ async function saveMyCemeteryEdits() {
         await db.collection('cemeteries').doc(cemetery.id).update({
             name,
             normalizedName: normalizeSearchText(name),
+            aliases: [...new Set([name, cemetery.inegiName].filter(Boolean))],
             locality: formatProperName(values.locality),
             address: values.address || null,
             notes: values.notes || null,
@@ -4682,7 +4734,9 @@ async function loadPendingCemeteriesAdmin(container) {
 
 function communityCemeteryDataHtml(cemetery) {
     const fields = [
-        ['Nombre', cemetery.name],
+        ['Nombre comunitario', cemetery.name],
+        ['Nombre original de INEGI', cemetery.inegiName],
+        ['Alias para búsqueda', (cemetery.aliases || []).join(' · ')],
         ['Estado', cemetery.state],
         ['Municipio', cemetery.municipality],
         ['Colonia / localidad', cemetery.locality],
@@ -4814,7 +4868,11 @@ async function reviewCommunityCemetery(cemeteryId, status) {
         const cemetery = {id: snapshot.id, ...snapshot.data()};
         if (cemetery.status !== 'pending') throw new Error('Esta aportación ya fue revisada.');
         const outcome = status === 'approved' ? 'aprobada' : 'rechazada';
-        const details = [cemetery.name, cemetery.locality, cemetery.municipality, cemetery.state]
+        const names = cemetery.inegiName &&
+            normalizeSearchText(cemetery.inegiName) !== normalizeSearchText(cemetery.name)
+            ? `${cemetery.name} (INEGI: ${cemetery.inegiName})`
+            : cemetery.name;
+        const details = [names, cemetery.locality, cemetery.municipality, cemetery.state]
             .filter(Boolean).join(' · ');
         const message = `Tu aportación de panteón fue ${outcome}. ${details}.${note ? ` Mensaje del administrador: ${note}` : ''}`;
         const notificationReference = db.collection('correction_requests').doc();

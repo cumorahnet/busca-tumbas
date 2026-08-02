@@ -46,7 +46,9 @@ service cloud.firestore {
           'nombre_panteon',
           'nombre_panteon_lower',
           'estado_panteon',
+          'estado_panteon_lower',
           'municipio_panteon',
+          'municipio_panteon_lower',
           'colonia_panteon',
           'inegi_denue_id',
           'cemetery_id',
@@ -70,6 +72,12 @@ service cloud.firestore {
           || (request.resource.data.edad_defuncion is int
             && request.resource.data.edad_defuncion >= 0
             && request.resource.data.edad_defuncion <= 130))
+        && (!request.resource.data.keys().hasAny(['estado_panteon_lower'])
+          || request.resource.data.estado_panteon_lower == null
+          || request.resource.data.estado_panteon_lower is string)
+        && (!request.resource.data.keys().hasAny(['municipio_panteon_lower'])
+          || request.resource.data.municipio_panteon_lower == null
+          || request.resource.data.municipio_panteon_lower is string)
         && request.resource.data.visibility == 'public'
         && request.resource.data.status in ['published', 'pending'];
     }
@@ -132,7 +140,8 @@ service cloud.firestore {
           'municipalityCode', 'municipality', 'locality', 'address',
           'notes', 'location', 'photoUrl', 'source', 'status',
           'contributorId', 'contributorName', 'contributorEmail',
-          'createdAt', 'updatedAt', 'inegiCemeteryId'
+          'createdAt', 'updatedAt', 'inegiCemeteryId', 'inegiName',
+          'normalizedInegiName', 'aliases', 'correctionType'
         ])
         && request.resource.data.name is string
         && request.resource.data.name.size() >= 3
@@ -143,6 +152,15 @@ service cloud.firestore {
         && request.resource.data.photoUrl is string
         && (!request.resource.data.keys().hasAny(['inegiCemeteryId'])
           || request.resource.data.inegiCemeteryId is string)
+        && (!request.resource.data.keys().hasAny(['inegiName'])
+          || request.resource.data.inegiName is string)
+        && (!request.resource.data.keys().hasAny(['normalizedInegiName'])
+          || request.resource.data.normalizedInegiName is string)
+        && (!request.resource.data.keys().hasAny(['aliases'])
+          || (request.resource.data.aliases is list
+            && request.resource.data.aliases.size() <= 10))
+        && (!request.resource.data.keys().hasAny(['correctionType'])
+          || request.resource.data.correctionType in ['new_cemetery', 'inegi_alias', 'inegi_photo'])
         && request.resource.data.source == 'community'
         && request.resource.data.status == 'pending'
         && request.resource.data.contributorId == request.auth.uid;
@@ -152,7 +170,11 @@ service cloud.firestore {
           && resource.data.status == 'pending'
           && request.resource.data.contributorId == resource.data.contributorId
           && request.resource.data.source == resource.data.source
-          && request.resource.data.status == resource.data.status);
+          && request.resource.data.status == resource.data.status
+          && request.resource.data.get('inegiCemeteryId', null)
+            == resource.data.get('inegiCemeteryId', null)
+          && request.resource.data.get('inegiName', null)
+            == resource.data.get('inegiName', null));
       allow delete: if isAdmin()
         || (signedIn()
           && resource.data.contributorId == request.auth.uid
