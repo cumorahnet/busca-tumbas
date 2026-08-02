@@ -490,7 +490,11 @@ exports.escanearLapidaGemini = onCall(
       const prompt = [
         "Analiza la imagen de una lápida mexicana.",
         "Devuelve exclusivamente JSON válido con estas propiedades:",
-        "nombre_finado, fecha_nacimiento, fecha_defuncion, edad_defuncion, nombre_panteon.",
+        "nombres, apellido_paterno, apellido_materno, nombre_finado, " +
+          "fecha_nacimiento, fecha_defuncion, edad_defuncion, nombre_panteon.",
+        "Separa el nombre de la persona: nombres contiene uno o varios nombres; " +
+          "apellido_paterno y apellido_materno contienen un apellido cada uno.",
+        "nombre_finado debe contener el nombre completo en el mismo orden visible.",
         "Para cada fecha conserva sólo la precisión visible en la lápida:",
         "YYYY si sólo aparece el año; YYYY-MM si aparecen mes y año;",
         "YYYY-MM-DD únicamente si aparecen año, mes y día.",
@@ -543,6 +547,9 @@ exports.escanearLapidaGemini = onCall(
         }
         const detectedAge = Number.parseInt(data.edad_defuncion, 10);
         return {
+          nombres: data.nombres || null,
+          apellido_paterno: data.apellido_paterno || null,
+          apellido_materno: data.apellido_materno || null,
           nombre_finado: data.nombre_finado || null,
           fecha_nacimiento: data.fecha_nacimiento || null,
           fecha_defuncion: data.fecha_defuncion || null,

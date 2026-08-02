@@ -52,6 +52,12 @@ nombre original de INEGI se mantiene como referencia y alias de búsqueda. Una
 propuesta aprobada se muestra como nombre preferido sin alterar el catálogo
 oficial de INEGI.
 
+Los registros nuevos de personas separan nombre(s), apellido paterno y apellido
+materno, conservando también `nombre_finado` como nombre completo compatible con
+los registros anteriores. La búsqueda permite elegir por separado coincidencia
+exacta o sonido parecido para cada parte del nombre. En registros antiguos sin
+campos separados, la comparación utiliza las palabras del nombre completo.
+
 ## Configuración de Firebase
 
 El proyecto usa Cloud Functions de segunda generación con Node.js 22. Para

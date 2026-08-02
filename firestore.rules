@@ -37,6 +37,12 @@ service cloud.firestore {
           'panteon_geolocation',
           'nombre_finado',
           'nombre_finado_lower',
+          'nombres',
+          'nombres_lower',
+          'apellido_paterno',
+          'apellido_paterno_lower',
+          'apellido_materno',
+          'apellido_materno_lower',
           'fecha_nacimiento',
           'fecha_nacimiento_iso',
           'fecha_nacimiento_estimada',
@@ -65,6 +71,24 @@ service cloud.firestore {
         && request.resource.data.userId is string
         && request.resource.data.imageUrl is string
         && request.resource.data.imageUrl.size() <= 2048
+        && (!request.resource.data.keys().hasAny(['nombres'])
+          || request.resource.data.nombres == null
+          || request.resource.data.nombres is string)
+        && (!request.resource.data.keys().hasAny(['nombres_lower'])
+          || request.resource.data.nombres_lower == null
+          || request.resource.data.nombres_lower is string)
+        && (!request.resource.data.keys().hasAny(['apellido_paterno'])
+          || request.resource.data.apellido_paterno == null
+          || request.resource.data.apellido_paterno is string)
+        && (!request.resource.data.keys().hasAny(['apellido_paterno_lower'])
+          || request.resource.data.apellido_paterno_lower == null
+          || request.resource.data.apellido_paterno_lower is string)
+        && (!request.resource.data.keys().hasAny(['apellido_materno'])
+          || request.resource.data.apellido_materno == null
+          || request.resource.data.apellido_materno is string)
+        && (!request.resource.data.keys().hasAny(['apellido_materno_lower'])
+          || request.resource.data.apellido_materno_lower == null
+          || request.resource.data.apellido_materno_lower is string)
         && (!request.resource.data.keys().hasAny(['fecha_nacimiento_estimada'])
           || request.resource.data.fecha_nacimiento_estimada is bool)
         && (!request.resource.data.keys().hasAny(['edad_defuncion'])
