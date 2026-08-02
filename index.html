@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Busca Tumbas — VERSION 2.13.0</title>
+    <title>Busca Tumbas — VERSION 2.13.1</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
@@ -831,6 +831,7 @@
             color: rgba(255,255,255,0.8) !important;
         }
         .my-contribution-detail-panel { min-height: 310px; }
+        .mobile-contributions-back { display: none; }
         .my-contribution-detail-grid {
             display: grid;
             grid-template-columns: minmax(220px, 42%) minmax(0, 1fr);
@@ -930,13 +931,16 @@
             .record-detail-grid { grid-template-columns: 1fr; }
             .my-contributions-layout { grid-template-columns: 1fr; }
             .my-contributions-sidebar {
-                display: flex !important;
+                display: grid !important;
                 max-height: none;
-                overflow-x: auto;
-                overflow-y: hidden;
-                padding: 0 0 0.4rem;
+                overflow: visible;
+                padding: 0;
             }
-            .my-contribution-list-item { min-width: 220px; }
+            .my-contribution-list-item { min-width: 0; }
+            .my-contribution-list-item .badge { display: none; }
+            .my-contribution-detail-panel { display: none; }
+            .my-contribution-detail-panel.is-visible { display: block; }
+            .mobile-contributions-back { display: inline-flex; }
             .my-contribution-detail-grid { grid-template-columns: 1fr; }
             .my-contribution-image,
             .my-contribution-image-placeholder { height: 240px; }
@@ -1813,7 +1817,7 @@
 /* ══════════════════════════════════════════════════════════════════
    CONFIGURACIÓN DE LA APLICACIÓN
 ══════════════════════════════════════════════════════════════════ */
-const APP_VERSION = "v2.13.0";
+const APP_VERSION = "v2.13.1";
 const MAX_IMAGE_FILE_SIZE = 15 * 1024 * 1024;
 const MAX_IMAGE_DIMENSION = 1920;
 
@@ -4377,7 +4381,11 @@ async function saveCommunityCemetery() {
 async function loadMyContributions() {
     const user = auth.currentUser;
     const container = document.getElementById('my-contributions-list');
+    const detail = document.getElementById('my-contribution-detail');
     if (!user || !container) return;
+    detail.classList.remove('is-visible');
+    detail.classList.add('text-muted');
+    detail.textContent = 'Selecciona una aportación para mostrar sus detalles.';
     container.innerHTML = '<div class="col-12 text-muted small">Cargando tus aportaciones…</div>';
     try {
         const [tombsByContributor, tombsByOwner, cemeteriesSnapshot] = await Promise.all([
@@ -4411,10 +4419,12 @@ async function loadMyContributions() {
         }
         container.innerHTML = myContributions.map(item => {
             const isCemetery = item.type === 'cemetery';
-            const title = isCemetery ? item.name : (item.nombre_finado || 'Tumba sin nombre');
+            const title = isCemetery
+                ? `Panteón: ${item.name || 'Sin nombre'}`
+                : (item.nombre_finado || 'Tumba sin nombre');
             const subtitle = isCemetery
-                ? `${item.municipality || 'Municipio no indicado'}, ${item.state || 'Estado no indicado'}`
-                : (item.nombre_panteon || 'Panteón no indicado');
+                ? (item.municipality || 'Municipio no indicado')
+                : (item.municipio_panteon || 'Municipio no indicado');
             const status = isCemetery
                 ? `<span class="badge ${item.status === 'approved' ? 'text-bg-success' : item.status === 'rejected' ? 'text-bg-danger' : 'text-bg-warning'}">${escapeHtml(item.status || 'pending')}</span>`
                 : '<span class="badge text-bg-secondary">Tumba</span>';
@@ -4423,7 +4433,9 @@ async function loadMyContributions() {
                 <span class="small text-muted">${escapeHtml(subtitle)}</span>
             </button>`;
         }).join('');
-        showMyContributionDetail(myContributions[0].id, container.querySelector('.my-contribution-list-item'));
+        if (!window.matchMedia('(max-width: 768px)').matches) {
+            showMyContributionDetail(myContributions[0].id, container.querySelector('.my-contribution-list-item'));
+        }
     } catch (error) {
         container.innerHTML = `<div class="alert alert-danger py-2 mb-0">${escapeHtml(getFirebaseErrorMessage(error, 'No se pudieron cargar tus aportaciones.'))}</div>`;
     }
@@ -4433,6 +4445,7 @@ function showMyContributionDetail(contributionId, selectedButton = null) {
     const contribution = myContributions.find(item => item.id === contributionId);
     const container = document.getElementById('my-contribution-detail');
     if (!contribution || !container) return;
+    container.classList.add('is-visible');
     document.querySelectorAll('#my-contributions-list .my-contribution-list-item').forEach(button => {
         const isSelected = button === selectedButton || button.dataset.contributionId === contributionId;
         button.classList.toggle('active', isSelected);
@@ -4465,7 +4478,9 @@ function showMyContributionDetail(contributionId, selectedButton = null) {
         ? `<img src="${escapeHtml(safeImageUrl(photoUrl))}" class="my-contribution-image zoomable-image" alt="Fotografía aportada" onclick="openImageZoom(this.src)">`
         : '<div class="my-contribution-image-placeholder"><span><i class="fas fa-image me-1"></i>Sin imagen</span></div>';
     container.classList.remove('text-muted');
-    container.innerHTML = `<div class="my-contribution-detail-grid">
+    container.innerHTML = `<button type="button" class="btn btn-sm btn-outline-secondary mobile-contributions-back mb-3"
+        onclick="closeMobileContributionDetail()"><i class="fas fa-arrow-left me-1"></i>Volver al listado</button>
+    <div class="my-contribution-detail-grid">
         <div>${image}</div>
         <div>
             <h6 class="fw-bold mb-3">${escapeHtml(title)}</h6>
@@ -4473,6 +4488,21 @@ function showMyContributionDetail(contributionId, selectedButton = null) {
             <button class="btn btn-primary w-100 mt-3" onclick="${action}"><i class="fas fa-pen me-1"></i>Ver y editar</button>
         </div>
     </div>`;
+    if (window.matchMedia('(max-width: 768px)').matches) {
+        requestAnimationFrame(() => container.scrollIntoView({behavior: 'smooth', block: 'start'}));
+    }
+}
+
+function closeMobileContributionDetail() {
+    const detail = document.getElementById('my-contribution-detail');
+    detail.classList.remove('is-visible');
+    document.querySelectorAll('#my-contributions-list .my-contribution-list-item')
+        .forEach(button => {
+            button.classList.remove('active');
+            button.setAttribute('aria-pressed', 'false');
+        });
+    document.getElementById('my-contributions-list')
+        .scrollIntoView({behavior: 'smooth', block: 'start'});
 }
 
 async function openMyCemeteryContribution(cemeteryId) {
