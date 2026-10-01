@@ -4,8 +4,7 @@ service firebase.storage {
   match /b/{bucket}/o {
     function signedIn() {
       return request.auth != null
-        && (request.auth.token.email_verified == true
-          || request.auth.token.email == 'cumorahnet@gmail.com');
+        && request.auth.token.email_verified == true;
     }
 
     match /tumbas_images/{userId}/{fileName} {

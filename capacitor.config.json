@@ -1,0 +1,15 @@
+{
+  "appId": "com.cumorahnet.buscatumbas",
+  "appName": "Busca Tumbas",
+  "webDir": "www",
+  "android": {
+    "allowMixedContent": false,
+    "backgroundColor": "#f8fafc"
+  },
+  "plugins": {
+    "SystemBars": {
+      "insetsHandling": "native",
+      "style": "LIGHT"
+    }
+  }
+}

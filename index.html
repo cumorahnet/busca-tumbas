@@ -287,10 +287,7 @@
         }
 
         #logout-btn {
-            position: absolute;
-            top: 0.75rem;
-            right: 0.75rem;
-            z-index: 1000;
+            min-height: 44px;
             padding: 0.45rem 0.75rem;
             border-radius: 999px;
             background: rgba(239,68,68,0.08);
@@ -804,12 +801,17 @@
             align-items: start;
         }
         .my-contributions-sidebar {
+            min-width: 0;
+            grid-template-columns: minmax(0, 1fr);
             max-height: 620px;
             overflow-y: auto;
             padding-right: 0.25rem;
         }
         .my-contribution-list-item {
             width: 100%;
+            min-width: 0;
+            white-space: normal;
+            overflow-wrap: anywhere;
             text-align: left;
             padding: 0.65rem 0.75rem;
             border-radius: 0.75rem;
@@ -817,9 +819,13 @@
         }
         .my-contribution-list-item strong {
             display: block;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+            min-width: 0;
+            white-space: normal;
+            overflow-wrap: anywhere;
+        }
+        .my-contribution-list-item .badge {
+            flex-shrink: 0;
+            align-self: flex-start;
         }
         .my-contribution-list-item.active {
             color: #fff;
@@ -1250,6 +1256,9 @@
             .app-header h4 { font-size: 1rem; }
         }
     </style>
+    <meta name="theme-color" content="#0f172a">
+    <link rel="stylesheet" href="mobile/app.css">
+    <script src="mobile/app.js" defer></script>
 </head>
 <body>
 
@@ -1264,9 +1273,27 @@
 </div>
 
 <!-- AUTH SCREEN -->
+<dialog id="superuser-dialog" aria-labelledby="superuser-title" style="border:0;border-radius:1rem;padding:1.5rem;width:min(420px,calc(100% - 2rem));">
+    <form id="superuser-form">
+        <h5 id="superuser-title">Acceso de superusuario</h5>
+        <p class="small text-muted">Usa la contraseña independiente de superusuario. Al entrar se sustituirá la sesión actual. Esta sesión termina al recargar o cerrar la página.</p>
+        <label for="superuser-password" class="form-label">Contraseña administrativa</label>
+        <div class="input-group mb-3">
+            <input id="superuser-password" type="password" class="form-control" autocomplete="current-password" required>
+            <button type="button" id="superuser-password-toggle" class="btn btn-outline-secondary" style="min-width:44px;min-height:44px" aria-label="Mostrar contraseña" aria-pressed="false" onclick="togglePasswordVisibility('superuser-password', this)"><i class="fas fa-eye"></i></button>
+        </div>
+        <p id="superuser-feedback" role="status" aria-live="polite" class="small"></p>
+        <div class="d-flex gap-2">
+            <button id="superuser-submit" type="submit" class="btn btn-primary">Entrar</button>
+            <button id="superuser-cancel" type="button" class="btn btn-outline-secondary" onclick="closeSuperuserLogin()">Cancelar</button>
+        </div>
+    </form>
+</dialog>
 <div id="auth-screen">
     <div class="card-custom">
         <h5 class="fw-bold mb-4">Bienvenido a Busca Tumbas</h5>
+        <button type="button" class="version-pill border-0" id="auth-version"></button>
+        <div class="app-legal-links"><a href="privacy.html">Privacidad</a><a href="delete-account.html">Eliminar mi cuenta</a></div>
         <div id="auth-verification-status" class="alert alert-info py-2" style="display:none; font-size:0.8rem;"
             role="status" aria-live="polite"></div>
         <div id="auth-name-wrapper" style="display:none;">
@@ -1279,7 +1306,7 @@
         <div class="input-group mb-3">
             <label class="visually-hidden" for="auth-password">Contraseña</label>
             <input type="password" id="auth-password" class="form-control" placeholder="Contraseña" autocomplete="current-password">
-            <button class="btn btn-outline-secondary" type="button" id="toggle-password-visibility" aria-label="Mostrar contraseña" onclick="togglePasswordVisibility('auth-password', this)">
+            <button class="btn btn-outline-secondary" type="button" id="toggle-password-visibility" aria-pressed="false" style="min-width:44px;min-height:44px" aria-label="Mostrar contraseña" onclick="togglePasswordVisibility('auth-password', this)">
                 <i class="fas fa-eye"></i>
             </button>
         </div>
@@ -1300,7 +1327,7 @@
         </div>
         <button type="button" class="btn btn-link w-100 py-2" id="resend-verification-btn"
             style="display:none;" onclick="resendVerificationEmail(event)">
-            <i class="fas fa-envelope me-1"></i>Reenviar correo de verificación
+            <i class="fas fa-envelope me-1"></i>Volver a enviar el correo
         </button>
         <p class="text-muted text-center mb-0" id="verification-email-hint"
             style="display:none; font-size:0.72rem;">
@@ -1353,22 +1380,22 @@
 
 <!-- MAIN INTERFACE -->
 <div class="container-main" id="main-app">
-    <button class="btn btn-link" onclick="logout()" id="logout-btn" style="display:none;">
-        <i class="fas fa-sign-out-alt me-2"></i>Cerrar sesión
-    </button>
 
     <!-- App Header -->
     <header class="app-header card-custom">
         <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
             <h4 class="fw-bold mb-0">Busca Tumbas</h4>
             <div class="d-flex flex-wrap align-items-center gap-2 mt-2 mt-md-0">
-                <span class="version-pill" id="app-header-version"></span>
+                <button type="button" class="version-pill border-0" id="app-header-version"></button>
                 <span class="badge text-bg-success">Catálogo colaborativo</span>
                 <span class="badge rounded-pill text-bg-primary" id="verified-account-badge" style="display:none;">
                     <i class="fas fa-circle-check me-1"></i>Correo verificado
                 </span>
             </div>
         </div>
+        <button type="button" class="btn btn-outline-danger w-100" onclick="logout()" id="logout-btn" style="display:none;">
+            <i class="fas fa-sign-out-alt me-2" aria-hidden="true"></i>Salir
+        </button>
         <button class="btn btn-outline-secondary w-100" id="back-to-mode-selection" style="display:none;" onclick="showModeSelection()">
             <i class="fas fa-arrow-left me-2"></i>Volver al Menú Principal
         </button>
@@ -1731,12 +1758,12 @@
     <div id="search-tomb-section">
         <div class="card-custom">
             <h5 class="fw-bold mb-3 text-center" style="color:var(--primary);">Buscar Tumbas</h5>
-            <p class="section-subtitle text-center mb-4">Marca uno o varios criterios; todos los criterios activos deben coincidir. Para cada parte del nombre elige coincidencia exacta o sonido parecido.</p>
+            <p class="section-subtitle text-center mb-4">Escribe o selecciona un dato para activar su criterio. Puedes buscar solo por estado o agregar un municipio. Todos los criterios activos deben coincidir.</p>
             
             <div class="fields-grid mb-3">
                 <div class="field-group search-fields-group">
                     <div class="form-check">
-                        <input type="checkbox" class="form-check-input" id="enable-nombres-search" checked onchange="toggleNameSearchField('nombres', this.checked)">
+                        <input type="checkbox" class="form-check-input" id="enable-nombres-search" disabled onchange="setSearchCriterion('nombres', this.checked)">
                         <label class="form-check-label field-label" for="enable-nombres-search">Nombre(s)</label>
                     </div>
                     <div class="name-search-controls">
@@ -1748,24 +1775,24 @@
                 </div>
                 <div class="field-group search-fields-group">
                     <div class="form-check">
-                        <input type="checkbox" class="form-check-input" id="enable-apellido-paterno-search" onchange="toggleNameSearchField('apellido-paterno', this.checked)">
+                        <input type="checkbox" class="form-check-input" id="enable-apellido-paterno-search" disabled onchange="setSearchCriterion('apellido-paterno', this.checked)">
                         <label class="form-check-label field-label" for="enable-apellido-paterno-search">Apellido paterno</label>
                     </div>
                     <div class="name-search-controls">
-                        <input type="text" id="search-apellido-paterno" class="form-control" maxlength="80" placeholder="Apellido paterno" disabled>
-                        <select id="search-apellido-paterno-mode" class="form-select" aria-label="Coincidencia de apellido paterno" disabled>
+                        <input type="text" id="search-apellido-paterno" class="form-control" maxlength="80" placeholder="Apellido paterno">
+                        <select id="search-apellido-paterno-mode" class="form-select" aria-label="Coincidencia de apellido paterno">
                             <option value="exact">Exacto</option><option value="similar">Suena parecido</option>
                         </select>
                     </div>
                 </div>
                 <div class="field-group search-fields-group">
                     <div class="form-check">
-                        <input type="checkbox" class="form-check-input" id="enable-apellido-materno-search" onchange="toggleNameSearchField('apellido-materno', this.checked)">
+                        <input type="checkbox" class="form-check-input" id="enable-apellido-materno-search" disabled onchange="setSearchCriterion('apellido-materno', this.checked)">
                         <label class="form-check-label field-label" for="enable-apellido-materno-search">Apellido materno</label>
                     </div>
                     <div class="name-search-controls">
-                        <input type="text" id="search-apellido-materno" class="form-control" maxlength="80" placeholder="Apellido materno" disabled>
-                        <select id="search-apellido-materno-mode" class="form-select" aria-label="Coincidencia de apellido materno" disabled>
+                        <input type="text" id="search-apellido-materno" class="form-control" maxlength="80" placeholder="Apellido materno">
+                        <select id="search-apellido-materno-mode" class="form-select" aria-label="Coincidencia de apellido materno">
                             <option value="exact">Exacto</option><option value="similar">Suena parecido</option>
                         </select>
                     </div>
@@ -1773,7 +1800,7 @@
 
                 <div class="field-group search-fields-group">
                     <div class="form-check">
-                        <input type="checkbox" class="form-check-input" id="enable-panteon-search" checked onchange="toggleSearchField('search-nombre-panteon', this.checked)">
+                        <input type="checkbox" class="form-check-input" id="enable-panteon-search" disabled onchange="setSearchCriterion('panteon', this.checked)">
                         <label class="form-check-label field-label" for="enable-panteon-search">Nombre del Panteón</label>
                     </div>
                     <input type="text" id="search-nombre-panteon" class="form-control" maxlength="100"
@@ -1785,33 +1812,45 @@
                 <!-- Nuevo campo: Estado del Panteón -->
                 <div class="field-group search-fields-group">
                     <div class="form-check">
-                        <input type="checkbox" class="form-check-input" id="enable-state-search" onchange="toggleSearchLocationCriterion('state', this.checked)">
+                        <input type="checkbox" class="form-check-input" id="enable-country-search" disabled onchange="setSearchCriterion('country', this.checked)">
+                        <label class="form-check-label field-label" for="enable-country-search">País</label>
+                    </div>
+                    <select id="search-pais-panteon" class="form-control" aria-label="País del panteón">
+                        <option value="">Selecciona un país</option>
+                        <option value="México">México</option>
+                    </select>
+                    <small class="field-hint">Catálogo disponible: México.</small>
+                </div>
+
+                <div class="field-group search-fields-group">
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="enable-state-search" disabled onchange="setSearchCriterion('state', this.checked)">
                         <label class="form-check-label field-label" for="enable-state-search">Estado del Panteón</label>
                     </div>
-                    <select id="search-estado-panteon" class="form-control" disabled onchange="loadSearchMunicipalities()"></select>
+                    <select id="search-estado-panteon" class="form-control" ></select>
                 </div>
 
                 <!-- Nuevo campo: Municipio del Panteón -->
                 <div class="field-group search-fields-group">
                     <div class="form-check">
-                        <input type="checkbox" class="form-check-input" id="enable-municipality-search" onchange="toggleSearchLocationCriterion('municipality', this.checked)">
+                        <input type="checkbox" class="form-check-input" id="enable-municipality-search" disabled onchange="setSearchCriterion('municipality', this.checked)">
                         <label class="form-check-label field-label" for="enable-municipality-search">Municipio del Panteón</label>
                     </div>
-                    <select id="search-municipio-panteon" class="form-control" disabled></select>
+                    <select id="search-municipio-panteon" class="form-control"></select>
                 </div>
 
                 <div class="field-group search-fields-group">
                     <div class="form-check">
-                        <input type="checkbox" class="form-check-input" id="enable-birth-date-search" onchange="toggleDateRangeFields('search-fecha-nacimiento-desde', 'search-fecha-nacimiento-hasta', this.checked)">
+                        <input type="checkbox" class="form-check-input" id="enable-birth-date-search" disabled onchange="setSearchCriterion('birth-date', this.checked)">
                         <label class="form-check-label field-label" for="enable-birth-date-search">Rango de Fecha de Nacimiento</label>
                     </div>
                     <div class="row g-2">
                         <div class="col">
-                            <input type="date" id="search-fecha-nacimiento-desde" class="form-control" disabled>
+                            <input type="date" id="search-fecha-nacimiento-desde" class="form-control">
                             <span class="field-label">Desde</span>
                         </div>
                         <div class="col">
-                            <input type="date" id="search-fecha-nacimiento-hasta" class="form-control" disabled>
+                            <input type="date" id="search-fecha-nacimiento-hasta" class="form-control">
                             <span class="field-label">Hasta</span>
                         </div>
                     </div>
@@ -1819,16 +1858,16 @@
 
                 <div class="field-group search-fields-group">
                     <div class="form-check">
-                        <input type="checkbox" class="form-check-input" id="enable-death-date-search" onchange="toggleDateRangeFields('search-fecha-defuncion-desde', 'search-fecha-defuncion-hasta', this.checked)">
+                        <input type="checkbox" class="form-check-input" id="enable-death-date-search" disabled onchange="setSearchCriterion('death-date', this.checked)">
                         <label class="form-check-label field-label" for="enable-death-date-search">Rango de Fecha de Defunción</label>
                     </div>
                     <div class="row g-2">
                         <div class="col">
-                            <input type="date" id="search-fecha-defuncion-desde" class="form-control" disabled>
+                            <input type="date" id="search-fecha-defuncion-desde" class="form-control">
                             <span class="field-label">Desde</span>
                         </div>
                         <div class="col">
-                            <input type="date" id="search-fecha-defuncion-hasta" class="form-control" disabled>
+                            <input type="date" id="search-fecha-defuncion-hasta" class="form-control">
                             <span class="field-label">Hasta</span>
                         </div>
                     </div>
@@ -1908,7 +1947,7 @@ const vaciarBaseAdminFunction = functionsApi.httpsCallable('vaciarBaseAdmin');
 const listarUbicacionesINEGIFunction = functionsApi.httpsCallable('listarUbicacionesINEGI');
 const obtenerEstadoBeneficiosFunction = functionsApi.httpsCallable('obtenerEstadoBeneficios');
 const activarPlusAdminFunction = functionsApi.httpsCallable('activarPlusAdmin');
-const ADMIN_EMAIL = 'cumorahnet@gmail.com';
+const SUPPORT_EMAIL = 'cumorahnet@gmail.com';
 let authFlowInProgress = false;
 
 /* ══════════════════════════════════════════════════════════════════
@@ -1962,6 +2001,11 @@ function escapeHtml(str) {
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&#39;');
+}
+
+// Encode both the JavaScript literal and its surrounding HTML attribute.
+function inlineJsValue(value) {
+    return escapeHtml(JSON.stringify(String(value ?? '')));
 }
 
 function formatBenefitDate(value) {
@@ -2036,13 +2080,15 @@ async function loadBenefitStatus(force = false) {
 }
 
 function requestPlusPurchase() {
+    // Digital purchases in the Android distribution require a Play Billing integration.
+    if (window.Capacitor?.isNativePlatform()) return;
     const user = auth.currentUser;
     if (!user) return;
     const subject = encodeURIComponent('Solicitud de Busca Tumbas Plus');
     const body = encodeURIComponent(
         `Deseo activar Busca Tumbas Plus sin anuncios.\n\nUsuario: ${user.uid}\nCorreo: ${user.email || ''}`
     );
-    window.location.href = `mailto:${ADMIN_EMAIL}?subject=${subject}&body=${body}`;
+    window.location.href = `mailto:${SUPPORT_EMAIL}?subject=${subject}&body=${body}`;
 }
 
 /* ══════════════════════════════════════════════════════════════════
@@ -2050,9 +2096,9 @@ function requestPlusPurchase() {
 ══════════════════════════════════════════════════════════════════ */
 const showToast = (msg, color = '#10b981', duration = 3000) => {
     const el = document.getElementById('toast-msg');
-    // Los mensajes pueden contener texto proveniente de servicios externos.
-    // innerHTML permite que los enlaces en los mensajes de error de índice sean clicables.
-    el.innerHTML = String(msg);
+    // Algunos mensajes incluyen texto de servicios externos. Trátalo siempre
+    // como texto para impedir que una respuesta remota inyecte HTML o scripts.
+    el.textContent = String(msg);
     el.style.background = color;
     el.style.display = 'block';
     clearTimeout(el._t);
@@ -2653,7 +2699,7 @@ async function refreshPreviewContributor() {
     const user = auth.currentUser;
     if (!container || !user) return;
     const contributorName = user.displayName ||
-        (String(user.email).toLowerCase() === ADMIN_EMAIL
+        (platformAdminUid === user.uid
             ? 'Administrador de Busca Tumbas'
             : user.email) ||
         'Colaborador';
@@ -3598,7 +3644,7 @@ async function saveCurrentFormDataToHistory() {
                 userId: currentUser.uid,
                 contributorId: currentUser.uid,
                 contributor_name: currentUser.displayName ||
-                    (String(currentUser.email).toLowerCase() === ADMIN_EMAIL
+                    (platformAdminUid === currentUser.uid
                         ? 'Administrador de Busca Tumbas'
                         : currentUser.email) ||
                     'Colaborador',
@@ -3625,6 +3671,7 @@ async function saveCurrentFormDataToHistory() {
                 fecha_nacimiento_estimada: birthYearWasEstimated,
                 nombre_panteon: nombrePanteon || null,
                 nombre_panteon_lower: normalizeSearchText(nombrePanteon) || null,
+                pais_panteon: 'M\u00e9xico',
                 estado_panteon: estadoPanteon || null,
                 estado_panteon_lower: normalizeSearchText(estadoPanteon) || null, // Added for search
                 municipio_panteon: municipioPanteon || null,
@@ -3693,16 +3740,115 @@ function clearDisplayedData() {
 /* ══════════════════════════════════════════════════════════════════
    PASSWORD VISIBILITY TOGGLE
 ══════════════════════════════════════════════════════════════════ */
+let platformAdminUid = null;
+let superuserLoginBusy = false;
+
+async function loadSuperuserConfig() {
+    const response = await fetch('superuser-config.json', { cache: 'no-store' });
+    if (!response.ok) throw new Error('No se pudo leer la configuración de superusuario.');
+    const config = await response.json();
+    if (config.projectId !== firebaseConfig.projectId || !config.email || !config.uid ||
+        config.email.toLowerCase() === SUPPORT_EMAIL.toLowerCase()) {
+        throw new Error('Falta configurar la cuenta independiente de superusuario.');
+    }
+    return config;
+}
+
+let superuserReturnFocus = null;
+
+function resetPasswordVisibility(inputId, buttonId) {
+    const input = document.getElementById(inputId);
+    const button = document.getElementById(buttonId);
+    input.type = 'password';
+    button.setAttribute('aria-pressed', 'false');
+    button.setAttribute('aria-label', 'Mostrar contraseña');
+    button.querySelector('i').className = 'fas fa-eye';
+}
+
+function openSuperuserLogin() {
+    if (superuserLoginBusy || authFlowInProgress) return;
+    superuserReturnFocus = document.activeElement;
+    document.getElementById('superuser-password').value = '';
+    resetPasswordVisibility('superuser-password', 'superuser-password-toggle');
+    document.getElementById('superuser-feedback').textContent = '';
+    document.getElementById('superuser-dialog').showModal();
+    document.getElementById('superuser-password').focus();
+}
+
+function closeSuperuserLogin() {
+    if (superuserLoginBusy) return;
+    document.getElementById('superuser-password').value = '';
+    resetPasswordVisibility('superuser-password', 'superuser-password-toggle');
+    document.getElementById('superuser-dialog').close();
+    superuserReturnFocus?.focus();
+}
+
+async function handleSuperuserLogin(event) {
+    event.preventDefault();
+    if (superuserLoginBusy || authFlowInProgress) return;
+    const input = document.getElementById('superuser-password');
+    if (!input.reportValidity()) return;
+    const feedback = document.getElementById('superuser-feedback');
+    superuserLoginBusy = true;
+    authFlowInProgress = true;
+    document.getElementById('superuser-submit').disabled = true;
+    document.getElementById('superuser-cancel').disabled = true;
+    feedback.textContent = 'Verificando acceso…';
+    let signedIn = false;
+    let authorized = false;
+    try {
+        const config = await loadSuperuserConfig();
+        await auth.setPersistence(firebase.auth.Auth.Persistence.NONE);
+        await auth.signOut();
+        const credential = await auth.signInWithEmailAndPassword(config.email, input.value);
+        signedIn = true;
+        input.value = '';
+        const token = await credential.user.getIdTokenResult(true);
+        if (!credential.user.emailVerified || credential.user.uid !== config.uid ||
+            String(credential.user.email || '').toLowerCase() !== config.email.toLowerCase() ||
+            token.claims.platform_admin !== true) {
+            throw new Error('Se requiere la cuenta independiente con rol de superusuario y correo verificado.');
+        }
+        platformAdminUid = credential.user.uid;
+        // La función valida el token y los permisos en el servidor.
+        await obtenerEstadisticasAdminFunction();
+        authorized = true;
+    } catch (error) {
+        platformAdminUid = null;
+        feedback.textContent = getFirebaseErrorMessage(error, error.message || 'No se pudo autorizar el acceso de superusuario.');
+        if (signedIn) {
+            try {
+                await auth.signOut();
+            } catch {
+                feedback.textContent = 'No se pudo cerrar la sesión rechazada. Recarga la aplicación antes de volver a intentar.';
+            }
+        }
+    } finally {
+        input.value = '';
+        resetPasswordVisibility('superuser-password', 'superuser-password-toggle');
+        superuserLoginBusy = false;
+        authFlowInProgress = false;
+        document.getElementById('superuser-submit').disabled = false;
+        document.getElementById('superuser-cancel').disabled = false;
+    }
+    if (authorized) {
+        closeSuperuserLogin();
+        await showAdminPanel();
+    }
+}
+
 function togglePasswordVisibility(inputId, buttonElement) {
     const input = document.getElementById(inputId);
     const icon = buttonElement.querySelector('i');
     if (input.type === 'password') {
         input.type = 'text';
+        buttonElement.setAttribute('aria-pressed', 'true');
         icon.classList.remove('fa-eye');
         icon.classList.add('fa-eye-slash');
         buttonElement.setAttribute('aria-label', 'Ocultar contraseña');
     } else {
         input.type = 'password';
+        buttonElement.setAttribute('aria-pressed', 'false');
         icon.classList.remove('fa-eye-slash');
         icon.classList.add('fa-eye');
         buttonElement.setAttribute('aria-label', 'Mostrar contraseña');
@@ -3713,6 +3859,7 @@ function togglePasswordVisibility(inputId, buttonElement) {
    FIREBASE AUTHENTICATION
 ══════════════════════════════════════════════════════════════════ */
 function setAuthMode(mode) {
+    resetPasswordVisibility('auth-password', 'toggle-password-visibility');
     const isRegister = mode === 'register';
     document.getElementById('auth-name-wrapper').style.display = isRegister ? 'block' : 'none';
     document.getElementById('login-btn').style.display = isRegister ? 'none' : 'block';
@@ -3737,6 +3884,7 @@ async function resetPassword(event) {
     button.disabled = true;
     button.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>Enviando…';
     try {
+        auth.languageCode = 'es';
         await auth.sendPasswordResetEmail(email);
         showToast(
             '📧 Enviamos un enlace para restablecer tu contraseña. Revisa también Spam.',
@@ -3783,8 +3931,7 @@ async function handleAuth(isLogin, event) {
     try {
         if (isLogin) {
             const credential = await auth.signInWithEmailAndPassword(email, password);
-            const isAdmin = String(credential.user.email || '').toLowerCase() === ADMIN_EMAIL;
-            if (!credential.user.emailVerified && !isAdmin) {
+            if (!credential.user.emailVerified) {
                 setVerificationPending(email);
                 try {
                     await auth.signOut();
@@ -3834,7 +3981,7 @@ async function handleAuth(isLogin, event) {
             setAuthMode('login');
             if (verificationSent && profileSaved) {
                 showVerificationRequestAccepted(email);
-                showToast(`📧 Firebase aceptó el envío a ${email}. Revisa también Spam o Correo no deseado.`, '#10b981', 12000);
+                showToast(`📧 Revisa tu correo en ${email} y abre el enlace para activar tu cuenta.`, '#10b981', 12000);
             } else if (verificationSent) {
                 showVerificationRequestAccepted(email);
                 showToast('📧 La cuenta fue creada y el correo fue enviado. El nombre no pudo guardarse, pero podrás iniciar sesión después de verificar.', '#f59e0b', 12000);
@@ -3872,6 +4019,7 @@ async function sendAccountVerification(user) {
     // Use Firebase's hosted action handler. A custom continue URL is unnecessary
     // here and can cause the request to be rejected when a domain is not authorized.
     await user.getIdToken(true);
+    auth.languageCode = 'es';
     await user.sendEmailVerification();
 }
 
@@ -3915,7 +4063,7 @@ function updateVerificationPendingUI() {
     }
     status.className = 'alert alert-info py-2';
     status.innerHTML = '<i class="fas fa-envelope-open-text me-1"></i>' +
-        '<strong>Verificación pendiente.</strong> Abre el enlace recibido y después inicia sesión.';
+        '<strong>Falta activar tu cuenta.</strong> Abre el correo de Busca Tumbas y toca el enlace. Después vuelve aquí e inicia sesión con tu correo y contraseña.';
     const emailInput = document.getElementById('auth-email');
     if (emailInput && !emailInput.value) emailInput.value = pendingEmail;
 }
@@ -3940,8 +4088,12 @@ function renderVerificationRequestAccepted(email, requestedAt) {
     });
     status.className = 'alert alert-success py-2';
     status.innerHTML = '<i class="fas fa-circle-check me-1"></i>' +
-        `<strong>Solicitud aceptada por Firebase a las ${time}.</strong> ` +
-        `Destino: ${escapeHtml(email)}. La entrega puede tardar unos minutos.`;
+        '<strong>¡Ya casi está lista tu cuenta!</strong>' +
+        `<ol class="mt-2 mb-2 ps-3"><li>Revisa tu correo en <strong>${escapeHtml(email)}</strong>.</li>` +
+        '<li>Abre el mensaje de Busca Tumbas y toca el enlace para confirmar tu correo.</li>' +
+        '<li>Vuelve aquí e inicia sesión con tu correo y contraseña.</li></ol>' +
+        `<small>Solicitamos el envío a las ${time}. Puede tardar unos minutos. ` +
+        'Si no lo encuentras, revisa Spam o Correo no deseado.</small>';
     status.style.display = 'block';
 }
 
@@ -3950,7 +4102,7 @@ function showVerificationRequestFailed() {
     if (!status) return;
     status.className = 'alert alert-warning py-2';
     status.innerHTML = '<i class="fas fa-triangle-exclamation me-1"></i>' +
-        '<strong>Firebase rechazó el envío.</strong> Intenta reenviar y revisa el mensaje de error.';
+        '<strong>No pudimos enviar el correo.</strong> Pulsa «Volver a enviar el correo» para intentarlo de nuevo.';
     status.style.display = 'block';
 }
 
@@ -3981,13 +4133,13 @@ async function resendVerificationEmail(event) {
             await sendAccountVerification(credential.user);
             setVerificationPending(email);
             showVerificationRequestAccepted(email);
-            showToast(`📧 Firebase aceptó el reenvío a ${email}. Revisa también Spam o Correo no deseado.`, '#10b981', 10000);
+            showToast(`📧 Revisa tu correo en ${email}. Usa el enlace del mensaje más reciente para activar tu cuenta.`, '#10b981', 10000);
         }
         await auth.signOut();
     } catch (error) {
         console.error('Verification resend error:', error);
         showVerificationRequestFailed();
-        const message = getFirebaseErrorMessage(error, 'Firebase no pudo procesar el envío');
+        const message = getFirebaseErrorMessage(error, 'No pudimos enviar el correo. Inténtalo de nuevo en unos minutos.');
         showToast(`❌ ${message}`, '#ef4444', 12000);
     } finally {
         if (auth.currentUser && !auth.currentUser.emailVerified) {
@@ -4003,13 +4155,25 @@ async function resendVerificationEmail(event) {
     }
 }
 
-function logout() {
-    auth.signOut().then(() => {
-        showToast('✅ Sesión cerrada correctamente');
-    }).catch((error) => {
-        console.error("Firebase Sign Out Error:", error);
-        showToast('❌ Error al cerrar sesión', '#ef4444');
-    });
+async function logout() {
+    const button = document.getElementById('logout-btn');
+    if (button.disabled) return;
+    button.disabled = true;
+    try {
+        await auth.signOut();
+        document.getElementById('auth-email').value = '';
+        document.getElementById('auth-password').value = '';
+        document.getElementById('superuser-password').value = '';
+        resetPasswordVisibility('auth-password', 'toggle-password-visibility');
+        resetPasswordVisibility('superuser-password', 'superuser-password-toggle');
+        setAuthMode('login');
+        document.getElementById('auth-email').focus();
+        showToast('Sesión cerrada. Puedes entrar con otra cuenta.');
+    } catch (error) {
+        showToast(getFirebaseErrorMessage(error, 'No se pudo cerrar la sesión. Inténtalo de nuevo.'), '#ef4444');
+    } finally {
+        button.disabled = false;
+    }
 }
 
 function resetCemeteryMatchConfirmation() {
@@ -4550,7 +4714,7 @@ async function loadMyContributions() {
             const status = isCemetery
                 ? `<span class="badge ${item.status === 'approved' ? 'text-bg-success' : item.status === 'rejected' ? 'text-bg-danger' : 'text-bg-warning'}">${escapeHtml(item.status || 'pending')}</span>`
                 : '<span class="badge text-bg-secondary">Tumba</span>';
-            return `<button type="button" class="btn btn-outline-secondary my-contribution-list-item" data-contribution-id="${escapeHtml(item.id)}" onclick="showMyContributionDetail('${escapeHtml(item.id)}', this)">
+            return `<button type="button" class="btn btn-outline-secondary my-contribution-list-item" data-contribution-id="${escapeHtml(item.id)}" onclick="showMyContributionDetail(${inlineJsValue(item.id)}, this)">
                 <span class="d-flex justify-content-between gap-2"><strong>${escapeHtml(title)}</strong>${status}</span>
                 <span class="small text-muted">${escapeHtml(subtitle)}</span>
             </button>`;
@@ -4594,8 +4758,8 @@ function showMyContributionDetail(contributionId, selectedButton = null) {
             ['Edad al fallecer', Number.isInteger(contribution.edad_defuncion) ? `${contribution.edad_defuncion} años` : null]
         ].filter(([, value]) => value !== null && value !== undefined && value !== '');
     const action = isCemetery
-        ? `openMyCemeteryContribution('${escapeHtml(contribution.id)}')`
-        : `openTombDetail('${escapeHtml(contribution.id)}')`;
+        ? `openMyCemeteryContribution(${inlineJsValue(contribution.id)})`
+        : `openTombDetail(${inlineJsValue(contribution.id)})`;
     const image = photoUrl
         ? `<img src="${escapeHtml(safeImageUrl(photoUrl))}" class="my-contribution-image zoomable-image" alt="Fotografía aportada" onclick="openImageZoom(this.src)">`
         : '<div class="my-contribution-image-placeholder"><span><i class="fas fa-image me-1"></i>Sin imagen</span></div>';
@@ -4735,7 +4899,7 @@ async function showMyContributions() {
 
 async function showAdminPanel() {
     const user = auth.currentUser;
-    if (!user || String(user.email).toLowerCase() !== ADMIN_EMAIL) {
+    if (!user || !user.emailVerified || platformAdminUid !== user.uid) {
         showToast('❌ No tienes permisos de administrador.', '#ef4444');
         return;
     }
@@ -4772,16 +4936,16 @@ async function loadAdminStats() {
         const contributorRows = data.contributors.map((person, index) => `
             <tr><td>${index + 1}</td><td>${escapeHtml(person.name)}</td>
             <td>${escapeHtml(person.email)}</td><td><button type="button" class="btn btn-sm btn-outline-primary fw-bold"
-                onclick='showAdminContributorContributions(${JSON.stringify(person.uid)})'>${person.contributions}</button></td>
+                onclick='showAdminContributorContributions(${inlineJsValue(person.uid)})'>${person.contributions}</button></td>
             <td>${escapeHtml(person.lastContribution ? new Date(person.lastContribution).toLocaleString('es-MX') : '—')}</td>
             <td><button type="button" class="btn btn-sm btn-outline-success"
-                onclick='activatePlusForContributor(${JSON.stringify(person.uid)}, ${JSON.stringify(person.name)})'>Activar Plus</button></td></tr>
+                onclick='activatePlusForContributor(${inlineJsValue(person.uid)}, ${inlineJsValue(person.name)})'>Activar Plus</button></td></tr>
         `).join('');
         const recordRows = data.records.map(record => `
             <tr><td>${record.photoUrl ? `<img src="${escapeHtml(safeImageUrl(record.photoUrl))}" alt="Fotografía aportada" class="rounded" style="width:64px;height:48px;object-fit:cover;cursor:zoom-in" onclick="openImageZoom(this.src)">` : '—'}</td>
             <td>${escapeHtml(record.person)}</td><td>${escapeHtml(record.cemetery)}</td>
             <td><span class="badge ${record.type === 'cemetery' ? 'text-bg-info' : 'text-bg-secondary'}">${record.type === 'cemetery' ? `Panteón · ${escapeHtml(record.status)}` : 'Tumba'}</span></td>
-            <td>${escapeHtml(record.contributor)}</td><td>${record.type === 'tomb' ? `<button class="btn btn-sm btn-outline-danger" onclick="deleteAdminRecord('${escapeHtml(record.id)}')">Eliminar</button>` : '—'}</td></tr>
+            <td>${escapeHtml(record.contributor)}</td><td>${record.type === 'tomb' ? `<button class="btn btn-sm btn-outline-danger" onclick="deleteAdminRecord(${inlineJsValue(record.id)})">Eliminar</button>` : '—'}</td></tr>
         `).join('');
         content.innerHTML = `
             <h6 class="fw-bold">Clasificación de colaboradores</h6>
@@ -4875,7 +5039,7 @@ async function loadPendingCemeteriesAdmin(container) {
                     </div>
                     <div class="col-md-3 d-grid gap-2">
                         <button class="btn btn-sm btn-primary"
-                            onclick="openCommunityCemeteryReview('${escapeHtml(item.id)}')">
+                            onclick="openCommunityCemeteryReview(${inlineJsValue(item.id)})">
                             <i class="fas fa-eye me-1"></i>Ver detalles
                         </button>
                     </div>
@@ -4970,11 +5134,11 @@ async function openCommunityCemeteryReview(cemeteryId) {
                     placeholder="Nota opcional al aprobar; indica el motivo si rechazas."></textarea>
                 <div class="d-flex flex-wrap gap-2 mt-3">
                     <button class="btn btn-success flex-grow-1"
-                        onclick="reviewCommunityCemetery('${escapeHtml(cemetery.id)}', 'approved')">
+                        onclick="reviewCommunityCemetery(${inlineJsValue(cemetery.id)}, 'approved')">
                         <i class="fas fa-check me-1"></i>Aprobar y notificar
                     </button>
                     <button class="btn btn-danger flex-grow-1"
-                        onclick="reviewCommunityCemetery('${escapeHtml(cemetery.id)}', 'rejected')">
+                        onclick="reviewCommunityCemetery(${inlineJsValue(cemetery.id)}, 'rejected')">
                         <i class="fas fa-xmark me-1"></i>Rechazar y notificar
                     </button>
                 </div>
@@ -5035,7 +5199,7 @@ async function reviewCommunityCemetery(cemeteryId, status) {
             reviewedAt: firebase.firestore.FieldValue.serverTimestamp(),
             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         });
-        batch.set(notificationReference, {
+        if (cemetery.contributorId !== auth.currentUser.uid) batch.set(notificationReference, {
             tombId: cemeteryId,
             tombName: `Panteón: ${cemetery.name || 'Sin nombre'}`,
             recordType: 'cemetery',
@@ -5115,41 +5279,53 @@ function selectAddTombMode() {
     document.getElementById('image-upload-input').value = '';
 }
 
-function toggleSearchField(inputId, enable) {
-    const inputElement = document.getElementById(inputId);
-    if (inputElement) {
-        inputElement.disabled = !enable;
-        if (!enable) {
-            // If it's a Choices.js select, reset it
-            if (inputElement.choicesjs) {
-                inputElement.choicesjs.setChoiceByValue('');
-            } else {
-                inputElement.value = ''; // Clear if disabled
-            }
+function searchCriterionFields() {
+    return {
+        nombres: ['search-nombres'],
+        'apellido-paterno': ['search-apellido-paterno'],
+        'apellido-materno': ['search-apellido-materno'],
+        panteon: ['search-nombre-panteon'],
+        country: ['search-pais-panteon'],
+        state: ['search-estado-panteon'],
+        municipality: ['search-municipio-panteon'],
+        'birth-date': ['search-fecha-nacimiento-desde', 'search-fecha-nacimiento-hasta'],
+        'death-date': ['search-fecha-defuncion-desde', 'search-fecha-defuncion-hasta']
+    };
+}
+
+function setSearchCriterion(criterion, enabled) {
+    const fields = searchCriterionFields()[criterion];
+    const hasValue = fields.some(id => document.getElementById(id).value.trim() !== '');
+    const checkbox = document.getElementById('enable-' + criterion + '-search');
+    checkbox.checked = Boolean(enabled && hasValue);
+    checkbox.disabled = !hasValue;
+    const mode = document.getElementById('search-' + criterion + '-mode');
+    if (mode) mode.disabled = !checkbox.checked;
+}
+
+function syncSearchCriterion(criterion) {
+    setSearchCriterion(criterion, true);
+}
+
+function resetSearchCriteria() {
+    for (const [criterion, fields] of Object.entries(searchCriterionFields())) {
+        for (const id of fields) {
+            const field = document.getElementById(id);
+            field.value = '';
+            field.disabled = false;
+            field.oninput = () => syncSearchCriterion(criterion);
+            field.onchange = criterion === 'state'
+                ? () => loadSearchMunicipalities()
+                : () => syncSearchCriterion(criterion);
         }
+        const mode = document.getElementById('search-' + criterion + '-mode');
+        if (mode) mode.value = 'exact';
+        setSearchCriterion(criterion, false);
     }
 }
 
-function toggleNameSearchField(field, enable) {
-    const input = document.getElementById(`search-${field}`);
-    const mode = document.getElementById(`search-${field}-mode`);
-    input.disabled = !enable;
-    mode.disabled = !enable;
-    if (!enable) input.value = '';
-}
-
-function toggleDateRangeFields(desdeId, hastaId, enable) {
-    const desdeInput = document.getElementById(desdeId);
-    const hastaInput = document.getElementById(hastaId);
-    if (desdeInput) {
-        desdeInput.disabled = !enable;
-        if (!enable) desdeInput.value = '';
-    }
-    if (hastaInput) {
-        hastaInput.disabled = !enable;
-        if (!enable) hastaInput.value = '';
-    }
-}
+let searchMunicipalityLoadVersion = 0;
+let searchStateLoadVersion = 0;
 
 function setSearchChoiceEnabled(instance, select, enabled) {
     select.disabled = !enabled;
@@ -5159,35 +5335,37 @@ function setSearchChoiceEnabled(instance, select, enabled) {
     }
 }
 
-async function populateSearchMunicipalities(stateCode = '') {
+async function populateSearchMunicipalities(stateName = '') {
+    const version = ++searchMunicipalityLoadVersion;
     const municipalitySelect = document.getElementById('search-municipio-panteon');
-    const municipalityEnabled = document.getElementById('enable-municipality-search').checked;
     if (searchMunicipalityChoices) {
         searchMunicipalityChoices.destroy();
         searchMunicipalityChoices = null;
     }
-    municipalitySelect.disabled = true;
     municipalitySelect.replaceChildren(new Option('Cargando municipios...', ''));
+    municipalitySelect.disabled = true;
+    syncSearchCriterion('municipality');
     const catalog = await loadCemeteryCatalog();
+    if (version !== searchMunicipalityLoadVersion) return;
     const municipalities = new Map();
-    catalog
-        .filter(item => !stateCode || item.stateCode === stateCode)
-        .forEach(item => {
-            const key = normalizeSearchText(item.municipality);
-            if (key && !municipalities.has(key)) municipalities.set(key, item.municipality);
-        });
+    catalog.filter(item => !stateName || item.state === stateName).forEach(item => {
+        const key = normalizeSearchText(item.municipality);
+        if (key && !municipalities.has(key)) municipalities.set(key, item.municipality);
+    });
     municipalitySelect.replaceChildren(new Option('Selecciona un municipio', ''));
     [...municipalities.values()]
         .sort((first, second) => first.localeCompare(second, 'es'))
         .forEach(name => municipalitySelect.add(new Option(name, name)));
     searchMunicipalityChoices = createSearchableLocationSelect(
-        municipalitySelect,
-        'Selecciona un municipio'
+        municipalitySelect, 'Selecciona un municipio'
     );
-    setSearchChoiceEnabled(searchMunicipalityChoices, municipalitySelect, municipalityEnabled);
+    setSearchChoiceEnabled(searchMunicipalityChoices, municipalitySelect, true);
+    syncSearchCriterion('municipality');
 }
 
 async function loadSearchLocationChoices() {
+    const version = ++searchStateLoadVersion;
+    ++searchMunicipalityLoadVersion;
     const stateSelect = document.getElementById('search-estado-panteon');
     const municipalitySelect = document.getElementById('search-municipio-panteon');
 
@@ -5200,6 +5378,7 @@ async function loadSearchLocationChoices() {
 
     try {
         const catalog = await loadCemeteryCatalog();
+        if (version !== searchStateLoadVersion) return;
         const states = new Map();
         catalog.forEach(item => states.set(item.stateCode, item.state));
 
@@ -5218,8 +5397,9 @@ async function loadSearchLocationChoices() {
         setSearchChoiceEnabled(
             searchStateChoices,
             stateSelect,
-            document.getElementById('enable-state-search').checked
+            true
         );
+        syncSearchCriterion('state');
         await populateSearchMunicipalities();
     } catch (error) {
         stateSelect.replaceChildren(new Option('Error al cargar estados', ''));
@@ -5229,32 +5409,16 @@ async function loadSearchLocationChoices() {
 }
 
 async function loadSearchMunicipalities() {
-    const stateSelect = document.getElementById('search-estado-panteon');
+    syncSearchCriterion('state');
     try {
-        const stateName = document.getElementById('enable-state-search').checked
-            ? stateSelect.value
-            : '';
-        const catalog = await loadCemeteryCatalog();
-        const stateCode = stateName
-            ? catalog.find(item => item.state === stateName)?.stateCode || ''
-            : '';
-        await populateSearchMunicipalities(stateCode);
+        await populateSearchMunicipalities(document.getElementById('search-estado-panteon').value);
     } catch (error) {
         document.getElementById('search-municipio-panteon')
             .replaceChildren(new Option('Error al cargar municipios', ''));
-        showToast(`❌ ${getFirebaseErrorMessage(error, 'No se pudieron cargar los municipios.')}`, '#ef4444', 7000);
+        syncSearchCriterion('municipality');
+        showToast(getFirebaseErrorMessage(error, 'No se pudieron cargar los municipios.'), '#ef4444', 7000);
     }
 }
-
-async function toggleSearchLocationCriterion(criterion, enabled) {
-    const isState = criterion === 'state';
-    const select = document.getElementById(isState ? 'search-estado-panteon' : 'search-municipio-panteon');
-    const choices = isState ? searchStateChoices : searchMunicipalityChoices;
-    if (!enabled && choices) choices.setChoiceByValue('');
-    setSearchChoiceEnabled(choices, select, enabled);
-    if (isState) await loadSearchMunicipalities();
-}
-
 
 function selectSearchTombMode() {
     document.getElementById('mode-selection-card').style.display = 'none';
@@ -5267,7 +5431,7 @@ function selectSearchTombMode() {
     document.getElementById('back-to-mode-selection').style.display = 'block';
     document.getElementById('logout-btn').style.display = 'block';
     loadCemeterySearchSuggestions();
-    loadSearchLocationChoices(); // Initialize state and municipality dropdowns for search
+
 
     // Clear previous search results and reset message
     const searchResultsContainer = document.getElementById('search-results-container');
@@ -5276,40 +5440,9 @@ function selectSearchTombMode() {
             Ingresa tus criterios de búsqueda para encontrar tumbas.
         </div>
     `;
-    // Reset search fields and checkboxes to default state
-    document.getElementById('search-nombres').value = '';
-    document.getElementById('search-apellido-paterno').value = '';
-    document.getElementById('search-apellido-materno').value = '';
-    document.getElementById('search-nombre-panteon').value = '';
-    document.getElementById('search-fecha-nacimiento-desde').value = '';
-    document.getElementById('search-fecha-nacimiento-hasta').value = '';
-    document.getElementById('search-fecha-defuncion-desde').value = '';
-    document.getElementById('search-fecha-defuncion-hasta').value = '';
+    resetSearchCriteria();
+    loadSearchLocationChoices();
 
-    // Set name criteria defaults: names enabled, surnames optional.
-    document.getElementById('enable-nombres-search').checked = true;
-    toggleNameSearchField('nombres', true);
-    document.getElementById('enable-apellido-paterno-search').checked = false;
-    toggleNameSearchField('apellido-paterno', false);
-    document.getElementById('enable-apellido-materno-search').checked = false;
-    toggleNameSearchField('apellido-materno', false);
-
-    document.getElementById('enable-panteon-search').checked = true;
-    toggleSearchField('search-nombre-panteon', true);
-
-    document.getElementById('enable-state-search').checked = false;
-    toggleSearchField('search-estado-panteon', false);
-    if (searchStateChoices) searchStateChoices.setChoiceByValue('');
-
-    document.getElementById('enable-municipality-search').checked = false;
-    toggleSearchField('search-municipio-panteon', false);
-    if (searchMunicipalityChoices) searchMunicipalityChoices.setChoiceByValue('');
-
-    document.getElementById('enable-birth-date-search').checked = false;
-    toggleDateRangeFields('search-fecha-nacimiento-desde', 'search-fecha-nacimiento-hasta', false);
-
-    document.getElementById('enable-death-date-search').checked = false;
-    toggleDateRangeFields('search-fecha-defuncion-desde', 'search-fecha-defuncion-hasta', false);
 }
 
 /* ══════════════════════════════════════════════════════════════════
@@ -5368,6 +5501,9 @@ async function performSearch() {
     const panteonHasWildcards = hasSearchWildcards(panteonSearchTerm);
     const panteonQueryPrefix = panteonHasWildcards ? getWildcardLiteralPrefix(panteonSearchTerm) : panteonSearchTerm;
 
+    const countryValue = document.getElementById('enable-country-search').checked
+        ? document.getElementById('search-pais-panteon').value : '';
+
     const enableState = document.getElementById('enable-state-search').checked;
     const stateValue = enableState ? document.getElementById('search-estado-panteon').value : '';
 
@@ -5396,7 +5532,7 @@ async function performSearch() {
     }
 
     if (
-        (!activeNameCriteria.length && !panteonSearchTerm && !stateValue && !municipalityValue && !birthDateDesde && !birthDateHasta && !deathDateDesde && !deathDateHasta) ||
+        (!activeNameCriteria.length && !panteonSearchTerm && !countryValue && !stateValue && !municipalityValue && !birthDateDesde && !birthDateHasta && !deathDateDesde && !deathDateHasta) ||
         (enableState && !stateValue) || (enableMunicipality && !municipalityValue)
     ) {
         searchResultsContainer.innerHTML = `
@@ -5509,6 +5645,12 @@ async function performSearch() {
             results = results.filter(tomb =>
                 matchesSearchPattern(tomb.nombre_panteon, panteonSearchTerm));
         }
+        if (countryValue) {
+            const normalizedCountry = normalizeSearchText(countryValue);
+            // Records created before country support belong to the Mexican catalog.
+            results = results.filter(tomb =>
+                normalizeSearchText(tomb.pais_panteon || 'México') === normalizedCountry);
+        }
         if (stateValue) {
             const normalizedState = normalizeSearchText(stateValue);
             results = results.filter(tomb =>
@@ -5582,7 +5724,7 @@ function displaySearchResults(results) {
         <div class="tomb-search-list" id="tomb-search-result-list" aria-label="Resultados por nombre">
             ${results.map(tomb => `<button type="button" class="tomb-search-list-item"
                 data-tomb-id="${escapeHtml(tomb.id)}"
-                onclick="showSearchTombDetail('${escapeHtml(tomb.id)}', this)">
+                onclick="showSearchTombDetail(${inlineJsValue(tomb.id)}, this)">
                 <strong>${escapeHtml(tomb.nombre_finado) || 'Finado desconocido'}</strong>
             </button>`).join('')}
         </div>
@@ -5623,7 +5765,7 @@ function showSearchTombDetail(tombId, selectedButton = null) {
                 <div class="record-data-item"><small>Ubicación del panteón</small><span>${escapeHtml(formatCoordinates(tomb.panteon_geolocation))}</span></div>
                 <div class="record-data-item"><small>Fecha de aportación</small><span>${escapeHtml(formatTimestamp(tomb.timestamp))}</span></div>
             </div>
-            <button class="btn btn-primary w-100 mt-3" onclick="openTombDetail('${escapeHtml(tomb.id)}')">
+            <button class="btn btn-primary w-100 mt-3" onclick="openTombDetail(${inlineJsValue(tomb.id)})">
                 <i class="fas fa-expand me-1"></i>Abrir ficha completa
             </button>
         </div>
@@ -5911,7 +6053,7 @@ async function showCorrectionsInbox() {
             .sort((a, b) => (b.updatedAt?.toMillis?.() || 0) - (a.updatedAt?.toMillis?.() || 0));
         list.innerHTML = requests.length ? requests.map(request => `
             <div class="correction-card ${(request.readBy || []).includes(user.uid) ? '' : 'unread'}"
-                onclick="openCorrectionThread('${request.id}')">
+                onclick="openCorrectionThread(${inlineJsValue(request.id)})">
                 <div class="d-flex justify-content-between gap-2">
                     <strong>${escapeHtml(request.tombName)}</strong>
                     <span class="badge ${request.status === 'open' ? 'text-bg-warning' : 'text-bg-success'}">
@@ -5949,8 +6091,8 @@ async function openCorrectionThread(requestId) {
         document.getElementById('record-detail-content').innerHTML = `
             <div class="mb-3">
                 <button class="btn btn-outline-primary btn-sm" onclick="${currentCorrectionRequest.recordType === 'cemetery'
-                    ? `openCommunityCemeteryDetail('${currentCorrectionRequest.tombId}')`
-                    : `openTombDetail('${currentCorrectionRequest.tombId}')`}">
+                    ? `openCommunityCemeteryDetail(${inlineJsValue(currentCorrectionRequest.tombId)})`
+                    : `openTombDetail(${inlineJsValue(currentCorrectionRequest.tombId)})`}">
                     <i class="fas fa-eye me-1"></i>Ver registro
                 </button>
             </div>
@@ -6035,7 +6177,25 @@ window.onload = () => {
         }
     });
     document.getElementById('splash-version').textContent = APP_VERSION;
-    document.getElementById('app-header-version').textContent = APP_VERSION;
+    for (const id of ['app-header-version', 'auth-version']) {
+        const version = document.getElementById(id);
+        version.textContent = APP_VERSION;
+        version.title = 'Doble clic para acceso de superusuario';
+        version.setAttribute('aria-label', `${APP_VERSION}. Acceso de superusuario: doble clic o Enter`);
+        version.style.touchAction = 'manipulation';
+        version.addEventListener('dblclick', openSuperuserLogin);
+        version.addEventListener('keydown', event => {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                openSuperuserLogin();
+            }
+        });
+    }
+    document.getElementById('superuser-form').addEventListener('submit', handleSuperuserLogin);
+    document.getElementById('superuser-dialog').addEventListener('cancel', event => {
+        event.preventDefault();
+        closeSuperuserLogin();
+    });
 
     const loginBtn = document.getElementById('login-btn');
     const registerBtn = document.getElementById('register-btn');
@@ -6077,10 +6237,11 @@ window.onload = () => {
         }, 500);
     }, 2500);
 
-    auth.onAuthStateChanged((user) => {
+    auth.onAuthStateChanged(async (user) => {
+        platformAdminUid = null;
+        document.getElementById('admin-panel-btn').style.display = 'none';
         if (user) {
-            const isAdmin = String(user.email || '').toLowerCase() === ADMIN_EMAIL;
-            if (!user.emailVerified && !isAdmin) {
+            if (!user.emailVerified) {
                 setTimeout(() => {
                     const activeUser = auth.currentUser;
                     if (!authFlowInProgress && activeUser && !activeUser.emailVerified) {
@@ -6100,9 +6261,21 @@ window.onload = () => {
             verifiedBadge.style.display = 'inline-block';
             document.getElementById('auth-verification-status').style.display = 'none';
             document.getElementById('admin-panel-btn').style.display =
-                String(user.email || '').toLowerCase() === ADMIN_EMAIL ? 'block' : 'none';
+                platformAdminUid === user.uid ? 'block' : 'none';
             startCorrectionNotifications();
             showModeSelection(); // Llama a la función para establecer la vista inicial
+            try {
+                const token = await user.getIdTokenResult();
+                if (auth.currentUser?.uid !== user.uid) return;
+                platformAdminUid = token.claims.platform_admin === true ? user.uid : null;
+                if (platformAdminUid) await auth.setPersistence(firebase.auth.Auth.Persistence.NONE);
+                if (auth.currentUser?.uid !== user.uid) return;
+                document.getElementById('admin-panel-btn').style.display = platformAdminUid ? 'block' : 'none';
+            } catch (error) {
+                platformAdminUid = null;
+                document.getElementById('admin-panel-btn').style.display = 'none';
+            }
+
         } else {
             if (correctionListenerUnsubscribe) {
                 correctionListenerUnsubscribe();
@@ -6137,5 +6310,9 @@ window.onload = () => {
     });
 };
 </script>
+<footer class="app-legal-links">
+    <a href="privacy.html">Privacidad</a>
+    <a href="delete-account.html">Solicitar eliminación de cuenta</a>
+</footer>
 </body>
 </html>

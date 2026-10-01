@@ -1,6 +1,6 @@
 # Próximas tareas
 
-> Generado por CDC a partir de la sesión `session-20260731145735-89a3bc`.
+> Generado por CDC a partir de la sesión `session-20261001005920-b1eb4a`.
 
 ## Pendientes
 
@@ -8,8 +8,11 @@
 
 ## Próximos pasos
 
-- Revisar el diff y preparar un commit descriptivo.
+- Revisar y resolver los riesgos detectados en este cierre.
+- Definir el siguiente objetivo de trabajo del proyecto.
 
 ## Riesgos que deben revisarse
 
-- No se detectaron riesgos con las reglas disponibles.
+- No se detectaron archivos modificados. Confirma que el trabajo se haya guardado dentro del proyecto y fuera de carpetas ignoradas.
+- El análisis incluye archivos que ya tenían cambios al iniciar la sesión.
+- Cambió la definición de dependencias; valida instalación y seguridad.

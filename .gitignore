@@ -1,7 +1,14 @@
 *.backup
+node_modules/
 .gitdata/
 .cdc/
 .firebase/
 firebase-debug.log
 firestore-debug.log
 ui-debug.log
+
+www/
+.android-cache/
+*.jks
+*.keystore
+keystore.properties

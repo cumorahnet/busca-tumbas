@@ -1,0 +1,58 @@
+import {before, after, test} from 'node:test';
+import {readFileSync} from 'node:fs';
+import {initializeTestEnvironment, assertFails, assertSucceeds} from '@firebase/rules-unit-testing';
+let env;
+before(async()=>{ env=await initializeTestEnvironment({projectId:'demo-buscatumbas-security',firestore:{rules:readFileSync('firestore.rules','utf8')},storage:{rules:readFileSync('storage.rules','utf8')}}); });
+after(async()=>{await env?.cleanup();});
+const user=(uid,email=uid+'@example.com',verified=true)=>env.authenticatedContext(uid,{email,email_verified:verified});
+const tomb=(uid)=>({userId:uid,contributorId:uid,timestamp:new Date(),imageUrl:'https://example.com/photo.jpg',visibility:'public',status:'published'});
+const message=(uid,text='Original')=>({senderId:uid,senderName:uid,text,createdAt:Date.now()});
+const thread=(uid,owner,tombId)=>({tombId,tombName:'Test',tombOwnerId:owner,requesterId:uid,requesterName:uid,description:'Correction',status:'open',participants:[owner,uid],readBy:[uid],messages:[message(uid)]});
+test('verification required even for admin email, and ownership enforced',async()=>{
+ const ref=user('owner').firestore().doc('tumbas/owned');
+ await assertSucceeds(ref.set(tomb('owner')));
+ await assertFails(user('fake-admin','cumorahnet@gmail.com',false).firestore().doc('tumbas/owned').get());
+ await assertFails(env.unauthenticatedContext().firestore().doc('tumbas/owned').get());
+ await assertFails(user('other').firestore().doc('tumbas/owned').update({nombre_finado:'Changed'}));
+ await assertFails(user('other').firestore().doc('tumbas/forged').set({...tomb('other'),contributorId:'owner'}));
+ await assertSucceeds(ref.update({nombre_finado:'Corrected',pais_panteon:'Mexico'}));
+ await assertFails(ref.update({pais_panteon:123}));
+ await assertFails(user('owner').firestore().doc('_entitlements/owner').set({paidUntil:new Date()}));
+});
+test('corrections validate target and sender and preserve prior messages',async()=>{
+ await user('owner').firestore().doc('tumbas/target').set(tomb('owner'));
+ const original=thread('requester','owner','target');
+ const ref=user('requester').firestore().doc('correction_requests/thread');
+ await assertSucceeds(ref.set(original));
+ await assertFails(user('requester').firestore().doc('correction_requests/forged').set({...original,tombOwnerId:'victim',participants:['victim','requester']}));
+ await assertFails(user('requester').firestore().doc('correction_requests/spoof').set({...original,messages:[message('owner')]}));
+ await assertFails(ref.update({messages:[message('requester','Rewrite')]}));
+ await assertFails(ref.update({messages:[...original.messages,message('owner','Impersonation')]}));
+ await assertSucceeds(ref.update({messages:[...original.messages,message('requester','Reply')],readBy:['requester']}));
+ await assertSucceeds(user('owner').firestore().doc('correction_requests/thread').update({readBy:['requester','owner']}));
+ await assertFails(ref.update({status:'resolved'}));
+ await assertSucceeds(user('owner').firestore().doc('correction_requests/thread').update({status:'resolved'}));
+ await assertFails(user('outsider').firestore().doc('correction_requests/thread').get());
+});
+test('cemetery editing cannot inject fields or grant approval; admin notification works',async()=>{
+ const cemetery={name:'Cemetery',normalizedName:'cemetery',stateCode:'01',municipalityCode:'001',photoUrl:'https://example.com/a.jpg',source:'community',status:'pending',contributorId:'owner',locality:'Local',aliases:[]};
+ const ref=user('owner').firestore().doc('cemeteries/cemetery');
+ await assertSucceeds(ref.set(cemetery));
+ await assertSucceeds(ref.update({name:'Updated cemetery'}));
+ await assertFails(ref.update({id:'injected'}));
+ await assertFails(ref.update({status:'approved'}));
+ await assertFails(ref.update({name:123}));
+ await assertFails(user('old-admin','cumorahnet@gmail.com').firestore().doc('cemeteries/cemetery').update({status:'approved'}));
+ const admin=env.authenticatedContext('admin',{email:'dedicated@example.com',email_verified:true,platform_admin:true}).firestore();
+ const batch=admin.batch();
+ batch.update(admin.doc('cemeteries/cemetery'),{status:'approved'});
+ batch.set(admin.doc('correction_requests/notice'),{...thread('admin','owner','cemetery'),recordType:'cemetery'});
+ await assertSucceeds(batch.commit());
+});
+test('Storage blocks unverified admins, foreign writes, and non-JPEG uploads',async()=>{
+ const bytes=new Uint8Array([255,216,255,217]);
+ await assertSucceeds(user('owner').storage().ref('tumbas_images/owner/photo.jpg').put(bytes,{contentType:'image/jpeg'}));
+ await assertFails(user('other').storage().ref('tumbas_images/owner/photo.jpg').put(bytes,{contentType:'image/jpeg'}));
+ await assertFails(user('fake-admin','cumorahnet@gmail.com',false).storage().ref('tumbas_images/fake-admin/photo.jpg').put(bytes,{contentType:'image/jpeg'}));
+ await assertFails(user('owner').storage().ref('tumbas_images/owner/bad.html').put(bytes,{contentType:'text/html'}));
+});

@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Busca Tumbas</string>
+    <string name="title_activity_main">Busca Tumbas</string>
+    <string name="package_name">com.cumorahnet.buscatumbas</string>
+    <string name="custom_url_scheme">com.cumorahnet.buscatumbas</string>
+</resources>

@@ -1,0 +1,32 @@
+/* Shared mobile improvements; Android also uses native safe area insets. */
+body, .container-main { min-height: 100dvh; }
+@media (max-width: 768px) {
+    .container-main {
+        padding-top: max(1rem, env(safe-area-inset-top));
+        padding-right: max(.75rem, env(safe-area-inset-right));
+        padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
+        padding-left: max(.75rem, env(safe-area-inset-left));
+    }
+    #auth-screen { align-items: safe center; overflow-y: auto; padding-bottom: max(1rem, env(safe-area-inset-bottom)); }
+    .btn, .form-actions .btn, .scan-image-col .image-tools .btn {
+        min-height: 44px; min-width: 44px; touch-action: manipulation;
+    }
+    .form-control, .form-select, .field-group .form-control,
+    .input-group .form-control { font-size: 16px; min-height: 44px; }
+    .name-search-controls { grid-template-columns: minmax(0, 1fr) minmax(6rem, 8.5rem); }
+    #record-detail-modal, #image-zoom-modal, #ia-modal {
+        padding-top: max(.75rem, env(safe-area-inset-top));
+        padding-bottom: max(.75rem, env(safe-area-inset-bottom));
+    }
+}
+.native-app #request-plus-btn { display: none !important; }
+#connection-status {
+    position: fixed; bottom: max(.75rem, env(safe-area-inset-bottom));
+    left: 50%; transform: translateX(-50%); z-index: 50000;
+    width: max-content; max-width: calc(100% - 2rem);
+    background: #0f172a; color: white; border-radius: .75rem;
+    padding: .75rem 1rem; font-size: .875rem; text-align: center;
+}
+
+.app-legal-links { display: flex; flex-wrap: wrap; justify-content: center; gap: .5rem 1rem; padding: 1rem; font-size: .875rem; }
+.app-legal-links a { padding: .65rem .25rem; }

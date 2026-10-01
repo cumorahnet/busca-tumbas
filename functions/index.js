@@ -19,7 +19,6 @@ setGlobalOptions({
 const db = getFirestore();
 const INEGI_TOKEN = defineSecret("INEGI_TOKEN");
 const GEMINI_API_KEY = defineSecret("GEMINI_API_KEY");
-const ADMIN_EMAIL = "cumorahnet@gmail.com";
 const CONTRIBUTIONS_PER_REWARD = 10;
 const REWARD_DAYS = 30;
 const DAY_IN_MILLISECONDS = 24 * 60 * 60 * 1000;
@@ -28,8 +27,7 @@ function requireUser(request) {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
   }
-  const email = String(request.auth.token.email || "").toLowerCase();
-  if (request.auth.token.email_verified !== true && email !== ADMIN_EMAIL) {
+  if (request.auth.token.email_verified !== true) {
     throw new HttpsError(
         "permission-denied",
         "Debes verificar tu correo electrónico.",
@@ -40,8 +38,7 @@ function requireUser(request) {
 
 function requireAdmin(request) {
   requireUser(request);
-  const email = String(request.auth.token.email || "").toLowerCase();
-  if (email !== ADMIN_EMAIL) {
+  if (request.auth.token.platform_admin !== true) {
     throw new HttpsError("permission-denied", "Acceso exclusivo del administrador.");
   }
 }
@@ -109,8 +106,7 @@ exports.obtenerEstadoBeneficios = onCall(
         }, {merge: true});
         return {adFreeUntil, paidUntil, newMilestones};
       });
-      const email = String(request.auth.token.email || "").toLowerCase();
-      const isAdmin = email === ADMIN_EMAIL;
+      const isAdmin = request.auth.token.platform_admin === true;
       return {
         adFree: isAdmin || result.adFreeUntil > now,
         source: isAdmin ? "admin" :
@@ -236,17 +232,11 @@ exports.obtenerEstadisticasAdmin = onCall(
         users.users.forEach((user) => {
           const contributor = contributors.get(user.uid);
           if (!contributor) return;
-          contributor.name = user.email?.toLowerCase() === ADMIN_EMAIL ?
+          contributor.name = user.customClaims?.platform_admin === true ?
             (user.displayName || "Administrador de Busca Tumbas") :
             (user.displayName || user.email || contributor.name);
           contributor.email = user.email || contributor.email;
         });
-      }
-      const adminContributor = [...contributors.values()].find(
-          (item) => item.email.toLowerCase() === ADMIN_EMAIL,
-      );
-      if (adminContributor && adminContributor.name === "No identificado") {
-        adminContributor.name = "Administrador de Busca Tumbas";
       }
       records.forEach((record) => {
         record.contributor =
@@ -334,6 +324,9 @@ async function enforceRateLimit(uid, action, maximum) {
 }
 
 function validateCoordinates(latitude, longitude) {
+  if (typeof latitude !== "number" || typeof longitude !== "number") {
+    throw new HttpsError("invalid-argument", "Las coordenadas deben ser numeros.");
+  }
   const lat = Number(latitude);
   const lon = Number(longitude);
   if (!Number.isFinite(lat) || lat < -90 || lat > 90 ||
@@ -529,7 +522,7 @@ exports.escanearLapidaGemini = onCall(
         if (!response.ok) {
           throw new HttpsError(
               "unavailable",
-              payload.error?.message || "Gemini rechazó la solicitud.",
+              "Gemini rechazó la solicitud.",
           );
         }
         const text = payload.candidates?.[0]?.content?.parts?.[0]?.text;

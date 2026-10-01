@@ -4,12 +4,11 @@ service cloud.firestore {
   match /databases/{database}/documents {
     function signedIn() {
       return request.auth != null
-        && (request.auth.token.email_verified == true
-          || request.auth.token.email == 'cumorahnet@gmail.com');
+        && request.auth.token.email_verified == true;
     }
 
     function isAdmin() {
-      return signedIn() && request.auth.token.email == 'cumorahnet@gmail.com';
+      return signedIn() && request.auth.token.get('platform_admin', false) == true;
     }
 
     function ownsExistingRecord() {
@@ -51,6 +50,7 @@ service cloud.firestore {
           'edad_defuncion',
           'nombre_panteon',
           'nombre_panteon_lower',
+          'pais_panteon',
           'estado_panteon',
           'estado_panteon_lower',
           'municipio_panteon',
@@ -69,6 +69,8 @@ service cloud.firestore {
           'status'
         ])
         && request.resource.data.userId is string
+        && request.resource.data.get('contributorId', request.auth.uid) == request.auth.uid
+        && request.resource.data.timestamp is timestamp
         && request.resource.data.imageUrl is string
         && request.resource.data.imageUrl.size() <= 2048
         && (!request.resource.data.keys().hasAny(['nombres'])
@@ -102,6 +104,10 @@ service cloud.firestore {
         && (!request.resource.data.keys().hasAny(['municipio_panteon_lower'])
           || request.resource.data.municipio_panteon_lower == null
           || request.resource.data.municipio_panteon_lower is string)
+        && (!request.resource.data.keys().hasAny(['pais_panteon'])
+          || (request.resource.data.pais_panteon is string
+            && request.resource.data.pais_panteon.size() > 0
+            && request.resource.data.pais_panteon.size() <= 100))
         && request.resource.data.visibility == 'public'
         && request.resource.data.status in ['published', 'pending'];
     }
@@ -117,6 +123,34 @@ service cloud.firestore {
       allow delete: if ownsExistingRecord();
     }
 
+    function validMessage(message) {
+      return message is map
+        && message.keys().hasOnly(['senderId', 'senderName', 'text', 'createdAt'])
+        && message.senderId == request.auth.uid
+        && message.senderName is string
+        && message.senderName.size() <= 200
+        && message.text is string
+        && message.text.size() > 0 && message.text.size() <= 1500
+        && message.createdAt is int;
+    }
+
+    function validCorrectionTarget() {
+      let data = request.resource.data;
+      return data.tombId is string && data.tombId.matches('^[A-Za-z0-9_-]{1,128}$')
+        && (data.get('recordType', 'tomb') == 'tomb'
+          ? get(/databases/$(database)/documents/tumbas/$(data.tombId)).data.userId == data.tombOwnerId
+          : isAdmin() && get(/databases/$(database)/documents/cemeteries/$(data.tombId)).data.contributorId == data.tombOwnerId);
+    }
+
+    function validMessageUpdate() {
+      let old = resource.data.messages;
+      let next = request.resource.data.messages;
+      return next == old || (resource.data.status == 'open'
+        && next.size() == old.size() + 1
+        && validMessage(next[next.size() - 1])
+        && next.removeAll([next[next.size() - 1]]) == old);
+    }
+
     match /correction_requests/{requestId} {
       allow read: if signedIn()
         && request.auth.uid in resource.data.participants;
@@ -126,6 +160,7 @@ service cloud.firestore {
           'requesterName', 'description', 'status', 'participants',
           'readBy', 'messages', 'recordType', 'createdAt', 'updatedAt'
         ])
+        && validCorrectionTarget()
         && request.resource.data.requesterId == request.auth.uid
         && request.resource.data.tombOwnerId != request.auth.uid
         && request.resource.data.participants is list
@@ -137,6 +172,8 @@ service cloud.firestore {
         && request.resource.data.description.size() <= 1500
         && request.resource.data.messages is list
         && request.resource.data.messages.size() == 1
+        && validMessage(request.resource.data.messages[0])
+        && request.resource.data.readBy == [request.auth.uid]
         && (!request.resource.data.keys().hasAny(['recordType'])
           || request.resource.data.recordType in ['tomb', 'cemetery'])
         && request.resource.data.status == 'open';
@@ -151,6 +188,10 @@ service cloud.firestore {
           || request.auth.uid == resource.data.tombOwnerId)
         && request.resource.data.messages is list
         && request.resource.data.messages.size() <= 200
+        && validMessageUpdate()
+        && request.resource.data.readBy is list
+        && request.resource.data.readBy.size() <= 2
+        && request.resource.data.readBy.hasOnly(resource.data.participants)
         && request.resource.data.diff(resource.data).affectedKeys()
           .hasOnly(['messages', 'readBy', 'status', 'updatedAt']);
       allow delete: if false;
@@ -192,6 +233,15 @@ service cloud.firestore {
         || (signedIn()
           && resource.data.contributorId == request.auth.uid
           && resource.data.status == 'pending'
+          && request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['name', 'normalizedName', 'aliases', 'locality', 'address', 'notes', 'updatedAt'])
+          && request.resource.data.name is string
+          && request.resource.data.name.size() >= 3
+          && request.resource.data.name.size() <= 150
+          && request.resource.data.normalizedName is string
+          && request.resource.data.aliases is list
+          && request.resource.data.aliases.size() <= 10
+          && request.resource.data.locality is string
           && request.resource.data.contributorId == resource.data.contributorId
           && request.resource.data.source == resource.data.source
           && request.resource.data.status == resource.data.status

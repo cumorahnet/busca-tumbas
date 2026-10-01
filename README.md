@@ -87,6 +87,27 @@ Las funciones exigen autenticación y aplican límites por usuario. Antes de
 habilitar `enforceAppCheck` en producción se debe registrar la aplicación web
 con App Check y comprobar sus métricas.
 
+## Correos de registro en español
+
+Firebase Authentication envía los correos de activación; GitHub no participa
+en este flujo. La aplicación configura el español al iniciar Authentication y
+antes de enviar la verificación, su reenvío o la recuperación de contraseña.
+Los avisos explican cómo activar la cuenta en tres pasos.
+
+La plantilla del correo se configura por separado del código, en
+[Firebase Authentication → Plantillas](https://console.firebase.google.com/project/buscatumbas-2e7cc/authentication/emails).
+Revisar allí el idioma español, el nombre del remitente `Busca Tumbas` y el
+asunto de verificación `Activa tu cuenta de Busca Tumbas`.
+El cuerpo del correo de verificación estándar tiene personalización limitada;
+editar el HTML de la aplicación no lo modifica. Para un cuerpo completamente
+propio se necesita generar el enlace desde un backend y enviarlo mediante un
+servicio de correo configurado, conservando la verificación de Firebase.
+
+Después de desplegar, comprobar con una cuenta de prueba el mensaje recibido
+(idioma, remitente y asunto), la página que abre el enlace y el inicio de sesión.
+Comprobar también el reenvío y la recuperación de contraseña. Una solicitud de
+envío aceptada no confirma la llegada del mensaje a la bandeja de entrada.
+
 ## Plan Plus y anuncios
 
 La aplicación consulta `obtenerEstadoBeneficios` al iniciar sesión. Las cuentas
@@ -115,3 +136,57 @@ Al publicar una versión, actualiza de forma conjunta:
 
 Antes de publicar, valida la carga de la aplicación, autenticación, captura y
 subida de imágenes, guardado, búsqueda combinada y cierre de sesión.
+
+## Android y Google Play
+
+Consulta [ANDROID.md](ANDROID.md) para abrir el proyecto en Android Studio, generar APK/AAB y preparar la publicación. Ejecuta `npm run android:open` para sincronizar y abrir Android.
+
+### Superusuario independiente
+
+El usuario normal y el superusuario son identidades distintas en Firebase Auth.
+La cuenta de contacto no obtiene permisos por su correo. Las funciones y reglas
+requieren correo verificado y el claim booleano `platform_admin: true`, emitido
+por Firebase Admin. El doble clic sobre la version abre el acceso con contrasena
+independiente y persistencia en memoria.
+
+Configuracion pendiente: indicar un correo tecnico propio y distinto del usuario
+normal en `superuser-config.json`; comprobar tambien `projectId` y `uid`.
+Este archivo es publico y nunca contiene contrasenas.
+
+Desde la raiz del proyecto:
+
+```powershell
+node scripts/superuser-admin.mjs --check
+node scripts/superuser-admin.mjs --create
+```
+
+También puedes ejecutar `npm run superuser:check` y `npm run superuser:create`.
+El rol global se guarda en claims de Authentication; este proyecto no necesita
+un perfil administrativo en Firestore. Los clientes no pueden emitir esos claims.
+Ejecuta `npm run test:superuser` para verificar el flujo y las protecciones del comando.
+
+`--check` solo consulta, incluso sin terminal interactiva. Utiliza el operador
+seleccionado en Firebase CLI; `--operator CORREO` selecciona otro operador ya
+conectado. `--create` pide dos veces una contrasena oculta de 16 a 128 caracteres.
+No pasar contrasenas en argumentos, variables de entorno, archivos ni chat.
+No promueve cuentas existentes ni cambia la contrasena del usuario normal.
+
+Tras crear la cuenta, ingresar con su correo tecnico por el formulario normal y
+completar la verificacion de correo existente antes del acceso de superusuario.
+No se envia correo automaticamente desde la herramienta.
+
+Si el alta se interrumpe despues de crear Auth, la cuenta queda deshabilitada.
+`--complete` es una recuperacion explicita para esa identidad dedicada, con el
+mismo UID/correo, marcador de alta y sin roles incompatibles. Nunca recupera una
+cuenta normal. Una cuenta previamente completa y deshabilitada requiere revision
+manual del operador. Para cambiar una contrasena existente, usar explicitamente
+`node scripts/superuser-admin.mjs --rotate`; revoca tokens de renovacion, pero los
+tokens de acceso ya emitidos pueden seguir vigentes hasta expirar.
+
+La separacion local requiere publicar tanto `functions` como `firestore:rules`
+ademas de Hosting. Mientras no se publiquen, el servidor remoto conserva sus
+reglas anteriores. Crear la cuenta y publicar son pasos separados; comprobar el
+acceso con la cuenta dedicada y el rechazo de la normal tras la publicacion.
+Actualizar `www` con `npm run build:android` despues de configurar el correo.
+
+Referencia: https://firebase.google.com/docs/auth/admin/custom-claims
