@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Busca Tumbas — VERSION 2.14.0</title>
+    <title>Busca Tumbas — VERSION 2.29.0</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
@@ -17,6 +17,10 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-functions-compat.js"></script>
     <style>
+        #tomb-cemetery-card [hidden] { display: none !important; }
+        #tomb-cemetery-card, #upload-capture-card { min-width: 0; }
+        #tomb-cemetery-summary { overflow-wrap: anywhere; }
+        #upload-capture-card .btn { white-space: normal; }
         :root {
             --primary: #0f172a;
             --accent: #3b82f6;
@@ -1276,7 +1280,9 @@
 <dialog id="superuser-dialog" aria-labelledby="superuser-title" style="border:0;border-radius:1rem;padding:1.5rem;width:min(420px,calc(100% - 2rem));">
     <form id="superuser-form">
         <h5 id="superuser-title">Acceso de superusuario</h5>
-        <p class="small text-muted">Usa la contraseña independiente de superusuario. Al entrar se sustituirá la sesión actual. Esta sesión termina al recargar o cerrar la página.</p>
+        <p class="small text-muted">Introduce tu correo y tu contraseña exclusiva de superusuario. La autorización dura una hora y la sesión termina al recargar o cerrar la página.</p>
+        <label for="superuser-email" class="form-label">Correo electrónico</label>
+        <input id="superuser-email" type="email" class="form-control mb-3" autocomplete="username" required>
         <label for="superuser-password" class="form-label">Contraseña administrativa</label>
         <div class="input-group mb-3">
             <input id="superuser-password" type="password" class="form-control" autocomplete="current-password" required>
@@ -1388,6 +1394,10 @@
             <div class="d-flex flex-wrap align-items-center gap-2 mt-2 mt-md-0">
                 <button type="button" class="version-pill border-0" id="app-header-version"></button>
                 <span class="badge text-bg-success">Catálogo colaborativo</span>
+                <span id="superuser-badge" class="badge rounded-pill text-bg-warning" style="display:none;" role="status"><i class="fas fa-user-shield me-1"></i>Superusuario</span>
+                <span id="suspension-badge" class="badge text-bg-danger" style="display:none;" role="status"></span>
+                <button id="duplicate-dispute-alert" class="btn btn-warning btn-sm" hidden
+                    onclick="isSuperuserActive() ? showAdminPanel() : showMyContributions()" aria-live="polite"></button>
                 <span class="badge rounded-pill text-bg-primary" id="verified-account-badge" style="display:none;">
                     <i class="fas fa-circle-check me-1"></i>Correo verificado
                 </span>
@@ -1433,13 +1443,14 @@
         <h5 class="fw-bold mb-3 text-center" style="color:var(--primary);">¿Qué deseas hacer?</h5>
         <div class="action-stack mt-3">
             <button class="btn btn-primary w-100 py-3" onclick="selectAddTombMode()">
-                <i class="fas fa-plus-circle me-2"></i>Agregar Tumba
+                <i class="fas fa-plus-circle me-2"></i>Subir lápidas de un panteón
+                <small class="d-block mt-1 fw-normal">Elige el lugar una vez y agrega sus fotografías</small>
             </button>
             <button class="btn btn-outline-secondary w-100 py-3" onclick="selectSearchTombMode()">
                 <i class="fas fa-search me-2"></i>Buscar Tumba
             </button>
             <button class="btn btn-outline-success w-100 py-3" onclick="selectAddCemeteryMode()">
-                <i class="fas fa-landmark me-2"></i>Agregar Panteón
+                <i class="fas fa-landmark me-2"></i>Agregar panteón u otro lugar
             </button>
             <button class="btn btn-outline-primary w-100 py-3" onclick="showCorrectionsInbox()">
                 <i class="fas fa-comments me-2"></i>Correcciones y mensajes
@@ -1456,9 +1467,9 @@
     </div>
 
     <div class="card-custom" id="add-cemetery-section">
-        <h5 class="fw-bold mb-1">Agregar un panteón</h5>
+        <h5 class="fw-bold mb-1">Agregar un lugar</h5>
         <p class="section-subtitle mb-3">
-            Registra un panteón que no aparezca en INEGI. Compararemos el nombre y la ubicación antes de guardarlo.
+            Registra un panteón, iglesia, hospital, convento u otro lugar. Compararemos el nombre y la ubicación antes de guardarlo.
         </p>
         <div class="alert alert-info py-2 small">
             Fotografía únicamente la entrada, el letrero o una vista general; evita personas identificables.
@@ -1478,7 +1489,7 @@
                     </button>
                 </div>
                 <img id="cemetery-photo-preview" class="cemetery-photo-preview"
-                    style="display:none;" src="#" alt="Vista previa del panteón">
+                    style="display:none;" src="#" alt="Vista previa del lugar">
                 <button type="button" class="btn btn-outline-primary w-100 mt-2" id="cemetery-location-btn"
                     style="display:none;"
                     onclick="captureCemeteryLocation()">
@@ -1489,7 +1500,20 @@
                 </div>
             </div>
             <div class="col-md-7">
-                <label class="field-label" for="cemetery-name">Nombre del panteón</label>
+                <label class="field-label" for="cemetery-place-type">Tipo de lugar</label>
+                <select id="cemetery-place-type" class="form-control mb-2" onchange="updateCommunityPlaceType()">
+                    <option value="cemetery">Panteón</option>
+                    <option value="church">Iglesia</option>
+                    <option value="hospital">Hospital</option>
+                    <option value="convent">Convento</option>
+                    <option value="other">Otro</option>
+                </select>
+                <div id="cemetery-other-type-field" hidden>
+                    <label class="field-label" for="cemetery-other-type">¿Qué tipo de lugar es?</label>
+                    <input id="cemetery-other-type" class="form-control mb-2" maxlength="100"
+                        placeholder="Ej. Mausoleo, capilla, memorial" oninput="resetCemeteryMatchConfirmation()">
+                </div>
+                <label class="field-label" for="cemetery-name">Nombre del lugar</label>
                 <input id="cemetery-name" class="form-control mb-2" maxlength="150"
                     placeholder="Ej. Panteón Municipal San José" oninput="resetCemeteryMatchConfirmation()">
                 <label class="field-label" for="cemetery-state">Estado</label>
@@ -1514,13 +1538,13 @@
         </div>
         <div class="d-grid gap-2 mt-3">
             <button type="button" class="btn btn-outline-primary" onclick="checkCemeteryMatches()">
-                <i class="fas fa-magnifying-glass-location me-1"></i>Comparar con INEGI y la comunidad
+                <i class="fas fa-magnifying-glass-location me-1"></i>Buscar posibles coincidencias
             </button>
             <div id="cemetery-match-results" aria-live="polite"></div>
             <div class="form-check" id="cemetery-distinct-confirmation" style="display:none;">
                 <input class="form-check-input" type="checkbox" id="cemetery-confirm-distinct">
                 <label class="form-check-label" for="cemetery-confirm-distinct">
-                    Confirmo que es un panteón diferente de las coincidencias mostradas.
+                    Confirmo que es un lugar diferente de las coincidencias mostradas.
                 </label>
             </div>
             <button type="button" class="btn btn-success py-2" id="save-cemetery-btn"
@@ -1547,6 +1571,7 @@
                 Selecciona una aportación de la lista.
             </div>
         </div>
+        <div id="my-duplicate-disputes" class="mt-3" aria-live="polite"></div>
     </div>
 
     <div class="card-custom" id="admin-section">
@@ -1560,6 +1585,7 @@
             </button>
         </div>
         <div id="admin-summary" class="row g-2 mb-3"></div>
+        <div id="admin-duplicate-disputes" class="mb-3" aria-live="polite"></div>
         <div id="admin-content"></div>
         <hr class="my-4">
         <div class="alert alert-danger">
@@ -1572,16 +1598,80 @@
 
     <!-- Add Tomb Section -->
     <div id="add-tomb-section">
+        <div class="card-custom" id="tomb-cemetery-card">
+            <h5 class="fw-bold mb-1">1. Elige el panteón o lugar</h5>
+            <p class="section-subtitle">Confirma sus datos una vez. Se usarán para todas las lápidas que subas hasta que cambies de lugar.</p>
+            <div id="tomb-cemetery-summary" class="alert alert-info" hidden></div>
+            <div id="tomb-photo-batch-status" class="alert alert-success py-2" hidden aria-live="polite"></div>
+            <button type="button" id="change-tomb-cemetery-btn" class="btn btn-outline-primary mb-2" hidden
+                onclick="changeTombCemetery()">Cambiar panteón o lugar</button>
+            <div id="tomb-cemetery-editor">
+                <div class="fields-grid">
+                    <div class="field-group full-width">
+                        <label class="field-label" for="display-pais">País</label>
+                        <input id="display-pais" class="form-control" list="tomb-country-options" value="México"
+                            maxlength="100" onchange="changeTombCountry()" placeholder="Escribe el país">
+                        <datalist id="tomb-country-options">
+                            <option value="México"></option><option value="Estados Unidos"></option>
+                            <option value="Guatemala"></option><option value="Colombia"></option>
+                            <option value="Argentina"></option><option value="España"></option>
+                            <option value="Perú"></option><option value="Chile"></option>
+                        </datalist>
+                        <small id="tomb-country-catalog-status" class="field-hint">Catálogo INEGI disponible para México.</small>
+                    </div>
+                    <div class="field-group full-width" id="tomb-catalog-location-fields">
+                        <label class="field-label" for="display-estado">Estado</label>
+                        <select id="display-estado" class="form-control mb-2" onchange="loadInegiMunicipalities()">
+                            <option value="">Selecciona un estado</option>
+                        </select>
+                        <label class="field-label" for="display-municipio">Municipio</label>
+                        <select id="display-municipio" class="form-control mb-2" onchange="updateInegiSearchState()" disabled>
+                            <option value="">Selecciona un municipio</option>
+                        </select>
+                        <label class="field-label" for="inegi-cemetery-results">Panteón o lugar del catálogo</label>
+                        <select id="inegi-cemetery-results" class="form-control" onchange="selectInegiCemetery(this.value)" disabled>
+                            <option value="">Selecciona primero estado y municipio</option>
+                        </select>
+                        <div id="inegi-search-status" class="small text-secondary mt-2" aria-live="polite">Selecciona un estado y un municipio.</div>
+                    </div>
+                    <div class="field-group full-width" id="tomb-manual-location-fields" hidden>
+                        <label class="field-label" for="display-estado-manual">Estado, provincia o región</label>
+                        <input id="display-estado-manual" class="form-control mb-2" maxlength="150">
+                        <label class="field-label" for="display-municipio-manual">Municipio o ciudad</label>
+                        <input id="display-municipio-manual" class="form-control" maxlength="150">
+                    </div>
+                    <div class="field-group full-width">
+                        <label class="field-label" for="display-colonia">Colonia, localidad o poblado (si se conoce)</label>
+                        <input id="display-colonia" class="form-control" maxlength="150" placeholder="Colonia / poblado">
+                    </div>
+                    <div class="field-group full-width">
+                        <label class="field-label" for="display-nombre-panteon">Nombre del panteón o lugar</label>
+                        <input id="display-nombre-panteon" class="form-control" maxlength="150" placeholder="Selecciona del catálogo o escribe un nombre nuevo">
+                        <small class="field-hint">Si no aparece en el listado, elige «No está en el listado» y escribe su nombre.</small>
+                    </div>
+                    <div class="field-group full-width">
+                        <label class="field-label" for="display-panteon-geolocation">Ubicación del lugar según el catálogo</label>
+                        <input id="display-panteon-geolocation" class="form-control" readonly placeholder="Disponible al seleccionar un lugar con coordenadas">
+                    </div>
+                </div>
+                <label class="form-check-label my-2" for="tomb-manual-location">
+                    <input type="checkbox" id="tomb-manual-location" class="form-check-input me-1"
+                        onchange="toggleManualTombLocation()">Introducir la ubicación manualmente
+                </label>
+                <button type="button" class="btn btn-primary w-100" onclick="confirmTombCemetery()">Usar este lugar para las fotografías</button>
+            </div>
+        </div>
         <!-- Card de captura/subida de imagen -->
         <div class="card-custom" id="upload-capture-card">
+            <h5 class="fw-bold mb-1">2. Captura o sube las lápidas</h5>
             <p class="section-subtitle">Captura o sube una imagen de una lápida para extraer sus datos.</p>
             <div class="capture-buttons mt-3">
                 <button class="btn btn-primary py-3" id="open-camera-btn" onclick="openScannerModal()">
                     <i class="fas fa-camera me-2"></i>ABRIR CÁMARA
                 </button>
-                <input type="file" id="image-upload-input" accept="image/*" style="display:none;" onchange="handleImageUpload(event)">
+                <input type="file" id="image-upload-input" accept="image/*" multiple style="display:none;" onchange="handleTombImageSelection(event)">
                 <button class="btn btn-outline-secondary py-3" id="upload-file-btn" onclick="document.getElementById('image-upload-input').click()">
-                    <i class="fas fa-upload me-2"></i>SUBIR ARCHIVO
+                    <i class="fas fa-upload me-2"></i>SUBIR UNA O VARIAS FOTOGRAFÍAS
                 </button>
             </div>
         </div>
@@ -1670,10 +1760,19 @@
 
                 <!-- Columna derecha: Formulario de datos -->
                 <div class="scan-form-col">
-                    <div class="form-header">
-                        <span class="hint">
-                            <i class="fas fa-pencil-alt"></i>Revisa y corrige la información antes de almacenarla
-                        </span>
+            <div class="form-header">
+                <span class="hint">
+                    <i class="fas fa-pencil-alt"></i>Revisa y corrige la información antes de almacenarla
+                </span>
+            </div>
+
+                    <div id="scan-people-review" class="alert alert-primary py-2" hidden aria-live="polite">
+                        <div class="d-flex align-items-center gap-2 flex-wrap">
+                            <strong id="scan-people-count"></strong>
+                            <label class="mb-0" for="scan-person-select">Revisar persona:</label>
+                            <select id="scan-person-select" class="form-select form-select-sm" style="max-width:20rem" onchange="selectScannedPerson(Number(this.value))"></select>
+                        </div>
+                        <small id="scan-people-help">Guarda cada persona por separado. La fotografía y el panteón se conservarán para las demás.</small>
                     </div>
 
                     <div class="fields-grid">
@@ -1706,38 +1805,9 @@
                             <span class="field-label">Edad al fallecer</span>
                             <small id="birth-year-estimate-hint" class="field-hint"></small>
                         </div>
-                        <div class="field-group">
-                            <input type="text" id="display-nombre-panteon" class="form-control" placeholder="Nombre del panteón">
-                            <span class="field-label">Nombre del panteón</span>
-                        </div>
-                        <div class="field-group full-width">
-                            <label class="visually-hidden" for="display-estado">Estado del panteón</label>
-                            <select id="display-estado" class="form-control mb-2" onchange="loadInegiMunicipalities()">
-                                <option value="">1. Selecciona un estado</option>
-                            </select>
-                            <label class="visually-hidden" for="display-municipio">Municipio del panteón</label>
-                            <select id="display-municipio" class="form-control mb-2" onchange="updateInegiSearchState()" disabled>
-                                <option value="">2. Selecciona un municipio</option>
-                            </select>
-                            <select id="inegi-cemetery-results" class="form-control" style="display:none;" onchange="selectInegiCemetery(this.value)">
-                                <option value="">3. Selecciona un panteón</option>
-                            </select>
-                            <div id="inegi-search-status" class="small text-secondary mt-2" aria-live="polite">
-                                Selecciona un estado y un municipio.
-                            </div>
-                            <span class="field-label">Estado → Municipio → Panteón (catálogos de INEGI)</span>
-                        </div>
-                        <div class="field-group full-width">
-                            <input type="text" id="display-colonia" class="form-control" placeholder="Colonia / poblado">
-                            <span class="field-label">Colonia / poblado</span>
-                        </div>
                         <div class="field-group full-width">
                             <input type="text" id="display-geolocation" class="form-control" readonly placeholder="Ubicación">
                             <span class="field-label">Ubicación de la captura (solo cámara)</span>
-                        </div>
-                        <div class="field-group full-width">
-                            <input type="text" id="display-panteon-geolocation" class="form-control" readonly placeholder="Selecciona un panteón de INEGI">
-                            <span class="field-label">Geolocalización oficial del panteón (INEGI)</span>
                         </div>
                     </div>
 
@@ -1746,7 +1816,7 @@
                             <i class="fas fa-save me-1"></i>GUARDAR
                         </button>
                         <button class="btn btn-outline-secondary" onclick="clearDisplayedData()">
-                            <i class="fas fa-eraser me-1"></i>LIMPIAR
+                            <i class="fas fa-eraser me-1"></i>LIMPIAR LÁPIDA
                         </button>
                     </div>
                 </div>
@@ -1899,7 +1969,7 @@
 /* ══════════════════════════════════════════════════════════════════
    CONFIGURACIÓN DE LA APLICACIÓN
 ══════════════════════════════════════════════════════════════════ */
-const APP_VERSION = "v2.14.0";
+const APP_VERSION = "v2.29.0";
 const MAX_IMAGE_FILE_SIZE = 15 * 1024 * 1024;
 const MAX_IMAGE_DIMENSION = 1920;
 
@@ -1942,7 +2012,11 @@ const storage = firebase.storage(); // Initialized Storage
 const functionsApi = firebase.app().functions('us-central1');
 const escanearLapidaFunction = functionsApi.httpsCallable('escanearLapidaGemini');
 const obtenerEstadisticasAdminFunction = functionsApi.httpsCallable('obtenerEstadisticasAdmin');
+const autorizarSuperusuarioFunction = functionsApi.httpsCallable('autorizarSuperusuario');
 const eliminarRegistroAdminFunction = functionsApi.httpsCallable('eliminarRegistroAdmin');
+const actualizarAportacionTumbaFunction = functionsApi.httpsCallable('actualizarAportacionTumba');
+const eliminarMiAportacionFunction = functionsApi.httpsCallable('eliminarMiAportacion');
+const gestionarAporteAdminFunction = functionsApi.httpsCallable('gestionarAporteAdmin');
 const vaciarBaseAdminFunction = functionsApi.httpsCallable('vaciarBaseAdmin');
 const listarUbicacionesINEGIFunction = functionsApi.httpsCallable('listarUbicacionesINEGI');
 const obtenerEstadoBeneficiosFunction = functionsApi.httpsCallable('obtenerEstadoBeneficios');
@@ -1959,6 +2033,17 @@ let currentGeolocation = null;
 let pendingTombRecordId = null;
 let inegiCemeteryResults = [];
 let selectedInegiCemetery = null;
+let activeTombCemetery = null;
+let pendingTombPhotos = [];
+let scannedPeople = [];
+let scannedPersonIndex = 0;
+let tombPhotoBatchCount = 0;
+let tombPhotoBatchIndex = 0;
+let tombCountrySequence = 0;
+// Add future national catalogs here; loaders return the same location schema.
+const tombCemeteryCatalogProviders = new Map([
+    ['mexico', {source: 'inegi', label: 'INEGI', load: loadCemeteryCatalog}]
+]);
 let imageSourceType = null;
 let cemeterySearchSequence = 0;
 let cemeteryCatalog = null;
@@ -2184,6 +2269,9 @@ function getFirebaseErrorMessage(error, defaultMessage = 'Ocurrió un error desc
             }
         }
         // Custom application errors
+        if (error.code === 'functions/already-exists') {
+            return error.message || 'Ya existe un registro con estos datos.';
+        }
         if (error.code === 'duplicate-record') {
             return 'Este registro (persona, tumba o fotografía) ya existe.';
         }
@@ -2719,7 +2807,7 @@ async function refreshPreviewContributor() {
 }
 
 function buildTombIdentity(data) {
-    return [
+    const parts = [
         data.nombre_finado,
         data.fecha_nacimiento,
         data.fecha_defuncion,
@@ -2728,7 +2816,11 @@ function buildTombIdentity(data) {
         data.estado_panteon,
         data.municipio_panteon,
         data.colonia_panteon
-    ].map(normalizeSearchText).join('|');
+    ].map(normalizeSearchText);
+    const country = normalizeSearchText(data.pais_panteon || 'México');
+    // Keep legacy Mexican identifiers stable, while distinguishing new countries.
+    if (country !== 'mexico') parts.push(country);
+    return parts.join('|');
 }
 
 function buildPersonIdentity(data) {
@@ -2801,7 +2893,7 @@ async function loadCemeteryCatalog() {
                     return response.json();
                 })
                 .then(payload => {
-                    if (!Array.isArray(payload.cemeteries)) {
+                    if (!Array.isArray(payload.cemeteries) || !payload.cemeteries.length) {
                         throw new Error('El catálogo local no tiene un formato válido.');
                     }
                     cemeteryCatalog = payload.cemeteries;
@@ -2886,13 +2978,128 @@ function createSearchableLocationSelect(select, placeholder) {
     });
 }
 
-async function loadInegiStates() {
+function getTombCatalogProvider() {
+    return tombCemeteryCatalogProviders.get(normalizeSearchText(document.getElementById('display-pais').value)) || null;
+}
+
+function isManualTombLocation() {
+    return !getTombCatalogProvider() || document.getElementById('tomb-manual-location').checked;
+}
+
+function clearSelectedTombCatalogEntry() {
+    selectedInegiCemetery = null;
+    document.getElementById('display-nombre-panteon').value = '';
+    document.getElementById('display-nombre-panteon').readOnly = false;
+    document.getElementById('display-colonia').value = '';
+    document.getElementById('display-panteon-geolocation').value = '';
+}
+
+async function changeTombCountry() {
+    const sequence = ++tombCountrySequence;
+    cemeterySearchSequence++;
+    if (stateChoices) { stateChoices.destroy(); stateChoices = null; }
+    if (municipalityChoices) { municipalityChoices.destroy(); municipalityChoices = null; }
+    document.getElementById('display-estado').replaceChildren(new Option('Selecciona un estado', ''));
+    document.getElementById('display-municipio').replaceChildren(new Option('Selecciona un municipio', ''));
+    document.getElementById('display-municipio').disabled = true;
+    document.getElementById('display-estado-manual').value = '';
+    document.getElementById('display-municipio-manual').value = '';
+    inegiCemeteryResults = [];
+    clearSelectedTombCatalogEntry();
+    const provider = getTombCatalogProvider();
+    const checkbox = document.getElementById('tomb-manual-location');
+    checkbox.checked = !provider;
+    checkbox.disabled = !provider;
+    document.getElementById('tomb-country-catalog-status').textContent = provider
+        ? `Catálogo ${provider.label} disponible para este país.`
+        : 'Este país aún no tiene catálogo. Introduce los datos del lugar manualmente.';
+    toggleManualTombLocation();
+    if (provider) await loadInegiStates(sequence);
+}
+
+function toggleManualTombLocation() {
+    const manual = isManualTombLocation();
+    cemeterySearchSequence++;
+    document.getElementById('tomb-catalog-location-fields').hidden = manual;
+    document.getElementById('tomb-manual-location-fields').hidden = !manual;
+    clearSelectedTombCatalogEntry();
+    const select = document.getElementById('inegi-cemetery-results');
+    select.value = '';
+    select.disabled = !document.getElementById('display-municipio').value;
+}
+
+function getTombCemeteryDraft() {
+    const manual = isManualTombLocation();
+    const optionName = id => {
+        const select = document.getElementById(id);
+        return select.value ? select.selectedOptions[0]?.textContent.trim() || '' : '';
+    };
+    const country = formatProperName(document.getElementById('display-pais').value);
+    return {
+        country: normalizeSearchText(country) === 'mexico' ? 'México' : country,
+        name: formatProperName(document.getElementById('display-nombre-panteon').value),
+        state: formatProperName(manual ? document.getElementById('display-estado-manual').value : optionName('display-estado')),
+        municipality: formatProperName(manual ? document.getElementById('display-municipio-manual').value : optionName('display-municipio')),
+        colony: formatProperName(document.getElementById('display-colonia').value),
+        catalogEntry: !manual && selectedInegiCemetery ? Object.freeze({...selectedInegiCemetery}) : null
+    };
+}
+
+function renderActiveTombCemetery() {
+    const active = activeTombCemetery;
+    const summary = document.getElementById('tomb-cemetery-summary');
+    summary.hidden = !active;
+    document.getElementById('tomb-cemetery-editor').hidden = !!active;
+    document.getElementById('change-tomb-cemetery-btn').hidden = !active;
+    if (active) summary.innerHTML = `<strong>${escapeHtml(active.name)}</strong><br>
+        ${[active.country, active.state, active.municipality, active.colony].filter(Boolean).map(escapeHtml).join(' · ')}
+        <div class="small mt-1">Las siguientes fotografías se guardarán en este lugar.</div>`;
+    document.getElementById('open-camera-btn').disabled = !active;
+    document.getElementById('upload-file-btn').disabled = !active;
+}
+
+function confirmTombCemetery() {
+    const draft = getTombCemeteryDraft();
+    if (!draft.country || !draft.state || !draft.municipality || draft.name.length < 3) {
+        showToast('⚠ Completa país, estado, municipio y nombre del lugar antes de subir las fotografías.', '#f59e0b', 7000);
+        return;
+    }
+    activeTombCemetery = Object.freeze(draft);
+    renderActiveTombCemetery();
+}
+
+function ensureActiveTombCemetery() {
+    if (activeTombCemetery) return true;
+    showToast('⚠ Primero selecciona y confirma el panteón o lugar.', '#f59e0b');
+    document.getElementById('tomb-cemetery-card').scrollIntoView({behavior: 'smooth'});
+    return false;
+}
+
+function changeTombCemetery() {
+    const saveButton = document.querySelector('#add-tomb-section .form-actions .btn-success');
+    if (saveButton?.disabled) return;
+    if (document.getElementById('accept-scan-btn').disabled) {
+        showToast('⚠ Espera a que termine el escaneo antes de cambiar de lugar.', '#f59e0b');
+        return;
+    }
+    if ((pendingCanvas || pendingTombPhotos.length) && !confirm('Cambiar de lugar descartará las fotografías que aún no has guardado. ¿Continuar?')) return;
+    clearDisplayedData();
+    resetTombPhotoBatch();
+    activeTombCemetery = null;
+    renderActiveTombCemetery();
+    document.getElementById('tomb-cemetery-card').scrollIntoView({behavior: 'smooth'});
+}
+
+async function loadInegiStates(sequence = tombCountrySequence) {
+    const provider = getTombCatalogProvider();
+    if (!provider) return;
     const stateSelect = document.getElementById('display-estado');
     if (stateChoices) return; // Already initialized
     stateSelect.disabled = true;
     stateSelect.replaceChildren(new Option('Cargando catálogo de panteones...', ''));
     try {
-        const catalog = await loadCemeteryCatalog();
+        const catalog = await provider.load();
+        if (sequence !== tombCountrySequence) return;
         const states = new Map();
         catalog.forEach(item => states.set(item.stateCode, item.state));
         stateSelect.replaceChildren(new Option('1. Selecciona un estado', ''));
@@ -2905,14 +3112,18 @@ async function loadInegiStates() {
             '1. Selecciona un estado'
         );
     } catch (error) {
+        if (sequence !== tombCountrySequence) return;
         stateSelect.replaceChildren(new Option('No se pudo cargar el catálogo local', ''));
         showToast(`❌ ${getFirebaseErrorMessage(error, 'No se pudo cargar el catálogo de panteones.')}`, '#ef4444', 7000);
     } finally {
-        stateSelect.disabled = false;
+        if (sequence === tombCountrySequence) stateSelect.disabled = false;
     }
 }
 
 async function loadInegiMunicipalities() {
+    const provider = getTombCatalogProvider();
+    if (!provider || isManualTombLocation()) return;
+    const countrySequence = tombCountrySequence;
     const stateSelect = document.getElementById('display-estado');
     const municipalitySelect = document.getElementById('display-municipio');
     const cemeterySelect = document.getElementById('inegi-cemetery-results');
@@ -2928,12 +3139,13 @@ async function loadInegiMunicipalities() {
     cemeterySearchSequence++;
     document.getElementById('inegi-search-status').textContent =
         entityCode ? 'Selecciona un municipio.' : 'Selecciona un estado y un municipio.';
-    selectedInegiCemetery = null;
+    clearSelectedTombCatalogEntry();
     if (!entityCode) return;
 
     municipalitySelect.replaceChildren(new Option('Cargando municipios...', ''));
     try {
-        const catalog = await loadCemeteryCatalog();
+        const catalog = await provider.load();
+        if (countrySequence !== tombCountrySequence || stateSelect.value !== entityCode) return;
         const municipalities = new Map();
         catalog.filter(item => item.stateCode === entityCode)
             .forEach(item => municipalities.set(item.municipalityCode, item.municipality));
@@ -2947,6 +3159,7 @@ async function loadInegiMunicipalities() {
             '2. Selecciona un municipio'
         );
     } catch (error) {
+        if (countrySequence !== tombCountrySequence || stateSelect.value !== entityCode) return;
         municipalitySelect.replaceChildren(new Option('No se pudieron cargar los municipios', ''));
         showToast(`❌ ${getFirebaseErrorMessage(error, 'No se pudo leer el catálogo local.')}`, '#ef4444', 7000);
     }
@@ -2957,7 +3170,7 @@ async function updateInegiSearchState() {
     const cemeterySelect = document.getElementById('inegi-cemetery-results');
     cemeterySelect.replaceChildren(new Option('3. Selecciona un panteón', ''));
     cemeterySelect.style.display = 'none';
-    selectedInegiCemetery = null;
+    clearSelectedTombCatalogEntry();
     document.getElementById('inegi-search-status').textContent = hasMunicipality
         ? 'Buscando panteones registrados en INEGI...'
         : 'Selecciona un municipio.';
@@ -2965,6 +3178,9 @@ async function updateInegiSearchState() {
 }
 
 async function searchNearbyCemeteries() {
+    const provider = getTombCatalogProvider();
+    if (!provider || isManualTombLocation()) return;
+    const country = document.getElementById('display-pais').value;
     const stateSelect = document.getElementById('display-estado');
     const municipalitySelect = document.getElementById('display-municipio');
     const entityCode = stateSelect.value;
@@ -2982,16 +3198,21 @@ async function searchNearbyCemeteries() {
     select.disabled = true;
     status.textContent = 'Buscando en el catálogo local de DENUE 05/2026...';
     try {
-        const [catalog, communitySnapshot] = await Promise.all([
-            loadCemeteryCatalog(),
+        const [catalog, communitySnapshot, tombSnapshot] = await Promise.all([
+            provider.load(),
             db.collection('cemeteries')
                 .where('stateCode', '==', entityCode)
+                .get(),
+            db.collection('tumbas')
+                .where('estado_panteon', '==', stateSelect.selectedOptions[0].textContent.trim())
                 .get()
         ]);
+        if (searchSequence !== cemeterySearchSequence || activeTombCemetery ||
+            stateSelect.value !== entityCode || municipalitySelect.value !== municipalityCode) return;
         const communityDocuments = communitySnapshot.docs
             .map(document => ({ id: document.id, ...document.data() }))
             .filter(item => item.municipalityCode === municipalityCode &&
-                item.status !== 'rejected');
+                item.status !== 'rejected' && normalizeSearchText(item.country || 'México') === normalizeSearchText(country));
         const approvedInegiOverrides = new Set(communityDocuments
             .filter(item => item.status === 'approved' && item.inegiCemeteryId)
             .map(item => String(item.inegiCemeteryId)));
@@ -3011,7 +3232,7 @@ async function searchNearbyCemeteries() {
                 latitude: Number(item.latitude),
                 longitude: Number(item.longitude),
                 distance: null,
-                source: 'inegi'
+                source: provider.source
             }));
         const communityResults = communityDocuments
             .map(item => ({
@@ -3029,7 +3250,22 @@ async function searchNearbyCemeteries() {
                 status: item.status,
                 inegiName: item.inegiName || ''
             }));
-        inegiCemeteryResults = [...inegiResults, ...communityResults]
+        const placeKey = (name, colony) => [name, colony].map(normalizeSearchText).join('|');
+        const knownNames = new Set([...inegiResults, ...communityResults].map(item => placeKey(item.nombre, item.colonia)));
+        const recordedPlaces = [];
+        tombSnapshot.forEach(document => {
+            const item = document.data();
+            const nameKey = placeKey(item.nombre_panteon, item.colonia_panteon);
+            if (!normalizeSearchText(item.nombre_panteon) || knownNames.has(nameKey) || item.status === 'rejected' ||
+                normalizeSearchText(item.pais_panteon || 'México') !== normalizeSearchText(country) ||
+                normalizeSearchText(item.municipio_panteon) !== normalizeSearchText(municipalitySelect.selectedOptions[0].textContent)) return;
+            knownNames.add(nameKey);
+            recordedPlaces.push({id: null, nombre: formatProperName(item.nombre_panteon),
+                colonia: item.colonia_panteon || '', source: 'manual', distance: null,
+                ubicacion: {estado: item.estado_panteon, municipio: item.municipio_panteon},
+                latitude: item.panteon_geolocation?.latitude, longitude: item.panteon_geolocation?.longitude});
+        });
+        inegiCemeteryResults = [...inegiResults, ...communityResults, ...recordedPlaces]
             .sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
 
         if (
@@ -3043,10 +3279,11 @@ async function searchNearbyCemeteries() {
                 ? (cemetery.distance < 1000
                     ? `${Math.round(cemetery.distance)} m`
                     : `${(cemetery.distance / 1000).toFixed(1)} km`)
-                : [cemetery.ubicacion.municipio, cemetery.ubicacion.estado]
+                : [cemetery.colonia, cemetery.ubicacion.municipio, cemetery.ubicacion.estado]
                     .filter(Boolean).join(', ');
-            const sourceLabel = cemetery.source === 'inegi'
-                ? 'INEGI'
+            const sourceLabel = cemetery.source === provider.source
+                ? provider.label
+                : cemetery.source === 'manual' ? 'Registrado en lápidas'
                 : (cemetery.status === 'approved' ? 'Comunidad verificada' : 'Aporte comunitario');
             const aliasLabel = cemetery.inegiName &&
                 normalizeSearchText(cemetery.inegiName) !== normalizeSearchText(cemetery.nombre)
@@ -3064,7 +3301,7 @@ async function searchNearbyCemeteries() {
             selectInegiCemetery('0');
             status.textContent = 'Se encontró y seleccionó el único panteón registrado.';
         } else if (inegiCemeteryResults.length === 0) {
-            select.replaceChildren(new Option('No hay panteones registrados en este municipio', ''));
+            select.replaceChildren(new Option('No hay lugares registrados en este municipio', ''));
             status.textContent = 'El catálogo DENUE no tiene panteones registrados para este municipio.';
             showToast(
                 '⚠ DENUE no contiene panteones registrados en ese municipio.',
@@ -3075,9 +3312,10 @@ async function searchNearbyCemeteries() {
             status.textContent = `Se encontraron ${inegiCemeteryResults.length} panteones. Elige uno de la lista.`;
             showToast(`✅ INEGI encontró ${inegiCemeteryResults.length} panteones. Selecciona uno.`);
         }
+        select.add(new Option('No está en el listado: escribir un lugar nuevo', 'manual'));
     } catch (error) {
         if (searchSequence !== cemeterySearchSequence) return;
-        select.replaceChildren(new Option('No se pudo cargar la lista de panteones', ''));
+        select.replaceChildren(new Option('No se pudo cargar la lista de panteones', ''), new Option('No está en el listado: escribir un lugar nuevo', 'manual'));
         select.style.display = 'block';
         status.textContent = 'No se pudo leer el catálogo local. Recarga la página para reintentar.';
         console.error('Error reading local DENUE catalog:', error);
@@ -3092,7 +3330,8 @@ async function searchNearbyCemeteries() {
 }
 
 function selectInegiCemetery(indexValue) {
-    if (indexValue === '') return;
+    clearSelectedTombCatalogEntry();
+    if (indexValue === '' || indexValue === 'manual') return;
     const cemetery = inegiCemeteryResults[Number(indexValue)];
     if (!cemetery) return;
     selectedInegiCemetery = cemetery;
@@ -3101,6 +3340,7 @@ function selectInegiCemetery(indexValue) {
         longitude: cemetery.longitude
     };
     document.getElementById('display-nombre-panteon').value = formatProperName(cemetery.nombre);
+    document.getElementById('display-nombre-panteon').readOnly = true;
     document.getElementById('display-colonia').value = formatProperName(cemetery.colonia);
     document.getElementById('display-panteon-geolocation').value =
         formatCoordinates(cemeteryGeolocation);
@@ -3116,6 +3356,7 @@ function selectInegiCemetery(indexValue) {
    SCANNER CAMERA
 ══════════════════════════════════════════════════════════════════ */
 async function openScannerModal() {
+    if (!ensureActiveTombCemetery()) return;
     document.getElementById('ia-modal').style.display = 'flex';
     try {
         scannerStream = await navigator.mediaDevices.getUserMedia({
@@ -3169,7 +3410,50 @@ function captureOrientado(video) {
 /* ══════════════════════════════════════════════════════════════════
    IMAGE UPLOAD / CAPTURE -> PREVIEW FLOW
 ══════════════════════════════════════════════════════════════════ */
+function renderTombPhotoBatch() {
+    const status = document.getElementById('tomb-photo-batch-status');
+    status.hidden = tombPhotoBatchCount < 2;
+    status.textContent = `Fotografía ${tombPhotoBatchIndex} de ${tombPhotoBatchCount}. Revisa y guarda cada lápida; todas conservarán el mismo panteón.`;
+}
+
+function resetTombPhotoBatch() {
+    pendingTombPhotos = [];
+    tombPhotoBatchCount = 0;
+    tombPhotoBatchIndex = 0;
+    renderTombPhotoBatch();
+}
+
+async function handleTombImageSelection(event) {
+    if (!ensureActiveTombCemetery()) return;
+    const files = Array.from(event.target.files || []);
+    if (!files.length) return;
+    if (files.some(file => !file.type.startsWith('image/') || file.size > MAX_IMAGE_FILE_SIZE)) {
+        showToast('⚠ Selecciona únicamente imágenes de hasta 15 MB cada una.', '#f59e0b', 7000);
+        event.target.value = '';
+        return;
+    }
+    pendingTombPhotos = files.slice(1);
+    tombPhotoBatchCount = files.length;
+    tombPhotoBatchIndex = 1;
+    renderTombPhotoBatch();
+    await handleImageUpload(event);
+}
+
+async function advanceTombPhotoBatch() {
+    if (!pendingTombPhotos.length) {
+        resetTombPhotoBatch();
+        document.getElementById('upload-capture-card').scrollIntoView({behavior: 'smooth', block: 'start'});
+        return;
+    }
+    const file = pendingTombPhotos.shift();
+    tombPhotoBatchIndex++;
+    renderTombPhotoBatch();
+    await handleImageUpload({target: {files: [file], value: ''}});
+}
+
 async function handleImageUpload(event) {
+    if (!ensureActiveTombCemetery()) { event.target.value = ''; return; }
+    const expectedPlace = activeTombCemetery;
     const file = event.target.files[0];
     if (!file) return;
     if (!file.type.startsWith('image/')) {
@@ -3188,8 +3472,10 @@ async function handleImageUpload(event) {
 
     const reader = new FileReader();
     reader.onload = async (e) => {
+        if (activeTombCemetery !== expectedPlace) return;
         const img = new Image();
         img.onload = async () => {
+            if (activeTombCemetery !== expectedPlace) return;
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
             let width = img.width, height = img.height;
@@ -3227,6 +3513,7 @@ async function handleImageUpload(event) {
             showToast('✅ Imagen completa lista para escanear.', '#10b981');
         };
         img.onerror = () => {
+            if (activeTombCemetery !== expectedPlace) return;
             showToast('❌ No se pudo leer la imagen. Intenta con otro archivo.', '#ef4444', 5000);
             document.getElementById('upload-capture-card').style.display = 'block';
             document.getElementById('image-upload-input').value = '';
@@ -3234,6 +3521,7 @@ async function handleImageUpload(event) {
         img.src = e.target.result;
     };
     reader.onerror = () => {
+        if (activeTombCemetery !== expectedPlace) return;
         showToast('❌ Error al leer el archivo seleccionado.', '#ef4444', 5000);
         document.getElementById('upload-capture-card').style.display = 'block';
         document.getElementById('image-upload-input').value = '';
@@ -3242,6 +3530,7 @@ async function handleImageUpload(event) {
 }
 
 async function captureIA() {
+    if (!ensureActiveTombCemetery()) return;
     const video = document.getElementById('cam-preview-ia');
     if (!video.srcObject || video.videoWidth === 0) {
         showToast('⚠ Cámara no lista', '#f59e0b');
@@ -3319,6 +3608,11 @@ function retryImageCapture() {
 }
 
 function clearFormFields() {
+    scannedPeople = [];
+    scannedPersonIndex = 0;
+    const peopleReview = document.getElementById('scan-people-review');
+    if (peopleReview) peopleReview.hidden = true;
+    updateScannedPeopleSaveLabel();
     setInlineZoomEnabled(false);
     setImageEnhancementEnabled(false);
     document.getElementById('display-nombres').value = '';
@@ -3329,6 +3623,9 @@ function clearFormFields() {
     document.getElementById('display-edad-defuncion').value = '';
     document.getElementById('birth-year-estimate-hint').textContent = '';
     birthYearWasEstimated = false;
+    document.getElementById('display-geolocation').value = '';
+    renderActiveTombCemetery();
+    if (activeTombCemetery) return;
     document.getElementById('display-nombre-panteon').value = '';
     const stateSelect = document.getElementById('display-estado');
     const municipalitySelect = document.getElementById('display-municipio');
@@ -3443,7 +3740,13 @@ async function processImageWithGemini(base64Image) {
             90000,
             'El servicio de escaneo no respondió a tiempo.'
         );
-        populateExtractedDataForm(response.data || {}, currentGeolocation);
+        const responseData = response.data || {};
+        const people = Array.isArray(responseData.personas) ? responseData.personas : [responseData];
+        scannedPeople = people.filter(person => person && typeof person === 'object');
+        scannedPersonIndex = 0;
+        if (!scannedPeople.length) throw new Error('No se reconocieron personas legibles. Intenta acercar o recortar una lápida.');
+        renderScannedPeopleReview();
+        populateExtractedDataForm(scannedPeople[0], currentGeolocation);
     } catch (error) {
         throw new Error(getFirebaseErrorMessage(error, 'No se pudo procesar la imagen.'));
     } finally {
@@ -3454,6 +3757,50 @@ async function processImageWithGemini(base64Image) {
 /* ══════════════════════════════════════════════════════════════════
    RESULTADOS DE ESCANEO - SOLO DATOS ESTRUCTURADOS
 ══════════════════════════════════════════════════════════════════ */
+function renderScannedPeopleReview() {
+    const review = document.getElementById('scan-people-review');
+    const select = document.getElementById('scan-person-select');
+    if (scannedPeople.length < 2) {
+        review.hidden = true;
+        select.replaceChildren();
+        updateScannedPeopleSaveLabel();
+        return;
+    }
+    review.hidden = false;
+    document.getElementById('scan-people-count').textContent = `${scannedPeople.length} personas detectadas.`;
+    select.replaceChildren(...scannedPeople.map((person, index) => {
+        const name = formatProperName(person.nombre_finado || [person.nombres, person.apellido_paterno, person.apellido_materno].filter(Boolean).join(' '));
+        return new Option(`Persona ${index + 1}${name ? ` · ${name}` : ''}`, String(index));
+    }));
+    select.value = String(scannedPersonIndex);
+    updateScannedPeopleSaveLabel();
+}
+
+function updateScannedPeopleSaveLabel() {
+    const saveButton = document.querySelector('#add-tomb-section .form-actions .btn-success');
+    if (!saveButton) return;
+    saveButton.innerHTML = scannedPeople.length > 1
+        ? `<i class="fas fa-save me-1"></i>GUARDAR PERSONA ${scannedPersonIndex + 1} DE ${scannedPeople.length}`
+        : '<i class="fas fa-save me-1"></i>GUARDAR';
+}
+
+function selectScannedPerson(index) {
+    if (!Number.isInteger(index) || index < 0 || index >= scannedPeople.length) return;
+    scannedPersonIndex = index;
+    populateExtractedDataForm(scannedPeople[index], currentGeolocation);
+    renderScannedPeopleReview();
+}
+
+function advanceScannedPerson() {
+    if (scannedPersonIndex + 1 >= scannedPeople.length) return false;
+    scannedPersonIndex++;
+    populateExtractedDataForm(scannedPeople[scannedPersonIndex], currentGeolocation);
+    renderScannedPeopleReview();
+    document.getElementById('scan-people-review').scrollIntoView({behavior: 'smooth', block: 'nearest'});
+    showToast(`✅ Persona ${scannedPersonIndex + 1} de ${scannedPeople.length} lista para revisar.`, '#10b981', 5000);
+    return true;
+}
+
 function populateExtractedDataForm(data, geolocation) {
     setRotationControlsVisible(false);
     document.getElementById('display-nombres').value = data.nombres || data.nombre_finado || '';
@@ -3466,7 +3813,8 @@ function populateExtractedDataForm(data, geolocation) {
     document.getElementById('display-edad-defuncion').value =
         Number.isInteger(detectedAge) && detectedAge >= 0 && detectedAge <= 130 ? detectedAge : '';
     calculateEstimatedBirthYear();
-    document.getElementById('display-nombre-panteon').value = formatProperName(data.nombre_panteon);
+    // OCR describes the person; the confirmed place belongs to the whole batch.
+    if (!activeTombCemetery) document.getElementById('display-nombre-panteon').value = formatProperName(data.nombre_panteon);
     
     const formattedGeolocation = formatCoordinates(geolocation);
     document.getElementById('display-geolocation').value =
@@ -3477,6 +3825,8 @@ function populateExtractedDataForm(data, geolocation) {
 }
 
 async function saveCurrentFormDataToHistory() {
+    if (!ensureActiveTombCemetery()) return;
+    const cemeteryContext = activeTombCemetery;
     const currentUser = auth.currentUser;
     if (!currentUser) {
         showToast('❌ Debes iniciar sesión para guardar datos.', '#ef4444');
@@ -3503,22 +3853,10 @@ async function saveCurrentFormDataToHistory() {
         showToast('⚠ La edad al fallecer debe estar entre 0 y 130 años.', '#f59e0b');
         return;
     }
-    const nombrePanteon = formatProperName(
-        document.getElementById('display-nombre-panteon').value
-    );
-    document.getElementById('display-nombre-panteon').value = nombrePanteon;
-    const stateSelect = document.getElementById('display-estado');
-    const municipalitySelect = document.getElementById('display-municipio');
-    const estadoPanteon = stateSelect.value
-        ? stateSelect.selectedOptions[0]?.textContent.trim() || ''
-        : '';
-    const municipioPanteon = municipalitySelect.value
-        ? municipalitySelect.selectedOptions[0]?.textContent.trim() || ''
-        : '';
-    const coloniaPanteon = formatProperName(
-        document.getElementById('display-colonia').value
-    );
-    document.getElementById('display-colonia').value = coloniaPanteon;
+    const nombrePanteon = cemeteryContext.name;
+    const estadoPanteon = cemeteryContext.state;
+    const municipioPanteon = cemeteryContext.municipality;
+    const coloniaPanteon = cemeteryContext.colony;
     const geolocationText = document.getElementById('display-geolocation').value;
 
     if (!nombreFinado && !nombrePanteon && !fechaNacimientoDisplay && !fechaDefuncionDisplay) {
@@ -3542,10 +3880,12 @@ async function saveCurrentFormDataToHistory() {
             savedGeolocation = new firebase.firestore.GeoPoint(parseFloat(match[1]), parseFloat(match[2]));
         }
     }
-    const savedPanteonGeolocation = selectedInegiCemetery
+    const selectedPlace = cemeteryContext.catalogEntry;
+    const savedPanteonGeolocation = selectedPlace &&
+        Number.isFinite(selectedPlace.latitude) && Number.isFinite(selectedPlace.longitude)
         ? new firebase.firestore.GeoPoint(
-            selectedInegiCemetery.latitude,
-            selectedInegiCemetery.longitude
+            selectedPlace.latitude,
+            selectedPlace.longitude
         )
         : null;
 
@@ -3571,6 +3911,7 @@ async function saveCurrentFormDataToHistory() {
             'La imagen tardó demasiado en prepararse.'
         );
         const tombData = {
+            pais_panteon: cemeteryContext.country,
             nombres: nombres || null,
             apellido_paterno: apellidoPaterno || null,
             apellido_materno: apellidoMaterno || null,
@@ -3587,31 +3928,13 @@ async function saveCurrentFormDataToHistory() {
         const identity = buildTombIdentity(tombData);
         const personIdentity = buildPersonIdentity(tombData);
         const imageFingerprint = createImageFingerprint(pendingCanvas);
-        const [recordKey, personKey, imageHash, existingRecords] = await Promise.all([
+        const [recordKey, personKey, imageHash] = await Promise.all([
             sha256Hex(identity),
             personIdentity ? sha256Hex(personIdentity) : Promise.resolve(''),
-            sha256Hex(imageBlob),
-            db.collection('tumbas').get()
+            sha256Hex(imageBlob)
         ]);
-        const duplicate = existingRecords.docs.find(doc => {
-            const saved = doc.data();
-            return doc.id === recordKey ||
-                (personKey && (doc.id === personKey || saved.person_key === personKey)) ||
-                saved.record_key === recordKey ||
-                saved.image_hash === imageHash ||
-                fingerprintDistance(saved.image_fingerprint, imageFingerprint) <= 6 ||
-                (personIdentity && buildPersonIdentity(saved) === personIdentity) ||
-                buildTombIdentity(saved) === identity;
-        });
-        if (duplicate) {
-            const duplicateError = new Error(
-                'Esta persona, tumba o fotografía ya está registrada.'
-            );
-            duplicateError.code = 'duplicate-record';
-            throw duplicateError;
-        }
         pendingTombRecordId = personKey || recordKey;
-        uploadedImageRef = storage.ref(`tumbas_images/${currentUser.uid}/${pendingTombRecordId}.jpg`);
+        uploadedImageRef = storage.ref(`tumbas_images/${currentUser.uid}/${pendingTombRecordId}_${Date.now()}.jpg`);
         setSavingState(saveBtn, 'Subiendo imagen...');
         await uploadBlobWithTimeout(
             uploadedImageRef,
@@ -3629,32 +3952,11 @@ async function saveCurrentFormDataToHistory() {
         // 2. Save data to Firestore
         setSavingState(saveBtn, 'Guardando datos...');
         firestoreWriteStarted = true;
-        const tombRef = db.collection('tumbas').doc(pendingTombRecordId);
-        await withTimeout(
-            db.runTransaction(async transaction => {
-                const existing = await transaction.get(tombRef);
-                if (existing.exists) {
-                    const duplicateError = new Error(
-                        'Esta persona o tumba fue registrada por otro usuario mientras guardabas.'
-                    );
-                    duplicateError.code = 'duplicate-record';
-                    throw duplicateError;
-                }
-                transaction.set(tombRef, {
-                userId: currentUser.uid,
-                contributorId: currentUser.uid,
-                contributor_name: currentUser.displayName ||
-                    (platformAdminUid === currentUser.uid
-                        ? 'Administrador de Busca Tumbas'
-                        : currentUser.email) ||
-                    'Colaborador',
-                contributor_email: currentUser.email || null,
-                visibility: 'public',
-                status: 'published',
-                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+        const saveResponse = await withTimeout(
+            functionsApi.httpsCallable('crearAportacionTumba')({recordId: pendingTombRecordId, data: {
                 imageUrl: imageUrl,
-                geolocation: savedGeolocation,
-                panteon_geolocation: savedPanteonGeolocation,
+                geolocation: savedGeolocation ? {latitude: savedGeolocation.latitude, longitude: savedGeolocation.longitude} : null,
+                panteon_geolocation: savedPanteonGeolocation ? {latitude: savedPanteonGeolocation.latitude, longitude: savedPanteonGeolocation.longitude} : null,
                 nombre_finado: nombreFinado || null,
                 nombre_finado_lower: normalizeSearchText(nombreFinado) || null,
                 nombres: nombres || null,
@@ -3671,31 +3973,35 @@ async function saveCurrentFormDataToHistory() {
                 fecha_nacimiento_estimada: birthYearWasEstimated,
                 nombre_panteon: nombrePanteon || null,
                 nombre_panteon_lower: normalizeSearchText(nombrePanteon) || null,
-                pais_panteon: 'M\u00e9xico',
+                pais_panteon: cemeteryContext.country,
                 estado_panteon: estadoPanteon || null,
                 estado_panteon_lower: normalizeSearchText(estadoPanteon) || null, // Added for search
                 municipio_panteon: municipioPanteon || null,
                 municipio_panteon_lower: normalizeSearchText(municipioPanteon) || null, // Added for search
                 colonia_panteon: coloniaPanteon || null,
-                inegi_denue_id: selectedInegiCemetery?.source === 'inegi'
-                    ? selectedInegiCemetery.id
+                inegi_denue_id: selectedPlace?.source === 'inegi'
+                    ? selectedPlace.id
                     : null,
-                cemetery_id: selectedInegiCemetery?.id || null,
-                cemetery_source: selectedInegiCemetery?.source || 'manual',
+                cemetery_id: selectedPlace?.id || null,
+                cemetery_source: selectedPlace?.source || 'manual',
                 record_key: recordKey,
                 person_key: personKey || null,
                 image_hash: imageHash,
                 image_fingerprint: imageFingerprint
-                });
-            }),
+            }}),
             30000,
             'Firestore no respondió al guardar los datos.'
         );
         tombSaved = true;
+        const disputed = !!saveResponse.data?.disputed;
 
-        showToast('✅ Tumba guardada exitosamente.', '#10b981');
-        clearDisplayedData();
-        showModeSelection(); // Vuelve al menú principal.
+        if (advanceScannedPerson()) {
+            showToast(disputed ? duplicateDisputeNotice(saveResponse.data) : '✅ Persona guardada. Revisa la siguiente persona de la misma fotografía.', disputed ? '#f59e0b' : '#10b981', 9000);
+        } else {
+            clearDisplayedData();
+            await advanceTombPhotoBatch();
+            showToast(disputed ? duplicateDisputeNotice(saveResponse.data) : '✅ Lápida guardada. Puedes subir la siguiente fotografía del mismo lugar.', disputed ? '#f59e0b' : '#10b981', 9000);
+        }
 
     } catch (error) {
         console.error("Error saving tomb data:", error);
@@ -3704,7 +4010,8 @@ async function saveCurrentFormDataToHistory() {
         const shouldCleanupImage =
             uploadedImageRef &&
             !tombSaved &&
-            !(error.isTimeout && firestoreWriteStarted);
+            !(firestoreWriteStarted && (error.isTimeout ||
+                ['functions/unavailable', 'functions/deadline-exceeded', 'functions/internal', 'functions/unknown'].includes(error.code)));
         if (shouldCleanupImage) {
             try {
                 await withTimeout(
@@ -3734,25 +4041,36 @@ function clearDisplayedData() {
     imageSourceType = null;
     document.getElementById('image-upload-input').value = '';
     document.getElementById('upload-capture-card').style.display = 'block';
-    showToast('✅ Formulario limpiado');
+    showToast(activeTombCemetery ? '✅ Datos de la lápida limpiados. Se conserva el lugar seleccionado.' : '✅ Formulario limpiado');
 }
 
 /* ══════════════════════════════════════════════════════════════════
    PASSWORD VISIBILITY TOGGLE
 ══════════════════════════════════════════════════════════════════ */
 let platformAdminUid = null;
-let superuserLoginBusy = false;
+let superuserExpiresAt = 0;
+let superuserExpiryTimer = null;
+let moderationUnsubscribe = null;
 
-async function loadSuperuserConfig() {
-    const response = await fetch('superuser-config.json', { cache: 'no-store' });
-    if (!response.ok) throw new Error('No se pudo leer la configuración de superusuario.');
-    const config = await response.json();
-    if (config.projectId !== firebaseConfig.projectId || !config.email || !config.uid ||
-        config.email.toLowerCase() === SUPPORT_EMAIL.toLowerCase()) {
-        throw new Error('Falta configurar la cuenta independiente de superusuario.');
-    }
-    return config;
+function isSuperuserActive() {
+    return !!auth.currentUser && platformAdminUid === auth.currentUser.uid && superuserExpiresAt > Date.now();
 }
+
+function updateSuperuserIndicator(expiresAt = 0) {
+    clearTimeout(superuserExpiryTimer);
+    superuserExpiresAt = expiresAt;
+    const active = isSuperuserActive();
+    startDuplicateDisputeNotifications();
+    document.getElementById('superuser-badge').style.display = active ? 'inline-block' : 'none';
+    document.getElementById('admin-panel-btn').style.display = active ? 'block' : 'none';
+    if (active) superuserExpiryTimer = setTimeout(() => {
+        platformAdminUid = null;
+        updateSuperuserIndicator();
+        showModeSelection();
+        showToast('La sesión de superusuario terminó. Vuelve a entrar para administrar.', '#f59e0b', 8000);
+    }, Math.max(1, expiresAt - Date.now()));
+}
+let superuserLoginBusy = false;
 
 let superuserReturnFocus = null;
 
@@ -3771,8 +4089,9 @@ function openSuperuserLogin() {
     document.getElementById('superuser-password').value = '';
     resetPasswordVisibility('superuser-password', 'superuser-password-toggle');
     document.getElementById('superuser-feedback').textContent = '';
+    document.getElementById('superuser-email').value = auth.currentUser?.email || '';
     document.getElementById('superuser-dialog').showModal();
-    document.getElementById('superuser-password').focus();
+    document.getElementById(auth.currentUser?.email ? 'superuser-password' : 'superuser-email').focus();
 }
 
 function closeSuperuserLogin() {
@@ -3787,6 +4106,8 @@ async function handleSuperuserLogin(event) {
     event.preventDefault();
     if (superuserLoginBusy || authFlowInProgress) return;
     const input = document.getElementById('superuser-password');
+    const emailInput = document.getElementById('superuser-email');
+    if (!emailInput.reportValidity()) return;
     if (!input.reportValidity()) return;
     const feedback = document.getElementById('superuser-feedback');
     superuserLoginBusy = true;
@@ -3797,24 +4118,31 @@ async function handleSuperuserLogin(event) {
     let signedIn = false;
     let authorized = false;
     try {
-        const config = await loadSuperuserConfig();
         await auth.setPersistence(firebase.auth.Auth.Persistence.NONE);
-        await auth.signOut();
-        const credential = await auth.signInWithEmailAndPassword(config.email, input.value);
+        const response = await autorizarSuperusuarioFunction({email: emailInput.value.trim(), password: input.value});
+        input.value = '';
+        const credential = await auth.signInWithCustomToken(response.data.token);
         signedIn = true;
         input.value = '';
         const token = await credential.user.getIdTokenResult(true);
-        if (!credential.user.emailVerified || credential.user.uid !== config.uid ||
-            String(credential.user.email || '').toLowerCase() !== config.email.toLowerCase() ||
-            token.claims.platform_admin !== true) {
-            throw new Error('Se requiere la cuenta independiente con rol de superusuario y correo verificado.');
+        if (token.claims.platform_admin !== true || token.claims.superuser_session !== true ||
+            !Number.isFinite(token.claims.superuser_until) ||
+            token.claims.superuser_until <= Date.now() / 1000) {
+            throw new Error('Esta cuenta no tiene autorización de superusuario.');
+        }
+        if (!credential.user.emailVerified) {
+            auth.languageCode = 'es';
+            await credential.user.sendEmailVerification();
+            throw new Error('Se solicitó el envío de la verificación. Revisa tu correo y abre el enlace antes de volver a entrar.');
         }
         platformAdminUid = credential.user.uid;
+        updateSuperuserIndicator(token.claims.superuser_until * 1000);
         // La función valida el token y los permisos en el servidor.
         await obtenerEstadisticasAdminFunction();
         authorized = true;
     } catch (error) {
         platformAdminUid = null;
+        updateSuperuserIndicator();
         feedback.textContent = getFirebaseErrorMessage(error, error.message || 'No se pudo autorizar el acceso de superusuario.');
         if (signedIn) {
             try {
@@ -4198,7 +4526,23 @@ async function selectAddCemeteryMode() {
     await loadCommunityStates();
 }
 
+function communityPlaceTypeLabel(place) {
+    const labels = {cemetery: 'Panteón', church: 'Iglesia', hospital: 'Hospital', convent: 'Convento'};
+    return place.placeType === 'other' ? `Otro: ${place.otherPlaceType || 'Sin especificar'}`
+        : labels[place.placeType || 'cemetery'] || 'Lugar';
+}
+
+function updateCommunityPlaceType() {
+    const type = document.getElementById('cemetery-place-type').value;
+    document.getElementById('cemetery-other-type-field').hidden = type !== 'other';
+    document.getElementById('cemetery-other-type').required = type === 'other';
+    resetCemeteryMatchConfirmation();
+}
+
 function resetCemeteryForm() {
+    document.getElementById('cemetery-place-type').value = 'cemetery';
+    document.getElementById('cemetery-other-type').value = '';
+    updateCommunityPlaceType();
     ['cemetery-name', 'cemetery-locality', 'cemetery-address', 'cemetery-notes']
         .forEach(id => document.getElementById(id).value = '');
     document.getElementById('cemetery-camera-input').value = '';
@@ -4387,6 +4731,8 @@ function distanceInMeters(first, second) {
 
 function currentCemeteryComparisonKey() {
     return [
+        document.getElementById('cemetery-place-type').value,
+        normalizeSearchText(document.getElementById('cemetery-other-type').value),
         normalizeSearchText(document.getElementById('cemetery-name').value),
         document.getElementById('cemetery-state').value,
         document.getElementById('cemetery-municipality').value,
@@ -4396,9 +4742,10 @@ function currentCemeteryComparisonKey() {
 }
 
 async function checkCemeteryMatches() {
+    communityCemeteryComparisonKey = null;
     const currentUser = auth.currentUser;
     if (!currentUser) {
-        showToast('❌ Debes iniciar sesión para comparar panteones.', '#ef4444');
+        showToast('❌ Debes iniciar sesión para comparar lugares.', '#ef4444');
         document.getElementById('cemetery-match-results').innerHTML = '';
         return false;
     }
@@ -4419,7 +4766,7 @@ async function checkCemeteryMatches() {
         ]);
         const candidates = [
             ...catalog
-                .filter(item => item.stateCode === stateCode &&
+                .filter(item => document.getElementById('cemetery-place-type').value === 'cemetery' && item.stateCode === stateCode &&
                     item.municipalityCode === municipalityCode)
                 .map(item => ({
                     id: item.id,
@@ -4463,7 +4810,7 @@ async function checkCemeteryMatches() {
         document.getElementById('cemetery-confirm-distinct').checked = false;
         if (!communityCemeteryMatches.length) {
             results.innerHTML = '<div class="alert alert-success py-2 mb-0">' +
-                '<i class="fas fa-circle-check me-1"></i>No encontramos coincidencias en INEGI ni en la comunidad.</div>';
+                '<i class="fas fa-circle-check me-1"></i>No encontramos coincidencias en los lugares consultados.</div>';
             confirmation.style.display = 'none';
             return true;
         }
@@ -4540,6 +4887,13 @@ async function prepareCemeteryPhotoBlob(file) {
 }
 
 async function saveCommunityCemetery() {
+    const placeType = document.getElementById('cemetery-place-type').value;
+    const otherPlaceType = placeType === 'other' ? document.getElementById('cemetery-other-type').value.trim() : '';
+    if (!['cemetery', 'church', 'hospital', 'convent', 'other'].includes(placeType) ||
+        placeType === 'other' && (!otherPlaceType || otherPlaceType.length > 100)) {
+        showToast('⚠ Indica el tipo de lugar. Si eliges Otro, escribe cuál es.', '#f59e0b');
+        return;
+    }
     const user = auth.currentUser;
     const nameInput = document.getElementById('cemetery-name');
     const name = formatProperName(nameInput.value);
@@ -4566,7 +4920,7 @@ async function saveCommunityCemetery() {
     }
     if (!selectedInegiCommunityMatch && communityCemeteryMatches.length &&
         !document.getElementById('cemetery-confirm-distinct').checked) {
-        showToast('⚠ Revisa las coincidencias y confirma que se trata de otro panteón.', '#f59e0b', 7000);
+        showToast('⚠ Revisa las coincidencias y confirma que se trata de otro lugar.', '#f59e0b', 7000);
         return;
     }
 
@@ -4575,6 +4929,7 @@ async function saveCommunityCemetery() {
     button.disabled = true;
     button.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Guardando…';
     let imageReference = null;
+    let cemeteryWriteStarted = false;
     try {
         const identity = [
             normalizeSearchText(name),
@@ -4585,14 +4940,10 @@ async function saveCommunityCemetery() {
             communityCemeteryLocation?.longitude?.toFixed(5) || ''
         ].join('|');
         const cemeteryId = `community_${(await sha256Hex(identity)).slice(0, 32)}`;
-        const documentReference = db.collection('cemeteries').doc(cemeteryId);
-        if ((await documentReference.get()).exists) {
-            const error = new Error('Este panteón comunitario ya fue registrado.');
-            error.code = 'duplicate-cemetery';
-            throw error;
-        }
+
+
         const photoBlob = await prepareCemeteryPhotoBlob(communityCemeteryPhotoFile);
-        imageReference = storage.ref(`cemetery_images/${user.uid}/${cemeteryId}.jpg`);
+        imageReference = storage.ref(`cemetery_images/${user.uid}/${cemeteryId}_${Date.now()}.jpg`);
         await uploadBlobWithTimeout(imageReference, photoBlob, 45000);
         const photoUrl = await withTimeout(
             imageReference.getDownloadURL(),
@@ -4608,8 +4959,11 @@ async function saveCommunityCemetery() {
                 ? 'inegi_photo'
                 : 'inegi_alias')
             : 'new_cemetery';
-        await documentReference.set({
+        cemeteryWriteStarted = true;
+        const saveResponse = await functionsApi.httpsCallable('crearAportacionPanteon')({recordId: cemeteryId, data: {
             name,
+            placeType,
+            otherPlaceType,
             normalizedName: normalizeSearchText(name),
             stateCode: stateSelect.value,
             state: stateSelect.selectedOptions[0].textContent.trim(),
@@ -4619,19 +4973,9 @@ async function saveCommunityCemetery() {
             address: document.getElementById('cemetery-address').value.trim() || null,
             notes: document.getElementById('cemetery-notes').value.trim() || null,
             ...(communityCemeteryLocation ? {
-                location: new firebase.firestore.GeoPoint(
-                    communityCemeteryLocation.latitude,
-                    communityCemeteryLocation.longitude
-                )
+                location: {latitude: communityCemeteryLocation.latitude, longitude: communityCemeteryLocation.longitude}
             } : {}),
             photoUrl,
-            source: 'community',
-            status: 'pending',
-            contributorId: user.uid,
-            contributorName: user.displayName || user.email,
-            contributorEmail: user.email,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
             aliases,
             correctionType,
             ...(selectedInegiCommunityMatch
@@ -4641,13 +4985,14 @@ async function saveCommunityCemetery() {
                     normalizedInegiName: normalizeSearchText(inegiName)
                 }
                 : {})
-        });
-        showToast(selectedInegiCommunityMatch
+        }});
+        showToast(saveResponse.data?.disputed ? duplicateDisputeNotice(saveResponse.data) : selectedInegiCommunityMatch
             ? '✅ Nombre comunitario y nombre INEGI guardados como propuesta pendiente de revisión.'
-            : '✅ Panteón agregado como aporte comunitario pendiente de revisión.', '#10b981', 9000);
+            : '✅ Lugar agregado como aporte comunitario pendiente de revisión.', saveResponse.data?.disputed ? '#f59e0b' : '#10b981', 9000);
         showModeSelection();
     } catch (error) {
-        if (imageReference) {
+        if (imageReference && (!cemeteryWriteStarted ||
+            ['functions/already-exists', 'functions/invalid-argument', 'functions/permission-denied', 'functions/unauthenticated', 'functions/failed-precondition'].includes(error.code))) {
             try {
                 await imageReference.delete();
             } catch (cleanupError) {
@@ -4712,7 +5057,7 @@ async function loadMyContributions() {
                 ? (item.municipality || 'Municipio no indicado')
                 : (item.municipio_panteon || 'Municipio no indicado');
             const status = isCemetery
-                ? `<span class="badge ${item.status === 'approved' ? 'text-bg-success' : item.status === 'rejected' ? 'text-bg-danger' : 'text-bg-warning'}">${escapeHtml(item.status || 'pending')}</span>`
+                ? `<span class="badge ${item.status === 'approved' ? 'text-bg-success' : item.status === 'rejected' ? 'text-bg-danger' : 'text-bg-warning'}">${escapeHtml(item.status === 'pending' || !item.status ? 'PENDIENTE' : item.status)}</span>`
                 : '<span class="badge text-bg-secondary">Tumba</span>';
             return `<button type="button" class="btn btn-outline-secondary my-contribution-list-item" data-contribution-id="${escapeHtml(item.id)}" onclick="showMyContributionDetail(${inlineJsValue(item.id)}, this)">
                 <span class="d-flex justify-content-between gap-2"><strong>${escapeHtml(title)}</strong>${status}</span>
@@ -4747,7 +5092,7 @@ function showMyContributionDetail(contributionId, selectedButton = null) {
             ['Estado', contribution.state],
             ['Municipio', contribution.municipality],
             ['Localidad', contribution.locality],
-            ['Estado de revisión', contribution.status]
+            ['Estado de revisión', contribution.status === 'pending' ? 'PENDIENTE' : contribution.status]
         ].filter(([, value]) => value !== null && value !== undefined && value !== '')
         : [
             ['Panteón', contribution.nombre_panteon],
@@ -4760,6 +5105,12 @@ function showMyContributionDetail(contributionId, selectedButton = null) {
     const action = isCemetery
         ? `openMyCemeteryContribution(${inlineJsValue(contribution.id)})`
         : `openTombDetail(${inlineJsValue(contribution.id)})`;
+    const canDelete = isSuperuserActive() || (isCemetery
+        ? contribution.contributorId === auth.currentUser?.uid && contribution.status === 'pending'
+        : tombOwnerId(contribution) === auth.currentUser?.uid);
+    const deleteAction = canDelete
+        ? `<button type="button" class="btn btn-outline-danger w-100 mt-2" onclick="deleteMyContribution(${inlineJsValue(contribution.type)}, ${inlineJsValue(contribution.id)})"><i class="fas fa-trash-alt me-1"></i>ELIMINAR APORTACIÓN</button>`
+        : '';
     const image = photoUrl
         ? `<img src="${escapeHtml(safeImageUrl(photoUrl))}" class="my-contribution-image zoomable-image" alt="Fotografía aportada" onclick="openImageZoom(this.src)">`
         : '<div class="my-contribution-image-placeholder"><span><i class="fas fa-image me-1"></i>Sin imagen</span></div>';
@@ -4772,10 +5123,39 @@ function showMyContributionDetail(contributionId, selectedButton = null) {
             <h6 class="fw-bold mb-3">${escapeHtml(title)}</h6>
             <div class="record-data-list">${fields.map(([label, value]) => `<div class="record-data-item"><small>${escapeHtml(label)}</small><span>${escapeHtml(value) || 'No disponible'}</span></div>`).join('')}</div>
             <button class="btn btn-primary w-100 mt-3" onclick="${action}"><i class="fas fa-pen me-1"></i>Ver y editar</button>
+            ${deleteAction}
         </div>
     </div>`;
     if (window.matchMedia('(max-width: 768px)').matches) {
         requestAnimationFrame(() => container.scrollIntoView({behavior: 'smooth', block: 'start'}));
+    }
+}
+
+async function deleteMyContribution(recordType, recordId) {
+    if (!auth.currentUser) return showToast('Inicia sesión para eliminar la aportación.', '#ef4444');
+    const admin = isSuperuserActive();
+    const contribution = myContributions.find(item => item.type === recordType && item.id === recordId) ||
+        (recordType === 'tomb' && currentDetailTomb?.id === recordId ? currentDetailTomb : null) ||
+        (recordType === 'cemetery' && currentCemeteryContribution?.id === recordId ? currentCemeteryContribution : null);
+    const allowed = admin || (contribution && (recordType === 'cemetery'
+        ? contribution.contributorId === auth.currentUser.uid && contribution.status === 'pending'
+        : tombOwnerId(contribution) === auth.currentUser.uid));
+    if (!allowed) return showToast('No tienes permiso para eliminar esta aportación.', '#ef4444');
+    const label = recordType === 'cemetery' ? 'el panteón aportado' : 'la tumba aportada';
+    if (!confirm(`¿Eliminar ${label} y su fotografía? Esta acción no se puede deshacer.`)) return;
+    try {
+        const result = await eliminarMiAportacionFunction({recordType, recordId});
+        if (result.data?.deleted !== true) throw new Error('No se confirmó la eliminación.');
+        myContributions = myContributions.filter(item => item.id !== recordId || item.type !== recordType);
+        closeRecordDetail();
+        if (admin) {
+            const refreshAudit = Boolean(existingDuplicateAudit);
+            await loadAdminStats();
+            if (refreshAudit) await auditExistingDuplicatesAdmin();
+        } else await loadMyContributions();
+        showToast('✅ Aportación eliminada.', '#10b981');
+    } catch (error) {
+        showToast(`❌ ${getFirebaseErrorMessage(error, 'No se pudo eliminar la aportación.')}`, '#ef4444', 7000);
     }
 }
 
@@ -4801,20 +5181,21 @@ async function openMyCemeteryContribution(cemeteryId) {
         const snapshot = await db.collection('cemeteries').doc(cemeteryId).get();
         if (!snapshot.exists) throw new Error('La aportación ya no existe.');
         const cemetery = { id: snapshot.id, ...snapshot.data() };
-        if (cemetery.contributorId !== user?.uid) throw new Error('No tienes permiso para ver esta aportación.');
+        if (cemetery.contributorId !== user?.uid && !isSuperuserActive()) throw new Error('No tienes permiso para ver esta aportación.');
         currentCemeteryContribution = cemetery;
         document.getElementById('record-detail-title').textContent = cemetery.name || 'Aporte de panteón';
         recordDetailZoomLevel = 1;
         content.innerHTML = `<div class="record-detail-grid">
         ${recordDetailPhotoHtml(cemetery.photoUrl, 'Fotografía del panteón')}
         <div><div class="record-data-list">
+            <div class="record-data-item"><small>Tipo de lugar</small><span>${escapeHtml(communityPlaceTypeLabel(cemetery))}</span></div>
             <div class="record-data-item"><small>Nombre comunitario</small><span>${escapeHtml(cemetery.name)}</span></div>
             ${cemetery.inegiName ? `<div class="record-data-item"><small>Nombre original de INEGI</small><span>${escapeHtml(cemetery.inegiName)}</span></div>` : ''}
             <div class="record-data-item"><small>Estado</small><span>${escapeHtml(cemetery.state)}</span></div>
             <div class="record-data-item"><small>Municipio</small><span>${escapeHtml(cemetery.municipality)}</span></div>
             <div class="record-data-item"><small>Localidad</small><span>${escapeHtml(cemetery.locality)}</span></div>
-            <div class="record-data-item"><small>Estado de revisión</small><span>${escapeHtml(cemetery.status)}</span></div>
-        </div>${cemetery.status === 'pending' ? `<button class="btn btn-primary w-100 mt-3" onclick="enableMyCemeteryEditing()"><i class="fas fa-pen me-1"></i>EDITAR DATOS</button>` : '<div class="alert alert-info mt-3 mb-0">Este aporte ya fue revisado y no puede editarse.</div>'}</div></div>`;
+            <div class="record-data-item"><small>Estado de revisión</small><span>${escapeHtml(cemetery.status === 'pending' ? 'PENDIENTE' : cemetery.status)}</span></div>
+        </div>${cemetery.status === 'pending' || isSuperuserActive() ? `<button class="btn btn-primary w-100 mt-3" onclick="enableMyCemeteryEditing()"><i class="fas fa-pen me-1"></i>EDITAR DATOS</button>` : '<div class="alert alert-info mt-3 mb-0">Este aporte ya fue revisado y no puede editarse.</div>'}${cemetery.status === 'pending' || isSuperuserActive() ? `<button type="button" class="btn btn-outline-danger w-100 mt-2" onclick="deleteMyContribution('cemetery', ${inlineJsValue(cemetery.id)})"><i class="fas fa-trash-alt me-1"></i>ELIMINAR APORTACIÓN</button>` : ''}${adminRecordActionsHtml('cemetery', cemetery.id)}</div></div>`;
     } catch (error) {
         content.innerHTML = `<div class="alert alert-danger">${escapeHtml(getFirebaseErrorMessage(error, 'No se pudo abrir tu aportación.'))}</div>`;
     }
@@ -4822,9 +5203,9 @@ async function openMyCemeteryContribution(cemeteryId) {
 
 function enableMyCemeteryEditing() {
     const cemetery = currentCemeteryContribution;
-    if (!cemetery || cemetery.contributorId !== auth.currentUser?.uid || cemetery.status !== 'pending') return;
+    if (!cemetery || !isSuperuserActive() && (cemetery.contributorId !== auth.currentUser?.uid || cemetery.status !== 'pending')) return;
     const fields = [
-        ['name', 'Nombre del panteón', cemetery.name, 'text'],
+        ['name', 'Nombre del lugar', cemetery.name, 'text'],
         ['locality', 'Colonia, localidad o poblado', cemetery.locality, 'text'],
         ['address', 'Dirección o referencias', cemetery.address, 'text'],
         ['notes', 'Observaciones', cemetery.notes, 'text']
@@ -4839,7 +5220,7 @@ function enableMyCemeteryEditing() {
 
 async function saveMyCemeteryEdits() {
     const cemetery = currentCemeteryContribution;
-    if (!cemetery || cemetery.contributorId !== auth.currentUser?.uid || cemetery.status !== 'pending') return;
+    if (!cemetery || !isSuperuserActive() && (cemetery.contributorId !== auth.currentUser?.uid || cemetery.status !== 'pending')) return;
     const values = Object.fromEntries([...document.querySelectorAll('[data-cemetery-edit]')]
         .map(input => [input.dataset.cemeteryEdit, input.value.trim()]));
     const name = formatProperName(values.name);
@@ -4848,17 +5229,22 @@ async function saveMyCemeteryEdits() {
         return;
     }
     try {
-        await db.collection('cemeteries').doc(cemetery.id).update({
+        const changes = {
             name,
             normalizedName: normalizeSearchText(name),
             aliases: [...new Set([name, cemetery.inegiName].filter(Boolean))],
             locality: formatProperName(values.locality),
             address: values.address || null,
-            notes: values.notes || null,
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
+            notes: values.notes || null
+        };
+        if (isSuperuserActive()) {
+            const note = prompt('Motivo de la corrección (se notificará al aportador):');
+            if (!note?.trim()) return;
+            await gestionarAporteAdminFunction({recordType: 'cemetery', recordId: cemetery.id, action: 'edit', note, changes});
+        } else await functionsApi.httpsCallable('actualizarAportacionPanteon')({recordId: cemetery.id, data: changes});
         showToast('✅ Aportación actualizada.', '#10b981');
-        await loadMyContributions();
+        if (isSuperuserActive()) await loadAdminStats();
+        else await loadMyContributions();
         await openMyCemeteryContribution(cemetery.id);
     } catch (error) {
         showToast(`❌ ${getFirebaseErrorMessage(error, 'No se pudo actualizar la aportación.')}`, '#ef4444', 7000);
@@ -4866,6 +5252,7 @@ async function saveMyCemeteryEdits() {
 }
 
 function showModeSelection() {
+    resetTombPhotoBatch();
     document.getElementById('add-tomb-section').style.display = 'none';
     document.getElementById('add-cemetery-section').style.display = 'none';
     document.getElementById('search-tomb-section').style.display = 'none';
@@ -4899,7 +5286,7 @@ async function showMyContributions() {
 
 async function showAdminPanel() {
     const user = auth.currentUser;
-    if (!user || !user.emailVerified || platformAdminUid !== user.uid) {
+    if (!user || !user.emailVerified || !isSuperuserActive()) {
         showToast('❌ No tienes permisos de administrador.', '#ef4444');
         return;
     }
@@ -4914,13 +5301,370 @@ async function showAdminPanel() {
     await loadAdminStats();
 }
 
+let duplicateDisputeUnsubscribe = null;
+let myDuplicateDisputeUnsubscribe = null;
+let adminDuplicateDisputes = [];
+let myDuplicateDisputes = [];
+let activeAdminDisputeId = null;
+let duplicateDisputeListenerGeneration = 0;
+const duplicateDisputeComparisons = new Map();
+const duplicateDisputeSelections = new Map();
+const duplicateDisputeResolutionNotes = new Map();
+
+function duplicateDisputeNotice(result) {
+    return `⚠ Coincidencia del ${Number(result.similarity).toFixed(2)} %. Propuesta en disputa; no se publicó. Se notificó al administrador. Puedes aclararla en Mis aportaciones.`;
+}
+
+function startDuplicateDisputeNotifications() {
+    duplicateDisputeUnsubscribe?.();
+    myDuplicateDisputeUnsubscribe?.();
+    duplicateDisputeUnsubscribe = myDuplicateDisputeUnsubscribe = null;
+    adminDuplicateDisputes = [];
+    activeAdminDisputeId = null;
+    myDuplicateDisputes = [];
+    duplicateDisputeComparisons.clear();
+    duplicateDisputeSelections.clear();
+    duplicateDisputeResolutionNotes.clear();
+    const generation = ++duplicateDisputeListenerGeneration;
+    const user = auth.currentUser;
+    renderDuplicateDisputes();
+    if (!user?.emailVerified) return;
+    const errors = error => {
+        if (generation !== duplicateDisputeListenerGeneration) return;
+        console.warn('No se pudieron consultar las disputas.', error.code);
+        showToast('No se pudieron cargar los avisos de disputas. Actualiza tu sesión.', '#f59e0b', 7000);
+    };
+    myDuplicateDisputeUnsubscribe = db.collection('_duplicateDisputes').where('contributorId', '==', user.uid)
+        .onSnapshot(snapshot => {
+            if (generation !== duplicateDisputeListenerGeneration) return;
+            const previous = new Map(myDuplicateDisputes.map(item => [item.id, item.status]));
+            myDuplicateDisputes = snapshot.docs.map(doc => ({id: doc.id, ...doc.data()}));
+            for (const item of myDuplicateDisputes) {
+                if (previous.has(item.id) && previous.get(item.id) !== item.status && item.status !== 'pending') {
+                    showToast(item.status === 'approved' ? '✅ Tu disputa se resolvió: se autorizó el registro.' : 'Tu propuesta fue confirmada como duplicada. Consulta el motivo en Mis aportaciones.', '#3b82f6', 9000);
+                }
+            }
+            renderDuplicateDisputes();
+        }, errors);
+    if (!isSuperuserActive()) return;
+    let previousIds = new Set();
+    duplicateDisputeUnsubscribe = db.collection('_duplicateDisputes').where('status', '==', 'pending')
+        .onSnapshot(snapshot => {
+            if (generation !== duplicateDisputeListenerGeneration) return;
+            const next = snapshot.docs.map(doc => ({id: doc.id, ...doc.data()}));
+            if (next.some(item => !previousIds.has(item.id))) {
+                showToast(`⚠ Administración: ${next.length} disputa(s) de posible duplicado pendientes de aclaración.`, '#f59e0b', 10000);
+            }
+            previousIds = new Set(next.map(item => item.id));
+            adminDuplicateDisputes = next;
+            renderDuplicateDisputes();
+        }, errors);
+}
+
+function duplicateDisputeReason(dispute) {
+    if (dispute.reason) return dispute.reason;
+    const fields = dispute.matches?.[0]?.fields || [];
+    const similarities = fields.filter(field => Number(field.similarity) > 0.5).map(field => field.label);
+    const differences = fields.filter(field => Number(field.similarity) < 1).map(field => field.label);
+    return `Posible duplicado: ${Number(dispute.similarity).toFixed(2)} % de similitud, superior al 50 %. ` +
+        `Coincidencias principales: ${similarities.join(', ') || 'datos de identidad'}. ` +
+        `Datos por aclarar: ${differences.join(', ') || 'identidad de las publicaciones'}.`;
+}
+
+async function openDisputeComparison(caseId) {
+    if (!isSuperuserActive()) return;
+    const generation = duplicateDisputeListenerGeneration;
+    duplicateDisputeSelections.delete(caseId);
+    duplicateDisputeComparisons.set(caseId, {loading: true});
+    renderDuplicateDisputes();
+    try {
+        const response = await functionsApi.httpsCallable('obtenerComparacionDisputa')({caseId});
+        if (generation !== duplicateDisputeListenerGeneration || !isSuperuserActive()) return;
+        duplicateDisputeComparisons.set(caseId, response.data);
+        renderDuplicateDisputes();
+    } catch (error) {
+        if (generation !== duplicateDisputeListenerGeneration) return;
+        duplicateDisputeComparisons.delete(caseId);
+        renderDuplicateDisputes();
+        showToast(getFirebaseErrorMessage(error, 'No se pudieron cargar ambas publicaciones.'), '#ef4444', 8000);
+    }
+}
+
+function selectDisputePublication(caseId, recordId, choice) {
+    if (!isSuperuserActive()) return;
+    const comparison = duplicateDisputeComparisons.get(caseId);
+    const match = comparison?.matches?.find(item => item.recordId === recordId && !item.missing);
+    if (choice !== 'both' && !match) return;
+    duplicateDisputeSelections.set(caseId, {choice, matchedRecordId: match?.recordId || null, matchedRevision: match?.revision || null});
+    renderDuplicateDisputes();
+}
+
+function renderDisputeComparison(dispute) {
+    const loaded = duplicateDisputeComparisons.get(dispute.id);
+    if (!loaded || loaded.loading) return `<button class="btn btn-primary my-2" ${loaded?.loading ? 'disabled' : ''}
+        onclick='openDisputeComparison(${inlineJsValue(dispute.id)})'>${loaded?.loading ? 'Cargando publicaciones…' : 'Comparar ambas publicaciones'}</button>`;
+    const selection = duplicateDisputeSelections.get(dispute.id);
+    const keys = dispute.recordType === 'cemetery' ? [['Nombre','name'],['Nombre INEGI','inegiName'],['Estado','state'],['Municipio','municipality'],['Localidad','locality'],['Dirección','address'],['Observaciones','notes']] :
+        [['Nombre','nombre_finado'],['Nacimiento','fecha_nacimiento'],['Defunción','fecha_defuncion'],['Edad','edad_defuncion'],['Panteón','nombre_panteon'],['Estado','estado_panteon'],['Municipio','municipio_panteon'],['Localidad','colonia_panteon']];
+    const publication = (data, match, choice) => {
+        const chosen = selection?.choice === choice && selection?.matchedRecordId === match.recordId;
+        const imageUrl = data.imageUrl || data.photoUrl;
+        const title = choice === 'existing' ? 'Publicación existente' : 'Nueva propuesta';
+        const label = choice === 'existing' ? 'Esta es la correcta: conservar existente' : 'Esta es la correcta: sustituir existente';
+        return `<div class="col-md-6"><div class="h-100 rounded p-3 border ${chosen ? 'border-primary border-3 bg-primary-subtle' : 'bg-white'}">
+            <h6>${title}</h6>
+            ${imageUrl ? `<button type="button" class="border-0 bg-transparent p-0 w-100 mb-2" onclick='openImageZoom(${inlineJsValue(safeImageUrl(imageUrl))})' aria-label="Ampliar fotografía de ${title.toLowerCase()}">
+                <img src="${escapeHtml(safeImageUrl(imageUrl))}" alt="${title}" class="rounded w-100" style="height:280px;object-fit:contain;background:#e9ecef"></button>` : '<div class="alert alert-secondary">Sin fotografía disponible</div>'}
+            <dl>${keys.map(([label,key]) => `<dt class="small text-muted">${label}</dt><dd class="mb-2">${escapeHtml(data[key] ?? 'Sin dato')}</dd>`).join('')}</dl>
+            <p class="small">Aportador: ${escapeHtml(data.contributor_name || data.contributorName || 'No indicado')}</p>
+            <label class="d-block fw-bold p-2 rounded border ${chosen ? 'border-primary' : ''}">
+                <input type="radio" name="dispute-choice-${dispute.id}" ${chosen ? 'checked' : ''}
+                    onchange='selectDisputePublication(${inlineJsValue(dispute.id)}, ${inlineJsValue(match.recordId)}, ${inlineJsValue(choice)})'> ${label}
+            </label></div></div>`;
+    };
+    const pairs = loaded.matches.map(match => match.missing ? '<div class="alert alert-warning">Una publicación relacionada ya no existe. Actualiza la comparación antes de decidir.</div>' :
+        `<section class="border rounded p-3 my-3"><p class="fw-bold">Comparación con registro existente · ${(Number(match.score) * 100).toFixed(2)} % al abrir la disputa</p>
+        <div class="row g-3">${publication(match.publication, match, 'existing')}${publication(dispute.candidate, match, 'candidate')}</div>
+        <details class="mt-3"><summary>Ver coincidencias y diferencias de los datos actuales (${(Number(match.currentComparison.score) * 100).toFixed(2)} %)</summary>
+        <div class="table-responsive"><table class="table table-sm"><thead><tr><th>Dato</th><th>Propuesta</th><th>Existente</th><th>Coincidencia</th></tr></thead><tbody>
+        ${match.currentComparison.fields.map(field => `<tr class="${field.similarity === 1 ? 'table-success' : 'table-warning'}"><td>${escapeHtml(field.label)}</td><td>${escapeHtml(field.left || 'Sin dato')}</td><td>${escapeHtml(field.right || 'Sin dato')}</td><td>${(field.similarity * 100).toFixed(1)} %</td></tr>`).join('')}
+        </tbody></table></div></details></section>`).join('');
+    return `${pairs}<label class="d-block border rounded p-3 mb-3"><input type="radio" name="dispute-choice-${dispute.id}" ${selection?.choice === 'both' ? 'checked' : ''}
+        onchange='selectDisputePublication(${inlineJsValue(dispute.id)}, "", "both")'> Son registros distintos: conservar ambas publicaciones</label>
+        <label class="field-label" for="dispute-resolution-note-${dispute.id}">Motivo de la decisión y evidencia revisada (obligatorio)</label>
+        <textarea id="dispute-resolution-note-${dispute.id}" class="form-control mb-2" maxlength="1500" rows="3"
+            oninput='duplicateDisputeResolutionNotes.set(${inlineJsValue(dispute.id)}, this.value)'>${escapeHtml(duplicateDisputeResolutionNotes.get(dispute.id) || '')}</textarea>
+        <p class="small text-muted">Si sustituyes la publicación existente, se conserva un respaldo privado del original.</p>
+        <button class="btn btn-success" ${selection ? '' : 'disabled'} onclick='resolveSelectedDisputePublication(${inlineJsValue(dispute.id)})'>Guardar decisión seleccionada</button>
+        <button class="btn btn-outline-secondary ms-2" onclick='openDisputeComparison(${inlineJsValue(dispute.id)})'>Actualizar comparación</button>`;
+}
+
+function changeAdminDispute(step) {
+    const index = Math.max(0, adminDuplicateDisputes.findIndex(item => item.id === activeAdminDisputeId));
+    const next = adminDuplicateDisputes[index + step];
+    if (!next) return;
+    activeAdminDisputeId = next.id;
+    renderDuplicateDisputes();
+}
+
+function renderDuplicateDisputes() {
+    const alert = document.getElementById('duplicate-dispute-alert');
+    const pending = isSuperuserActive() ? adminDuplicateDisputes : myDuplicateDisputes.filter(item => item.status === 'pending');
+    if (alert) {
+        alert.hidden = !pending.length;
+        alert.textContent = `${pending.length} disputa(s) ${isSuperuserActive() ? 'por revisar' : 'pendientes'}`;
+    }
+    const card = (dispute, admin) => {
+        const candidate = dispute.candidate || {};
+        const name = candidate.nombre_finado || candidate.name || 'Propuesta';
+        const status = {pending: 'Pendiente de aclaración', approved: 'Registro distinto autorizado', rejected: 'Duplicado confirmado'}[dispute.status] || dispute.status;
+        const matches = admin ? renderDisputeComparison(dispute) : (dispute.matches || []).map(match => `<details class="border rounded p-2 mt-2">
+            <summary>Coincidencia: ${(Number(match.score) * 100).toFixed(2)} %</summary>
+            ${match.photoUrl ? `<img src="${escapeHtml(safeImageUrl(match.photoUrl))}" alt="Fotografía del registro existente" class="img-fluid rounded my-2" style="max-height:220px" onclick="openImageZoom(this.src)">` : ''}
+            <div class="table-responsive"><table class="table table-sm"><thead><tr><th>Dato</th><th>Propuesta</th><th>Existente</th><th>Coincidencia</th></tr></thead><tbody>
+            ${(match.fields || []).map(field => `<tr><td>${escapeHtml(field.label)}</td><td>${escapeHtml(field.left || 'Sin dato')}</td><td>${escapeHtml(field.right || 'Sin dato')}</td><td>${(Number(field.similarity) * 100).toFixed(1)} %</td></tr>`).join('')}
+            </tbody></table></div></details>`).join('');
+        return `<article ${admin ? `id="admin-dispute-${escapeHtml(dispute.id)}"` : ''} class="border rounded p-3 my-2 bg-light">
+            <h6>${escapeHtml(name)} · ${Number(dispute.similarity).toFixed(2)} %</h6>
+            <p class="small mb-2">${escapeHtml(status)} · ${dispute.recordType === 'cemetery' ? 'Panteón o lugar' : 'Tumba'}</p>
+            <div class="alert alert-warning"><strong>¿Por qué está aquí?</strong> ${escapeHtml(duplicateDisputeReason(dispute))}
+                ${admin ? `<p class="mt-2 mb-1"><strong>Situación:</strong> la nueva propuesta está retenida y no se publicó en el catálogo.</p>
+                ${(dispute.matches || []).map(match => `<div class="small border-top pt-2 mt-2"><strong>Registro relacionado:</strong> ${escapeHtml(match.recordId)} · ${(Number(match.score) * 100).toFixed(2)} % de similitud
+                    ${(match.fields || []).map(field => `<div><strong>${escapeHtml(field.label)}:</strong> propuesta «${escapeHtml(field.left || 'Sin dato')}» · existente «${escapeHtml(field.right || 'Sin dato')}» (${(Number(field.similarity) * 100).toFixed(1)} % de coincidencia)</div>`).join('')}</div>`).join('')}
+                <p class="mt-2 mb-0"><strong>Qué debes decidir:</strong> compara las publicaciones y sus fotografías; conserva la existente, sustitúyela por la propuesta o autoriza ambas si son registros distintos. Explica tu decisión.</p>` : ''}</div>
+            ${!admin && (candidate.imageUrl || candidate.photoUrl) ? `<img src="${escapeHtml(safeImageUrl(candidate.imageUrl || candidate.photoUrl))}" alt="Fotografía propuesta en disputa" class="img-fluid rounded mb-2" style="max-height:220px" onclick="openImageZoom(this.src)">` : ''}
+            ${matches}
+            ${dispute.matchesCount > (dispute.matches || []).length ? `<p class="small">${Number(dispute.matchesCount)} coincidencias; se muestran las 20 más altas.</p>` : ''}
+            <div class="mt-2">${(dispute.messages || []).map(message => `<p class="small mb-1"><strong>${escapeHtml(message.senderName)}:</strong> ${escapeHtml(message.text)}</p>`).join('')}</div>
+            ${dispute.resolution ? `<p class="alert alert-info mt-2 mb-0">Resolución: ${escapeHtml(dispute.resolution)}</p>` : ''}
+            ${dispute.status === 'pending' ? `<div class="d-flex flex-wrap gap-2 mt-2">
+                <button class="btn btn-outline-primary btn-sm" onclick='replyDuplicateDispute(${inlineJsValue(dispute.id)})'>Enviar aclaración</button>
+            </div>` : ''}</article>`;
+    };
+    const own = document.getElementById('my-duplicate-disputes');
+    if (own) own.innerHTML = myDuplicateDisputes.length ? '<h6>Mis disputas por posible duplicado</h6>' + myDuplicateDisputes.map(item => card(item, false)).join('') : '';
+    const admin = document.getElementById('admin-duplicate-disputes');
+    if (!adminDuplicateDisputes.some(item => item.id === activeAdminDisputeId)) activeAdminDisputeId = adminDuplicateDisputes[0]?.id || null;
+    const activeIndex = adminDuplicateDisputes.findIndex(item => item.id === activeAdminDisputeId);
+    if (admin) admin.innerHTML = isSuperuserActive() ? `<h6>Disputas por posible duplicado (${adminDuplicateDisputes.length})</h6>
+        <p class="small text-muted">En tumbas: más del 50 % global, más del 80 % en nombre y una fecha coincidente. Los panteones se comparan por datos del lugar. Los casos anteriores conservan la evidencia con la que se abrieron.</p>` +
+        (activeIndex >= 0 ? `<nav class="d-flex align-items-center justify-content-between gap-2" aria-label="Navegar controversias"><button class="btn btn-outline-secondary btn-sm" ${activeIndex === 0 ? 'disabled' : ''} onclick="changeAdminDispute(-1)">Anterior</button><strong>Caso ${activeIndex + 1} de ${adminDuplicateDisputes.length}</strong><button class="btn btn-outline-secondary btn-sm" ${activeIndex === adminDuplicateDisputes.length - 1 ? 'disabled' : ''} onclick="changeAdminDispute(1)">Siguiente</button></nav>${card(adminDuplicateDisputes[activeIndex], true)}` : '<p class="text-muted">Sin disputas pendientes.</p>') : '';
+}
+
+async function replyDuplicateDispute(caseId) {
+    const note = prompt('Explica qué permite distinguir este registro o solicita una aclaración (hasta 1500 caracteres):');
+    if (!note?.trim()) return;
+    try {
+        await functionsApi.httpsCallable('aclararDisputaDuplicado')({caseId, note});
+        showToast('Aclaración enviada. La disputa sigue pendiente de resolución.', '#3b82f6', 7000);
+    } catch (error) { showToast(getFirebaseErrorMessage(error, 'No se pudo enviar la aclaración.'), '#ef4444', 8000); }
+}
+
+async function resolveSelectedDisputePublication(caseId) {
+    if (!isSuperuserActive()) return;
+    const selection = duplicateDisputeSelections.get(caseId);
+    const note = duplicateDisputeResolutionNotes.get(caseId)?.trim();
+    if (!selection || !note) {
+        showToast('Selecciona la publicación correcta y escribe el motivo de tu decisión.', '#f59e0b', 8000);
+        return;
+    }
+    const decision = {existing: 'duplicate', candidate: 'replace', both: 'distinct'}[selection.choice];
+    try {
+        await functionsApi.httpsCallable('resolverDisputaDuplicado')({caseId, decision, note,
+            matchedRecordId: selection.matchedRecordId, matchedRevision: selection.matchedRevision});
+        showToast('Disputa resuelta. El aportador puede consultar el resultado en Mis aportaciones.', '#10b981', 8000);
+        await loadAdminStats();
+    } catch (error) {
+        showToast(getFirebaseErrorMessage(error, 'No se pudo resolver la disputa.'), '#ef4444', 8000);
+        if (error.code === 'functions/failed-precondition') await openDisputeComparison(caseId);
+    }
+}
+
+let existingDuplicateAudit = null;
+let existingDuplicateAuditIndex = 0;
+
+async function auditExistingDuplicatesAdmin() {
+    if (!isSuperuserActive()) return;
+    const panel = document.getElementById('admin-existing-duplicates');
+    panel.innerHTML = '<p role="status">Buscando posibles duplicados en el catálogo…</p>';
+    try {
+        const response = await functionsApi.httpsCallable('auditarDuplicadosAdmin')();
+        if (!isSuperuserActive() || !panel.isConnected) return;
+        existingDuplicateAudit = response.data;
+        existingDuplicateAuditIndex = 0;
+        renderExistingDuplicateAudit();
+    } catch (error) {
+        panel.innerHTML = `<div class="alert alert-danger">${escapeHtml(getFirebaseErrorMessage(error,'No se pudo completar la búsqueda.'))}</div><button class="btn btn-outline-primary" onclick="auditExistingDuplicatesAdmin()">Reintentar búsqueda</button>`;
+    }
+}
+
+function changeExistingDuplicateAudit(step) {
+    const next = existingDuplicateAuditIndex + step;
+    if (next < 0 || next >= (existingDuplicateAudit?.matches.length || 0)) return;
+    existingDuplicateAuditIndex = next;
+    renderExistingDuplicateAudit();
+}
+
+function renderExistingDuplicateAudit() {
+    const panel = document.getElementById('admin-existing-duplicates');
+    if (!panel || !existingDuplicateAudit) return;
+    const data = existingDuplicateAudit;
+    const match = data.matches[existingDuplicateAuditIndex];
+    panel.innerHTML = `<p class="small">${Number(data.records)} registros revisados · ${Number(data.totalMatches)} pares por verificar · ${escapeHtml(new Date(data.checkedAt).toLocaleString('es-MX'))}</p>
+        <button class="btn btn-outline-primary btn-sm mb-2" onclick="auditExistingDuplicatesAdmin()">Actualizar búsqueda</button>
+        ${data.totalMatches > data.matches.length ? '<p class="alert alert-info">Se muestran los primeros 200 pares. Repite la búsqueda después de revisar los casos.</p>' : ''}
+        ${match ? `<nav class="d-flex align-items-center justify-content-between gap-2 mb-3" aria-label="Navegar duplicados existentes"><button class="btn btn-sm btn-outline-secondary" ${existingDuplicateAuditIndex === 0 ? 'disabled' : ''} onclick="changeExistingDuplicateAudit(-1)">Anterior</button><strong>Par ${existingDuplicateAuditIndex+1} de ${data.matches.length}</strong><button class="btn btn-sm btn-outline-secondary" ${existingDuplicateAuditIndex === data.matches.length-1 ? 'disabled' : ''} onclick="changeExistingDuplicateAudit(1)">Siguiente</button></nav>
+        <div class="alert alert-warning"><strong>Posible duplicado ya publicado:</strong> ${Number(match.similarity).toFixed(2)} % global · ${Number(match.nameSimilarity).toFixed(2)} % en nombre.
+        ${match.sameImageHash ? '<div>Ambos registros guardan el mismo identificador de imagen. Comprueba que la foto no contenga personas distintas.</div>' : ''}
+        ${(match.previousResolutions || []).map(resolution => `<div class="mt-2"><strong>Resolución administrativa anterior:</strong> ${escapeHtml(resolution.decision === 'distinct' ? 'Se autorizó conservar ambos como registros distintos' : resolution.decision === 'replace' ? 'Se sustituyó la publicación existente' : 'Caso revisado')}. Motivo: «${escapeHtml(resolution.note || 'Sin motivo disponible')}».</div>`).join('')}
+        <div>Revisa las fotos y los datos. Si confirmas el duplicado, abre el aporte que corresponda para corregirlo o retirarlo. La búsqueda no modifica registros.</div></div>
+        <div class="row g-3">${[match.first,match.second].map(record => `<div class="col-md-6"><article class="border rounded p-3 h-100"><h6>${escapeHtml(record.name)}</h6>
+        ${record.photoUrl ? `<img src="${escapeHtml(safeImageUrl(record.photoUrl))}" class="img-fluid rounded mb-2" style="height:220px;width:100%;object-fit:contain" alt="Fotografía del registro" onclick="openImageZoom(this.src)">` : '<p>Sin fotografía</p>'}
+        <p>Nacimiento: ${escapeHtml(record.birth || 'Sin dato')}<br>Defunción: ${escapeHtml(record.death || 'Sin dato')}<br>Panteón o lugar: ${escapeHtml(record.cemetery || 'Sin dato')}</p>
+        <button class="btn btn-primary btn-sm" onclick='${match.recordType === 'tomb' ? 'openTombDetail' : 'openMyCemeteryContribution'}(${inlineJsValue(record.id)})'>Revisar este aporte</button></article></div>`).join('')}</div>` : '<p class="alert alert-success">No se encontraron posibles duplicados con las reglas actuales. Esto no garantiza que no existan coincidencias con datos incompletos o errores de captura.</p>'}`;
+}
+
+function adminDocumentNeedsReview(record, cases, disputes) {
+    return (record.type === 'cemetery' && record.status === 'pending') ||
+        cases.some(item => item.recordType === record.type && item.recordId === record.id) ||
+        disputes.some(item => item.status === 'pending' && item.recordType === record.type &&
+            (item.matches || []).some(match => match.recordId === record.id));
+}
+
+function adminDocumentContextHtml(record, cases, pendingDisputes = adminDuplicateDisputes) {
+    const reasons = [];
+    const actions = [];
+    const review = cases.find(item => item.recordType === record.type && item.recordId === record.id);
+    if (review) {
+        reasons.push(`<strong>Errores reportados por ${Number(review.count)} usuarios:</strong>${review.notes.map(note => `<p class="mb-1">${escapeHtml(note.requesterName)}: «${escapeHtml(note.description)}»</p>`).join('') || ' Consulta el caso de errores para ver los señalamientos.'}`);
+        actions.push(`<button class="btn btn-sm btn-outline-primary" onclick="document.getElementById('admin-error-${escapeHtml(review.id)}')?.scrollIntoView({behavior:'smooth',block:'center'})">Revisar reportes y resolver</button>`);
+    }
+    const disputes = pendingDisputes.filter(item => item.status === 'pending' && item.recordType === record.type && (item.matches || []).some(match => match.recordId === record.id));
+    for (const dispute of disputes) {
+        reasons.push(`<strong>Una nueva propuesta podría duplicar este registro.</strong> ${escapeHtml(duplicateDisputeReason(dispute))}`);
+        actions.push(`<button class="btn btn-sm btn-outline-warning" onclick='openAdminDocumentDispute(${inlineJsValue(dispute.id)})'>Comparar y decidir duplicado</button>`);
+    }
+    if (record.type === 'cemetery' && record.status === 'pending') {
+        reasons.push('<strong>Aportación nueva pendiente de aprobación.</strong> Debes comprobar la fotografía, el nombre y la ubicación para decidir si se acepta.');
+        actions.push(`<button class="btn btn-sm btn-success" onclick='openCommunityCemeteryReview(${inlineJsValue(record.id)})'>Revisar para aprobar o rechazar</button>`);
+    }
+    const status = {published:'Publicado',approved:'Aprobado',pending:'Pendiente de aprobación',rejected:'Rechazado o retirado'}[record.status] || 'Estado no identificado';
+    return `<td><span class="badge ${reasons.length ? 'text-bg-warning' : 'text-bg-secondary'}">${reasons.length ? 'Requiere decisión' : 'Sin revisión pendiente identificada'}</span>
+        <div class="small mt-2">${reasons.map(reason => `<div class="mb-2">${reason}</div>`).join('') || `Aparece porque forma parte del historial de aportaciones. Estado: ${escapeHtml(status)}. No tiene reportes escalados ni disputas pendientes vinculadas.`}</div></td>
+        <td><div class="d-grid gap-2">${actions.join('')}<button class="btn btn-sm btn-outline-primary" onclick='${record.type === 'tomb' ? 'openTombDetail' : 'openMyCemeteryContribution'}(${inlineJsValue(record.id)})'>Ver fotografía y editar datos</button></div></td>`;
+}
+
+function renderAdminCatalog() {
+    const normalize = value => String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('es').trim();
+    const filters = ['state', 'municipality', 'contributor', 'cemetery'].map(key => [key, normalize(document.getElementById(`admin-catalog-${key}`).value)]);
+    const oldestFirst = document.getElementById('admin-catalog-order').value === 'oldest';
+    const records = adminContributionRecords.filter(record => filters.every(([key, value]) => !value || normalize(record[key]).includes(value)))
+        .sort((a, b) => {
+            if (!a.timestamp) return b.timestamp ? 1 : 0;
+            if (!b.timestamp) return -1;
+            return (oldestFirst ? 1 : -1) * String(a.timestamp).localeCompare(String(b.timestamp));
+        });
+    document.getElementById('admin-catalog-count').textContent = `${records.length} de ${adminContributionRecords.length} aportaciones`;
+    document.getElementById('admin-catalog-rows').innerHTML = records.map(record => `<tr>
+        <td>${escapeHtml(record.timestamp ? new Date(record.timestamp).toLocaleString('es-MX') : 'Sin fecha')}</td>
+        <td>${escapeHtml(record.type === 'tomb' ? record.person : record.cemetery)}<div class="small text-muted">${record.type === 'tomb' ? 'Tumba' : 'Panteón o lugar'}</div></td>
+        <td>${escapeHtml(record.state || 'Sin dato')}</td><td>${escapeHtml(record.municipality || 'Sin dato')}</td>
+        <td>${escapeHtml(record.cemetery)}</td><td>${escapeHtml(record.contributor)}</td>
+        <td><button class="btn btn-sm btn-outline-primary" onclick='openAdminCatalogDetail(${inlineJsValue(record.type)}, ${inlineJsValue(record.id)})'>Ver detalles</button></td>
+    </tr>`).join('') || '<tr><td colspan="7">No hay aportaciones que coincidan con los filtros.</td></tr>';
+}
+
+function clearAdminCatalogFilters() {
+    for (const key of ['state', 'municipality', 'contributor', 'cemetery']) document.getElementById(`admin-catalog-${key}`).value = '';
+    document.getElementById('admin-catalog-order').value = 'newest';
+    renderAdminCatalog();
+}
+
+async function openAdminCatalogDetail(recordType, recordId) {
+    if (!isSuperuserActive()) return;
+    const modal = document.getElementById('record-detail-modal');
+    const content = document.getElementById('record-detail-content');
+    document.getElementById('record-detail-title').textContent = 'Detalle del aporte';
+    modal.style.display = 'flex';
+    content.innerHTML = '<div class="text-center py-4"><span class="spinner-border"></span></div>';
+    try {
+        const snapshot = await db.collection(recordType === 'tomb' ? 'tumbas' : 'cemeteries').doc(recordId).get();
+        if (!snapshot.exists) throw new Error('El registro ya no existe.');
+        const data = snapshot.data();
+        const fields = recordType === 'cemetery' ? communityCemeteryDataHtml(data) : [
+            ['Nombre', data.nombre_finado], ['Nacimiento', data.fecha_nacimiento], ['Defunción', data.fecha_defuncion],
+            ['Edad', data.edad_defuncion], ['Panteón', data.nombre_panteon], ['País', data.pais_panteon],
+            ['Estado', data.estado_panteon], ['Municipio', data.municipio_panteon], ['Localidad', data.colonia_panteon],
+            ['Aportador', data.contributor_name || data.contributor_email], ['Fecha de aporte', formatTimestamp(data.timestamp)]
+        ].map(([label,value]) => `<div class="record-data-item"><small>${escapeHtml(label)}</small><span>${escapeHtml(value ?? 'Sin dato')}</span></div>`).join('');
+        const photo = data.imageUrl || data.photoUrl;
+        content.innerHTML = `<div class="record-detail-grid">${photo ? `<img class="record-detail-image zoomable-image" src="${escapeHtml(safeImageUrl(photo))}" alt="Fotografía del aporte" onclick="openImageZoom(this.src)">` : '<p>Sin fotografía</p>'}<div class="record-data-list">${fields}</div></div>`;
+    } catch (error) {
+        content.innerHTML = `<div class="alert alert-danger">${escapeHtml(getFirebaseErrorMessage(error, 'No se pudo cargar el registro.'))}</div>`;
+    }
+}
+
+async function openAdminDocumentDispute(caseId) {
+    activeAdminDisputeId = caseId;
+    await openDisputeComparison(caseId);
+    document.getElementById(`admin-dispute-${caseId}`)?.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
 async function loadAdminStats() {
+    renderDuplicateDisputes();
     const summary = document.getElementById('admin-summary');
     const content = document.getElementById('admin-content');
     summary.innerHTML = '';
     content.innerHTML = '<div class="text-center py-4"><span class="spinner-border"></span></div>';
     try {
-        const response = await obtenerEstadisticasAdminFunction();
+        const [response, errorResponse, disputeSnapshot] = await Promise.all([
+            obtenerEstadisticasAdminFunction(), functionsApi.httpsCallable('obtenerNotasErrorAdmin')(),
+            db.collection('_duplicateDisputes').where('status', '==', 'pending').get()
+        ]);
+        const errorCases = errorResponse.data.cases || [];
+        const pendingDisputes = disputeSnapshot.docs.map(doc => ({...doc.data(), id: doc.id}));
+        adminDuplicateDisputes = pendingDisputes;
+        renderDuplicateDisputes();
         const data = response.data;
         summary.innerHTML = `
             <div class="col-sm-4"><div class="p-3 rounded bg-primary-subtle">
@@ -4941,25 +5685,103 @@ async function loadAdminStats() {
             <td><button type="button" class="btn btn-sm btn-outline-success"
                 onclick='activatePlusForContributor(${inlineJsValue(person.uid)}, ${inlineJsValue(person.name)})'>Activar Plus</button></td></tr>
         `).join('');
-        const recordRows = data.records.map(record => `
+        const recordRow = record => `
             <tr><td>${record.photoUrl ? `<img src="${escapeHtml(safeImageUrl(record.photoUrl))}" alt="Fotografía aportada" class="rounded" style="width:64px;height:48px;object-fit:cover;cursor:zoom-in" onclick="openImageZoom(this.src)">` : '—'}</td>
             <td>${escapeHtml(record.person)}</td><td>${escapeHtml(record.cemetery)}</td>
             <td><span class="badge ${record.type === 'cemetery' ? 'text-bg-info' : 'text-bg-secondary'}">${record.type === 'cemetery' ? `Panteón · ${escapeHtml(record.status)}` : 'Tumba'}</span></td>
-            <td>${escapeHtml(record.contributor)}</td><td>${record.type === 'tomb' ? `<button class="btn btn-sm btn-outline-danger" onclick="deleteAdminRecord(${inlineJsValue(record.id)})">Eliminar</button>` : '—'}</td></tr>
-        `).join('');
+            <td>${escapeHtml(record.contributor)}</td>${adminDocumentContextHtml(record, errorCases, pendingDisputes)}</tr>
+        `;
+        const reviewRecords = data.records.filter(record => adminDocumentNeedsReview(record, errorCases, pendingDisputes));
+        const recordRows = reviewRecords.map(recordRow).join('');
         content.innerHTML = `
+            <details class="mb-3"><summary class="fw-bold">Colaboradores y sus aportaciones</summary>
             <h6 class="fw-bold">Clasificación de colaboradores</h6>
             <div class="table-responsive"><table class="table table-sm align-middle">
             <thead><tr><th>#</th><th>Usuario</th><th>Correo</th><th>Aportes</th><th>Último aporte</th><th>Plus</th></tr></thead>
             <tbody>${contributorRows || '<tr><td colspan="6">Sin aportes.</td></tr>'}</tbody></table></div>
             <div id="admin-contributor-contributions"></div>
-            <h6 class="fw-bold mt-4">Documentos</h6>
-            <div class="table-responsive"><table class="table table-sm align-middle">
-            <thead><tr><th>Foto</th><th>Registro</th><th>Panteón</th><th>Tipo</th><th>Colaborador</th><th></th></tr></thead>
-            <tbody>${recordRows || '<tr><td colspan="6">No hay documentos.</td></tr>'}</tbody></table></div>`;
+            </details>
+            <section class="border rounded p-3 mb-3"><h6 class="fw-bold">Buscar duplicados ya publicados</h6>
+                <p class="small text-muted">Revisa el catálogo existente para encontrar coincidencias que hayan pasado antes. Presenta un par a la vez para verificarlo.</p>
+                <div id="admin-existing-duplicates"><button class="btn btn-outline-primary" onclick="auditExistingDuplicatesAdmin()">Buscar posibles duplicados</button></div>
+            </section>
+            <h6 class="fw-bold mt-4">Documentos con revisión pendiente (${reviewRecords.length})</h6>
+            <p class="small text-muted">Aquí aparecen únicamente documentos con errores reportados, disputas por posible duplicado o aprobación pendiente. Las propuestas retenidas se revisan en Disputas por posible duplicado.</p>
+            <style>
+                @media (max-width: 991px) {
+                    .admin-documents-wrap { overflow: visible; }
+                    .admin-documents-table, .admin-documents-table tbody, .admin-documents-table tr, .admin-documents-table td { display: block; width: 100%; }
+                    .admin-documents-table thead { display: none; }
+                    .admin-documents-table tr { margin-bottom: 1rem; border: 1px solid #cbd5e1; border-radius: .5rem; padding: .75rem; background: white; }
+                    .admin-documents-table td { border: 0; padding: .35rem 0; overflow-wrap: anywhere; }
+                    .admin-documents-table td::before { display: block; font-weight: 700; }
+                    .admin-documents-table td:nth-child(2)::before { content: 'Registro'; }
+                    .admin-documents-table td:nth-child(3)::before { content: 'Panteón o lugar'; }
+                    .admin-documents-table td:nth-child(5)::before { content: 'Colaborador'; }
+                    .admin-documents-table td:nth-child(6)::before { content: 'Motivo y situación'; }
+                    .admin-documents-table td:nth-child(7)::before { content: 'Acción para este caso'; }
+                    #admin-catalog-documents td:nth-child(1)::before { content: 'Fecha de aporte'; }
+                    #admin-catalog-documents td:nth-child(3)::before { content: 'Estado'; }
+                    #admin-catalog-documents td:nth-child(4)::before { content: 'Municipio'; }
+                    #admin-catalog-documents td:nth-child(5)::before { content: 'Panteón o lugar'; }
+                    #admin-catalog-documents td:nth-child(6)::before { content: 'Colaborador'; }
+                    #admin-catalog-documents td:nth-child(7)::before { content: 'Detalle'; }
+                }
+            </style>
+            <div class="table-responsive admin-documents-wrap"><table id="admin-review-documents" class="table table-sm align-middle admin-documents-table">
+            <thead><tr><th>Foto</th><th>Registro</th><th>Panteón</th><th>Tipo</th><th>Colaborador</th><th>Motivo y situación</th><th>Acción para este caso</th></tr></thead>
+            <tbody>${recordRows || '<tr><td colspan="7">No hay documentos con revisión pendiente.</td></tr>'}</tbody></table></div>
+            <details id="admin-full-catalog" class="border rounded p-3 mt-4">
+                <summary class="fw-bold">Catálogo completo (${data.records.length}) · abrir para consultar</summary>
+                <p class="small text-muted mt-2">Consulta las aportaciones por fecha y abre sus detalles.</p>
+                <div class="row g-2 my-2">
+                    ${[['state','Estado'],['municipality','Municipio'],['contributor','Colaborador'],['cemetery','Panteón o lugar']].map(([key,label]) => `<div class="col-sm-6 col-lg-3"><label class="form-label" for="admin-catalog-${key}">${label}</label><input class="form-control" id="admin-catalog-${key}" type="search" placeholder="Filtrar por ${label.toLowerCase()}" oninput="renderAdminCatalog()"></div>`).join('')}
+                    <div class="col-sm-6"><label class="form-label" for="admin-catalog-order">Orden de aporte</label><select id="admin-catalog-order" class="form-select" onchange="renderAdminCatalog()"><option value="newest">Más recientes primero</option><option value="oldest">Más antiguos primero</option></select></div>
+                    <div class="col-sm-6 d-flex align-items-end"><button class="btn btn-outline-secondary" onclick="clearAdminCatalogFilters()">Limpiar filtros</button></div>
+                </div>
+                <p id="admin-catalog-count" class="small text-muted" aria-live="polite"></p>
+                <div class="table-responsive admin-documents-wrap"><table id="admin-catalog-documents" class="table table-sm align-middle admin-documents-table">
+                <thead><tr><th>Fecha de aporte</th><th>Registro</th><th>Estado</th><th>Municipio</th><th>Panteón o lugar</th><th>Colaborador</th><th>Detalle</th></tr></thead>
+                <tbody id="admin-catalog-rows"></tbody></table></div>
+            </details>`;
+        renderAdminCatalog();
+        await loadErrorReviewsAdmin(content, errorCases);
         await loadPendingCemeteriesAdmin(content);
     } catch (error) {
         content.innerHTML = `<div class="alert alert-danger">${escapeHtml(getFirebaseErrorMessage(error, 'Ocurrió un error al cargar las estadísticas administrativas.'))}</div>`;
+    }
+}
+
+async function loadErrorReviewsAdmin(container, cases) {
+    const section = document.createElement('div');
+    section.className = 'alert alert-warning mt-3';
+    section.innerHTML = `<h6>Errores para verificar (${cases.length})</h6>
+        ${cases.map(item => `<div id="admin-error-${escapeHtml(item.id)}" class="border rounded p-3 mb-2">
+            <strong>${escapeHtml(item.name)} · ${item.count} notas</strong>
+            <div class="mt-2 mb-2"><strong>¿Por qué está aquí?</strong> ${Number(item.count)} usuarios distintos señalaron posibles errores en este registro. Al llegar a 3 usuarios, se solicita verificación administrativa.</div>
+            <div class="small mb-2"><strong>Errores señalados:</strong>${item.notes.map(note => `<p class="mb-1">${escapeHtml(note.requesterName)}: «${escapeHtml(note.description)}»</p>`).join('') || '<p>No se pudieron mostrar las descripciones. Abre el registro y consulta sus conversaciones antes de decidir.</p>'}</div>
+            <p class="small"><strong>Qué debes hacer:</strong> verifica los señalamientos con la fotografía y los datos; corrige o retira el aporte si corresponde y registra el resultado. Las notas son avisos de usuarios, pendientes de comprobar.</p>
+            ${item.notes.map(note => `<details class="mt-2"><summary>${escapeHtml(note.requesterName)}: ${escapeHtml(note.description)}</summary>
+                <div>Estado de conversación: ${escapeHtml(note.status)}</div>
+                ${note.messages.map(message => `<p class="mb-1"><strong>${escapeHtml(message.senderName)}:</strong> ${escapeHtml(message.text)}</p>`).join('')}
+            </details>`).join('')}
+            <button class="btn btn-primary btn-sm mt-2" onclick="${item.recordType === 'cemetery' ? 'openMyCemeteryContribution' : 'openTombDetail'}(${inlineJsValue(item.recordId)})">Ver y corregir</button>
+            ${adminRecordActionsHtml(item.recordType, item.recordId)}
+            ${item.recordType === 'tomb' ? `<button class="btn btn-outline-danger btn-sm mt-2" onclick="deleteAdminRecord(${inlineJsValue(item.recordId)})">Eliminar definitivamente</button>` : ''}
+            <button class="btn btn-success btn-sm mt-2" onclick="resolveErrorReviewAdmin(${inlineJsValue(item.id)})">Registrar resultado y cerrar caso</button>
+        </div>`).join('') || '<p class="mb-0">No hay casos pendientes.</p>'}`;
+    container.prepend(section);
+}
+
+async function resolveErrorReviewAdmin(caseId) {
+    const note = prompt('Resultado de la verificación: indica qué corregiste, retiraste o por qué descartas el error.');
+    if (!note?.trim()) return;
+    try {
+        await functionsApi.httpsCallable('resolverNotasErrorAdmin')({caseId, note});
+        await loadAdminStats();
+        showToast('✅ Resultado registrado.', '#10b981');
+    } catch (error) {
+        showToast(getFirebaseErrorMessage(error, 'No se pudo cerrar el caso.'), '#ef4444');
     }
 }
 
@@ -5033,6 +5855,8 @@ async function loadPendingCemeteriesAdmin(container) {
                     </div>
                     <div class="col-md-6">
                         <strong>${escapeHtml(item.name)}</strong>
+                        <div class="alert alert-warning py-2 mt-2 mb-2 small"><strong>¿Por qué está aquí?</strong> Es una aportación comunitaria pendiente de aprobación administrativa.
+                            <div><strong>Qué debes hacer:</strong> comprueba la fotografía, el nombre y la ubicación; aprueba el lugar o recházalo explicando el motivo al aportador.</div></div>
                         <div class="small">${escapeHtml(item.locality)}, ${escapeHtml(item.municipality)},
                             ${escapeHtml(item.state)}</div>
                         <div class="small text-muted">Aportó: ${escapeHtml(item.contributorName || item.contributorEmail)}</div>
@@ -5050,6 +5874,7 @@ async function loadPendingCemeteriesAdmin(container) {
 
 function communityCemeteryDataHtml(cemetery) {
     const fields = [
+        ['Tipo de lugar', communityPlaceTypeLabel(cemetery)],
         ['Nombre comunitario', cemetery.name],
         ['Nombre original de INEGI', cemetery.inegiName],
         ['Alias para búsqueda', (cemetery.aliases || []).join(' · ')],
@@ -5128,6 +5953,7 @@ async function openCommunityCemeteryReview(cemeteryId) {
         content.innerHTML = `<div class="record-detail-grid">
             ${recordDetailPhotoHtml(cemetery.photoUrl, `Fotografía de ${cemetery.name || 'panteón comunitario'}`)}
             <div>
+                <div class="alert alert-info"><strong>Motivo de revisión:</strong> ${cemetery.status === 'pending' ? 'aportación comunitaria pendiente de aprobación. Comprueba fotografía, nombre y ubicación antes de aprobar o rechazar.' : 'consulta administrativa de una aportación ya revisada.'}</div>
                 <div class="record-data-list">${communityCemeteryDataHtml(cemetery)}</div>
                 <label class="field-label mt-3" for="cemetery-review-note">Mensaje para el aportador</label>
                 <textarea id="cemetery-review-note" class="form-control" rows="3" maxlength="1000"
@@ -5158,11 +5984,18 @@ async function openCommunityCemeteryDetail(cemeteryId) {
         const snapshot = await db.collection('cemeteries').doc(cemeteryId).get();
         if (!snapshot.exists) throw new Error('El panteón ya no existe.');
         const cemetery = {id: snapshot.id, ...snapshot.data()};
+        currentDetailTomb = {...cemetery, recordType: 'cemetery'};
         document.getElementById('record-detail-title').textContent = cemetery.name || 'Panteón comunitario';
         content.innerHTML = `<div class="record-detail-grid">
             <img class="record-detail-image zoomable-image" src="${escapeHtml(safeImageUrl(cemetery.photoUrl))}"
                 alt="Fotografía de ${escapeHtml(cemetery.name)}" onclick="openImageZoom(this.src)">
-            <div><div class="record-data-list">${communityCemeteryDataHtml(cemetery)}</div></div>
+            <div><div class="record-data-list">${communityCemeteryDataHtml(cemetery)}</div>
+                ${cemetery.contributorId && cemetery.contributorId !== auth.currentUser?.uid ? `
+                <label class="field-label mt-3" for="correction-description">Describe el error en esta entrada</label>
+                <textarea id="correction-description" class="form-control" rows="3" maxlength="1500"></textarea>
+                <div class="small text-muted mt-2">Tres notas de usuarios distintos enviarán el caso al administrador.</div>
+                <button class="btn btn-warning mt-2" onclick="submitCorrectionProposal()">Enviar nota al aportador</button>` : ''}
+            </div>
         </div>`;
     } catch (error) {
         content.innerHTML = `<div class="alert alert-danger">${escapeHtml(getFirebaseErrorMessage(error, 'No se pudo abrir el panteón.'))}</div>`;
@@ -5239,6 +6072,36 @@ async function deleteAdminRecord(recordId) {
     }
 }
 
+function adminRecordActionsHtml(recordType, recordId) {
+    if (!isSuperuserActive()) return '';
+    return `<div class="d-flex flex-wrap gap-2 mt-3">${[
+        ['warn', 'Llamar la atención'], ['reject', 'Retirar aporte'], ['restore', 'Restaurar aporte'],
+        ['suspend', 'Suspender aportaciones'], ['lift', 'Levantar suspensión']
+    ].map(([action, label]) => `<button type="button" class="btn btn-sm btn-outline-secondary" onclick="moderateAdminRecord(${inlineJsValue(recordType)}, ${inlineJsValue(recordId)}, ${inlineJsValue(action)})">${label}</button>`).join('')}</div>`;
+}
+
+async function moderateAdminRecord(recordType, recordId, action) {
+    if (!isSuperuserActive()) return;
+    const note = prompt('Describe el motivo. El aportador recibirá este mensaje:');
+    if (!note?.trim()) return;
+    let days;
+    if (action === 'suspend') {
+        const answer = prompt('Días de suspensión de aportaciones: 1, 7 o 30', '7');
+        if (answer === null) return;
+        days = Number(answer);
+        if (![1, 7, 30].includes(days)) return showToast('Selecciona 1, 7 o 30 días.', '#f59e0b');
+    }
+    if (!confirm('¿Confirmas esta acción administrativa y el envío del aviso al aportador?')) return;
+    try {
+        await gestionarAporteAdminFunction({recordType, recordId, action, note, ...(days ? {days} : {})});
+        closeRecordDetail();
+        showToast('✅ Acción registrada y aviso enviado al aportador.', '#10b981');
+        await loadAdminStats();
+    } catch (error) {
+        showToast(getFirebaseErrorMessage(error, 'No se pudo aplicar la acción.'), '#ef4444', 8000);
+    }
+}
+
 async function resetAllAdminData() {
     const confirmation = prompt(
         'Esta acción eliminará TODOS los documentos y fotografías. Escribe exactamente:\nBORRAR TODOS LOS REGISTROS'
@@ -5275,8 +6138,10 @@ function selectAddTombMode() {
     currentGeolocation = null;
     imageSourceType = null;
     clearFormFields();
-    loadInegiStates();
+    renderActiveTombCemetery();
+    if (!activeTombCemetery) changeTombCountry();
     document.getElementById('image-upload-input').value = '';
+    document.getElementById('tomb-cemetery-card').scrollIntoView({behavior: 'smooth', block: 'start'});
 }
 
 function searchCriterionFields() {
@@ -5624,6 +6489,7 @@ async function performSearch() {
         const snapshot = await query.get();
         let results = [];
         snapshot.forEach(doc => {
+            if (doc.data().status === 'rejected') return;
             results.push({ id: doc.id, ...doc.data() });
         });
         if (activeLocationFilterField) {
@@ -5799,6 +6665,7 @@ function detailDataHtml(tomb) {
         ['Defunción', tomb.fecha_defuncion],
         ['Edad al fallecer', Number.isInteger(tomb.edad_defuncion) ? `${tomb.edad_defuncion} años` : null],
         ['Panteón', formatProperName(tomb.nombre_panteon)],
+        ['País', tomb.pais_panteon || 'México'],
         ['Estado', tomb.estado_panteon],
         ['Municipio', tomb.municipio_panteon],
         ['Colonia / poblado', formatProperName(tomb.colonia_panteon)]
@@ -5823,10 +6690,129 @@ async function openTombDetail(tombId) {
     }
 }
 
+let pendingTombExtraPhoto = null;
+let tombExtraCameraCapture = null;
+
+async function prepareTombExtraCameraPhoto(input) {
+    const file = input.files?.[0];
+    const tomb = currentDetailTomb;
+    if (!file || !tomb) return;
+    const status = document.getElementById('tomb-extra-camera-status');
+    const button = document.getElementById('tomb-extra-photo-save');
+    const capture = {recordId:tomb.id,file,source:'camera',capturedAt:Date.now(),loading:true};
+    tombExtraCameraCapture=capture;
+    document.getElementById('tomb-extra-photo-file').value='';
+    button.disabled=true;
+    status.textContent='Obteniendo el GPS del lugar donde acabas de tomar la fotografía…';
+    try {
+        if (!navigator.geolocation) throw new Error('GPS no disponible');
+        const position=await new Promise((resolve,reject)=>navigator.geolocation.getCurrentPosition(resolve,reject,{enableHighAccuracy:true,timeout:15000,maximumAge:0}));
+        capture.geolocation={latitude:position.coords.latitude,longitude:position.coords.longitude};
+        capture.accuracy=position.coords.accuracy;
+        if(tombExtraCameraCapture===capture && status.isConnected) status.textContent=`Foto preparada con GPS: ${formatCoordinates(capture.geolocation)}. Precisión aproximada: ${Math.round(capture.accuracy)} metros.`;
+    } catch {
+        if(tombExtraCameraCapture===capture && status.isConnected) status.textContent='Foto preparada sin GPS. Puedes añadirla igualmente y completar la ubicación después desde la tumba.';
+    } finally {
+        capture.loading=false;
+        if(tombExtraCameraCapture===capture) button.disabled=false;
+    }
+}
+
+function selectTombExtraGalleryPhoto() {
+    tombExtraCameraCapture=null;
+    document.getElementById('tomb-extra-camera-file').value='';
+    document.getElementById('tomb-extra-camera-status').textContent='Foto seleccionada de archivos. No se asociará automáticamente el GPS actual a una foto anterior.';
+    document.getElementById('tomb-extra-photo-save').disabled=false;
+}
+
+function tombHasLocation(tomb) {
+    return Number.isFinite(tomb?.geolocation?.latitude) && Number.isFinite(tomb?.geolocation?.longitude);
+}
+
+async function loadTombCommunityMedia(recordId) {
+    const gallery = document.getElementById('tomb-extra-gallery');
+    if (!gallery) return;
+    try {
+        const snapshot = await db.collection('tumbas').doc(recordId).collection('photos').orderBy('createdAt','desc').get();
+        const photos = await Promise.all(snapshot.docs.map(async doc => {
+            const photo = doc.data();
+            try { return {...photo,url:await storage.ref(photo.storagePath).getDownloadURL()}; }
+            catch { return {...photo,url:null}; }
+        }));
+        if (!gallery.isConnected || currentDetailTomb?.id !== recordId) return;
+        gallery.innerHTML = photos.length ? `<div class="row g-2">${photos.map(photo => `<div class="col-6 col-md-4">${photo.url ? `<img src="${escapeHtml(safeImageUrl(photo.url))}" class="img-fluid rounded w-100" style="height:150px;object-fit:cover;cursor:zoom-in" alt="Fotografía adicional de la tumba" onclick="openImageZoom(this.src)">` : '<p>Fotografía no disponible</p>'}<small>${escapeHtml(photo.contributorName || 'Colaborador')} · ${escapeHtml(formatTimestamp(photo.createdAt))}</small>${photo.capture?.source === 'camera' ? '<div class="small text-muted">Capturada con cámara</div>' : ''}${tombHasLocation(photo) ? `<div class="small">GPS de la foto: ${escapeHtml(formatCoordinates(photo.geolocation))}</div>` : ''}</div>`).join('')}</div>` : '<p class="small text-muted">Todavía no hay fotografías adicionales.</p>';
+    } catch (error) {
+        if (gallery.isConnected) gallery.textContent = 'No se pudieron cargar las fotografías adicionales. Vuelve a abrir el registro para reintentar.';
+    }
+}
+
+async function addPhotoToExistingTomb() {
+    const tomb = currentDetailTomb;
+    const camera = tombExtraCameraCapture?.recordId === tomb?.id ? tombExtraCameraCapture : null;
+    const file = camera?.file || document.getElementById('tomb-extra-photo-file')?.files?.[0];
+    const button = document.getElementById('tomb-extra-photo-save');
+    if (!tomb || !auth.currentUser || button?.disabled) return;
+    if (!file) return showToast('Selecciona primero la fotografía que quieres añadir.', '#f59e0b');
+    if(camera?.loading) return;
+    if(camera?.geolocation && !confirm(`Confirma que acabas de tomar esta foto frente a esta tumba. Se guardará el GPS ${formatCoordinates(camera.geolocation)} con la foto${tombHasLocation(tomb) ? '.' : ' y se completará la ubicación de la tumba si aún falta.'}`)) return;
+    if (!file.type.startsWith('image/') || file.size > 20 * 1024 * 1024) return showToast('Selecciona una imagen de hasta 20 MB.', '#f59e0b');
+    button.disabled = true;
+    setSavingState(button,'Guardando fotografía…');
+    try {
+        if (!pendingTombExtraPhoto || pendingTombExtraPhoto.recordId !== tomb.id || pendingTombExtraPhoto.file !== file) {
+            pendingTombExtraPhoto = {recordId:tomb.id,file,photoId:crypto.randomUUID(),uploaded:false};
+        }
+        const pending = pendingTombExtraPhoto;
+        if (!pending.uploaded) {
+            const url = URL.createObjectURL(file);
+            const image = new Image();
+            try {
+                await new Promise((resolve,reject) => {image.onload=resolve;image.onerror=()=>reject(new Error('No se pudo leer la imagen.'));image.src=url;});
+                const ratio = Math.min(1,1600/Math.max(image.naturalWidth,image.naturalHeight));
+                const canvas = document.createElement('canvas');canvas.width=Math.max(1,Math.round(image.naturalWidth*ratio));canvas.height=Math.max(1,Math.round(image.naturalHeight*ratio));
+                canvas.getContext('2d').drawImage(image,0,0,canvas.width,canvas.height);
+                const blob = await new Promise(resolve=>canvas.toBlob(resolve,'image/jpeg',0.85));
+                if (!blob) throw new Error('No se pudo preparar la fotografía.');
+                await uploadBlobWithTimeout(storage.ref(`tomb_extra_images/${tomb.id}/${auth.currentUser.uid}/${pending.photoId}/image.jpg`),blob,60000);
+                pending.uploaded=true;
+            } finally { URL.revokeObjectURL(url); }
+        }
+        await functionsApi.httpsCallable('aportarFotoOUbicacionTumba')({recordId:tomb.id,photoId:pending.photoId,
+            ...(camera ? {capture:{source:'camera',capturedAt:camera.capturedAt,...(Number.isFinite(camera.accuracy)?{accuracy:camera.accuracy}:{})}} : {}),
+            ...(camera?.geolocation ? {geolocation:camera.geolocation} : {})});
+        pendingTombExtraPhoto=null;
+        tombExtraCameraCapture=null;
+        showToast('✅ Fotografía añadida a la tumba existente.','#10b981');
+        if (currentDetailTomb?.id === tomb.id) await openTombDetail(tomb.id);
+    } catch (error) { showToast(getFirebaseErrorMessage(error,'No se pudo añadir la foto. Puedes reintentar.'),'#ef4444',8000); }
+    finally { button.disabled=false;button.textContent='Añadir fotografía'; }
+}
+
+async function addLocationToExistingTomb() {
+    const tomb = currentDetailTomb;
+    const button = document.getElementById('tomb-add-location');
+    if (!tomb || !auth.currentUser || tombHasLocation(tomb) || button?.disabled) return;
+    if (!confirm('Usa esta opción únicamente si estás frente a esta tumba. ¿Obtener tu ubicación actual?')) return;
+    button.disabled=true;
+    try {
+        if (!navigator.geolocation) throw new Error('Este dispositivo no permite obtener la ubicación.');
+        const position = await new Promise((resolve,reject)=>navigator.geolocation.getCurrentPosition(resolve,reject,{enableHighAccuracy:true,timeout:15000,maximumAge:0}));
+        const geolocation={latitude:position.coords.latitude,longitude:position.coords.longitude};
+        if (!confirm(`¿Guardar esta ubicación de la tumba? ${formatCoordinates(geolocation)}. Precisión aproximada: ${Math.round(position.coords.accuracy)} metros.`)) return;
+        await functionsApi.httpsCallable('aportarFotoOUbicacionTumba')({recordId:tomb.id,geolocation});
+        showToast('✅ Ubicación añadida sin modificar los datos del registro.','#10b981');
+        if (currentDetailTomb?.id === tomb.id) await openTombDetail(tomb.id);
+    } catch (error) {
+        showToast(getFirebaseErrorMessage(error,'No se pudo guardar la ubicación. Revisa el permiso de GPS.'),'#ef4444',8000);
+        if (error.code === 'functions/already-exists' && currentDetailTomb?.id === tomb.id) await openTombDetail(tomb.id);
+    } finally { button.disabled=false; }
+}
+
 function renderTombDetail() {
     const tomb = currentDetailTomb;
     const user = auth.currentUser;
     if (!tomb || !user) return;
+    tombExtraCameraCapture = null;
     const isOwner = tombOwnerId(tomb) === user.uid;
     document.getElementById('record-detail-title').textContent =
         tomb.nombre_finado || 'Detalle del registro';
@@ -5842,28 +6828,44 @@ function renderTombDetail() {
             </div>
             <div>
                 <div class="record-data-list">${detailDataHtml(tomb)}</div>
-                ${isOwner ? `
+                ${isOwner || isSuperuserActive() ? `
                     <div class="alert alert-info mt-3 mb-2">
-                        Este registro es tuyo. Puedes corregir sus datos sin reemplazar la fotografía.
+                        Puedes corregir los datos de este registro sin reemplazar la fotografía.
                     </div>
                     <button class="btn btn-primary w-100" onclick="enableTombDetailEditing()">
                         <i class="fas fa-pen me-1"></i>EDITAR DATOS
-                    </button>` : `
+                    </button>
+                    <button type="button" class="btn btn-outline-danger w-100 mt-2" onclick="deleteMyContribution('tomb', ${inlineJsValue(tomb.id)})"><i class="fas fa-trash-alt me-1"></i>ELIMINAR APORTACIÓN</button>` : `
                     <div class="mt-3">
                         <label class="field-label" for="correction-description">Describe qué dato debe revisarse</label>
                         <textarea id="correction-description" class="form-control" rows="4"
                             maxlength="1500" placeholder="Ejemplo: el segundo apellido parece ser Hernández, no Fernández."></textarea>
+                        <div class="small text-muted mt-2">Con tres notas de usuarios distintos sobre esta entrada, el administrador recibirá el caso para verificarlo.</div>
                         <button class="btn btn-warning w-100 mt-2" onclick="submitCorrectionProposal()">
                             <i class="fas fa-comment-medical me-1"></i>ENVIAR PROPUESTA AL APORTADOR
                         </button>
-                    </div>`}
+                    </div>`}${adminRecordActionsHtml('tomb', tomb.id)}
+                <section class="border rounded p-3 mt-3"><h6>Fotografías de esta tumba</h6>
+                    <div id="tomb-extra-gallery" class="mb-3" aria-live="polite">Cargando fotografías…</div>
+                    <label class="btn btn-outline-primary mb-2" for="tomb-extra-camera-file"><i class="fas fa-camera me-1"></i>Tomar foto aquí con GPS</label>
+                    <input type="file" id="tomb-extra-camera-file" class="visually-hidden" accept="image/*" capture="environment" onchange="prepareTombExtraCameraPhoto(this)">
+                    <p id="tomb-extra-camera-status" class="small" aria-live="polite">La opción de cámara obtiene el GPS del celular al tomar la foto. Permite el acceso a la ubicación y permanece frente a la tumba.</p>
+                    <label class="form-label" for="tomb-extra-photo-file">O elegir una fotografía guardada</label>
+                    <input type="file" id="tomb-extra-photo-file" class="form-control mb-2" accept="image/*" onchange="selectTombExtraGalleryPhoto()">
+                    <button type="button" id="tomb-extra-photo-save" class="btn btn-outline-primary" onclick="addPhotoToExistingTomb()">Añadir fotografía</button>
+                    <p class="small text-muted mt-2 mb-0">Se añade a este registro. La fotografía original y los datos de la persona se conservan.</p>
+                </section>
+                <section class="border rounded p-3 mt-3"><h6>Ubicación de la tumba</h6>
+                    ${tombHasLocation(tomb) ? `<p class="mb-0">${escapeHtml(formatCoordinates(tomb.geolocation))}</p>` : '<p class="small">Aún no tiene ubicación. Puedes añadirla con el GPS si estás frente a la tumba.</p><button type="button" id="tomb-add-location" class="btn btn-outline-primary" onclick="addLocationToExistingTomb()">Añadir ubicación actual</button>'}
+                </section>
             </div>
         </div>`;
+    loadTombCommunityMedia(tomb.id);
 }
 
 function enableTombDetailEditing() {
     const tomb = currentDetailTomb;
-    if (!tomb || tombOwnerId(tomb) !== auth.currentUser?.uid) return;
+    if (!tomb || tombOwnerId(tomb) !== auth.currentUser?.uid && !isSuperuserActive()) return;
     const editable = [
         ['nombres', 'Nombre(s)', tomb.nombres || tomb.nombre_finado, 'text'],
         ['apellido_paterno', 'Apellido paterno', tomb.apellido_paterno, 'text'],
@@ -5897,7 +6899,7 @@ function enableTombDetailEditing() {
 async function saveTombDetailEdits() {
     const tomb = currentDetailTomb;
     const user = auth.currentUser;
-    if (!tomb || !user || tombOwnerId(tomb) !== user.uid) return;
+    if (!tomb || !user || tombOwnerId(tomb) !== user.uid && !isSuperuserActive()) return;
     const values = {};
     document.querySelectorAll('[data-tomb-edit]').forEach(input => {
         values[input.dataset.tombEdit] = input.value.trim();
@@ -5943,11 +6945,11 @@ async function saveTombDetailEdits() {
         )
     );
     if (duplicate) {
-        showToast('⚠ Los cambios coinciden con otro registro existente.', '#f59e0b', 6000);
+        showTombEditDuplicate(duplicate.id, duplicate.data());
         return;
     }
     try {
-        await db.collection('tumbas').doc(tomb.id).update({
+        const changes = {
             nombre_finado: updated.nombre_finado,
             nombre_finado_lower: normalizeSearchText(updated.nombre_finado) || null,
             nombres: updated.nombres,
@@ -5970,16 +6972,51 @@ async function saveTombDetailEdits() {
             municipio_panteon_lower: normalizeSearchText(updated.municipio_panteon) || null, // Updated for search
             colonia_panteon: updated.colonia_panteon,
             record_key: recordKey,
-            person_key: personKey || null,
-            last_updated: firebase.firestore.FieldValue.serverTimestamp(),
-            last_updated_by: user.uid
-        });
+            person_key: personKey || null
+        };
+        if (isSuperuserActive()) {
+            const note = prompt('Motivo de la corrección (se notificará al aportador):');
+            if (!note?.trim()) return;
+            await gestionarAporteAdminFunction({recordType: 'tomb', recordId: tomb.id, action: 'edit', note, changes});
+            await loadAdminStats();
+        } else {
+            const result = await actualizarAportacionTumbaFunction({recordId: tomb.id, changes});
+            if (result.data?.duplicate) {
+                showTombEditDuplicate(result.data.duplicate.id, result.data.duplicate);
+                return;
+            }
+        }
         currentDetailTomb = { ...updated, record_key: recordKey, person_key: personKey || null };
         showToast('✅ Registro corregido.', '#10b981');
         renderTombDetail();
     } catch (error) {
+        try {
+            const details = JSON.parse(error?.message || '');
+            if (details.duplicate) {
+                showTombEditDuplicate(details.duplicate.id, details.duplicate);
+                return;
+            }
+        } catch { /* Use the standard Firebase error message below. */ }
         showToast(`❌ ${getFirebaseErrorMessage(error, 'Ocurrió un error al guardar las correcciones.')}`, '#ef4444', 7000);
     }
+}
+
+function showTombEditDuplicate(recordId, record) {
+    const name = record.nombre_finado || 'Registro sin nombre';
+    const place = [record.nombre_panteon, record.municipio_panteon, record.estado_panteon]
+        .filter(Boolean).join(' · ');
+    const dates = [record.fecha_nacimiento && `Nac.: ${record.fecha_nacimiento}`,
+        record.fecha_defuncion && `Def.: ${record.fecha_defuncion}`].filter(Boolean).join(' · ');
+    const content = document.getElementById('record-detail-content');
+    content.insertAdjacentHTML('afterbegin', `<div class="alert alert-warning" role="alert">
+        <strong>Posible registro duplicado</strong>
+        <div>${escapeHtml(name)}${dates ? ` · ${escapeHtml(dates)}` : ''}${place ? `<br>${escapeHtml(place)}` : ''}</div>
+        <div class="d-flex flex-wrap gap-2 mt-2">
+            <button type="button" class="btn btn-sm btn-primary" onclick="openTombDetail(${inlineJsValue(recordId)})">Abrir registro para comparar</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="this.closest('.alert').remove()">Seguir corrigiendo</button>
+        </div>
+    </div>`);
+    showToast('⚠ Antes de guardar, revisa el registro que coincide con estos datos.', '#f59e0b', 6000);
 }
 
 async function submitCorrectionProposal() {
@@ -5993,26 +7030,12 @@ async function submitCorrectionProposal() {
     const ownerId = tombOwnerId(tomb);
     if (!ownerId || ownerId === user.uid) return;
     try {
-        await db.collection('correction_requests').add({
-            tombId: tomb.id,
-            tombName: tomb.nombre_finado || 'Registro sin nombre',
-            tombOwnerId: ownerId,
-            requesterId: user.uid,
-            requesterName: user.displayName || 'Colaborador',
-            description,
-            status: 'open',
-            participants: [ownerId, user.uid],
-            readBy: [user.uid],
-            messages: [{
-                senderId: user.uid,
-                senderName: user.displayName || 'Colaborador',
-                text: description,
-                createdAt: Date.now()
-            }],
-            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        const response = await functionsApi.httpsCallable('enviarNotaError')({
+            recordType: tomb.recordType || 'tomb', recordId: tomb.id, description
         });
-        showToast('✅ Propuesta enviada al aportador.', '#10b981', 5000);
+        showToast(response.data.escalated
+            ? '✅ Nota enviada al aportador y caso enviado a revisión administrativa.'
+            : `✅ Nota enviada al aportador (${response.data.count}/3 para revisión administrativa).`, '#10b981', 7000);
         closeRecordDetail();
     } catch (error) {
         showToast(`❌ No se pudo enviar: ${getFirebaseErrorMessage(error, 'Ocurrió un error al enviar la propuesta.')}`, '#ef4444', 7000);
@@ -6239,6 +7262,10 @@ window.onload = () => {
 
     auth.onAuthStateChanged(async (user) => {
         platformAdminUid = null;
+        updateSuperuserIndicator();
+        moderationUnsubscribe?.();
+        moderationUnsubscribe = null;
+        document.getElementById('suspension-badge').style.display = 'none';
         document.getElementById('admin-panel-btn').style.display = 'none';
         if (user) {
             if (!user.emailVerified) {
@@ -6263,16 +7290,25 @@ window.onload = () => {
             document.getElementById('admin-panel-btn').style.display =
                 platformAdminUid === user.uid ? 'block' : 'none';
             startCorrectionNotifications();
+            moderationUnsubscribe = db.collection('_moderation').doc(user.uid).onSnapshot(snapshot => {
+                const until = snapshot.data()?.suspendedUntil?.toMillis?.() || 0;
+                const badge = document.getElementById('suspension-badge');
+                badge.textContent = until > Date.now() ? `Aportaciones suspendidas hasta ${new Date(until).toLocaleString('es-MX')}` : '';
+                badge.style.display = until > Date.now() ? 'inline-block' : 'none';
+            }, error => console.warn('No se pudo consultar el estado de moderación.', error.code));
             showModeSelection(); // Llama a la función para establecer la vista inicial
             try {
                 const token = await user.getIdTokenResult();
                 if (auth.currentUser?.uid !== user.uid) return;
-                platformAdminUid = token.claims.platform_admin === true ? user.uid : null;
+                platformAdminUid = token.claims.platform_admin === true && token.claims.superuser_session === true &&
+                    token.claims.superuser_until > Date.now() / 1000 ? user.uid : null;
                 if (platformAdminUid) await auth.setPersistence(firebase.auth.Auth.Persistence.NONE);
                 if (auth.currentUser?.uid !== user.uid) return;
                 document.getElementById('admin-panel-btn').style.display = platformAdminUid ? 'block' : 'none';
+                updateSuperuserIndicator(platformAdminUid ? token.claims.superuser_until * 1000 : 0);
             } catch (error) {
                 platformAdminUid = null;
+                updateSuperuserIndicator();
                 document.getElementById('admin-panel-btn').style.display = 'none';
             }
 
@@ -6298,6 +7334,13 @@ window.onload = () => {
             document.getElementById('main-app').classList.remove('show-ads');
             benefitStatus = null;
             benefitStatusLoadedAt = 0;
+            activeTombCemetery = null;
+            resetTombPhotoBatch();
+            tombCountrySequence++;
+            document.getElementById('display-pais').value = 'México';
+            document.getElementById('display-estado-manual').value = '';
+            document.getElementById('display-municipio-manual').value = '';
+            clearSelectedTombCatalogEntry();
             clearFormFields();
             document.getElementById('scan-container').style.display = 'none';
             document.getElementById('upload-capture-card').style.display = 'none';

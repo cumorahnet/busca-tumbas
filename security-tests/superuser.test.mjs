@@ -1,9 +1,9 @@
-﻿import fs from 'node:fs';
+import fs from 'node:fs';
 import vm from 'node:vm';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 const html = fs.readFileSync('index.html', 'utf8');
-function harness(failure, user = {uid: 'platform-admin', email: 'admin@example.test', emailVerified: true, getIdTokenResult: async () => ({claims:{platform_admin:true}})}) {
+function harness(failure, user = {uid: 'platform-admin', email: 'admin@example.test', emailVerified: true, getIdTokenResult: async () => ({claims:{platform_admin:true,superuser_session:true,superuser_until:Date.now()/1000+3600}})}) {
  const elements = new Map();
  const calls = [];
  const document = {getElementById(id) {
@@ -12,8 +12,9 @@ function harness(failure, user = {uid: 'platform-admin', email: 'admin@example.t
  }};
  const context = {document, authFlowInProgress: false, loadSuperuserConfig: async () => ({uid: 'platform-admin', email:'admin@example.test'}),
   firebase: {auth: {Auth: {Persistence: {NONE: 'NONE'}}}},
-  auth: {async setPersistence(value) {calls.push(value); if (failure === 'persistence') throw Error('persistence');}, async signOut(){calls.push('signOut'); if(failure === 'signOut' && calls.includes('signIn')) throw Error('offline');}, async signInWithEmailAndPassword(){calls.push('signIn'); if(failure === 'password') throw Error('password'); return {user};}},
-  async obtenerEstadisticasAdminFunction(){calls.push('server'); if(failure === 'server' || failure === 'signOut') throw Error('denied');},
+  auth: {currentUser:user, async setPersistence(value) {calls.push(value); if (failure === 'persistence') throw Error('persistence');}, async signOut(){calls.push('signOut'); if(failure === 'signOut' && calls.includes('signIn')) throw Error('offline');}, async signInWithCustomToken(){calls.push('signIn'); if(failure === 'password') throw Error('password'); return {user};}},
+  async autorizarSuperusuarioFunction(){calls.push('authorize'); if(failure === 'password') throw Error('password'); return {data:{token:'test-token'}};}, async obtenerEstadisticasAdminFunction(){calls.push('server'); if(failure === 'server' || failure === 'signOut') throw Error('denied');},
+  updateSuperuserIndicator() {},
   async showAdminPanel(){calls.push('panel');}, getFirebaseErrorMessage: e => e.message};
  vm.createContext(context);
  vm.runInContext('let platformAdminUid = null; let superuserLoginBusy = false;', context);
@@ -32,14 +33,17 @@ for (const failure of ['persistence', 'password', 'server', null]) test(`superus
  assert.equal(calls.includes('panel'), !failure);
  if (failure === 'persistence') assert.deepEqual(calls, ['NONE']);
  if (failure === 'server') assert.equal(calls.at(-1), 'signOut');
- if (!failure) assert.deepEqual(calls, ['NONE','signOut','signIn','server','close','panel']);
+ if (!failure) assert.deepEqual(calls, ['NONE','authorize','signIn','server','close','panel']);
 });
-test('unverified account is rejected before admin operations', async () => {
- const {context,calls} = harness(null, {uid:'platform-admin',email:'admin@example.test',emailVerified:false,getIdTokenResult:async()=>({claims:{platform_admin:true}})});
- await context.handleSuperuserLogin({preventDefault(){}});
- assert.equal(calls.includes('server'), false);
- assert.equal(calls.includes('panel'), false);
- assert.equal(calls.at(-1), 'signOut');
+test('direct superuser login does not depend on a normal session', async () => {
+ for (const current of [null,{emailVerified:false}]) {
+  const {context,calls,document}=harness();
+  context.auth.currentUser=current;
+  await context.handleSuperuserLogin({preventDefault(){}});
+  assert.equal(calls.includes('authorize'),true);
+  assert.equal(calls.includes('panel'),true);
+  assert.equal(document.getElementById('superuser-password').value,'');
+ }
 });
 test('password visibility preserves value and exposes state', () => {
  const {context,document} = harness();
@@ -53,6 +57,14 @@ test('password visibility preserves value and exposes state', () => {
  assert.equal(input.value,'secret-password');
 });
 
+test('administrative password is sent only to server authorization, not normal Firebase login',async()=>{
+ const {context,calls}=harness();
+ context.auth.signInWithEmailAndPassword=()=>{throw Error('must not use normal password login');};
+ context.document.getElementById('superuser-email').value='cumorahnet@gmail.com';
+ context.autorizarSuperusuarioFunction=async data=>{assert.equal(data.email,'cumorahnet@gmail.com');assert.equal(data.password,'secret-password');return {data:{token:'custom-token'}};};
+ await context.handleSuperuserLogin({preventDefault(){}});
+ assert.equal(calls.includes('panel'),true);
+});
 test('ordinary user with the same contact email has no global role', async () => {
  const {context,calls} = harness(null, {uid:'platform-admin',email:'admin@example.test',emailVerified:true,getIdTokenResult:async()=>({claims:{}})});
  await context.handleSuperuserLogin({preventDefault(){}});

@@ -8,6 +8,10 @@ class HttpsError extends Error {
 }
 const context = {exports: {}, require: (name) => {
   const modules = {
+    "./record-writes": require("./record-writes"),
+    "./duplicates": require("./duplicates"),
+    "./similarity": require("./similarity"),
+    "./superuser-password": require("./superuser-password"),
     "firebase-functions/v2/https": {onCall: (_options, handler) => handler, HttpsError},
     "firebase-functions/params": {defineSecret: () => ({value: () => "test"})},
     "firebase-functions/v2": {setGlobalOptions: () => {}},
@@ -22,6 +26,7 @@ const context = {exports: {}, require: (name) => {
 vm.createContext(context);
 vm.runInContext(fs.readFileSync(__dirname + "/index.js", "utf8"), context);
 for (const [name, handler] of Object.entries(context.exports)) {
+  if (name === "autorizarSuperusuario") continue;
   test(name + " rejects anonymous and unverified users, including admin email", async () => {
     await assert.rejects(handler({}), {code: "unauthenticated"});
     for (const email of ["user@example.com", "cumorahnet@gmail.com"]) {
@@ -29,7 +34,7 @@ for (const [name, handler] of Object.entries(context.exports)) {
     }
   });
 }
-for (const name of ["activarPlusAdmin", "obtenerEstadisticasAdmin", "eliminarRegistroAdmin", "vaciarBaseAdmin"]) {
+for (const name of ["auditarDuplicadosAdmin", "activarPlusAdmin", "obtenerEstadisticasAdmin", "eliminarRegistroAdmin", "vaciarBaseAdmin", "obtenerNotasErrorAdmin", "resolverNotasErrorAdmin", "obtenerComparacionDisputa", "resolverDisputaDuplicado"]) {
   test(name + " rejects a verified non-admin", async () => {
     await assert.rejects(context.exports[name]({auth: {uid: "user", token: {email: "user@example.com", email_verified: true}}}), {code: "permission-denied"});
   });
@@ -50,5 +55,6 @@ test("global role must be boolean true and email verified", () => {
   for (const role of [undefined, false, "true", "platform_admin"]) {
     assert.throws(() => context.requireAdmin({auth: {uid: "user", token: {email_verified: true, platform_admin: role}}}), {code: "permission-denied"});
   }
-  assert.doesNotThrow(() => context.requireAdmin({auth: {uid: "dedicated", token: {email_verified: true, platform_admin: true}}}));
+  assert.throws(() => context.requireAdmin({auth: {uid: "dedicated", token: {email_verified: true, platform_admin: true}}}), {code: "permission-denied"});
+  assert.doesNotThrow(() => context.requireAdmin({auth: {uid: "dedicated", token: {email_verified: true, platform_admin: true, superuser_session: true, superuser_until: Date.now()/1000+60}}}));
 });

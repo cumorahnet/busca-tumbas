@@ -4,9 +4,10 @@ const {onCall, HttpsError} = require("firebase-functions/v2/https");
 const {defineSecret} = require("firebase-functions/params");
 const {setGlobalOptions} = require("firebase-functions/v2");
 const {initializeApp} = require("firebase-admin/app");
-const {getFirestore, FieldValue} = require("firebase-admin/firestore");
+const {getFirestore, FieldValue, GeoPoint} = require("firebase-admin/firestore");
 const {getStorage} = require("firebase-admin/storage");
 const {getAuth} = require("firebase-admin/auth");
+const {verifyPassword, elevated, attemptKey} = require("./superuser-password");
 
 initializeApp();
 setGlobalOptions({
@@ -17,6 +18,11 @@ setGlobalOptions({
 });
 
 const db = getFirestore();
+exports.aportarFotoOUbicacionTumba = onCall({enforceAppCheck:false}, async request => {
+  requireUser(request);
+  return require("./tomb-media")({db, bucket:getStorage().bucket(), FieldValue, HttpsError, requireUser})(request);
+});
+Object.assign(exports, require("./record-writes")({db, onCall, HttpsError, FieldValue, GeoPoint, requireUser, requireAdmin}));
 const INEGI_TOKEN = defineSecret("INEGI_TOKEN");
 const GEMINI_API_KEY = defineSecret("GEMINI_API_KEY");
 const CONTRIBUTIONS_PER_REWARD = 10;
@@ -38,10 +44,53 @@ function requireUser(request) {
 
 function requireAdmin(request) {
   requireUser(request);
-  if (request.auth.token.platform_admin !== true) {
+  if (!elevated(request.auth.token)) {
     throw new HttpsError("permission-denied", "Acceso exclusivo del administrador.");
   }
 }
+
+exports.autorizarSuperusuario = onCall({enforceAppCheck: false}, async (request) => {
+  const email = typeof request.data?.email === "string" ? request.data.email.trim().toLowerCase() : "";
+  const password = request.data?.password;
+  if (email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ||
+      typeof password !== "string" || password.length < 16 || password.length > 128) {
+    throw new HttpsError("invalid-argument", "Introduce tu correo y contraseña de superusuario (16–128 caracteres).");
+  }
+  const now = Date.now();
+  async function limit(key, maximum) {
+    const limiterRef = db.collection("_superuserAttempts").doc(key);
+    await db.runTransaction(async (transaction) => {
+      const snapshot = await transaction.get(limiterRef);
+    const current = snapshot.exists ? snapshot.data() : {};
+    const active = Number(current.until) > now;
+    if (active && Number(current.count) >= maximum) {
+      throw new HttpsError("resource-exhausted", "Demasiados intentos. Espera 15 minutos.");
+    }
+    transaction.set(limiterRef, {count: active ? Number(current.count) + 1 : 1,
+      until: active ? current.until : now + 15 * 60 * 1000});
+    });
+  }
+  await limit("ip-" + attemptKey(request.rawRequest?.ip || "unknown"), 20);
+  const denied = () => new HttpsError("permission-denied", "Correo o contraseña de superusuario incorrectos.");
+  let user;
+  try {
+    user = await getAuth().getUserByEmail(email);
+  } catch (error) {
+    if (error.code === "auth/user-not-found") throw denied();
+    throw new HttpsError("unavailable", "No se pudo verificar el acceso. Intenta nuevamente.");
+  }
+  if (user.disabled || !user.emailVerified || user.customClaims?.platform_admin !== true) throw denied();
+  const uid = user.uid;
+  await limit(uid, 5);
+  const credentialRef = db.collection("_superuserCredentials").doc(uid);
+  const snapshot = await credentialRef.get();
+  if (!snapshot.exists || !await verifyPassword(password, snapshot.data())) {
+    throw denied();
+  }
+  const token = await getAuth().createCustomToken(uid, {superuser_session: true,
+    superuser_until: Math.floor(now / 1000) + 3600});
+  return {token};
+});
 
 function validDateMilliseconds(value) {
   const milliseconds = value?.toMillis?.() || new Date(value || 0).getTime();
@@ -106,7 +155,7 @@ exports.obtenerEstadoBeneficios = onCall(
         }, {merge: true});
         return {adFreeUntil, paidUntil, newMilestones};
       });
-      const isAdmin = request.auth.token.platform_admin === true;
+      const isAdmin = elevated(request.auth.token);
       return {
         adFree: isAdmin || result.adFreeUntil > now,
         source: isAdmin ? "admin" :
@@ -163,6 +212,65 @@ exports.activarPlusAdmin = onCall(
     },
 );
 
+exports.enviarNotaError = onCall({enforceAppCheck: false}, async (request) => {
+  requireUser(request);
+  await enforceRateLimit(request.auth.uid, "error_note", 20);
+  return require("./error-notes").submit(db, request, FieldValue, HttpsError);
+});
+
+exports.obtenerNotasErrorAdmin = onCall({enforceAppCheck: false}, async (request) => {
+  requireAdmin(request);
+  return {cases: await require("./error-notes").list(db)};
+});
+
+exports.resolverNotasErrorAdmin = onCall({enforceAppCheck: false}, async (request) => {
+  requireAdmin(request);
+  const {caseId, note} = request.data || {};
+  if (typeof caseId !== "string" || !/^(tomb|cemetery)_[A-Za-z0-9_-]{1,128}$/.test(caseId) ||
+      typeof note !== "string" || !note.trim() || note.length > 1000) {
+    throw new HttpsError("invalid-argument", "Indica el caso y el resultado de la revisión.");
+  }
+  await db.runTransaction(async (transaction) => {
+    const reference = db.collection("_errorReviews").doc(caseId);
+    const snapshot = await transaction.get(reference);
+    if (!snapshot.exists || snapshot.data().status !== "pending") {
+      throw new HttpsError("failed-precondition", "El caso no está pendiente.");
+    }
+    transaction.update(reference, {status: "reviewed", resolution: note.trim(),
+      reviewedBy: request.auth.uid, reviewedAt: FieldValue.serverTimestamp()});
+    transaction.set(db.collection("_adminAudit").doc(), {action: "review_error_notes",
+      caseId, actor: request.auth.uid, note: note.trim(), createdAt: FieldValue.serverTimestamp()});
+  });
+  return {ok: true};
+});
+
+exports.auditarDuplicadosAdmin = onCall({enforceAppCheck: false}, async (request) => {
+  requireAdmin(request);
+  const {findExistingDuplicates} = require("./duplicate-audit");
+  const [tombs, cemeteries] = await Promise.all([
+    db.collection("tumbas").get(), db.collection("cemeteries").get(),
+  ]);
+  const scan = (snapshot, cemetery) => findExistingDuplicates(snapshot.docs.map(doc => ({id:doc.id, data:doc.data()})), cemetery);
+  const tombResult = scan(tombs, false);
+  const cemeteryResult = scan(cemeteries, true);
+  const matches = [...tombResult.matches, ...cemeteryResult.matches];
+  const recordData = new Map([...tombs.docs.map(doc => [`tomb:${doc.id}`,doc.data()]),
+    ...cemeteries.docs.map(doc => [`cemetery:${doc.id}`,doc.data()])]);
+  const shown = matches.slice(0, 200);
+  const resolutionIds = [...new Set(shown.flatMap(match => [match.first,match.second]
+      .map(record => recordData.get(`${match.recordType}:${record.id}`)?.resolvedDisputeId).filter(Boolean)))];
+  const resolutions = new Map(await Promise.all(resolutionIds.map(async id => {
+    const doc = await db.collection("_duplicateDisputes").doc(id).get();
+    const data = doc.data();
+    return [id, data ? {decision:data.decision || null, note:data.resolution || null, status:data.status} : null];
+  })));
+  for (const match of shown) match.previousResolutions = [match.first,match.second].map(record =>
+    resolutions.get(recordData.get(`${match.recordType}:${record.id}`)?.resolvedDisputeId)).filter(Boolean);
+  return {records: tombResult.records + cemeteryResult.records,
+    comparisons: tombResult.comparisons + cemeteryResult.comparisons, totalMatches: matches.length,
+    matches: shown, checkedAt: new Date().toISOString()};
+});
+
 exports.obtenerEstadisticasAdmin = onCall(
     {enforceAppCheck: false},
     async (request) => {
@@ -193,6 +301,8 @@ exports.obtenerEstadisticasAdmin = onCall(
           type: "tomb",
           person: data.nombre_finado || "Sin nombre",
           cemetery: data.nombre_panteon || "Sin panteón",
+          state: data.estado_panteon || "",
+          municipality: data.municipio_panteon || "",
           photoUrl: data.imageUrl || "",
           status: data.status || "published",
           timestamp,
@@ -218,6 +328,8 @@ exports.obtenerEstadisticasAdmin = onCall(
           type: "cemetery",
           person: "Aporte de panteón",
           cemetery: data.name || "Sin nombre",
+          state: data.state || "",
+          municipality: data.municipality || "",
           photoUrl: data.photoUrl || "",
           status: data.status || "pending",
           timestamp,
@@ -278,6 +390,201 @@ exports.eliminarRegistroAdmin = onCall(
       return {deleted: true};
     },
 );
+
+exports.eliminarMiAportacion = onCall({enforceAppCheck: false}, async (request) => {
+  const uid = requireUser(request);
+  const {recordType, recordId} = request.data || {};
+  if (!["tomb", "cemetery"].includes(recordType) ||
+      typeof recordId !== "string" || !/^[A-Za-z0-9_-]{1,128}$/.test(recordId)) {
+    throw new HttpsError("invalid-argument", "Aportación no válida.");
+  }
+  const reference = db.collection(recordType === "tomb" ? "tumbas" : "cemeteries").doc(recordId);
+  const snapshot = await reference.get();
+  if (!snapshot.exists) throw new HttpsError("not-found", "La aportación ya no existe.");
+  const record = snapshot.data();
+  const admin = elevated(request.auth.token);
+  if (!admin) {
+    const moderation = await db.collection("_moderation").doc(uid).get();
+    if (moderation.data()?.suspendedUntil?.toMillis?.() > Date.now()) {
+      throw new HttpsError("permission-denied", "Tus aportaciones estÃ¡n suspendidas temporalmente.");
+    }
+  }
+  if (!admin && (recordType === "tomb"
+    ? (record.contributorId || record.userId) !== uid
+    : record.contributorId !== uid || record.status !== "pending")) {
+    throw new HttpsError("permission-denied", "No tienes permiso para eliminar esta aportación.");
+  }
+  await reference.delete();
+  if (recordType === "tomb") {
+    const owner = record.userId || record.contributorId;
+    if (owner) await getStorage().bucket()
+        .file(`tumbas_images/${owner}/${recordId}.jpg`)
+        .delete({ignoreNotFound: true});
+  } else if (record.photoUrl && record.contributorId) {
+    const prefix = `cemetery_images/${record.contributorId}/`;
+    try {
+      const photoPath = decodeURIComponent(new URL(record.photoUrl).pathname.split("/o/")[1] || "");
+      if (photoPath.startsWith(prefix)) {
+        await getStorage().bucket().file(photoPath).delete({ignoreNotFound: true});
+      }
+    } catch (error) {
+      console.warn("No se pudo determinar una ruta propia para la foto del panteón:", error);
+    }
+  }
+  return {deleted: true};
+});
+
+exports.actualizarAportacionTumba = onCall({enforceAppCheck: false}, async (request) => {
+  const uid = requireUser(request);
+  const {recordId, changes} = request.data || {};
+  if (typeof recordId !== "string" || !/^[A-Za-z0-9_-]{1,128}$/.test(recordId) ||
+      !changes || typeof changes !== "object" || Array.isArray(changes)) {
+    throw new HttpsError("invalid-argument", "Datos de edición no válidos.");
+  }
+  const allowed = ["nombre_finado", "nombre_finado_lower", "nombres", "nombres_lower",
+    "apellido_paterno", "apellido_paterno_lower", "apellido_materno", "apellido_materno_lower",
+    "fecha_nacimiento", "fecha_nacimiento_iso", "fecha_nacimiento_estimada",
+    "fecha_defuncion", "fecha_defuncion_iso", "edad_defuncion", "nombre_panteon",
+    "nombre_panteon_lower", "estado_panteon", "estado_panteon_lower", "municipio_panteon",
+    "municipio_panteon_lower", "colonia_panteon", "record_key", "person_key"];
+  if (!Object.keys(changes).length || Object.keys(changes).some((key) => !allowed.includes(key))) {
+    throw new HttpsError("invalid-argument", "Campos de edición no válidos.");
+  }
+  const reference = db.collection("tumbas").doc(recordId);
+  let duplicate = null;
+  await db.runTransaction(async (transaction) => {
+    const lock = db.collection("_uniquenessLocks").doc("tumbas");
+    await transaction.get(lock);
+    const currentSnapshot = await transaction.get(reference);
+    if (!currentSnapshot.exists) throw new HttpsError("not-found", "El registro ya no existe.");
+    const current = currentSnapshot.data();
+    const admin = elevated(request.auth.token);
+    if (!admin && (current.contributorId || current.userId) !== uid) {
+      throw new HttpsError("permission-denied", "No puedes editar esta aportación.");
+    }
+    const updated = {...current, ...changes};
+    const records = await transaction.get(db.collection("tumbas"));
+    duplicate = records.docs.find((doc) => {
+      if (doc.id === recordId) return false;
+      const {assessSimilarity, suggestsDuplicate} = require("./similarity");
+      return require("./duplicates").tombDuplicate(updated, doc.data()) || suggestsDuplicate(assessSimilarity(updated, doc.data()));
+    }) || null;
+    if (duplicate) return;
+    transaction.update(reference, {...changes, last_updated: FieldValue.serverTimestamp(), last_updated_by: uid});
+    transaction.set(lock, {updatedAt: FieldValue.serverTimestamp()});
+  });
+  if (duplicate) {
+    const data = duplicate.data();
+    return {duplicate: {id: duplicate.id, nombre_finado: data.nombre_finado || null,
+      fecha_nacimiento: data.fecha_nacimiento || null, fecha_defuncion: data.fecha_defuncion || null,
+      nombre_panteon: data.nombre_panteon || null, estado_panteon: data.estado_panteon || null,
+      municipio_panteon: data.municipio_panteon || null}};
+  }
+  return {updated: true};
+});
+
+exports.gestionarAporteAdmin = onCall({enforceAppCheck: false}, async (request) => {
+  requireAdmin(request);
+  const {recordType, recordId, action, note, days, changes} = request.data || {};
+  if (!["tomb", "cemetery"].includes(recordType) ||
+      typeof recordId !== "string" || !/^[A-Za-z0-9_-]{1,128}$/.test(recordId) ||
+      !["edit", "warn", "reject", "restore", "suspend", "lift"].includes(action)) {
+    throw new HttpsError("invalid-argument", "Acción o registro no válido.");
+  }
+  if (typeof note !== "string" || !note.trim() || note.length > 1000) {
+    throw new HttpsError("invalid-argument", "Indica el motivo (hasta 1000 caracteres).");
+  }
+  if (action === "suspend" && ![1, 7, 30].includes(days)) {
+    throw new HttpsError("invalid-argument", "Selecciona 1, 7 o 30 días.");
+  }
+  const allowed = recordType === "cemetery" ?
+    ["name", "normalizedName", "aliases", "locality", "address", "notes"] :
+    ["nombre_finado", "nombre_finado_lower", "nombres", "nombres_lower",
+      "apellido_paterno", "apellido_paterno_lower", "apellido_materno", "apellido_materno_lower",
+      "fecha_nacimiento", "fecha_nacimiento_iso", "fecha_nacimiento_estimada",
+      "fecha_defuncion", "fecha_defuncion_iso", "edad_defuncion", "nombre_panteon",
+      "nombre_panteon_lower", "estado_panteon", "estado_panteon_lower", "municipio_panteon",
+      "municipio_panteon_lower", "colonia_panteon", "record_key", "person_key"];
+  if (action === "edit") {
+    if (!changes || typeof changes !== "object" || Array.isArray(changes) ||
+        !Object.keys(changes).length || Object.keys(changes).some((key) => !allowed.includes(key))) {
+      throw new HttpsError("invalid-argument", "Campos de edición no válidos.");
+    }
+    for (const [key, value] of Object.entries(changes)) {
+      const valid = key === "aliases" ? Array.isArray(value) && value.length <= 10 &&
+          value.every((item) => typeof item === "string" && item.length <= 150) :
+        key === "edad_defuncion" ? value === null || Number.isInteger(value) && value >= 0 && value <= 130 :
+        key === "fecha_nacimiento_estimada" ? typeof value === "boolean" :
+        value === null || typeof value === "string" && value.length <= 500;
+      if (!valid) throw new HttpsError("invalid-argument", `Valor no válido: ${key}.`);
+    }
+    if (recordType === "cemetery" &&
+        (typeof changes.name !== "string" || changes.name.trim().length < 3 || changes.name.length > 150 ||
+         typeof changes.locality !== "string" || !changes.locality.trim())) {
+      throw new HttpsError("invalid-argument", "Escribe el nombre y la localidad.");
+    }
+  }
+
+  const reference = db.collection(recordType === "tomb" ? "tumbas" : "cemeteries").doc(recordId);
+  const audit = db.collection("_adminAudit").doc();
+  const notification = db.collection("correction_requests").doc();
+  const until = action === "suspend" ? new Date(Date.now() + days * DAY_IN_MILLISECONDS) : null;
+  await db.runTransaction(async (transaction) => {
+    const lock = db.collection("_uniquenessLocks").doc(recordType === "tomb" ? "tumbas" : "cemeteries");
+    if (action === "edit" || action === "restore") await transaction.get(lock);
+    const snapshot = await transaction.get(reference);
+    if (!snapshot.exists) throw new HttpsError("not-found", "El aporte ya no existe.");
+    const record = snapshot.data();
+    if (action === "edit" || action === "restore") {
+      const candidates = await transaction.get(db.collection(recordType === "tomb" ? "tumbas" : "cemeteries"));
+      const candidate = {...record, ...(action === "edit" ? changes : {})};
+      const {tombDuplicate, cemeteryDuplicate} = require("./duplicates");
+      const {assessSimilarity, suggestsDuplicate} = require("./similarity");
+      if (candidates.docs.some((doc) => doc.id !== recordId &&
+          (recordType === "tomb" ? tombDuplicate(candidate, doc.data()) || suggestsDuplicate(assessSimilarity(candidate, doc.data())) : cemeteryDuplicate(candidate, doc.data())))) {
+        throw new HttpsError("already-exists", "Ya existe un registro con esta identidad.");
+      }
+    }
+    const owner = record.contributorId || record.userId;
+    if (!owner) throw new HttpsError("failed-precondition", "El aporte no tiene autor identificado.");
+    if (action === "edit" || action === "restore") transaction.set(lock, {updatedAt: FieldValue.serverTimestamp()});
+    if (["suspend", "lift"].includes(action)) {
+      const user = await getAuth().getUser(owner);
+      if (user.customClaims?.platform_admin === true || owner === request.auth.uid) {
+        throw new HttpsError("failed-precondition", "No puedes suspender una cuenta administrativa.");
+      }
+      transaction.set(db.collection("_moderation").doc(owner), {
+        suspendedUntil: until || new Date(0), reason: note.trim(),
+        updatedBy: request.auth.uid, updatedAt: FieldValue.serverTimestamp(),
+      });
+    }
+    let update = {};
+    if (action === "edit") update = {...changes};
+    if (action === "reject") update = {status: "rejected"};
+    if (action === "restore") update = {status: recordType === "tomb" ? "published" : "approved"};
+    if (Object.keys(update).length) transaction.update(reference, {
+      ...update,
+      ...(recordType === "tomb" ? {last_updated: FieldValue.serverTimestamp(), last_updated_by: request.auth.uid} :
+        {updatedAt: FieldValue.serverTimestamp(), reviewedAt: FieldValue.serverTimestamp(), reviewedBy: request.auth.uid}),
+    });
+    const labels = {edit: "Corrección administrativa", warn: "Llamada de atención",
+      reject: "Aporte retirado", restore: "Aporte restaurado",
+      suspend: "Suspensión de aportaciones", lift: "Suspensión levantada"};
+    const message = `${labels[action]}: ${note.trim()}${until ? ` Hasta ${until.toISOString()}. Puedes consultar tus aportes y responder aquí.` : ""}`;
+    if (owner !== request.auth.uid) transaction.set(notification, {
+      tombId: recordId, recordType, tombName: record.nombre_finado || record.name || "Aporte",
+      tombOwnerId: owner, requesterId: request.auth.uid, requesterName: "Administración de Busca Tumbas",
+      description: message, status: "open", participants: [owner, request.auth.uid],
+      readBy: [request.auth.uid], messages: [{senderId: request.auth.uid,
+        senderName: "Administración de Busca Tumbas", text: message, createdAt: Date.now()}],
+      createdAt: FieldValue.serverTimestamp(), updatedAt: FieldValue.serverTimestamp(),
+    });
+    transaction.set(audit, {recordType, recordId, action, note: note.trim(), owner,
+      actor: request.auth.uid, before: record, changes: update,
+      suspendedUntil: until, createdAt: FieldValue.serverTimestamp()});
+  });
+  return {ok: true};
+});
 
 exports.vaciarBaseAdmin = onCall(
     {enforceAppCheck: false, timeoutSeconds: 540, memory: "512MiB"},
@@ -470,6 +777,10 @@ exports.escanearLapidaGemini = onCall(
     },
     async (request) => {
       const uid = requireUser(request);
+      const moderation = await db.collection("_moderation").doc(uid).get();
+      if (moderation.data()?.suspendedUntil?.toMillis?.() > Date.now()) {
+        throw new HttpsError("permission-denied", "Tus aportaciones están suspendidas temporalmente. Revisa los avisos de administración.");
+      }
       await enforceRateLimit(uid, "gemini", 8);
 
       const base64Image = String(request.data?.base64Image || "");
@@ -481,18 +792,21 @@ exports.escanearLapidaGemini = onCall(
       }
 
       const prompt = [
-        "Analiza la imagen de una lápida mexicana.",
-        "Devuelve exclusivamente JSON válido con estas propiedades:",
-        "nombres, apellido_paterno, apellido_materno, nombre_finado, " +
-          "fecha_nacimiento, fecha_defuncion, edad_defuncion, nombre_panteon.",
+        "Analiza todas las lápidas/personas distintas que sean legibles en la imagen.",
+        "Devuelve exclusivamente JSON válido con una propiedad personas, que sea un arreglo de registros; cada registro lleva: nombres, apellido_paterno, apellido_materno, nombre_finado, fecha_nacimiento, fecha_defuncion, edad_defuncion, nombre_panteon.",
+        "Si sólo hay una persona, personas debe contener un elemento. No combines datos de personas distintas.",
+        "Si no se identifica ninguna persona con certeza, devuelve personas como arreglo vacío.",
         "Separa el nombre de la persona: nombres contiene uno o varios nombres; " +
           "apellido_paterno y apellido_materno contienen un apellido cada uno.",
         "nombre_finado debe contener el nombre completo en el mismo orden visible.",
-        "Para cada fecha conserva sólo la precisión visible en la lápida:",
+        "Usa ortografía española correcta, incluidas tildes en nombres y apellidos, aunque falten en la lápida. Corrige sólo errores ortográficos inequívocos; conserva variantes de nombres, iniciales y apellidos dudosos sin inventar ni completar la identidad.",
+        "Para cada fecha conserva sólo la precisión visible y claramente legible en la lápida:",
         "YYYY si sólo aparece el año; YYYY-MM si aparecen mes y año;",
         "YYYY-MM-DD únicamente si aparecen año, mes y día.",
+        "Si la fecha no aparece, es ilegible o no puedes distinguir con certeza sus cifras, devuelve null para esa fecha.",
+        "Nunca deduzcas ni calcules una fecha de nacimiento usando la edad o la fecha de defunción.",
         "edad_defuncion debe ser un número entero sólo si la edad aparece en la lápida.",
-        "Nunca inventes ni completes un mes o día que no sea visible.",
+        "Nunca adivines ni completes cifras, mes o día que no sean visibles y legibles.",
         "Usa null cuando un dato no aparezca; no inventes información.",
       ].join(" ");
 
@@ -538,17 +852,28 @@ exports.escanearLapidaGemini = onCall(
         } catch {
           throw new HttpsError("internal", "Gemini devolvió JSON inválido.");
         }
-        const detectedAge = Number.parseInt(data.edad_defuncion, 10);
+        const normalizePerson = (person) => {
+          if (!person || typeof person !== "object" || Array.isArray(person)) return null;
+          const detectedAge = Number.parseInt(person.edad_defuncion, 10);
+          return {
+            nombres: person.nombres || null,
+            apellido_paterno: person.apellido_paterno || null,
+            apellido_materno: person.apellido_materno || null,
+            nombre_finado: person.nombre_finado || null,
+            fecha_nacimiento: person.fecha_nacimiento || null,
+            fecha_defuncion: person.fecha_defuncion || null,
+            edad_defuncion: Number.isInteger(detectedAge) && detectedAge >= 0 && detectedAge <= 130 ? detectedAge : null,
+            nombre_panteon: person.nombre_panteon || null,
+          };
+        };
+        const people = Array.isArray(data.personas)
+          ? data.personas.map(normalizePerson).filter(Boolean).slice(0, 20)
+          : [normalizePerson(data)].filter(Boolean);
+        if (!people.length) {
+          throw new HttpsError("not-found", "No se reconocieron personas legibles. Intenta acercar o recortar una lápida.");
+        }
         return {
-          nombres: data.nombres || null,
-          apellido_paterno: data.apellido_paterno || null,
-          apellido_materno: data.apellido_materno || null,
-          nombre_finado: data.nombre_finado || null,
-          fecha_nacimiento: data.fecha_nacimiento || null,
-          fecha_defuncion: data.fecha_defuncion || null,
-          edad_defuncion: Number.isInteger(detectedAge) &&
-            detectedAge >= 0 && detectedAge <= 130 ? detectedAge : null,
-          nombre_panteon: data.nombre_panteon || null,
+          personas: people,
         };
       } catch (error) {
         if (error instanceof HttpsError) throw error;

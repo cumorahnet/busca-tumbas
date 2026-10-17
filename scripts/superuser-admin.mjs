@@ -1,10 +1,11 @@
 ﻿import {createRequire} from 'node:module';
-import {readFile} from 'node:fs/promises';
+import {readFile, writeFile} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
 import path from 'node:path';
 import {emitKeypressEvents} from 'node:readline';
 const require = createRequire(import.meta.url);
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const requireFunctions = createRequire(path.join(root,'functions','package.json'));
 const modes = ['--check', '--create', '--rotate', '--complete'];
 const marker = 'Busca Tumbas - superusuario independiente';
 
@@ -39,7 +40,7 @@ export async function inspect(auth, config, mode) {
   return byUid;
 }
 
-function secret(prompt) {
+export function secret(prompt) {
   if (!process.stdin.isTTY || !process.stdout.isTTY) throw Error('INTERACTIVE_TERMINAL_REQUIRED');
   return new Promise((resolve, reject) => {
     let value = '';
@@ -69,6 +70,21 @@ function secret(prompt) {
 async function main() {
   const args = process.argv.slice(2);
   const mode = args[0];
+  if (mode === '--configure') {
+    if (args.length !== 2) throw Error('CONFIGURE_REQUIRES_EMAIL');
+    const configPath = path.join(root, 'superuser-config.json');
+    const config = JSON.parse(await readFile(configPath, 'utf8'));
+    const project = JSON.parse(await readFile(path.join(root, '.firebaserc'), 'utf8')).projects.default;
+    const html = await readFile(path.join(root, 'index.html'), 'utf8');
+    const contact = html.match(/const SUPPORT_EMAIL = '([^']+)'/)?.[1];
+    // Local configuration only; never creates or promotes a remote identity.
+    if (config.email && config.email.toLowerCase() !== args[1].toLowerCase()) throw Error('CONFIGURED_IDENTITY_CHANGE_REQUIRES_REVIEW');
+    config.email = args[1];
+    validateConfig(config, project, contact);
+    await writeFile(configPath, JSON.stringify(config, null, 2) + '\n');
+    console.log('Configuracion local guardada. Ejecuta --check antes de --create.');
+    return;
+  }
   if (!modes.includes(mode) || args.length > 3 ||
       (args.length > 1 && (args[1] !== '--operator' || !args[2]))) throw Error('USAGE: node scripts/superuser-admin.mjs --check|--create|--rotate|--complete [--operator EMAIL]');
   const config = JSON.parse(await readFile(path.join(root,'superuser-config.json'),'utf8'));
@@ -83,8 +99,8 @@ async function main() {
   const operator = args[2] ? cli.getAllAccounts().find(a => a.user.email === args[2]) : cli.getProjectDefaultAccount(root);
   if (!operator?.tokens?.refresh_token) throw Error('FIREBASE_LOGIN_REQUIRED');
   console.log(`Proyecto: ${project}\nOperador: ${operator.user.email}\nCuenta: ${config.email}\nUID: ${config.uid}\nModo: ${mode}`);
-  const {initializeApp, deleteApp} = require('../functions/node_modules/firebase-admin/app');
-  const {getAuth} = require('../functions/node_modules/firebase-admin/auth');
+  const {initializeApp, deleteApp} = requireFunctions('firebase-admin/app');
+  const {getAuth} = requireFunctions('firebase-admin/auth');
   const app = initializeApp({projectId:project,credential:{async getAccessToken() {
     const token = await cli.getAccessToken(operator.tokens.refresh_token, ['https://www.googleapis.com/auth/cloud-platform','https://www.googleapis.com/auth/firebase']);
     return {access_token:token.access_token,expires_in:Math.max(1, Math.floor((token.expires_at-Date.now())/1000))};
@@ -95,6 +111,7 @@ async function main() {
     const existing = await inspect(auth,config,mode);
     if (mode === '--check') {
       console.log(existing ? `Cuenta compatible. Correo verificado: ${existing.emailVerified}.` : 'Cuenta ausente. No se realizaron cambios.');
+      if (existing && !existing.emailVerified) console.log('Entra desde el acceso de superusuario para solicitar el correo de verificacion.');
       return;
     }
     if (mode === '--create' && existing) throw Error('ACCOUNT_ALREADY_EXISTS');

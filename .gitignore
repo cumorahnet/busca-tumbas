@@ -9,6 +9,8 @@ ui-debug.log
 
 www/
 .android-cache/
+.browser-check/
 *.jks
 *.keystore
 keystore.properties
+.record-audit/

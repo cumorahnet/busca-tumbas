@@ -3,6 +3,143 @@
 Aplicación web estática para registrar y buscar lápidas mediante Firebase y
 extraer datos de fotografías con Gemini.
 
+## Fotografías y ubicación de tumbas existentes
+
+Desde v2.28, cualquier usuario con sesión y correo verificado puede aportar una
+fotografía desde el detalle de una tumba. Se guarda en su galería, con autor y
+fecha, sin reemplazar la foto original ni cambiar datos de identidad. La carga
+convierte la imagen a JPEG y conserva el intento para reintentar su registro.
+En v2.29, «Tomar foto aquí con GPS» solicita la cámara trasera del celular y
+obtiene el GPS actual al regresar de la captura. Tras confirmación, guarda las
+coordenadas y los datos de captura con la foto y completa la ubicación de la tumba
+solo si falta. Si el GPS falla, permite aportar la foto sin ubicación. Seleccionar
+una foto guardada no asocia automáticamente el GPS actual con una captura anterior.
+Si la tumba carece de coordenadas, se puede completar su ubicación mediante GPS,
+con confirmación estando frente a ella. La transacción impide sobrescribir una
+ubicación existente, incluso con aportaciones simultáneas. Las cuentas suspendidas
+no pueden aportar. `aportarFotoOUbicacionTumba` es la única ruta para registrar
+estas aportaciones; deben desplegarse función, reglas de Firestore/Storage y web.
+
+## Prevención y auditoría de duplicados
+
+En v2.26, «Buscar duplicados ya publicados» audita el catálogo sin modificarlo,
+muestra un par a la vez y presenta la resolución anterior cuando exista.
+`npm run audit:duplicates` genera un informe privado en `.record-audit/`.
+La auditoría compara nombres y fechas normalizados con la regla vigente, además
+de identidades exactas o compatibles. Agrupa candidatos por fecha o nombre para
+evitar comparar todos los pares de tumbas; sigue leyendo el catálogo completo.
+En catálogos masivos, esa lectura y los grupos frecuentes requieren procesamiento
+por lotes. Ninguna búsqueda garantiza detectar errores de captura arbitrarios.
+Las ediciones de tumbas también comprueban posibles duplicados por similitud.
+
+En v2.20, «Comparar ambas publicaciones» carga desde servidor la publicación
+existente y la propuesta, muestra fotografías ampliables y datos completos en
+paralelo, explica el motivo de la disputa y permite seleccionar visualmente la
+correcta. Se puede conservar la existente, sustituirla por la propuesta o declarar
+que son distintas y conservar ambas. El motivo de resolución es obligatorio.
+La sustitución mantiene el identificador existente y sus referencias, archiva
+el original en `_mergedRecords` y registra la selección en la disputa y auditoría.
+Se exige que la versión del registro coincida con la vista comparada; cualquier
+cambio simultáneo obliga a actualizar la comparación antes de sustituirlo.
+
+Desde v2.25, las tumbas requieren similitud global **mayor al 50 %**, nombre
+**mayor al 80 %** y al menos una fecha de nacimiento o defunción coincidente
+tras normalizar su formato. Fechas ausentes o parcialmente compatibles no bastan.
+Los panteones conservan su comparación por datos del lugar. Las controversias se
+presentan una a la vez, con controles Anterior y Siguiente. Los casos anteriores
+conservan su evidencia y requieren resolución administrativa.
+
+Las nuevas altas que cumplen los requisitos de controversia y no son exactas
+se guardan como propuestas privadas en `_duplicateDisputes`, sin entrar al catálogo.
+El 50 % exacto no abre disputa; el 100 % bloquea el alta. La comprobación incluye
+propuestas pendientes para impedir repetir un duplicado exacto en otra disputa.
+Administración recibe un aviso persistente en la aplicación y un aviso en tiempo
+real mientras tiene sesión administrativa. El aportador puede aclarar el caso
+en Mis aportaciones. `aclararDisputaDuplicado` permite mensajes del aportador y
+administración; `resolverDisputaDuplicado` exige sesión administrativa y motivo.
+Autorizar un registro distinto vuelve a comprobar duplicados exactos dentro de la
+transacción; confirmar el duplicado conserva la propuesta sin publicarla.
+
+La métrica compara datos normalizados: en tumbas, nombre (50), nacimiento (15),
+defunción (20), panteón y localidad (15), y país (5 cuando está informado).
+En panteones, nombres y alias (40), estado (10), municipio (15), localidad (25),
+GPS (10 si ambos lo tienen) y referencia INEGI (20 si ambos la tienen).
+Se divide por el peso de los campos presentes en al menos uno de los registros;
+faltantes en ambos no suman coincidencia. Las excepciones de GPS e INEGI evitan
+que añadir una ubicación a un lugar conocido lo haga parecer distinto. La misma
+referencia INEGI prueba identidad exacta; GPS dentro de 150 m se considera
+equivalente. Fechas parciales compatibles cuentan 75 % en ese campo, sin inventar
+componentes; los textos usan distancia de edición. Estos porcentajes expresan
+similitud de los datos, no una probabilidad ni un porcentaje de píxeles de la foto.
+El panel muestra los campos y fotos que sustentan cada comparación.
+
+Las altas de tumbas y panteones pasan por `crearAportacionTumba` y
+`crearAportacionPanteon`. Las ediciones de identidad también pasan por servidor.
+Las reglas impiden altas y cambios de identidad directos desde Firestore.
+Cada colección tiene un bloqueo transaccional compartido en `_uniquenessLocks`:
+la comparación y escritura se ejecutan juntas, incluso con guardados simultáneos.
+Se ignoran tildes, mayúsculas y variantes del formato de fecha. Las fechas
+parciales conservan su precisión. Los panteones se comparan por referencia INEGI
+o por nombres y alias dentro del municipio y localidad, sin depender de pequeñas
+variaciones del GPS. Una coincidencia devuelve `already-exists`.
+
+`node scripts/deduplicate-records.mjs` audita los duplicados existentes;
+`--apply` consolida los confirmados, actualiza referencias y conserva los originales
+con sus fotografías y autoría en `_mergedRecords`. Los respaldos locales quedan
+en `.record-audit/`, excluido de Git y Hosting.
+
+## Captura de varias lápidas en un mismo lugar
+
+En «Subir lápidas de un panteón», primero se elige y confirma el panteón o lugar, con país, estado, municipio y
+colonia. La selección se mantiene durante la sesión al guardar, limpiar o
+reintentar una fotografía y al regresar del menú. El escaneo solo completa los
+datos del difunto. Después de guardar se puede subir directamente la siguiente
+foto. Se pueden seleccionar varios archivos de imagen de una vez: un contador
+muestra el progreso y, después de guardar una lápida, se carga la siguiente para
+revisar y escanear. Un fallo de guardado conserva la fotografía y la cola.
+Volver al menú descarta los archivos pendientes y conserva el lugar.
+«Cambiar panteón o lugar» permite elegir otro; cerrar sesión elimina la
+selección. INEGI se ofrece exclusivamente para México. Otros países permiten
+captura manual; los futuros catálogos se registran en `tombCemeteryCatalogProviders`
+con un cargador que devuelve el mismo esquema de ubicaciones. Los nombres
+manuales guardados en lápidas aparecen en consultas posteriores del municipio,
+identificados como «Registrado en lápidas», sin atribuirlos a INEGI.
+
+## Notas y aportaciones comunitarias
+
+El formulario «Agregar panteón u otro lugar» permite registrar panteones, iglesias,
+hospitales, conventos y otros lugares con un tipo personalizado obligatorio.
+Las aportaciones anteriores conservan el tipo panteón. Solo los panteones se
+comparan con el catálogo INEGI de cementerios; todos los tipos se comparan con
+las aportaciones comunitarias y pasan por la revisión administrativa habitual.
+
+Los usuarios con correo verificado pueden enviar una nota desde el detalle de una
+tumba o panteón comunitario. El autor la recibe en su bandeja de correcciones.
+Cada usuario aporta una nota por entrada; las respuestas se mantienen en la misma
+conversación. Al llegar a tres usuarios distintos, el caso aparece en «Errores
+para verificar» del panel de superusuario, con las notas y conversaciones.
+El administrador verifica la entrada, corrige o retira el aporte con las acciones
+existentes y registra el resultado para cerrar el caso. Cerrar una conversación
+como autor no cancela la revisión administrativa. Una nueva nota de otro usuario
+reabre un caso ya revisado. Las notas anteriores a esta función no se contabilizan.
+
+Se deben desplegar juntos `functions`, `firestore:rules` y `hosting` para activar
+el flujo. El contador y el registro de revisiones son privados y se escriben
+exclusivamente desde el servidor.
+
+## Permisos de fotografías en producción
+
+Las reglas de Storage consultan `_moderation` en Firestore para comprobar
+suspensiones. El agente de Cloud Storage for Firebase necesita el rol
+`roles/firebaserules.firestoreServiceAgent`. Un despliegue con `--non-interactive`
+no comprueba ni concede ese permiso aunque publique correctamente las reglas.
+
+Usa `npm run storage:permissions:check` para comprobarlo y
+`npm run storage:permissions:fix` para conceder únicamente el rol necesario al
+agente del proyecto. `npm run storage:verify` prueba en producción la subida de
+JPEG para lugares y lápidas, los rechazos a rutas ajenas y la suspensión; crea
+una cuenta temporal y elimina la cuenta y todos sus datos al terminar.
+
 ## Ejecución local
 
 La aplicación no requiere compilación. Debe servirse por HTTP para que la
@@ -141,52 +278,41 @@ subida de imágenes, guardado, búsqueda combinada y cierre de sesión.
 
 Consulta [ANDROID.md](ANDROID.md) para abrir el proyecto en Android Studio, generar APK/AAB y preparar la publicación. Ejecuta `npm run android:open` para sincronizar y abrir Android.
 
-### Superusuario independiente
+### Mismo correo, contraseñas distintas
 
-El usuario normal y el superusuario son identidades distintas en Firebase Auth.
-La cuenta de contacto no obtiene permisos por su correo. Las funciones y reglas
-requieren correo verificado y el claim booleano `platform_admin: true`, emitido
-por Firebase Admin. El doble clic sobre la version abre el acceso con contrasena
-independiente y persistencia en memoria.
+Desde la pantalla inicial, con doble clic sobre la versión abre el acceso global
+e introduce el correo y la contraseña independiente de superusuario. No requiere
+iniciar sesión previamente como usuario. El correo y UID se conservan. La contraseña administrativa no se
+usa para iniciar sesión normal en Firebase ni modifica la contraseña del usuario.
 
-Configuracion pendiente: indicar un correo tecnico propio y distinto del usuario
-normal en `superuser-config.json`; comprobar tambien `projectId` y `uid`.
-Este archivo es publico y nunca contiene contrasenas.
-
-Desde la raiz del proyecto:
+Para configurarla, desde una terminal interactiva con Firebase CLI conectado:
 
 ```powershell
-node scripts/superuser-admin.mjs --check
-node scripts/superuser-admin.mjs --create
+npm run superuser:password -- p2xLMmozMoe1Ty3finao5xuHNbt2 cumorahnet@gmail.com
 ```
 
-También puedes ejecutar `npm run superuser:check` y `npm run superuser:create`.
-El rol global se guarda en claims de Authentication; este proyecto no necesita
-un perfil administrativo en Firestore. Los clientes no pueden emitir esos claims.
-Ejecuta `npm run test:superuser` para verificar el flujo y las protecciones del comando.
+El comando verifica identidad y rol, pide la contraseña actual del usuario con
+entrada oculta y luego pide dos veces la nueva contraseña de superusuario de
+16–128 caracteres. Comprueba la contraseña normal en Firebase y rechaza que ambas
+sean iguales. Guarda solo sal y hash scrypt en `_superuserCredentials`, mediante
+creación exclusiva; los clientes no pueden leer ni escribir esa colección.
 
-`--check` solo consulta, incluso sin terminal interactiva. Utiliza el operador
-seleccionado en Firebase CLI; `--operator CORREO` selecciona otro operador ya
-conectado. `--create` pide dos veces una contrasena oculta de 16 a 128 caracteres.
-No pasar contrasenas en argumentos, variables de entorno, archivos ni chat.
-No promueve cuentas existentes ni cambia la contrasena del usuario normal.
+Diagnóstico de solo lectura: `npm run superuser:password:check -- UID CORREO`.
+Rotación explícita: `npm run superuser:password:rotate -- UID CORREO`. No se aceptan
+contraseñas por argumentos, archivos, variables de entorno ni chat.
 
-Tras crear la cuenta, ingresar con su correo tecnico por el formulario normal y
-completar la verificacion de correo existente antes del acceso de superusuario.
-No se envia correo automaticamente desde la herramienta.
+El servidor limita a cinco intentos cada quince minutos por cuenta y veinte por
+dirección IP, identifica la cuenta directamente por correo y comprueba
+el rol vigente y emite un token personalizado para el mismo UID con autorización
+administrativa que vence en una hora. Functions y Firestore exigen esa autorización
+además del claim `platform_admin`; la contraseña normal y el rol permanente no
+bastan para realizar operaciones globales. Al salir se cierra la sesión elevada.
 
-Si el alta se interrumpe despues de crear Auth, la cuenta queda deshabilitada.
-`--complete` es una recuperacion explicita para esa identidad dedicada, con el
-mismo UID/correo, marcador de alta y sin roles incompatibles. Nunca recupera una
-cuenta normal. Una cuenta previamente completa y deshabilitada requiere revision
-manual del operador. Para cambiar una contrasena existente, usar explicitamente
-`node scripts/superuser-admin.mjs --rotate`; revoca tokens de renovacion, pero los
-tokens de acceso ya emitidos pueden seguir vigentes hasta expirar.
+Para activar el flujo hay que publicar Functions, reglas Firestore y Hosting
+juntos. El servicio de ejecución de Functions necesita permiso IAM `signBlob`
+para firmar tokens personalizados (Service Account Token Creator sobre la cuenta
+firmante). La contraseña se configura por separado y no se incluye en el despliegue.
 
-La separacion local requiere publicar tanto `functions` como `firestore:rules`
-ademas de Hosting. Mientras no se publiquen, el servidor remoto conserva sus
-reglas anteriores. Crear la cuenta y publicar son pasos separados; comprobar el
-acceso con la cuenta dedicada y el rechazo de la normal tras la publicacion.
-Actualizar `www` con `npm run build:android` despues de configurar el correo.
-
-Referencia: https://firebase.google.com/docs/auth/admin/custom-claims
+Los comandos antiguos de cuentas independientes se conservan para mantenimiento;
+no intervienen en este acceso. Pruebas: `npm run test:superuser` y las suites de
+Functions y reglas.

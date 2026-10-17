@@ -9,20 +9,36 @@ service firebase.storage {
 
     match /tumbas_images/{userId}/{fileName} {
       allow read: if signedIn();
-      allow create, update: if signedIn()
+      allow create, update: if canContribute()
         && request.auth.uid == userId
         && request.resource.size < 8 * 1024 * 1024
         && request.resource.contentType.matches('image/jpeg');
-      allow delete: if signedIn() && request.auth.uid == userId;
+      allow delete: if canContribute() && request.auth.uid == userId;
     }
 
     match /cemetery_images/{userId}/{fileName} {
       allow read: if signedIn();
-      allow create, update: if signedIn()
+      allow create, update: if canContribute()
         && request.auth.uid == userId
         && request.resource.size < 8 * 1024 * 1024
         && request.resource.contentType.matches('image/jpeg');
-      allow delete: if signedIn() && request.auth.uid == userId;
+      allow delete: if canContribute() && request.auth.uid == userId;
+    }
+
+    match /tomb_extra_images/{tombId}/{userId}/{photoId}/{fileName} {
+      allow read: if signedIn();
+      allow create: if resource == null && canContribute() && request.auth.uid == userId
+        && fileName == 'image.jpg' && photoId.matches('[A-Za-z0-9_-]{1,128}')
+        && request.resource.size > 0 && request.resource.size < 8 * 1024 * 1024
+        && request.resource.contentType == 'image/jpeg'
+        && firestore.exists(/databases/(default)/documents/tumbas/$(tombId));
+      allow delete: if canContribute() && request.auth.uid == userId
+        && !firestore.exists(/databases/(default)/documents/tumbas/$(tombId)/photos/$(photoId));
+    }
+
+    function canContribute() {
+      return signedIn() && (!firestore.exists(/databases/(default)/documents/_moderation/$(request.auth.uid))
+        || firestore.get(/databases/(default)/documents/_moderation/$(request.auth.uid)).data.suspendedUntil <= request.time);
     }
 
     match /{allPaths=**} {
