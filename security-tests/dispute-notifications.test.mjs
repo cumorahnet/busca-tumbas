@@ -9,7 +9,7 @@ function setup(admin = true) {
         adminDuplicateDisputes:[],myDuplicateDisputes:[],activeAdminDisputeId:null,duplicateDisputeListenerGeneration:0,
         duplicateDisputeComparisons:new Map(), duplicateDisputeSelections:new Map(), duplicateDisputeResolutionNotes:new Map(),
         auth:{currentUser:{uid:'owner',emailVerified:true}},isSuperuserActive:()=>admin,
-        document:{getElementById:id=>{if(!nodes.has(id))nodes.set(id,{innerHTML:'',hidden:true,textContent:''});return nodes.get(id);}},
+        document:{getElementById:id=>{if(!nodes.has(id))nodes.set(id,{innerHTML:'',hidden:true,textContent:'',setAttribute(name,value){this[name]=value;}});return nodes.get(id);}},
         showToast:message=>notices.push(message),console,
         db:{collection:()=>({where:(field,_op,value)=>({onSnapshot:callback=>{
             const item={field,value,callback,stopped:false};listeners.push(item);return ()=>{item.stopped=true;};
@@ -86,9 +86,31 @@ test('owner receives resolution and stale listeners cannot show data after sign-
     const listener=s.listeners[0];listener.callback(s.snapshot([dispute]));
     listener.callback(s.snapshot([{...dispute,status:'approved',resolution:'Documentos verificados'}]));
     assert.ok(s.notices.some(text=>text.includes('se autorizó')));
-    assert.match(s.nodes.get('my-duplicate-disputes').innerHTML,/Documentos verificados/);
+    assert.doesNotMatch(s.nodes.get('my-duplicate-disputes').innerHTML,/<article|Documentos verificados/);
+    assert.match(s.nodes.get('my-duplicate-disputes').innerHTML,/No tienes disputas pendientes/);
+    assert.equal(s.nodes.get('my-disputes-menu-count').hidden,true);
     s.ctx.auth.currentUser=null;s.ctx.startDuplicateDisputeNotifications();
     assert.equal(listener.stopped,true);
     listener.callback(s.snapshot([dispute]));
     assert.equal(s.nodes.get('my-duplicate-disputes').innerHTML,'');
 });
+
+for (const status of ['approved', 'rejected']) {
+    test('resolved '+status+' disputes disappear and the menu notification counts only pending cases',()=>{
+        const s=setup(false); s.ctx.startDuplicateDisputeNotifications();
+        const listener=s.listeners[0];
+        const other={...dispute,id:'b'.repeat(64),candidate:{nombre_finado:'Otra propuesta'}};
+        listener.callback(s.snapshot([dispute,other]));
+        for (const id of ['my-disputes-menu-count','my-disputes-submenu-count']) {
+            assert.equal(s.nodes.get(id).textContent,'2');
+            assert.equal(s.nodes.get(id).hidden,false);
+        }
+        listener.callback(s.snapshot([{...dispute,status},other]));
+        assert.equal((s.nodes.get('my-duplicate-disputes').innerHTML.match(/<article /g)||[]).length,1);
+        assert.match(s.nodes.get('my-duplicate-disputes').innerHTML,/Otra propuesta/);
+        assert.equal(s.nodes.get('my-disputes-menu-count').textContent,'1');
+        listener.callback(s.snapshot([{...dispute,status},{...other,status}]));
+        assert.doesNotMatch(s.nodes.get('my-duplicate-disputes').innerHTML,/<article /);
+        assert.equal(s.nodes.get('my-disputes-menu-count').hidden,true);
+    });
+}
