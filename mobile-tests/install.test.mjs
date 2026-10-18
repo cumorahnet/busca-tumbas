@@ -68,7 +68,7 @@ test('prompt errors fall back to instructions and a rejected event cannot be reu
 });
 test('manifest icons have genuine PNG signatures and the declared sizes',()=>{
  const manifest=JSON.parse(fs.readFileSync('manifest.webmanifest','utf8'));
- for(const icon of manifest.icons){const png=fs.readFileSync(icon.src);assert.equal(png.subarray(0,8).toString('hex'),'89504e470d0a1a0a');assert.equal(icon.sizes,png.readUInt32BE(16)+'x'+png.readUInt32BE(20));}
+ for(const icon of manifest.icons){const png=fs.readFileSync(icon.src.split('?')[0]);assert.equal(png.subarray(0,8).toString('hex'),'89504e470d0a1a0a');assert.equal(icon.sizes,png.readUInt32BE(16)+'x'+png.readUInt32BE(20));}
  assert.ok(manifest.icons.some(i=>i.sizes==='192x192'));assert.ok(manifest.icons.some(i=>i.sizes==='512x512'));
  const s=setup();assert.ok(s.calls.some(c=>Array.isArray(c)&&c[0]==='worker'&&c[1]==='sw.js'&&c[2]==='./'));
 });
