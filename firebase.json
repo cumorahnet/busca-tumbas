@@ -48,20 +48,36 @@
       "security-tests/**",
       "SECURITY-REVIEW.md",
       "**/*-debug.log",
-      "**/*.test.*"
+      "**/*.test.*",
+      "MONETIZATION.md"
     ],
     "headers": [
       {
         "source": "/",
-        "headers": [{"key": "Cache-Control", "value": "no-cache, max-age=0, must-revalidate"}]
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-cache, max-age=0, must-revalidate"
+          }
+        ]
       },
       {
         "source": "**/*.html",
-        "headers": [{"key": "Cache-Control", "value": "no-cache, max-age=0, must-revalidate"}]
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-cache, max-age=0, must-revalidate"
+          }
+        ]
       },
       {
         "source": "/version.json",
-        "headers": [{"key": "Cache-Control", "value": "no-cache, max-age=0, must-revalidate"}]
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-cache, max-age=0, must-revalidate"
+          }
+        ]
       },
       {
         "source": "**",

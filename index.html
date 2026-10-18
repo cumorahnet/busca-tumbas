@@ -1440,7 +1440,7 @@
                 </div>
             </div>
             <button type="button" class="btn btn-sm btn-primary" id="request-plus-btn"
-                onclick="requestPlusPurchase()">Obtener Plus</button>
+                onclick="requestPlusPurchase()" hidden>Obtener Plus</button>
         </div>
         <div class="benefits-progress mt-3" role="progressbar" aria-label="Progreso para obtener un mes sin anuncios"
             aria-valuemin="0" aria-valuemax="10" aria-valuenow="0" id="benefits-progress">
@@ -2157,7 +2157,11 @@ function renderBenefitStatus(status) {
     const progressText = document.getElementById('benefits-progress-text');
     const plusButton = document.getElementById('request-plus-btn');
     if (!app || !status) return;
-    app.classList.toggle('show-ads', !status.adFree);
+    const policy = status.monetization || {};
+    const adsEnabled = policy.adsEnabled === true;
+    app.classList.toggle('show-ads', adsEnabled && !status.adFree);
+    plusButton.hidden = policy.plusSalesEnabled !== true;
+    plusButton.disabled = policy.plusSalesEnabled !== true;
     const rewardSize = Number(status.contributionsPerReward) || 10;
     const contributionCount = Number(status.contributionCount) || 0;
     const cycleProgress = contributionCount % rewardSize;
@@ -2167,7 +2171,16 @@ function renderBenefitStatus(status) {
     progressBar.style.width = `${percentage}%`;
     progressText.textContent = `${contributionCount} aportaciones válidas · ` +
         `faltan ${status.contributionsToNextReward} para otros ${status.rewardDays} días sin anuncios.`;
-    if (status.adFree) {
+    if (!adsEnabled) {
+        title.textContent = policy.launchActive ? 'Lanzamiento sin anuncios' : 'Disfruta Busca Tumbas sin anuncios';
+        badge.className = 'badge text-bg-success';
+        badge.textContent = 'Gratis para todos';
+        const lastGraceDay = policy.launchActive ? new Date(Date.parse(policy.launchEndsAt) - 1).toLocaleDateString('es-MX', {timeZone: 'America/Mexico_City', day: 'numeric', month: 'long', year: 'numeric'}) : '';
+        description.textContent = policy.launchActive
+            ? `Por lanzamiento, todos navegan sin anuncios hasta el ${lastGraceDay}. No necesitas contratar Plus.`
+            : 'Los anuncios y la oferta de Plus siguen pausados. Te avisaremos antes de activarlos.';
+        progressText.textContent = `${contributionCount} aportaciones válidas · Se acumulan para tus recompensas cuando se activen los anuncios.`;
+    } else if (status.adFree) {
         title.textContent = 'Busca Tumbas Plus';
         badge.className = 'badge text-bg-primary';
         badge.textContent = 'Sin anuncios';
@@ -2200,8 +2213,11 @@ async function loadBenefitStatus(force = false) {
             showToast(`🎉 Obtuviste ${benefitStatus.newlyGrantedMonths * benefitStatus.rewardDays} días sin anuncios por tus aportaciones.`, '#7c3aed', 9000);
         }
     } catch (error) {
+        benefitStatus = null;
         console.error('Benefit status error:', error);
         document.getElementById('main-app')?.classList.remove('show-ads');
+        document.getElementById('request-plus-btn').hidden = true;
+        document.getElementById('request-plus-btn').disabled = true;
         document.getElementById('benefits-title').textContent = 'Beneficios temporalmente no disponibles';
         document.getElementById('benefits-description').textContent =
             'No mostraremos anuncios hasta poder comprobar el estado de tu cuenta.';
@@ -2211,6 +2227,7 @@ async function loadBenefitStatus(force = false) {
 }
 
 function requestPlusPurchase() {
+    if (benefitStatus?.monetization?.plusSalesEnabled !== true) return;
     // Digital purchases in the Android distribution require a Play Billing integration.
     if (window.Capacitor?.isNativePlatform()) return;
     const user = auth.currentUser;
@@ -5812,7 +5829,7 @@ async function loadAdminStats() {
                 onclick='showAdminContributorContributions(${inlineJsValue(person.uid)})'>${person.contributions}</button></td>
             <td>${escapeHtml(person.lastContribution ? new Date(person.lastContribution).toLocaleString('es-MX') : '—')}</td>
             <td><button type="button" class="btn btn-sm btn-outline-success"
-                onclick='activatePlusForContributor(${inlineJsValue(person.uid)}, ${inlineJsValue(person.name)})'>Activar Plus</button></td></tr>
+                ${benefitStatus?.monetization?.plusSalesEnabled === true ? '' : 'disabled'} onclick='activatePlusForContributor(${inlineJsValue(person.uid)}, ${inlineJsValue(person.name)})'>${benefitStatus?.monetization?.plusSalesEnabled === true ? 'Activar Plus' : 'Plus pausado'}</button></td></tr>
         `).join('');
         const recordRow = record => `
             <tr><td>${record.photoUrl ? `<img src="${escapeHtml(safeImageUrl(record.photoUrl))}" alt="Fotografía aportada" class="rounded" style="width:64px;height:48px;object-fit:cover;cursor:zoom-in" onclick="openImageZoom(this.src)">` : '—'}</td>
@@ -5915,6 +5932,11 @@ async function resolveErrorReviewAdmin(caseId) {
 }
 
 async function activatePlusForContributor(uid, name) {
+    await loadBenefitStatus(true);
+    if (benefitStatus?.monetization?.plusSalesEnabled !== true) {
+        showToast('Plus está pausado. Todos disfrutan la app sin anuncios.', '#3b82f6');
+        return;
+    }
     const answer = prompt(
         `Días de Plus para ${name || 'este usuario'} (30, 90 o 365):`,
         '30'

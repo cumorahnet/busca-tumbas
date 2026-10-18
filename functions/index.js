@@ -112,10 +112,26 @@ async function countRewardableContributions(uid) {
   return tombIds.size + approvedCemeteries.size;
 }
 
+function getMonetizationPolicy(now = Date.now(), config = require("./monetization-config.json")) {
+  const start = Date.parse(config.launchStartsAt);
+  const end = Date.parse(config.launchEndsAt);
+  const validWindow = Number.isFinite(start) && Number.isFinite(end) && end > start;
+  const afterGrace = validWindow && now >= end;
+  return {
+    launchActive: validWindow && now >= start && now < end,
+    launchStartsAt: config.launchStartsAt,
+    launchEndsAt: config.launchEndsAt,
+    reviewAt: config.reviewAt,
+    adsEnabled: afterGrace && config.adsEnabled === true,
+    plusSalesEnabled: afterGrace && config.adsEnabled === true && config.plusSalesEnabled === true,
+  };
+}
+
 exports.obtenerEstadoBeneficios = onCall(
     {enforceAppCheck: false},
     async (request) => {
       const uid = requireUser(request);
+      const policy = getMonetizationPolicy();
       const contributionCount = await countRewardableContributions(uid);
       const earnedMilestones = Math.floor(
           contributionCount / CONTRIBUTIONS_PER_REWARD,
@@ -129,7 +145,8 @@ exports.obtenerEstadoBeneficios = onCall(
             0,
             Number(current.contributionMilestonesGranted || 0),
         );
-        const newMilestones = Math.max(0, earnedMilestones - grantedMilestones);
+        const pendingMilestones = Math.max(0, earnedMilestones - grantedMilestones);
+        const newMilestones = policy.adsEnabled ? pendingMilestones : 0;
         let contributionAdFreeUntil = validDateMilliseconds(
             current.contributionAdFreeUntil,
         );
@@ -147,18 +164,20 @@ exports.obtenerEstadoBeneficios = onCall(
           contributionCount,
           contributionMilestonesGranted: Math.max(
               grantedMilestones,
-              earnedMilestones,
+              grantedMilestones + newMilestones,
           ),
           contributionAdFreeUntil: contributionAdFreeUntil ?
             new Date(contributionAdFreeUntil) : null,
           updatedAt: FieldValue.serverTimestamp(),
         }, {merge: true});
-        return {adFreeUntil, paidUntil, newMilestones};
+        return {adFreeUntil, paidUntil, newMilestones, pendingMilestones: pendingMilestones - newMilestones};
       });
       const isAdmin = elevated(request.auth.token);
       return {
-        adFree: isAdmin || result.adFreeUntil > now,
-        source: isAdmin ? "admin" :
+        adFree: !policy.adsEnabled || isAdmin || result.adFreeUntil > now,
+        monetization: policy,
+        pendingRewardMonths: result.pendingMilestones,
+        source: policy.launchActive ? "launch" : !policy.adsEnabled ? "paused" : isAdmin ? "admin" :
           (result.paidUntil > now ? "paid" :
             (result.adFreeUntil > now ? "contributions" : "free")),
         contributionCount,
@@ -177,6 +196,9 @@ exports.activarPlusAdmin = onCall(
     {enforceAppCheck: false},
     async (request) => {
       requireAdmin(request);
+      if (!getMonetizationPolicy().plusSalesEnabled) {
+        throw new HttpsError("failed-precondition", "Las activaciones de Plus están pausadas durante el lanzamiento y hasta habilitar su venta.");
+      }
       const uid = String(request.data?.uid || "").trim();
       const days = Number(request.data?.days);
       if (!/^[A-Za-z0-9_-]{20,128}$/.test(uid) ||

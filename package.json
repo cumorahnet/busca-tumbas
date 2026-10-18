@@ -29,7 +29,7 @@
     "android:apk": "npm run android:sync && node scripts/gradle-android.mjs assembleDebug",
     "android:bundle": "npm run android:sync && node scripts/gradle-android.mjs bundleRelease",
     "test:android": "npm run build:android && node --test mobile-tests/*.test.mjs",
-    "test:security:client": "node --test security-tests/client.test.mjs security-tests/tomb-cemetery-session.test.mjs security-tests/dispute-notifications.test.mjs security-tests/terms.test.mjs security-tests/death-age.test.mjs",
+    "test:security:client": "node --test security-tests/client.test.mjs security-tests/tomb-cemetery-session.test.mjs security-tests/dispute-notifications.test.mjs security-tests/terms.test.mjs security-tests/death-age.test.mjs security-tests/monetization.test.mjs",
     "test:security:rules": "firebase emulators:exec --project demo-buscatumbas-security --only firestore,storage \"node --test security-tests/rules.test.mjs security-tests/record-writes.integration.test.mjs\"",
     "test:search": "node --test security-tests/search.test.mjs"
   },
