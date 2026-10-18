@@ -36,14 +36,14 @@ body, .container-main { min-height: 100dvh; }
 [data-pwa-install-action]:focus-visible, #pwa-install-dialog button:focus-visible { outline: 3px solid #0891b2; outline-offset: 3px; }
 
 /* Clear navigation hierarchy, with generous touch targets on phones. */
-.header-tagline { margin: .3rem 0 0; color: #eeeafa; font-size: .75rem; line-height: 1.5; }
-.app-header.card-custom { border-radius: 1rem; box-shadow: 0 4px 20px #0f172a06; background: #5c4e99; border: 1px solid #5c4e99; color: #fff; overflow: visible; z-index: 10; }
-.app-header .app-brand-header h4 { color: #fff; }
+.header-tagline { margin: .3rem 0 0; color: #64748b; font-size: .75rem; line-height: 1.5; }
+.app-header.card-custom { border-radius: 1rem; box-shadow: 0 4px 20px #0f172a06; background: #fff; border: 1px solid #e4deef; color: #302641; overflow: visible; z-index: 10; }
+.app-header .app-brand-header h4 { color: #302641; }
 .app-header .app-brand-logo { border-radius: .65rem; }
-.app-header [data-pwa-install-action], .app-header #back-to-mode-selection, .app-header #logout-btn { color: #fff; border-color: #ffffff70; background: transparent; }
-.app-header [data-pwa-install-action]:hover, .app-header #back-to-mode-selection:hover, .app-header #logout-btn:hover { color: #fff; background: #ffffff20; }
-.app-header .version-pill { color: #fff; background: #ffffff18; }
-.primary-navigation { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .25rem; border-top: 1px solid #ffffff30; border-bottom: 1px solid #ffffff30; padding: .35rem 0; margin-bottom: .6rem; }
+.app-header [data-pwa-install-action], .app-header #back-to-mode-selection, .app-header #logout-btn { color: #5c4e99; border-color: #c9c0df; background: #fff; }
+.app-header [data-pwa-install-action]:hover, .app-header #back-to-mode-selection:hover, .app-header #logout-btn:hover { color: #433574; background: #f1edf8; }
+.app-header .version-pill { color: #5c4e99; background: #f1edf8; }
+.primary-navigation { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .25rem; background: #5c4e99; border-radius: .65rem; padding: .35rem .4rem; margin-bottom: .6rem; }
 .primary-navigation > button, .primary-navigation summary { display: flex; align-items: center; justify-content: center; gap: .55rem; border: 0; border-radius: .4rem; background: transparent; color: #fff; padding: .85rem .5rem; min-height: 48px; width: 100%; font-size: .84rem; font-weight: 600; cursor: pointer; }
 .primary-navigation summary { list-style: none; }
 .primary-navigation summary::-webkit-details-marker { display: none; }
