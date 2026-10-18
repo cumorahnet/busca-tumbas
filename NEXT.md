@@ -4,7 +4,10 @@
 
 ## Pendientes
 
-- No se registraron pendientes explícitos.
+- **Prioridad primordial: integrar Busca Tumbas con FamilySearch.** Permitir que el usuario autorice la exportación de fotografías de lápidas como Recuerdos y las vincule con la persona correspondiente del Árbol Familiar.
+  - Gestionar acceso de desarrollador, autorización del usuario y revisión/aprobación de FamilySearch antes de habilitar la integración en producción.
+  - Confirmar los permisos de uso de las fotografías y las condiciones de ambas plataformas.
+  - Pendiente de implementación; esta tarea solo registra la prioridad.
 
 ## Próximos pasos
 
