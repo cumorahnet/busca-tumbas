@@ -1,4 +1,4 @@
-import { mkdir, readFile, writeFile, copyFile, access } from 'node:fs/promises';
+import { mkdir, readFile, writeFile, copyFile, access, cp } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -47,8 +47,9 @@ for (const match of [...html.matchAll(/(?:src|href)="(https:\/\/[^"]+)"/g)]) {
     html = html.replaceAll(match[1], 'vendor/' + local);
 }
 await writeFile(path.join(output, 'index.html'), html);
-for (const filename of ['mobile/app.css', 'mobile/app.js', 'privacy.html', 'terms.html', 'delete-account.html', 'version.json', 'superuser-config.json', 'data/cemeteries-inegi-2026.json']) {
+for (const filename of ['mobile/app.css', 'mobile/app.js', 'manifest.webmanifest', 'privacy.html', 'terms.html', 'delete-account.html', 'version.json', 'superuser-config.json', 'data/cemeteries-inegi-2026.json']) {
     await mkdir(path.dirname(path.join(output, filename)), { recursive: true });
     await copyFile(path.join(root, filename), path.join(output, filename));
 }
+await cp(path.join(root, 'assets'), path.join(output, 'assets'), { recursive: true });
 console.log('Android preparado en www/. Firebase requiere conexión.');
