@@ -53,6 +53,6 @@ test('Android packages scripts, CSS, legal pages and fonts locally',()=>{
             assert.ok(fs.existsSync(path.join('www/vendor',match[1].split('#')[0])),match[1]);
         }
     }
-    assert.ok(fs.existsSync('www/privacy.html')); assert.ok(fs.existsSync('www/delete-account.html'));
+    assert.ok(fs.existsSync('www/terms.html')); assert.ok(fs.existsSync('www/privacy.html')); assert.ok(fs.existsSync('www/delete-account.html'));
     for(const match of html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g))new vm.Script(match[1]);
 });

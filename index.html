@@ -1309,7 +1309,7 @@
     <div class="card-custom">
         <h5 class="fw-bold mb-4">Bienvenido a Busca Tumbas</h5>
         <button type="button" class="version-pill border-0" id="auth-version"></button>
-        <div class="app-legal-links"><a href="privacy.html">Privacidad</a><a href="delete-account.html">Eliminar mi cuenta</a></div>
+        <div class="app-legal-links"><a href="terms.html">Términos y condiciones</a><a href="privacy.html">Privacidad</a><a href="delete-account.html">Eliminar mi cuenta</a></div>
         <div id="auth-verification-status" class="alert alert-info py-2" style="display:none; font-size:0.8rem;"
             role="status" aria-live="polite"></div>
         <div id="auth-name-wrapper" style="display:none;">
@@ -1327,6 +1327,13 @@
             </button>
         </div>
         <button class="btn btn-primary w-100 py-2 rounded-pill fw-bold mb-2" id="login-btn" onclick="handleAuth(true, event)">INICIAR SESIÓN</button>
+        <div id="auth-terms-wrapper" class="mb-3" style="display:none;">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="auth-terms-accepted" aria-describedby="auth-contributions-notice">
+                <label class="form-check-label small" for="auth-terms-accepted">He leído y acepto los <a href="terms.html" target="_blank" rel="noopener">términos y condiciones</a> y he leído el <a href="privacy.html" target="_blank" rel="noopener">aviso de privacidad</a>.</label>
+            </div>
+            <p class="small mt-2 mb-0" id="auth-contributions-notice">Al crear tu cuenta aceptas que tus aportaciones forman parte del patrimonio documental de Busca Tumbas y permanecerán aunque elimines tu cuenta, con las excepciones legales del <a href="terms.html#patrimonio" target="_blank" rel="noopener">punto 3</a>.</p>
+        </div>
         <button class="btn btn-success w-100 py-2 rounded-pill fw-bold mb-2" id="register-btn"
             style="display:none;" onclick="handleAuth(false, event)">CREAR CUENTA</button>
         <button class="btn btn-outline-secondary w-100 py-2 rounded-pill mb-2" id="cancel-register-btn"
@@ -4227,6 +4234,8 @@ function togglePasswordVisibility(inputId, buttonElement) {
 function setAuthMode(mode) {
     resetPasswordVisibility('auth-password', 'toggle-password-visibility');
     const isRegister = mode === 'register';
+    document.getElementById('auth-terms-wrapper').style.display = isRegister ? 'block' : 'none';
+    document.getElementById('auth-terms-accepted').checked = false;
     document.getElementById('auth-name-wrapper').style.display = isRegister ? 'block' : 'none';
     document.getElementById('login-btn').style.display = isRegister ? 'none' : 'block';
     document.getElementById('register-btn').style.display = isRegister ? 'block' : 'none';
@@ -4270,6 +4279,11 @@ async function handleAuth(isLogin, event) {
     const fullName = document.getElementById('auth-full-name').value.trim();
     const email = document.getElementById('auth-email').value.trim();
     const password = document.getElementById('auth-password').value;
+    if (!isLogin && !document.getElementById('auth-terms-accepted').checked) {
+        showToast('Lee y acepta los términos y condiciones para crear tu cuenta.', '#f59e0b', 7000);
+        document.getElementById('auth-terms-accepted').focus();
+        return;
+    }
     if (!email || !password) {
         showToast('⚠ Por favor, ingresa email y contraseña', '#f59e0b');
         return;
@@ -7429,7 +7443,7 @@ window.onload = () => {
 };
 </script>
 <footer class="app-legal-links">
-    <a href="privacy.html">Privacidad</a>
+    <a href="terms.html">Términos y condiciones</a><a href="privacy.html">Privacidad</a>
     <a href="delete-account.html">Solicitar eliminación de cuenta</a>
 </footer>
 </body>
