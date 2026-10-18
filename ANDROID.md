@@ -66,3 +66,13 @@ Fuentes:
 - Android Lint del módulo app: 0 errores y 19 advertencias; incluye recursos de la plantilla sin utilizar. Capacitor utiliza además su baseline de lint.
 - No se ha probado en un teléfono físico ni se han validado cámara, GPS o autenticación contra producción desde Android.
 - La prueba instrumentada de contexto contiene el identificador correcto, pero no se ha ejecutado en un dispositivo.
+
+## Instalación web temporal antes de Play Store
+
+La web ofrece instalar la PWA desde Android y agregarla a inicio en Safari de iPhone/iPad. El aviso de primera visita se guarda con la clave buscatumbas_pwa_install_seen_v1; los botones de acceso y cabecera permiten recuperar la opción. El navegador decide si ofrece instalación nativa y solo se abre tras una acción del usuario. No se muestra dentro de Capacitor ni en modo standalone.
+
+El módulo es mobile/install.js y el service worker sw.js utiliza la red sin precachear datos, sesiones ni fotos; la app sigue necesitando internet. El worker no se registra desde la app nativa. Los iconos se comparten con la identidad visual del proyecto.
+
+Al publicar en Play Store, poner data-temporary-install="off" en el elemento html de index.html y sustituir los botones por el enlace real de la ficha. No hay enlace de tienda ficticio ni fecha de publicación automática. Si se modifica la experiencia, actualizar la versión del script y la clave de aviso solo cuando corresponda.
+
+Verificación: npm run test:android cubre primera visita, segunda visita, evento tardío, aceptación, rechazo, instalación completada, iOS, errores y PNG reales. El diálogo nativo se simula en automatización; debe confirmarse en un teléfono compatible.

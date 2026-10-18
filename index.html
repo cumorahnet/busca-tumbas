@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-temporary-install="on">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -9,6 +9,8 @@
     <link rel="apple-touch-icon" sizes="180x180" href="assets/brand/icon-180.png">
     <link rel="manifest" href="manifest.webmanifest">
     <meta name="theme-color" content="#0f172a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Busca Tumbas">
     <meta property="og:title" content="Busca Tumbas">
     <meta property="og:image" content="https://buscatumbas-2e7cc.web.app/assets/brand/icon-512.png">
     <meta property="og:image:alt" content="Logotipo de Busca Tumbas: lápida con lupa">
@@ -1287,11 +1289,23 @@
     <meta name="theme-color" content="#0f172a">
     <link rel="stylesheet" href="mobile/app.css">
     <script src="mobile/app.js" defer></script>
+    <script src="mobile/install.js?v=1" defer></script>
 </head>
 <body>
 
 <div id="toast-msg" role="status" aria-live="polite" aria-atomic="true"></div>
 
+<dialog id="pwa-install-dialog" aria-labelledby="pwa-install-title" aria-describedby="pwa-install-description">
+    <img src="assets/brand/logo.png" width="80" height="80" alt="" class="app-brand-logo mx-auto mb-3">
+    <h2 id="pwa-install-title" class="h5 fw-bold">Lleva Busca Tumbas en tu teléfono</h2>
+    <p id="pwa-install-description">Agrega la app a tu pantalla de inicio para abrirla con un toque. Esta opción está disponible mientras preparamos su llegada a Play Store. Necesita conexión a internet.</p>
+    <p id="pwa-install-instructions" class="small"></p>
+    <p id="pwa-install-status" role="status" aria-live="polite" class="small"></p>
+    <div class="d-flex flex-wrap gap-2">
+        <button type="button" id="pwa-install-confirm" class="btn btn-primary" hidden>Instalar app</button>
+        <button type="button" id="pwa-install-dismiss" class="btn btn-outline-secondary">Ahora no</button>
+    </div>
+</dialog>
 <!-- SPLASH SCREEN -->
 <div id="splash-screen">
     <div>
@@ -1325,6 +1339,7 @@
         <img class="app-brand-logo app-brand-auth" src="assets/brand/logo.png" width="88" height="88" alt="Logotipo de Busca Tumbas">
         <h5 class="fw-bold mb-4">Bienvenido a Busca Tumbas</h5>
         <button type="button" class="version-pill border-0" id="auth-version"></button>
+        <div class="text-center mb-2"><button type="button" class="btn btn-outline-primary btn-sm" data-pwa-install-action hidden><i class="fas fa-download me-2" aria-hidden="true"></i><span data-pwa-install-label>Instalar app</span></button></div>
         <div class="app-legal-links"><a href="terms.html">Términos y condiciones</a><a href="privacy.html">Privacidad</a><a href="delete-account.html">Eliminar mi cuenta</a></div>
         <div id="auth-verification-status" class="alert alert-info py-2" style="display:none; font-size:0.8rem;"
             role="status" aria-live="polite"></div>
@@ -1425,6 +1440,7 @@
         <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
             <div class="app-brand-header"><img class="app-brand-logo" src="assets/brand/logo.png" width="56" height="56" alt=""><h4 class="fw-bold mb-0">Busca Tumbas</h4></div>
             <div class="d-flex flex-wrap align-items-center gap-2 mt-2 mt-md-0">
+                <button type="button" class="btn btn-outline-primary btn-sm" data-pwa-install-action hidden><i class="fas fa-download me-2" aria-hidden="true"></i><span data-pwa-install-label>Instalar app</span></button>
                 <button type="button" class="version-pill border-0" id="app-header-version"></button>
                 <span class="badge text-bg-success">Catálogo colaborativo</span>
                 <span id="superuser-badge" class="badge rounded-pill text-bg-warning" style="display:none;" role="status"><i class="fas fa-user-shield me-1"></i>Superusuario</span>
@@ -7425,6 +7441,7 @@ window.onload = () => {
         document.getElementById('splash-screen').classList.add('hidden');
         setTimeout(() => {
             document.getElementById('splash-screen').style.display = 'none';
+            window.dispatchEvent(new Event('buscatumbas:ready'));
             if (!auth.currentUser) {
                 document.getElementById('auth-screen').style.display = 'flex'; 
             }

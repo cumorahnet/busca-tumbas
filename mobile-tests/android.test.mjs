@@ -44,7 +44,7 @@ test('Android packages scripts, CSS, legal pages and fonts locally',()=>{
     const html=fs.readFileSync('www/index.html','utf8');
     for(const match of html.matchAll(/<(?:script|link)\b[^>]*(?:src|href)="([^"]+)"/g)){
         assert.ok(!match[1].startsWith('https://'), match[1]);
-        assert.ok(fs.existsSync(path.join('www',match[1])),match[1]);
+        assert.ok(fs.existsSync(path.join('www',match[1].split(/[?#]/)[0])),match[1]);
     }
     for(const file of fs.readdirSync('www/vendor').filter(p=>p.endsWith('.css'))){
         const css=fs.readFileSync(path.join('www/vendor',file),'utf8');
