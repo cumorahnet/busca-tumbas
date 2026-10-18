@@ -1844,11 +1844,12 @@
                             <span class="field-label">Fecha de defunción</span>
                         </div>
                         <div class="field-group">
-                            <input type="number" id="display-edad-defuncion" class="form-control"
+                            <input type="number" id="display-edad-defuncion" class="form-control" aria-describedby="death-age-calculation-hint"
                                 min="0" max="130" step="1" placeholder="Edad en años"
-                                oninput="calculateEstimatedBirthYear()">
+                                oninput="markDeathAgeAsManual()">
                             <span class="field-label">Edad al fallecer</span>
                             <small id="birth-year-estimate-hint" class="field-hint"></small>
+                            <small id="death-age-calculation-hint" class="text-muted d-block" aria-live="polite"></small>
                         </div>
                         <div class="field-group full-width">
                             <input type="text" id="display-geolocation" class="form-control" readonly placeholder="Ubicación">
@@ -2583,6 +2584,7 @@ let inlineImageZoomLevel = 1;
 let inlineZoomEnabled = false;
 let inlineCropper = null;
 let birthYearWasEstimated = false;
+let deathAgeWasCalculated = false;
 let imageEnhancementEnabled = false;
 
 function getImageEnhancementSettings() {
@@ -2620,9 +2622,48 @@ function setImageEnhancementEnabled(enabled) {
 function markBirthDateAsManual() {
     birthYearWasEstimated = false;
     document.getElementById('birth-year-estimate-hint').textContent = '';
+    updateCalculatedDeathAge();
+}
+
+function calculateAgeFromDates(birthValue, deathValue) {
+    const parse = value => {
+        const text = String(value || '').trim();
+        const iso = /^\d{4}-\d{2}-\d{2}$/.test(text) ? text : parseSpanishDateToISO(text);
+        if (!iso) return null;
+        const [year, month, day] = iso.split('-').map(Number);
+        const date = new Date(0);
+        date.setUTCFullYear(year, month - 1, day);
+        date.setUTCHours(0, 0, 0, 0);
+        return year > 0 && date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day
+            ? {year, month, day, time: date.getTime()} : null;
+    };
+    const birth = parse(birthValue), death = parse(deathValue);
+    if (!birth || !death || death.time < birth.time) return null;
+    const beforeBirthday = death.month < birth.month || (death.month === birth.month && death.day < birth.day);
+    const age = death.year - birth.year - Number(beforeBirthday);
+    return age >= 0 && age <= 130 ? age : null;
+}
+
+function updateCalculatedDeathAge() {
+    const input = document.getElementById('display-edad-defuncion');
+    const hint = document.getElementById('death-age-calculation-hint');
+    if (input.value !== '' && !deathAgeWasCalculated) return;
+    const age = birthYearWasEstimated ? null : calculateAgeFromDates(
+        document.getElementById('display-fecha-nacimiento').value,
+        document.getElementById('display-fecha-defuncion').value);
+    input.value = age === null ? '' : String(age);
+    deathAgeWasCalculated = age !== null;
+    hint.textContent = age === null ? '' : 'Edad calculada con las fechas: años cumplidos al fallecer.';
+}
+
+function markDeathAgeAsManual() {
+    deathAgeWasCalculated = false;
+    document.getElementById('death-age-calculation-hint').textContent = '';
+    calculateEstimatedBirthYear();
 }
 
 function calculateEstimatedBirthYear() {
+    updateCalculatedDeathAge();
     const birthInput = document.getElementById('display-fecha-nacimiento');
     const deathValue = document.getElementById('display-fecha-defuncion').value.trim();
     const age = Number.parseInt(document.getElementById('display-edad-defuncion').value, 10);
@@ -3666,6 +3707,8 @@ function clearFormFields() {
     document.getElementById('display-fecha-nacimiento').value = '';
     document.getElementById('display-fecha-defuncion').value = '';
     document.getElementById('display-edad-defuncion').value = '';
+    deathAgeWasCalculated = false;
+    document.getElementById('death-age-calculation-hint').textContent = '';
     document.getElementById('birth-year-estimate-hint').textContent = '';
     birthYearWasEstimated = false;
     document.getElementById('display-geolocation').value = '';
@@ -3854,6 +3897,8 @@ function populateExtractedDataForm(data, geolocation) {
     birthYearWasEstimated = false;
     document.getElementById('display-fecha-nacimiento').value = formatDateToSpanish(data.fecha_nacimiento); // Display in Spanish
     document.getElementById('display-fecha-defuncion').value = formatDateToSpanish(data.fecha_defuncion); // Display in Spanish
+    deathAgeWasCalculated = false;
+    document.getElementById('death-age-calculation-hint').textContent = '';
     const detectedAge = Number.parseInt(data.edad_defuncion, 10);
     document.getElementById('display-edad-defuncion').value =
         Number.isInteger(detectedAge) && detectedAge >= 0 && detectedAge <= 130 ? detectedAge : '';
@@ -3890,6 +3935,7 @@ async function saveCurrentFormDataToHistory() {
     const apellidoPaterno = formatProperName(document.getElementById('display-apellido-paterno').value);
     const apellidoMaterno = formatProperName(document.getElementById('display-apellido-materno').value);
     const nombreFinado = composeDeceasedName({nombres, apellido_paterno: apellidoPaterno, apellido_materno: apellidoMaterno});
+    calculateEstimatedBirthYear();
     const fechaNacimientoDisplay = document.getElementById('display-fecha-nacimiento').value.trim();
     const fechaDefuncionDisplay = document.getElementById('display-fecha-defuncion').value.trim();
     const edadDefuncionValue = document.getElementById('display-edad-defuncion').value;
@@ -6991,7 +7037,7 @@ async function saveTombDetailEdits() {
     document.querySelectorAll('[data-tomb-edit]').forEach(input => {
         values[input.dataset.tombEdit] = input.value.trim();
     });
-    const age = values.edad_defuncion === '' ? null : Number.parseInt(values.edad_defuncion, 10);
+    const age = values.edad_defuncion === '' ? calculateAgeFromDates(values.fecha_nacimiento, values.fecha_defuncion) : Number.parseInt(values.edad_defuncion, 10);
     if (age !== null && (!Number.isInteger(age) || age < 0 || age < 0 || age > 130)) {
         showToast('⚠ La edad debe estar entre 0 y 130 años.', '#f59e0b');
         return;
