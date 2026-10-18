@@ -39,7 +39,7 @@ body, .container-main { min-height: 100dvh; }
 .header-tagline { margin: .3rem 0 0; color: #eeeafa; font-size: .75rem; line-height: 1.5; }
 .app-header.card-custom { border-radius: 1rem; box-shadow: 0 4px 20px #0f172a06; background: #5c4e99; border: 1px solid #5c4e99; color: #fff; overflow: visible; z-index: 10; }
 .app-header .app-brand-header h4 { color: #fff; }
-.app-header .app-brand-logo { background: #fff; border-radius: .65rem; }
+.app-header .app-brand-logo { border-radius: .65rem; }
 .app-header [data-pwa-install-action], .app-header #back-to-mode-selection, .app-header #logout-btn { color: #fff; border-color: #ffffff70; background: transparent; }
 .app-header [data-pwa-install-action]:hover, .app-header #back-to-mode-selection:hover, .app-header #logout-btn:hover { color: #fff; background: #ffffff20; }
 .app-header .version-pill { color: #fff; background: #ffffff18; }
