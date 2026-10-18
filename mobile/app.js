@@ -1,4 +1,19 @@
 (() => {
+    const menuGroups = [...document.querySelectorAll('.primary-navigation-group')];
+    const contributionsMenu = document.getElementById('my-contributions-submenu');
+    const contributionsToggle = document.querySelector('[aria-controls="my-contributions-submenu"]');
+    function closeMenus(except = null) {
+        menuGroups.forEach(group => { if (group !== except) group.open = false; });
+        if (except !== contributionsToggle && contributionsMenu) {
+            contributionsMenu.hidden = true;
+            contributionsToggle?.setAttribute('aria-expanded', 'false');
+        }
+    }
+    document.addEventListener('click', event => {
+        const summary = event.target.closest('.primary-navigation-group > summary');
+        const contributionAction = event.target.closest('[aria-controls="my-contributions-submenu"]');
+        closeMenus(summary?.parentElement || contributionAction);
+    }, true);
     const capacitor = window.Capacitor;
     const native = Boolean(capacitor?.isNativePlatform());
     document.documentElement.classList.toggle('native-app', native);

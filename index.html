@@ -853,15 +853,23 @@
             white-space: normal;
             overflow-wrap: anywhere;
         }
+        .my-contribution-list-item:not(.active):hover,
+        .my-contribution-list-item:not(.active):focus-visible {
+            color: var(--primary);
+            background: #f1f5f9;
+            border-color: #94a3b8;
+        }
         .my-contribution-list-item .badge {
             flex-shrink: 0;
             align-self: flex-start;
         }
-        .my-contribution-list-item.active {
+        .my-contribution-list-item.active,
+        .my-contribution-list-item.active:hover,
+        .my-contribution-list-item.active:focus-visible {
             color: #fff;
-            background: var(--accent);
-            border-color: var(--accent);
-            box-shadow: 0 0.35rem 0.8rem rgba(59, 130, 246, 0.2);
+            background: #5c4e99;
+            border-color: #5c4e99;
+            box-shadow: 0 0.35rem 0.8rem rgba(92, 78, 153, 0.2);
         }
         .my-contribution-list-item.active .text-muted {
             color: rgba(255,255,255,0.8) !important;
@@ -881,7 +889,7 @@
             border-radius: 0.85rem;
             background: #0f172a;
         }
-        .my-contribution-image { display: block; object-fit: contain; }
+        .my-contribution-image { display: block; height: auto; object-fit: contain; background: transparent; }
         .my-contribution-image-placeholder {
             display: flex;
             align-items: center;
@@ -890,24 +898,23 @@
         }
         .record-detail-image {
             width: 100%;
-            max-height: 68vh;
+            height: auto;
             object-fit: contain;
             border-radius: 1rem;
-            background: #0f172a;
+            background: transparent;
         }
         .record-detail-photo-viewport {
             width: 100%;
-            height: min(58vh, 480px);
+            max-height: min(58vh, 480px);
             overflow: auto;
             border-radius: 1rem;
-            background: #0f172a;
-            border: 1px solid #334155;
+            background: transparent;
             overscroll-behavior: contain;
         }
         .record-detail-photo {
             display: block;
             width: 100%;
-            height: 100%;
+            height: auto;
             object-fit: contain;
             max-width: none;
             transform-origin: top left;
@@ -978,10 +985,8 @@
             .my-contribution-detail-panel.is-visible { display: block; }
             .mobile-contributions-back { display: inline-flex; }
             .my-contribution-detail-grid { grid-template-columns: 1fr; }
-            .my-contribution-image,
             .my-contribution-image-placeholder { height: 240px; }
             .record-data-list { grid-template-columns: 1fr; }
-            .record-detail-image { max-height: 42vh; }
         }
         #upload-capture-card {
             display: block;
@@ -1096,10 +1101,10 @@
         .tomb-search-detail-image {
             display: block;
             width: 100%;
-            height: 330px;
+            height: auto;
             object-fit: contain;
             border-radius: 0.85rem;
-            background: #0f172a;
+            background: transparent;
         }
         @media (max-width: 768px) {
             .tomb-search-layout { grid-template-columns: 1fr; }
@@ -1112,7 +1117,6 @@
             }
             .tomb-search-list-item { min-width: 210px; }
             .tomb-search-detail-grid { grid-template-columns: 1fr; }
-            .tomb-search-detail-image { height: 260px; }
         }
 
         /* Add styling for the checkbox groups in search */
@@ -1287,9 +1291,9 @@
         }
     </style>
     <meta name="theme-color" content="#0f172a">
-    <link rel="stylesheet" href="mobile/app.css">
-    <script src="mobile/app.js" defer></script>
-    <script src="mobile/install.js?v=1" defer></script>
+    <link rel="stylesheet" href="mobile/app.css?v=3">
+    <script src="mobile/app.js?v=2" defer></script>
+    <script src="mobile/install.js?v=3" defer></script>
 </head>
 <body>
 
@@ -1438,7 +1442,7 @@
     <!-- App Header -->
     <header class="app-header card-custom">
         <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
-            <div class="app-brand-header"><img class="app-brand-logo" src="assets/brand/logo.png" width="56" height="56" alt=""><h4 class="fw-bold mb-0">Busca Tumbas</h4></div>
+            <div class="app-brand-header"><img class="app-brand-logo" src="assets/brand/logo.png" width="56" height="56" alt=""><div><h4 class="fw-bold mb-0">Busca Tumbas</h4><p class="header-tagline">Conservamos historias. Conectamos generaciones.</p></div></div>
             <div class="d-flex flex-wrap align-items-center gap-2 mt-2 mt-md-0">
                 <button type="button" class="btn btn-outline-primary btn-sm" data-pwa-install-action hidden><i class="fas fa-download me-2" aria-hidden="true"></i><span data-pwa-install-label>Instalar app</span></button>
                 <button type="button" class="version-pill border-0" id="app-header-version"></button>
@@ -1452,6 +1456,25 @@
                 </span>
             </div>
         </div>
+        <nav class="primary-navigation" aria-label="Navegación de Busca Tumbas">
+            <button type="button" onclick="showModeSelection()"><i class="fas fa-home" aria-hidden="true"></i><span>Inicio</span></button>
+            <button type="button" onclick="selectSearchTombMode()"><i class="fas fa-search" aria-hidden="true"></i><span>Buscar tumbas</span></button>
+            <details class="primary-navigation-group">
+                <summary><i class="fas fa-camera" aria-hidden="true"></i><span>Colaborar</span><i class="fas fa-chevron-down" aria-hidden="true"></i></summary>
+                <div class="primary-navigation-panel">
+                    <button type="button" onclick="this.closest('details').open=false;selectAddTombMode()"><i class="fas fa-camera" aria-hidden="true"></i>Agregar lápidas y fotos</button>
+                    <button type="button" onclick="this.closest('details').open=false;selectAddCemeteryMode()"><i class="fas fa-landmark" aria-hidden="true"></i>Registrar un lugar</button>
+                </div>
+            </details>
+            <details class="primary-navigation-group">
+                <summary><i class="fas fa-user-circle" aria-hidden="true"></i><span>Mi actividad</span><i class="fas fa-chevron-down" aria-hidden="true"></i></summary>
+                <div class="primary-navigation-panel">
+                    <button type="button" onclick="this.closest('details').open=false;showMyContributions()"><i class="fas fa-folder-open" aria-hidden="true"></i>Mis aportaciones</button>
+                    <button type="button" onclick="this.closest('details').open=false;showCorrectionsInbox()"><i class="fas fa-comments" aria-hidden="true"></i>Correcciones y mensajes</button>
+                    <button type="button" onclick="this.closest('details').open=false;showMyContributions('disputes')"><i class="fas fa-triangle-exclamation" aria-hidden="true"></i>Mis disputas</button>
+                </div>
+            </details>
+        </nav>
         <button type="button" class="btn btn-outline-danger w-100" onclick="logout()" id="logout-btn" style="display:none;">
             <i class="fas fa-sign-out-alt me-2" aria-hidden="true"></i>Salir
         </button>
@@ -1489,28 +1512,42 @@
 
     <!-- Mode Selection Card -->
     <div class="card-custom" id="mode-selection-card">
-        <h5 class="fw-bold mb-3 text-center" style="color:var(--primary);">¿Qué deseas hacer?</h5>
-        <div class="action-stack mt-3">
-            <button class="btn btn-primary w-100 py-3" onclick="selectAddTombMode()">
-                <i class="fas fa-plus-circle me-2"></i>Subir lápidas de un panteón
-                <small class="d-block mt-1 fw-normal">Elige el lugar una vez y agrega sus fotografías</small>
+        <div class="menu-intro"><span class="menu-eyebrow">CATÁLOGO COLABORATIVO</span><h2>Encuentra una historia.<br>Ayuda a conservarla.</h2><p>Consulta registros de sepulturas o comparte información para que otras familias puedan encontrarlos.</p></div>
+        <nav class="action-stack menu-sections" aria-label="Menú principal">
+            <section class="menu-group menu-group-search" aria-labelledby="menu-search-title">
+            <h3 id="menu-search-title" class="menu-group-title">Explorar el catálogo</h3>
+            <button type="button" class="btn menu-action menu-action-featured" onclick="selectSearchTombMode()">
+                <span class="menu-action-icon"><i class="fas fa-search" aria-hidden="true"></i></span>
+                <span class="menu-action-copy"><strong>Buscar una tumba</strong><small>Encuentra personas por nombre y lugar de sepultura.</small></span>
+                <i class="fas fa-arrow-right menu-action-arrow" aria-hidden="true"></i>
             </button>
-            <button class="btn btn-outline-secondary w-100 py-3" onclick="selectSearchTombMode()">
-                <i class="fas fa-search me-2"></i>Buscar Tumba
+            </section>
+            <section class="menu-group" aria-labelledby="menu-contribute-title">
+            <h3 id="menu-contribute-title" class="menu-group-title">Contribuir a la memoria</h3>
+            <button type="button" class="btn menu-action" onclick="selectAddTombMode()">
+                <span class="menu-action-icon"><i class="fas fa-camera" aria-hidden="true"></i></span>
+                <span class="menu-action-copy"><strong>Agregar lápidas y fotografías</strong><small>Elige un panteón y documenta sus sepulturas.</small></span>
+                <i class="fas fa-chevron-right menu-action-arrow" aria-hidden="true"></i>
             </button>
-            <button class="btn btn-outline-success w-100 py-3" onclick="selectAddCemeteryMode()">
-                <i class="fas fa-landmark me-2"></i>Agregar panteón u otro lugar
+            <button type="button" class="btn menu-action" onclick="selectAddCemeteryMode()">
+                <span class="menu-action-icon"><i class="fas fa-landmark" aria-hidden="true"></i></span>
+                <span class="menu-action-copy"><strong>Registrar un lugar</strong><small>Agrega un panteón, iglesia u otro lugar de sepultura.</small></span>
+                <i class="fas fa-chevron-right menu-action-arrow" aria-hidden="true"></i>
             </button>
-            <button class="btn btn-outline-primary w-100 py-3" onclick="showCorrectionsInbox()">
-                <i class="fas fa-comments me-2"></i>Correcciones y mensajes
-                <span class="badge text-bg-danger ms-2" id="correction-notification-count" style="display:none;">0</span>
+            </section>
+            <section class="menu-group" aria-labelledby="menu-activity-title">
+            <h3 id="menu-activity-title" class="menu-group-title">Mi actividad</h3>
+            <button type="button" class="btn menu-action" onclick="showCorrectionsInbox()">
+                <span class="menu-action-icon"><i class="fas fa-comments" aria-hidden="true"></i></span>
+                <span class="menu-action-copy"><strong>Correcciones y mensajes <span class="badge text-bg-danger ms-2" id="correction-notification-count" style="display:none;">0</span></strong><small>Revisa sugerencias y conversaciones de la comunidad.</small></span>
+                <i class="fas fa-chevron-right menu-action-arrow" aria-hidden="true"></i>
             </button>
             <div>
-                <button type="button" class="btn btn-outline-info w-100 py-3 position-relative" onclick="toggleMyContributionsMenu(this)"
+                <button type="button" class="btn menu-action position-relative" onclick="toggleMyContributionsMenu(this)"
                     aria-expanded="false" aria-controls="my-contributions-submenu">
-                    <i class="fas fa-folder-open me-2"></i>Mis aportaciones
-                    <span class="dispute-notification" id="my-disputes-menu-count" hidden aria-live="polite">0</span>
-                    <i class="fas fa-chevron-down ms-2" aria-hidden="true"></i>
+                    <span class="menu-action-icon"><i class="fas fa-folder-open" aria-hidden="true"></i></span>
+                    <span class="menu-action-copy"><strong>Mis aportaciones <span class="dispute-notification" id="my-disputes-menu-count" hidden aria-live="polite">0</span></strong><small>Administra tus registros y consulta tus disputas.</small></span>
+                    <i class="fas fa-chevron-down menu-action-arrow" aria-hidden="true"></i>
                 </button>
                 <div class="mt-2" id="my-contributions-submenu" hidden>
                     <nav class="d-grid gap-2 ps-3" aria-label="Mis aportaciones y disputas">
@@ -1525,11 +1562,12 @@
                     </nav>
                 </div>
             </div>
+            </section>
             <button class="btn btn-dark w-100 py-3" id="admin-panel-btn" style="display:none;"
                 onclick="showAdminPanel()">
                 <i class="fas fa-chart-line me-2"></i>Panel administrativo
             </button>
-        </div>
+        </nav>
     </div>
 
     <div class="card-custom" id="add-cemetery-section">
@@ -6102,7 +6140,7 @@ function applyRecordDetailZoom() {
     const label = document.getElementById('record-detail-zoom-label');
     if (!image || !viewport) return;
     image.style.width = `${recordDetailZoomLevel * 100}%`;
-    image.style.height = recordDetailZoomLevel === 1 ? '100%' : 'auto';
+    image.style.height = 'auto';
     image.style.objectFit = 'contain';
     if (label) label.textContent = `${Math.round(recordDetailZoomLevel * 100)}%`;
     if (recordDetailZoomLevel === 1) {

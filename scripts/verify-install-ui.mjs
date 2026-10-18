@@ -18,6 +18,14 @@ const fixture=`<!doctype html><html lang="es" data-temporary-install="on"><head>
  if(!document.getElementById('pwa-install-instructions').textContent)throw Error('No manual instructions');
  if(![...document.images].every(i=>i.complete&&i.naturalWidth>0))await Promise.all([...document.images].map(i=>i.decode()));
  const box=dialog.getBoundingClientRect();if(box.left<0||box.right>innerWidth||box.height>innerHeight)throw Error('Dialog overflow');
+ document.getElementById('pwa-install-dismiss').click();
+ window.dispatchEvent(new Event('buscatumbas:ready'));
+ if(dialog.open)throw Error('Dismissed offer reopened automatically');
+ const action=document.querySelector('[data-pwa-install-action]');
+ const buttonBox=action.getBoundingClientRect();
+ if(action.hidden||getComputedStyle(action).visibility==='hidden'||buttonBox.width===0||buttonBox.height===0)throw Error('Mobile install action is not visible after dismissal');
+ action.click();
+ if(!dialog.open)throw Error('Mobile install action does not reopen instructions');
  document.body.dataset.installCheck='passed';
 })().catch(e=>{document.body.dataset.installCheck='failed';document.body.dataset.installError=e.message;});
 </script></body></html>`;

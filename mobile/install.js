@@ -26,7 +26,9 @@
         try { localStorage.setItem(seenKey, 'seen'); } catch { /* Storage may be unavailable. */ }
     };
     function render() {
-        const available = !installed() && !installing && (mobile || deferredPrompt !== null);
+        // Keep a way back to installation even after uninstalling or dismissing
+        // the offer: the browser may delay or withhold beforeinstallprompt.
+        const available = !installed() && !installing;
         const label = ios ? 'Agregar a pantalla de inicio' : 'Instalar app';
         actions.forEach(button => {
             button.hidden = !available;
@@ -95,6 +97,20 @@
         render();
     });
     standalone.addEventListener?.('change', render);
+    function resumeBrowserTab() {
+        if (busy || standalone.matches || navigator.standalone === true) return;
+        // Chrome can restore this page after an interrupted installation or an
+        // uninstall. An earlier appinstalled event is not proof it is still installed.
+        installedEvent = false;
+        installing = false;
+        render();
+    }
+    window.addEventListener('pageshow', event => {
+        if (event.persisted) resumeBrowserTab();
+    });
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') resumeBrowserTab();
+    });
     window.addEventListener('buscatumbas:ready', firstVisit);
     window.addEventListener('load', () => window.setTimeout(firstVisit, 3500), {once: true});
     render();
