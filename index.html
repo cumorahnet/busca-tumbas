@@ -1291,9 +1291,10 @@
         }
     </style>
     <meta name="theme-color" content="#0f172a">
-    <link rel="stylesheet" href="mobile/app.css?v=5">
-    <script src="mobile/app.js?v=2" defer></script>
+    <link rel="stylesheet" href="mobile/app.css?v=6">
+    <script src="mobile/app.js?v=3" defer></script>
     <script src="mobile/install.js?v=3" defer></script>
+    <script src="mobile/familysearch.js?v=1" defer></script>
 </head>
 <body>
 
@@ -1309,6 +1310,41 @@
         <button type="button" id="pwa-install-confirm" class="btn btn-primary" hidden>Instalar app</button>
         <button type="button" id="pwa-install-dismiss" class="btn btn-outline-secondary">Ahora no</button>
     </div>
+</dialog>
+<dialog id="familysearch-preparation-dialog" aria-labelledby="familysearch-dialog-title" aria-describedby="familysearch-dialog-description">
+    <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
+        <div><span class="menu-eyebrow">COMPARTIR LA MEMORIA</span><h2 id="familysearch-dialog-title" class="h5 fw-bold mt-2 mb-0">Preparar para FamilySearch</h2></div>
+        <button type="button" id="familysearch-dismiss" class="btn btn-outline-secondary btn-sm" aria-label="Cerrar preparación para FamilySearch"><i class="fas fa-times" aria-hidden="true"></i></button>
+    </div>
+    <p id="familysearch-dialog-description" class="small text-muted">Descarga tu foto y revisa los datos. Después podrás subirla como recuerdo desde tu cuenta de FamilySearch.</p>
+    <div class="familysearch-preparation-grid">
+        <div>
+            <h3 class="h6 fw-bold">1. Guarda la fotografía</h3>
+            <img id="familysearch-photo" alt="Fotografía de la lápida" class="familysearch-photo mb-3">
+            <button type="button" id="familysearch-download-photo" class="btn btn-primary w-100"><i class="fas fa-download me-2" aria-hidden="true"></i>Descargar fotografía</button>
+            <a id="familysearch-original-photo" class="d-block small mt-2" target="_blank" rel="noopener noreferrer">Abrir foto original <i class="fas fa-external-link-alt" aria-hidden="true"></i></a>
+        </div>
+        <div>
+            <h3 class="h6 fw-bold">2. Revisa y copia los datos</h3>
+            <label for="familysearch-memory-title" class="form-label small">Título del recuerdo</label>
+            <input id="familysearch-memory-title" class="form-control" type="text" maxlength="300">
+            <button type="button" id="familysearch-copy-title" class="btn btn-outline-secondary btn-sm mt-2 mb-3"><i class="fas fa-copy me-1" aria-hidden="true"></i>Copiar título</button>
+            <label for="familysearch-memory-description" class="form-label small d-block">Descripción</label>
+            <textarea id="familysearch-memory-description" class="form-control" rows="8" maxlength="5000"></textarea>
+            <div class="d-flex flex-wrap gap-2 mt-2">
+                <button type="button" id="familysearch-copy-description" class="btn btn-outline-secondary btn-sm"><i class="fas fa-copy me-1" aria-hidden="true"></i>Copiar descripción</button>
+                <button type="button" id="familysearch-download-text" class="btn btn-outline-secondary btn-sm">Descargar datos (.txt)</button>
+            </div>
+            <p class="small text-muted mt-2 mb-0">Los cambios aquí solo preparan el texto para compartir; no modifican tu aportación.</p>
+        </div>
+    </div>
+    <section class="familysearch-next-step mt-3">
+        <h3 class="h6 fw-bold">3. Completa la carga en FamilySearch</h3>
+        <p class="small">En Recuerdos → Galería, sube la foto y pega el título y la descripción. Vincúlala a la persona correcta comprobando su nombre, fechas y lugar.</p>
+        <a id="familysearch-open-gallery" class="btn btn-primary" target="_blank" rel="noopener noreferrer">Abrir FamilySearch <i class="fas fa-external-link-alt ms-1" aria-hidden="true"></i></a>
+        <p class="small text-muted mt-2 mb-0">La publicación se realiza manualmente en FamilySearch. Busca Tumbas no envía la foto ni solicita tu contraseña.</p>
+    </section>
+    <p id="familysearch-status" role="status" aria-live="polite" class="small mt-3 mb-0"></p>
 </dialog>
 <!-- SPLASH SCREEN -->
 <div id="splash-screen">
@@ -5308,6 +5344,7 @@ function showMyContributionDetail(contributionId, selectedButton = null) {
             <h6 class="fw-bold mb-3">${escapeHtml(title)}</h6>
             <div class="record-data-list">${fields.map(([label, value]) => `<div class="record-data-item"><small>${escapeHtml(label)}</small><span>${escapeHtml(value) || 'No disponible'}</span></div>`).join('')}</div>
             <button class="btn btn-primary w-100 mt-3" onclick="${action}"><i class="fas fa-pen me-1"></i>Ver y editar</button>
+            ${!isCemetery && contribution.imageUrl && tombOwnerId(contribution) === auth.currentUser?.uid ? `<button type="button" class="btn btn-outline-secondary w-100 mt-2" onclick="prepareForFamilySearch(${inlineJsValue(contribution.id)})"><i class="fas fa-share-alt me-1" aria-hidden="true"></i>Preparar para FamilySearch</button>` : ''}
             ${deleteAction}
         </div>
     </div>`;
@@ -6876,6 +6913,20 @@ function tombOwnerId(tomb) {
     return tomb.contributorId || tomb.userId || '';
 }
 
+let familySearchPreparation = null;
+function prepareForFamilySearch(tombId) {
+    const tomb = currentDetailTomb?.id === tombId ? currentDetailTomb :
+        myContributions.find(item => item.id === tombId && item.type === 'tomb');
+    try {
+        if (!window.BuscaTumbasFamilySearch) throw new Error('Recarga la página para preparar tu fotografía.');
+        if (!familySearchPreparation) familySearchPreparation = window.BuscaTumbasFamilySearch.createController({
+            document, navigator, fetch: window.fetch.bind(window), URL: window.URL,
+            getCurrentUser: () => auth.currentUser
+        });
+        familySearchPreparation.open(tomb);
+    } catch (error) { showToast(error.message, '#ef4444'); }
+}
+
 function detailDataHtml(tomb) {
     const separatedNameFields = tomb.nombres || tomb.apellido_paterno || tomb.apellido_materno
         ? [
@@ -7060,6 +7111,7 @@ function renderTombDetail() {
                     <button class="btn btn-primary w-100" onclick="enableTombDetailEditing()">
                         <i class="fas fa-pen me-1"></i>EDITAR DATOS
                     </button>
+                    ${isOwner && tomb.imageUrl ? `<button type="button" class="btn btn-outline-secondary w-100 mt-2" onclick="prepareForFamilySearch(${inlineJsValue(tomb.id)})"><i class="fas fa-share-alt me-1" aria-hidden="true"></i>Preparar para FamilySearch</button>` : ''}
                     <button type="button" class="btn btn-outline-danger w-100 mt-2" onclick="deleteMyContribution('tomb', ${inlineJsValue(tomb.id)})"><i class="fas fa-trash-alt me-1"></i>ELIMINAR APORTACIÓN</button>` : `
                     <div class="mt-3">
                         <label class="field-label" for="correction-description">Describe qué dato debe revisarse</label>
@@ -7487,6 +7539,7 @@ window.onload = () => {
     }, 2500);
 
     auth.onAuthStateChanged(async (user) => {
+        familySearchPreparation?.close();
         platformAdminUid = null;
         updateSuperuserIndicator();
         moderationUnsubscribe?.();

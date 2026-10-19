@@ -33,6 +33,16 @@ body, .container-main { min-height: 100dvh; }
 
 #pwa-install-dialog { width: min(440px, calc(100% - 2rem)); max-height: calc(100dvh - 2rem); overflow-y: auto; border: 0; border-radius: 1.25rem; padding: 1.5rem; color: #0f172a; box-shadow: 0 20px 60px #0f172a40; }
 #pwa-install-dialog::backdrop { background: #0f172a99; }
+#familysearch-preparation-dialog { width: min(800px, calc(100% - 2rem)); max-height: calc(100dvh - 2rem); overflow-y: auto; border: 1px solid #e4deef; border-radius: 1.25rem; padding: clamp(1rem, 3vw, 1.5rem); color: #302641; box-shadow: 0 20px 60px #0f172a40; }
+#familysearch-preparation-dialog::backdrop { background: #0f172a99; }
+.familysearch-preparation-grid { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: 1.25rem; }
+.familysearch-photo { display: block; width: 100%; height: auto; border-radius: .75rem; }
+.familysearch-next-step { padding: 1rem; background: #f5f2fa; border-radius: .75rem; }
+#familysearch-preparation-dialog .btn-primary { background: #5c4e99; color: #fff; }
+#familysearch-preparation-dialog .btn-primary:hover { background: #4b3e80; }
+#familysearch-preparation-dialog .btn-outline-secondary:hover, #familysearch-preparation-dialog .btn-outline-secondary:focus-visible { color: #302641; background: #f1edf8; }
+#familysearch-preparation-dialog :is(button, a, input, textarea):focus-visible { outline: 3px solid #5c4e99; outline-offset: 3px; }
+@media (max-width: 600px) { .familysearch-preparation-grid { grid-template-columns: minmax(0, 1fr); } }
 [data-pwa-install-action]:focus-visible, #pwa-install-dialog button:focus-visible { outline: 3px solid #0891b2; outline-offset: 3px; }
 
 /* Clear navigation hierarchy, with generous touch targets on phones. */

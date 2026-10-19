@@ -11,8 +11,11 @@ function setup(native = true) {
         window: { Capacitor: { isNativePlatform: () => native, registerPlugin: () => app }, addEventListener: (name,fn) => events[name]=fn, confirm: () => false },
         navigator: { onLine: false }, console,
         document: { documentElement: { classList: { toggle() {} } }, createElement: () => ({setAttribute(){}}),
+            querySelectorAll: () => [], querySelector: () => null, addEventListener: (name, fn) => { events['document:'+name]=fn; },
             body: { append: element => { context.status=element; } },
-            getElementById: id => ({ getClientRects: () => visible.has(id) ? [1] : [] }) },
+            getElementById: id => ({ getClientRects: () => visible.has(id) ? [1] : [],
+                open: id==='familysearch-preparation-dialog' && visible.has(id),
+                click: () => { if(id==='familysearch-dismiss'){calls.push('familysearch');visible.delete('familysearch-preparation-dialog');} } }) },
         closeImageZoom: () => calls.push('zoom'), closeScanner: () => calls.push('camera'),
         closeRecordDetail: () => calls.push('detail'), showModeSelection: () => calls.push('menu'),
         setAuthMode: () => calls.push('login')
@@ -24,6 +27,11 @@ test('web does not register native events',()=>assert.deepEqual(Object.keys(setu
 test('Back closes the topmost overlay before navigating',async()=>{
     const s=setup(); s.visible.add('image-zoom-modal'); s.visible.add('record-detail-modal');
     await s.handlers.backButton(); assert.deepEqual(s.calls,['zoom']);
+});
+test('Back closes FamilySearch preparation before the underlying record',async()=>{
+    const s=setup();s.visible.add('familysearch-preparation-dialog');s.visible.add('record-detail-modal');
+    await s.handlers.backButton();assert.deepEqual(s.calls,['familysearch']);
+    await s.handlers.backButton();assert.deepEqual(s.calls,['familysearch','detail']);
 });
 test('Back preserves an unconfirmed capture',async()=>{
     const s=setup(); s.visible.add('back-to-mode-selection'); s.visible.add('add-tomb-section');

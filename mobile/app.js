@@ -33,6 +33,10 @@
         return element && element.getClientRects().length > 0;
     };
     app.addListener('backButton', async () => {
+        if (document.getElementById('familysearch-preparation-dialog')?.open) {
+            document.getElementById('familysearch-dismiss').click();
+            return;
+        }
         if (visible('image-zoom-modal')) return closeImageZoom();
         if (visible('ia-modal')) return closeScanner();
         if (visible('record-detail-modal')) return closeRecordDetail();
