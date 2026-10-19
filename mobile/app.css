@@ -1,13 +1,14 @@
-/* Shared mobile improvements; Android also uses native safe area insets. */
+/* Capacitor supplies safe-area variables; browsers use viewport safe-area insets. */
 body, .container-main { min-height: 100dvh; }
+.container-main { padding-top: calc(1rem + var(--safe-area-inset-top, env(safe-area-inset-top, 0px))); }
 @media (max-width: 768px) {
     .container-main {
-        padding-top: max(1rem, env(safe-area-inset-top));
-        padding-right: max(.75rem, env(safe-area-inset-right));
-        padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
-        padding-left: max(.75rem, env(safe-area-inset-left));
+        padding-top: calc(1rem + var(--safe-area-inset-top, env(safe-area-inset-top, 0px)));
+        padding-right: max(.75rem, var(--safe-area-inset-right, env(safe-area-inset-right, 0px)));
+        padding-bottom: max(1.5rem, var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)));
+        padding-left: max(.75rem, var(--safe-area-inset-left, env(safe-area-inset-left, 0px)));
     }
-    #auth-screen { align-items: safe center; overflow-y: auto; padding-bottom: max(1rem, env(safe-area-inset-bottom)); }
+    #auth-screen { align-items: safe center; overflow-y: auto; padding-bottom: max(1rem, var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px))); }
     .btn, .form-actions .btn, .scan-image-col .image-tools .btn {
         min-height: 44px; min-width: 44px; touch-action: manipulation;
     }
@@ -15,13 +16,13 @@ body, .container-main { min-height: 100dvh; }
     .input-group .form-control { font-size: 16px; min-height: 44px; }
     .name-search-controls { grid-template-columns: minmax(0, 1fr) minmax(6rem, 8.5rem); }
     #record-detail-modal, #image-zoom-modal, #ia-modal {
-        padding-top: max(.75rem, env(safe-area-inset-top));
-        padding-bottom: max(.75rem, env(safe-area-inset-bottom));
+        padding-top: max(.75rem, var(--safe-area-inset-top, env(safe-area-inset-top, 0px)));
+        padding-bottom: max(.75rem, var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)));
     }
 }
 .native-app #request-plus-btn { display: none !important; }
 #connection-status {
-    position: fixed; bottom: max(.75rem, env(safe-area-inset-bottom));
+    position: fixed; bottom: max(.75rem, var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)));
     left: 50%; transform: translateX(-50%); z-index: 50000;
     width: max-content; max-width: calc(100% - 2rem);
     background: #0f172a; color: white; border-radius: .75rem;
