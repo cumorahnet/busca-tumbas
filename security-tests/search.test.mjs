@@ -61,3 +61,21 @@ test('changing state clears the former municipality and leaves it optional',asyn
 test('empty search does not query the database',async()=>{
  const s=setup(records);await s.ctx.performSearch();assert.equal(s.results(),null);assert.ok(s.notices.length);
 });
+
+test('new search returns the page and the result list to the beginning after rendering',()=>{
+ const frames=[];const calls=[];
+ const list={scrollTop:450};
+ const container={scrollIntoView:options=>calls.push(options)};
+ const ctx={requestAnimationFrame:callback=>frames.push(callback),document:{getElementById:id=>id==='tomb-search-result-list'?list:container}};
+ vm.createContext(ctx);
+ vm.runInContext(source.slice(source.indexOf('function scrollToSearchResultsStart()'),source.indexOf('function displaySearchResults(')),ctx);
+ ctx.scrollToSearchResultsStart();
+ assert.equal(calls.length,0);
+ frames.shift()();
+ assert.equal(list.scrollTop,0);
+ assert.equal(calls[0].block,'start');
+ assert.equal(calls[0].behavior,'instant');
+ ctx.document.getElementById=id=>id==='tomb-search-result-list'?null:container;
+ ctx.scrollToSearchResultsStart();frames.shift()();
+ assert.equal(calls.length,2);
+});

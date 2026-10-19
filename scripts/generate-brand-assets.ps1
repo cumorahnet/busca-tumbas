@@ -3,7 +3,7 @@ $ErrorActionPreference = 'Stop'
 Add-Type -AssemblyName System.Drawing
 $projectRoot = Split-Path -Parent $PSScriptRoot
 $source = [System.Drawing.Image]::FromFile((Join-Path $projectRoot 'branding/logo-transparent.png'))
-function Save-BrandImage([string]$relativePath, [int]$width, [int]$height, [double]$fraction, [bool]$opaque, [string]$background = '#f8fafc') {
+function Save-BrandImage([string]$relativePath, [int]$width, [int]$height, [double]$fraction, [bool]$opaque, [string]$background = '#5c4e99') {
     $target = Join-Path $projectRoot $relativePath
     [System.IO.Directory]::CreateDirectory([System.IO.Path]::GetDirectoryName($target)) | Out-Null
     $bitmap = [System.Drawing.Bitmap]::new($width, $height, [System.Drawing.Imaging.PixelFormat]::Format32bppArgb)
@@ -34,7 +34,7 @@ try {
     Get-ChildItem -LiteralPath (Join-Path $projectRoot 'android/app/src/main/res') -Filter splash.png -Recurse | ForEach-Object {
         $image = [System.Drawing.Image]::FromFile($_.FullName); $width = $image.Width; $height = $image.Height; $image.Dispose()
         $relative = $_.FullName.Substring($projectRoot.Length + 1)
-        Save-BrandImage $relative $width $height 0.40 $true
+        Save-BrandImage $relative $width $height 0.40 $true '#f8fafc'
     }
 } finally { $source.Dispose() }
 Write-Output 'Brand assets generated.'
