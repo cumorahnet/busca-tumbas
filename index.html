@@ -1110,12 +1110,20 @@
             .tomb-search-layout { grid-template-columns: 1fr; }
             .tomb-search-list {
                 grid-template-columns: minmax(0, 1fr);
-                max-height: min(50dvh, 400px);
+                grid-auto-rows: var(--search-result-row-height, max-content);
+                max-height: min(50dvh, calc(4 * var(--search-result-row-height, 3rem) + 3 * 0.45rem));
                 overflow-x: hidden;
                 overflow-y: auto;
+                scrollbar-gutter: stable;
+                scrollbar-width: thin;
+                scrollbar-color: #5c4e99 #f1edf8;
+                overscroll-behavior-y: contain;
                 padding: 0 0.25rem 0 0;
             }
-            .tomb-search-list-item { min-width: 0; min-height: 44px; }
+            .tomb-search-list::-webkit-scrollbar { width: 6px; }
+            .tomb-search-list::-webkit-scrollbar-track { background: #f1edf8; border-radius: 6px; }
+            .tomb-search-list::-webkit-scrollbar-thumb { background: #5c4e99; border-radius: 6px; }
+            .tomb-search-list-item { min-width: 0; min-height: 3rem; }
             .tomb-search-list-item strong { white-space: normal; overflow-wrap: anywhere; }
             .tomb-search-detail-grid { grid-template-columns: 1fr; }
         }
@@ -6835,6 +6843,15 @@ async function performSearch() {
     }
 }
 
+function sizeMobileSearchResultList() {
+    const list = document.getElementById('tomb-search-result-list');
+    if (!list) return;
+    list.style.removeProperty('--search-result-row-height');
+    if (!window.matchMedia('(max-width: 768px)').matches) return;
+    const buttons = [...list.querySelectorAll('.tomb-search-list-item')];
+    const rowHeight = buttons.reduce((height, button) => Math.max(height, Math.ceil(button.getBoundingClientRect().height)), 0);
+    if (rowHeight > 0) list.style.setProperty('--search-result-row-height', `${rowHeight}px`);
+}
 function displaySearchResults(results) {
     const searchResultsContainer = document.getElementById('search-results-container');
     searchResultsContainer.innerHTML = '';
@@ -6861,7 +6878,11 @@ function displaySearchResults(results) {
     </div>`;
     const firstButton = document.querySelector('#tomb-search-result-list .tomb-search-list-item');
     showSearchTombDetail(results[0].id, firstButton);
+    sizeMobileSearchResultList();
 }
+
+window.addEventListener('resize', () => requestAnimationFrame(sizeMobileSearchResultList));
+document.fonts?.ready.then(sizeMobileSearchResultList);
 
 function showSearchTombDetail(tombId, selectedButton = null) {
     const tomb = currentSearchResults.find(item => item.id === tombId);
