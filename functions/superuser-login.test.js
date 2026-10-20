@@ -12,7 +12,7 @@ function harness(record, count=0, eligible=true, patch={}) {
     const ref={name,uid,get:async()=>({exists:!!record,data:()=>record})};refs[name]=ref;return ref;
   }}),runTransaction:async fn=>fn({get:async()=>({exists:true,data:()=>({count,until:Date.now()+60000})}),set:(_ref,data)=>{count=data.count;}})};
   const auth={getUserByEmail:async email=>{
-    assert.equal(email,"cumorahnet@gmail.com");
+    assert.equal(email,"buscatumbas@cumorahnet.com");
     if (patch.missing) throw Object.assign(Error(),{code:"auth/user-not-found"});
     return {uid:"same-user",disabled:false,emailVerified:true,customClaims:{platform_admin:eligible},...patch};
   },createCustomToken:async(uid,claims)=>{issued.push({uid,claims});return "custom-token";}};
@@ -21,7 +21,7 @@ function harness(record, count=0, eligible=true, patch={}) {
   vm.runInContext(fs.readFileSync(__dirname+"/index.js","utf8"),context);
   return {login:context.exports.autorizarSuperusuario,issued};
 }
-const request=password=>({data:{email:"cumorahnet@gmail.com",password},rawRequest:{ip:"127.0.0.1"}});
+const request=password=>({data:{email:"buscatumbas@cumorahnet.com",password},rawRequest:{ip:"127.0.0.1"}});
 test("correct superuser password issues a token without a previous user session",async()=>{
   const password="Independent-super-password-123";
   const {login,issued}=harness(await hashPassword(password));

@@ -45,7 +45,7 @@ test('verification required even for admin email, and ownership enforced',async(
  const ref=user('owner').firestore().doc('tumbas/owned');
  await assertFails(ref.set(tomb('owner')));
  await env.withSecurityRulesDisabled(context=>context.firestore().doc('tumbas/owned').set(tomb('owner')));
- await assertFails(user('fake-admin','cumorahnet@gmail.com',false).firestore().doc('tumbas/owned').get());
+ await assertFails(user('fake-admin','buscatumbas@cumorahnet.com',false).firestore().doc('tumbas/owned').get());
  await assertFails(env.unauthenticatedContext().firestore().doc('tumbas/owned').get());
  await assertFails(user('other').firestore().doc('tumbas/owned').update({nombre_finado:'Changed'}));
  await assertFails(user('other').firestore().doc('tumbas/forged').set({...tomb('other'),contributorId:'owner'}));
@@ -80,7 +80,7 @@ test('cemetery editing cannot inject fields or grant approval; admin notificatio
  await assertFails(ref.update({id:'injected'}));
  await assertFails(ref.update({status:'approved'}));
  await assertFails(ref.update({name:123}));
- await assertFails(user('old-admin','cumorahnet@gmail.com').firestore().doc('cemeteries/cemetery').update({status:'approved'}));
+ await assertFails(user('old-admin','buscatumbas@cumorahnet.com').firestore().doc('cemeteries/cemetery').update({status:'approved'}));
  const eligible=env.authenticatedContext('admin',{email:'dedicated@example.com',email_verified:true,platform_admin:true}).firestore();
  await assertFails(eligible.doc('cemeteries/cemetery').update({status:'approved'}));
  const expired=env.authenticatedContext('admin',{email_verified:true,platform_admin:true,superuser_session:true,superuser_until:1}).firestore();
@@ -115,7 +115,7 @@ test('Storage blocks unverified admins, foreign writes, and non-JPEG uploads',as
  const bytes=new Uint8Array([255,216,255,217]);
  await assertSucceeds(user('owner').storage().ref('tumbas_images/owner/photo.jpg').put(bytes,{contentType:'image/jpeg'}));
  await assertFails(user('other').storage().ref('tumbas_images/owner/photo.jpg').put(bytes,{contentType:'image/jpeg'}));
- await assertFails(user('fake-admin','cumorahnet@gmail.com',false).storage().ref('tumbas_images/fake-admin/photo.jpg').put(bytes,{contentType:'image/jpeg'}));
+ await assertFails(user('fake-admin','buscatumbas@cumorahnet.com',false).storage().ref('tumbas_images/fake-admin/photo.jpg').put(bytes,{contentType:'image/jpeg'}));
  await assertFails(user('owner').storage().ref('tumbas_images/owner/bad.html').put(bytes,{contentType:'text/html'}));
 });
 

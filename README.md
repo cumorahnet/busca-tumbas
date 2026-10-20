@@ -288,7 +288,7 @@ usa para iniciar sesión normal en Firebase ni modifica la contraseña del usuar
 Para configurarla, desde una terminal interactiva con Firebase CLI conectado:
 
 ```powershell
-npm run superuser:password -- p2xLMmozMoe1Ty3finao5xuHNbt2 cumorahnet@gmail.com
+npm run superuser:password -- UID CORREO
 ```
 
 El comando verifica identidad y rol, pide la contraseña actual del usuario con

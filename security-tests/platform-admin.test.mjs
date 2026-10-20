@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {setPlatformAdmin} from '../scripts/set-platform-admin.mjs';
-const user = {uid:'existing-user',email:'cumorahnet@gmail.com',disabled:false,emailVerified:true,customClaims:{plus:true}};
+const user = {uid:'existing-user',email:'buscatumbas@cumorahnet.com',disabled:false,emailVerified:true,customClaims:{plus:true}};
 test('same normal account can receive global claim without changing credentials',async()=>{
  const calls=[]; let current={...user};
  const auth={getUser:async uid=>{assert.equal(uid,user.uid);return current;},setCustomUserClaims:async(uid,claims)=>{calls.push(claims);current={...current,customClaims:claims};}};

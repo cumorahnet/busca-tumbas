@@ -29,7 +29,7 @@ for (const [name, handler] of Object.entries(context.exports)) {
   if (name === "autorizarSuperusuario") continue;
   test(name + " rejects anonymous and unverified users, including admin email", async () => {
     await assert.rejects(handler({}), {code: "unauthenticated"});
-    for (const email of ["user@example.com", "cumorahnet@gmail.com"]) {
+    for (const email of ["user@example.com", "buscatumbas@cumorahnet.com"]) {
       await assert.rejects(handler({auth: {uid: "user", token: {email, email_verified: false}}}), {code: "permission-denied"});
     }
   });
@@ -48,7 +48,7 @@ test("coordinates reject null, empty strings, booleans and out of range values",
 
 for (const name of ["activarPlusAdmin", "obtenerEstadisticasAdmin", "eliminarRegistroAdmin", "vaciarBaseAdmin"]) {
   test(name + " denies the old admin email without a server-issued role", async () => {
-    await assert.rejects(context.exports[name]({auth: {uid: "ordinary-user", token: {email: "cumorahnet@gmail.com", email_verified: true}}}), {code: "permission-denied"});
+    await assert.rejects(context.exports[name]({auth: {uid: "ordinary-user", token: {email: "buscatumbas@cumorahnet.com", email_verified: true}}}), {code: "permission-denied"});
   });
 }
 test("global role must be boolean true and email verified", () => {

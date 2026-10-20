@@ -60,8 +60,8 @@ test('password visibility preserves value and exposes state', () => {
 test('administrative password is sent only to server authorization, not normal Firebase login',async()=>{
  const {context,calls}=harness();
  context.auth.signInWithEmailAndPassword=()=>{throw Error('must not use normal password login');};
- context.document.getElementById('superuser-email').value='cumorahnet@gmail.com';
- context.autorizarSuperusuarioFunction=async data=>{assert.equal(data.email,'cumorahnet@gmail.com');assert.equal(data.password,'secret-password');return {data:{token:'custom-token'}};};
+ context.document.getElementById('superuser-email').value='buscatumbas@cumorahnet.com';
+ context.autorizarSuperusuarioFunction=async data=>{assert.equal(data.email,'buscatumbas@cumorahnet.com');assert.equal(data.password,'secret-password');return {data:{token:'custom-token'}};};
  await context.handleSuperuserLogin({preventDefault(){}});
  assert.equal(calls.includes('panel'),true);
 });
