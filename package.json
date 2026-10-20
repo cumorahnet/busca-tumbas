@@ -34,7 +34,9 @@
     "test:search": "node --test security-tests/search.test.mjs",
     "google:check": "node scripts/google-auth-config.mjs --check",
     "google:sync": "node scripts/google-auth-config.mjs --sync",
-    "test:google": "node --test security-tests/google-auth.test.mjs"
+    "test:google": "node --test security-tests/google-auth.test.mjs",
+    "firebase:key:check": "node scripts/firebase-api-key-security.mjs --check",
+    "firebase:key:restrict": "node scripts/firebase-api-key-security.mjs --apply"
   },
   "dependencies": {
     "@capacitor-firebase/authentication": "^8.5.2",

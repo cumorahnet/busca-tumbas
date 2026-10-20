@@ -36,3 +36,13 @@ Las pruebas siguen el enfoque oficial: https://firebase.google.com/docs/rules/un
 - No se probaron Gemini/INEGI con credenciales reales, pagos, navegador de extremo a extremo ni APK en dispositivo. Las pruebas Android realizadas verifican JavaScript y recursos empaquetados, no equivalen a una certificacion del APK.
 - Los cambios no limpian documentos maliciosos o invalidos que ya pudieran existir en produccion. Se necesita una revision de esos datos antes de afirmar que no hay inconsistencias existentes.
 - No se garantiza ausencia absoluta de errores o vulnerabilidades.
+
+## 19/10/2026: clave cliente Android y alerta GitHub 3
+
+La clave de android/app/google-services.json es configuración pública de Firebase, no una clave de cuenta de servicio ni el secreto de Gemini. Se restringió en Google Cloud al paquete com.cumorahnet.buscatumbas y a las huellas SHA-1 registradas en Firebase. Solo admite identitytoolkit.googleapis.com, securetoken.googleapis.com y firebaseinstallations.googleapis.com. Las reglas de datos y la autenticación siguen determinando el acceso a Firebase.
+
+Comprobar con `npm run firebase:key:check`. Después de registrar una firma de publicación o Play App Signing, ejecutar `npm run firebase:key:restrict` para incluir sus huellas. Estos comandos no imprimen los valores de las claves ni los tokens de acceso. La clave web es distinta y esta revisión no cambia sus restricciones.
+
+Referencia oficial: https://firebase.google.com/docs/projects/api-keys
+
+La alerta GitHub #3 quedó resuelta como false_positive por tratarse de configuración pública de cliente. Verificación posterior a la propagación: HTTP 403 sin identidad Android y HTTP 200 con el paquete y certificado registrados. No se revocó la clave ni se eliminó del historial: su valor forma parte de la configuración distribuida en la app y las restricciones se aplican en Google Cloud.
