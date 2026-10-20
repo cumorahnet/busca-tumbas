@@ -1,5 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import vm from 'node:vm';
 import {createRequire} from 'node:module';
 const {buildDraft, photoUrl, createController, galleryUrl} = createRequire(import.meta.url)('../mobile/familysearch.js');
 const owner = {uid: 'owner', emailVerified: true, displayName: 'Ana Pérez', email: 'private@example.com'};
@@ -37,8 +39,8 @@ test('draft includes attribution and estimated dates without exposing email, GPS
     assert.equal(draft.filename, 'lapida-elena-uribe-sanchez');
     assert.doesNotMatch(buildDraft({...tomb, fecha_defuncion: null, pais_panteon: null}, owner).description, /Defunción:|México/);
 });
-test('only a verified owner can prepare a tomb photo, including legacy userId ownership', () => {
-    for (const user of [null, {...owner, uid: 'other'}, {...owner, emailVerified: false}]) assert.throws(() => buildDraft(tomb, user));
+test('a verified collaborator can prepare tomb photos, including legacy records', () => {
+    for (const user of [null, {...owner, emailVerified: false}]) assert.throws(() => buildDraft(tomb, user));
     assert.throws(() => buildDraft({...tomb, type: 'cemetery'}, owner));
     assert.throws(() => buildDraft({...tomb, imageUrl: ''}, owner));
     assert.ok(buildDraft({...tomb, contributorId: undefined, userId: 'owner'}, owner));
@@ -97,4 +99,43 @@ test('session changes prevent copy, download and navigation, and clear the prepa
     assert.equal(s.copied.length, 0);
     let prevented = false; s.node('open-gallery').events.click({preventDefault() { prevented = true; }});
     assert.equal(prevented, true);
+});
+
+
+test('collaborative export keeps the original contributor and never credits the viewer',()=>{
+    const viewer={uid:'viewer',emailVerified:true,displayName:'Viewer Name'};
+    const shared=buildDraft({...tomb,contributor_name:'Original Contributor'},viewer);
+    assert.ok(shared.description.includes('Original Contributor'));
+    assert.ok(!shared.description.includes('Viewer Name'));
+    assert.ok(buildDraft({...tomb,contributorId:undefined,userId:'original'},viewer));
+    const unknown=buildDraft(tomb,viewer);
+    assert.ok(unknown.description.includes('Colaborador de Busca Tumbas'));
+    assert.ok(!unknown.description.includes('Viewer Name'));
+});
+
+test('a collaborator can open another contribution and copy its attributed details',async()=>{
+    const s=setup();s.changeUser({uid:'viewer',emailVerified:true,displayName:'Viewer Name'});
+    const original={...tomb,contributor_name:'Original Contributor'};
+    const before=JSON.stringify(original);s.api.open(original);
+    assert.equal(s.node('preparation-dialog').open,true);
+    await s.node('copy-description').events.click();
+    assert.ok(s.copied[0].includes('Original Contributor'));
+    assert.equal(JSON.stringify(original),before);
+});
+
+test('search details show FamilySearch for other contributors without granting editing',()=>{
+    const html=fs.readFileSync('index.html','utf8');
+    const source='function renderTombDetail'+html.split('function renderTombDetail')[1].split('function enableTombDetailEditing')[0];
+    for(const [uid,imageUrl,expected]of [['viewer',tomb.imageUrl,true],['owner',tomb.imageUrl,true],['viewer','',false]]){
+        const nodes=new Map();
+        const node=id=>{if(!nodes.has(id))nodes.set(id,{});return nodes.get(id)};
+        const ctx={document:{getElementById:node},currentDetailTomb:{...tomb,imageUrl},auth:{currentUser:{uid,emailVerified:true}},tombExtraCameraCapture:null,recordDetailZoomLevel:1,
+            tombOwnerId:t=>t.contributorId||t.userId,recordDetailPhotoHtml:()=>'',escapeHtml:String,detailDataHtml:()=>'',isSuperuserActive:()=>false,
+            inlineJsValue:JSON.stringify,adminRecordActionsHtml:()=>'',tombHasLocation:()=>false,loadTombCommunityMedia:()=>{}};
+        vm.createContext(ctx);vm.runInContext(source,ctx);ctx.renderTombDetail();
+        const rendered=node('record-detail-content').innerHTML;
+        assert.equal(rendered.includes('prepareForFamilySearch('),expected);
+        assert.equal(rendered.includes('enableTombDetailEditing()'),uid==='owner');
+        assert.equal(rendered.includes('deleteMyContribution('),uid==='owner');
+    }
 });

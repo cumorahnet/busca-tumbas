@@ -15,8 +15,8 @@
     }
     function buildDraft(tomb, user) {
         if (!user?.uid || user.emailVerified !== true || !tomb ||
-            (tomb.contributorId || tomb.userId) !== user.uid || tomb.type === 'cemetery') {
-            throw new Error('Solo puedes preparar fotografías de tus propias aportaciones de lápidas.');
+            tomb.type === 'cemetery') {
+            throw new Error('Inicia sesión con una cuenta verificada para preparar fotografías de lápidas.');
         }
         const imageUrl = photoUrl(tomb.imageUrl);
         if (!imageUrl) throw new Error('Esta aportación no tiene una fotografía disponible.');
@@ -30,7 +30,7 @@
             ['Defunción', clean(tomb.fecha_defuncion)],
             ['Lugar de sepultura', clean(tomb.nombre_panteon)],
             ['Localidad', location],
-            ['Fotografía aportada por', clean(tomb.contributor_name) || clean(user.displayName)]
+            ['Fotografía aportada por', clean(tomb.contributor_name) || ((tomb.contributorId || tomb.userId) === user.uid ? clean(user.displayName) : '') || 'Colaborador de Busca Tumbas']
         ];
         const description = [name ? `Fotografía de la lápida de ${name}.` : 'Fotografía de una lápida.', '',
             ...fields.filter(([, value]) => value).map(([label, value]) => `${label}: ${value}`), '',
@@ -60,7 +60,7 @@
         }
         function close() { if (dialog.open) dialog.close(); reset(); }
         function requireState() {
-            if (!valid()) { close(); throw new Error('Vuelve a iniciar sesión y abre tu aportación.'); }
+            if (!valid()) { close(); throw new Error('Vuelve a iniciar sesión y abre la fotografía.'); }
             return state;
         }
         function save(blob, filename) {

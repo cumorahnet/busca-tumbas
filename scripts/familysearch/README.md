@@ -8,8 +8,9 @@ aplicación y recibir acceso de FamilySearch. No hay conexión OAuth ni callback
 
 ## Flujo manual disponible
 
-En Mis aportaciones, abre una lápida propia y elige **Preparar para FamilySearch**.
-La misma acción aparece en la ficha completa cuando eres el aportador de la foto.
+En los resultados de búsqueda, abre una lápida y elige **Preparar para FamilySearch**.
+También aparece en Mis aportaciones. Cualquier cuenta verificada puede preparar
+fotografías del catálogo colaborativo, conservando el nombre del aportador original.
 
 1. Descarga la fotografía original. Si el navegador bloquea la descarga, abre la
    foto original y usa su opción Guardar imagen.
@@ -20,7 +21,7 @@ La misma acción aparece en la ficha completa cuando eres el aportador de la fot
 
 La preparación no publica, no solicita credenciales de FamilySearch y no hace
 peticiones a su API. Los textos omiten correos, coordenadas de captura y URLs con
-tokens de descarga. La comprobación de autoría exige sesión con correo verificado;
+tokens de descarga. La preparación exige sesión con correo verificado;
 el cambio de cuenta cierra la preparación y evita guardar descargas pendientes.
 
 Código: `mobile/familysearch.js`; pruebas: `mobile-tests/familysearch.test.mjs`;

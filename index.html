@@ -1309,7 +1309,7 @@
     <link rel="stylesheet" href="mobile/app.css?v=7">
     <script src="mobile/app.js?v=3" defer></script>
     <script src="mobile/install.js?v=3" defer></script>
-    <script src="mobile/familysearch.js?v=1" defer></script>
+    <script src="mobile/familysearch.js?v=2" defer></script>
 </head>
 <body>
 
@@ -5437,7 +5437,7 @@ function showMyContributionDetail(contributionId, selectedButton = null) {
             <h6 class="fw-bold mb-3">${escapeHtml(title)}</h6>
             <div class="record-data-list">${fields.map(([label, value]) => `<div class="record-data-item"><small>${escapeHtml(label)}</small><span>${escapeHtml(value) || 'No disponible'}</span></div>`).join('')}</div>
             <button class="btn btn-primary w-100 mt-3" onclick="${action}"><i class="fas fa-pen me-1"></i>Ver y editar</button>
-            ${!isCemetery && contribution.imageUrl && tombOwnerId(contribution) === auth.currentUser?.uid ? `<button type="button" class="btn btn-outline-secondary w-100 mt-2" onclick="prepareForFamilySearch(${inlineJsValue(contribution.id)})"><i class="fas fa-share-alt me-1" aria-hidden="true"></i>Preparar para FamilySearch</button>` : ''}
+            ${!isCemetery && contribution.imageUrl && auth.currentUser?.emailVerified ? `<button type="button" class="btn btn-outline-secondary w-100 mt-2" onclick="prepareForFamilySearch(${inlineJsValue(contribution.id)})"><i class="fas fa-share-alt me-1" aria-hidden="true"></i>Preparar para FamilySearch</button>` : ''}
             ${deleteAction}
         </div>
     </div>`;
@@ -7219,6 +7219,7 @@ function renderTombDetail() {
             </div>
             <div>
                 <div class="record-data-list">${detailDataHtml(tomb)}</div>
+                ${tomb.imageUrl && user.emailVerified ? `<button type="button" class="btn btn-outline-secondary w-100 mt-2" onclick="prepareForFamilySearch(${inlineJsValue(tomb.id)})"><i class="fas fa-share-alt me-1" aria-hidden="true"></i>Preparar para FamilySearch</button>` : ''}
                 ${isOwner || isSuperuserActive() ? `
                     <div class="alert alert-info mt-3 mb-2">
                         Puedes corregir los datos de este registro sin reemplazar la fotografía.
@@ -7226,7 +7227,6 @@ function renderTombDetail() {
                     <button class="btn btn-primary w-100" onclick="enableTombDetailEditing()">
                         <i class="fas fa-pen me-1"></i>EDITAR DATOS
                     </button>
-                    ${isOwner && tomb.imageUrl ? `<button type="button" class="btn btn-outline-secondary w-100 mt-2" onclick="prepareForFamilySearch(${inlineJsValue(tomb.id)})"><i class="fas fa-share-alt me-1" aria-hidden="true"></i>Preparar para FamilySearch</button>` : ''}
                     <button type="button" class="btn btn-outline-danger w-100 mt-2" onclick="deleteMyContribution('tomb', ${inlineJsValue(tomb.id)})"><i class="fas fa-trash-alt me-1"></i>ELIMINAR APORTACIÓN</button>` : `
                     <div class="mt-3">
                         <label class="field-label" for="correction-description">Describe qué dato debe revisarse</label>

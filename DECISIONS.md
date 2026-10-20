@@ -23,3 +23,7 @@ la comprobación del rol y la emisión del token se realizan solo después de va
 la identidad habilitada y la contraseña independiente. Conserva el mismo UID y
 los límites temporales de autorización. Sustituye el requisito de entrada normal
 previa introducido en v2.15.
+
+## 19/10/2026 — FamilySearch en el catálogo colaborativo
+
+Cualquier usuario con cuenta verificada puede preparar para FamilySearch las fotografías y los detalles de lápidas aportadas por otros colaboradores. La opción debe aparecer en la ficha abierta desde los resultados de búsqueda. Se conserva el nombre del aportador original; nunca se atribuye la fotografía a quien la comparte. Si falta el nombre original se identifica como Colaborador de Busca Tumbas.
