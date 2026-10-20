@@ -16,7 +16,7 @@ fotografías del catálogo colaborativo, conservando el nombre del aportador ori
    y aparece Abrir foto guardada solo cuando se verifica el archivo. En Android anterior
    a 10 se elige la carpeta con el selector del sistema. En web, si el navegador bloquea
    la descarga, abre la foto original y usa su opción Guardar imagen.
-2. Revisa el título y la descripción. Copia cada texto o descarga ambos en `.txt`.
+2. Revisa el título y la descripción. Copia cada texto con su botón y pégalo en FamilySearch.
    Editarlos en esta ventana no cambia el registro de Busca Tumbas.
 3. Abre FamilySearch y completa personalmente la carga desde Recuerdos → Galería.
    Vincula la foto a la persona correcta después de revisar nombre, fechas y lugar.

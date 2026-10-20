@@ -33,17 +33,14 @@ ${functions}
  if(!description.value.includes('Fotografía aportada por: Ana Pérez')||description.value.includes('private'))throw Error('Metadata missing or private URL exposed');
  title.value='Lápida de Elena — título revisado';document.getElementById('familysearch-copy-title').click();await Promise.resolve();
  if(copies[0]!==title.value)throw Error('Copy ignored reviewed text');
- document.getElementById('familysearch-download-text').click();
- if(!downloads[0]?.name.endsWith('.txt'))throw Error('No text download');
- const text=await(await realFetch(downloads[0].url)).text();if(!text.includes(title.value))throw Error('Text export ignored edits');
  document.getElementById('familysearch-download-photo').click();await new Promise(resolve=>setTimeout(resolve,30));
- if(!downloads[1]?.name.endsWith('.jpg'))throw Error('No photo download');
- const saved=await(await realFetch(downloads[1].url)).blob();if(saved.size!==photoBlob.size)throw Error('Photo bytes changed');
+ if(!downloads[0]?.name.endsWith('.jpg'))throw Error('No photo download');
+ const saved=await(await realFetch(downloads[0].url)).blob();if(saved.size!==photoBlob.size)throw Error('Photo bytes changed');
  const link=document.getElementById('familysearch-open-gallery');if(link.href!=='https://www.familysearch.org/es/memories/gallery'||link.target!=='_blank'||!link.rel.includes('noopener'))throw Error('Incorrect external navigation');
  failDownload=true;document.getElementById('familysearch-download-photo').click();await new Promise(resolve=>setTimeout(resolve,20));if(!document.getElementById('familysearch-status').textContent.includes('Abrir foto original'))throw Error('Missing download fallback');
  if(requested.some(url=>url.includes('familysearch.org')))throw Error('Unexpected automatic FamilySearch upload');
  familySearchPreparation.close();
- myContributions=[{...tomb,contributorId:'someone-else'}];showMyContributionDetail(tomb.id);if(document.querySelector('[onclick^="prepareForFamilySearch"]'))throw Error('Export offered for someone else');
+ myContributions=[{...tomb,contributorId:'someone-else'}];showMyContributionDetail(tomb.id);if(!document.querySelector('[onclick^="prepareForFamilySearch"]'))throw Error('Missing collaborative export');
  myContributions=[tomb];showMyContributionDetail(tomb.id);document.querySelector('.my-contribution-image').src=photo;prepareForFamilySearch(tomb.id);document.getElementById('familysearch-photo').src=photo;
  document.body.dataset.familysearchCheck='passed';
 })().catch(error=>{document.body.dataset.familysearchCheck='failed';document.body.dataset.familysearchError=error.message;});
@@ -83,6 +80,6 @@ try {
         if (result.status !== 'passed') throw Error(`${name}: ${result.error || 'UI not ready'}`);
         const screenshot = await call('Page.captureScreenshot', {format: 'png'});
         await fs.writeFile(path.join(out, `familysearch-${name}.png`), Buffer.from(screenshot.data, 'base64'));
-        console.log(`${name}: own contribution action, editable data, clipboard, original-photo download, text export and fallback verified`);
+        console.log(`${name}: own contribution action, editable data, clipboard, original-photo download and fallback verified`);
     }
 } finally { ws?.close(); chrome.kill(); server.close(); }

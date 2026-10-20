@@ -144,16 +144,8 @@
                 if (!valid(current)) return;
                 const input = node(field);
                 input.focus(); input.select();
-                node('status').textContent = 'El navegador no permitió copiar. El texto está seleccionado: usa Copiar o descarga los datos en texto.';
+                node('status').textContent = 'El navegador no permitió copiar. El texto está seleccionado: mantén pulsado el texto y elige Copiar.';
             }
-        }
-        async function downloadText() {
-            try {
-                const current = requireState();
-                const text = `${node('memory-title').value}\n\n${node('memory-description').value}\n`;
-                const saved = await save(new Blob([text], {type: 'text/plain;charset=utf-8'}), `${current.draft.filename}.txt`);
-                if (valid(current)) node('status').textContent = saved?.native ? 'Datos guardados y verificados en ' + saved.path : 'Descarga de los datos enviada al navegador.';
-            } catch { if (valid()) node('status').textContent = 'No se pudieron guardar los datos. Vuelve a intentarlo.'; }
         }
         function open(tomb) {
             const user = getCurrentUser();
@@ -181,7 +173,6 @@
         });
         node('copy-title').addEventListener('click', () => copy('memory-title'));
         node('copy-description').addEventListener('click', () => copy('memory-description'));
-        node('download-text').addEventListener('click', downloadText);
         node('open-gallery').addEventListener('click', event => {
             if (!valid()) { event.preventDefault(); close(); }
         });

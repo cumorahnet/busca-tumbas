@@ -96,7 +96,7 @@ Verificación del 19 de octubre de 2026: APK compilado, instalado y registro con
 
 ## Descargas de FamilySearch en Android
 
-PublicDownloadsPlugin guarda fotografías y datos en Descargas/Busca Tumbas mediante MediaStore desde Android 10. En Android 7–9 se usa el selector del sistema para elegir el destino, sin permisos amplios de almacenamiento. La app relee el archivo y verifica tamaño y SHA-256 antes de confirmar el guardado. El botón Abrir foto guardada abre el archivo confirmado mediante su URI de contenido.
+PublicDownloadsPlugin guarda fotografías en Descargas/Busca Tumbas mediante MediaStore desde Android 10. En Android 7–9 se usa el selector del sistema para elegir el destino, sin permisos amplios de almacenamiento. La app relee el archivo y verifica tamaño y SHA-256 antes de confirmar el guardado. El botón Abrir foto guardada abre el archivo confirmado mediante su URI de contenido.
 
 Las fotografías se transfieren con HTTP nativo para evitar bloqueos CORS de la WebView; se mantienen los bytes originales. El navegador web conserva la descarga estándar y solo informa que se envió al navegador.
 

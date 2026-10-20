@@ -46,15 +46,12 @@ test('a verified collaborator can prepare tomb photos, including legacy records'
     assert.ok(buildDraft({...tomb, contributorId: undefined, userId: 'owner'}, owner));
     for (const url of ['javascript:alert(1)', 'data:text/html,x', 'https://name:password@example.com/photo', 'http://example.com/photo']) assert.equal(photoUrl(url), '');
 });
-test('copy and text export use the reviewed edits without modifying the original record', async () => {
+test('copy uses the reviewed edits without modifying the original record', async () => {
     const s = setup(); const before = JSON.stringify(tomb); s.api.open(tomb);
     s.node('memory-title').value = '<Título revisado>';
     s.node('memory-description').value = 'Descripción corregida';
     await s.node('copy-title').events.click(); await s.node('copy-description').events.click();
     assert.deepEqual(s.copied, ['<Título revisado>', 'Descripción corregida']);
-    s.node('download-text').events.click();
-    assert.equal(await s.blobs[0].text(), '<Título revisado>\n\nDescripción corregida\n');
-    assert.match(s.downloads[0].filename, /\.txt$/);
     assert.equal(JSON.stringify(tomb), before);
     assert.equal(s.node('open-gallery').href, galleryUrl);
     assert.equal(s.requests.length, 0);
