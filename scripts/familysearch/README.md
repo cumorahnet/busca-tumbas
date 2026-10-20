@@ -12,8 +12,10 @@ En los resultados de búsqueda, abre una lápida y elige **Preparar para FamilyS
 También aparece en Mis aportaciones. Cualquier cuenta verificada puede preparar
 fotografías del catálogo colaborativo, conservando el nombre del aportador original.
 
-1. Descarga la fotografía original. Si el navegador bloquea la descarga, abre la
-   foto original y usa su opción Guardar imagen.
+1. Descarga la fotografía original. En el APK Android se guarda en Descargas/Busca Tumbas
+   y aparece Abrir foto guardada solo cuando se verifica el archivo. En Android anterior
+   a 10 se elige la carpeta con el selector del sistema. En web, si el navegador bloquea
+   la descarga, abre la foto original y usa su opción Guardar imagen.
 2. Revisa el título y la descripción. Copia cada texto o descarga ambos en `.txt`.
    Editarlos en esta ventana no cambia el registro de Busca Tumbas.
 3. Abre FamilySearch y completa personalmente la carga desde Recuerdos → Galería.

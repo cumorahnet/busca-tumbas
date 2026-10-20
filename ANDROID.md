@@ -93,3 +93,11 @@ Configuración para mantener o reproducir la activación (proveedor Google y fir
 El empaquetado Android copia la biblioteca JavaScript de @capacitor/core a www/vendor/capacitor.js y la carga antes del resto del código. El puente inyectado por la WebView requiere esta biblioteca para registrar los complementos. La prueba mobile-tests/native-runtime.test.mjs comprueba el flujo con esa biblioteca real.
 
 Verificación del 19 de octubre de 2026: APK compilado, instalado y registro con Google confirmado por el usuario en Samsung SM-A055M. Web/PWA publicada y proveedor Google comprobado con npm run google:check.
+
+## Descargas de FamilySearch en Android
+
+PublicDownloadsPlugin guarda fotografías y datos en Descargas/Busca Tumbas mediante MediaStore desde Android 10. En Android 7–9 se usa el selector del sistema para elegir el destino, sin permisos amplios de almacenamiento. La app relee el archivo y verifica tamaño y SHA-256 antes de confirmar el guardado. El botón Abrir foto guardada abre el archivo confirmado mediante su URI de contenido.
+
+Las fotografías se transfieren con HTTP nativo para evitar bloqueos CORS de la WebView; se mantienen los bytes originales. El navegador web conserva la descarga estándar y solo informa que se envió al navegador.
+
+Verificación en Samsung SM-A055M: descarga real desde el catálogo, extracción del archivo de /sdcard/Download/Busca Tumbas y comparación SHA-256 con el original.

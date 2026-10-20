@@ -26,7 +26,7 @@ function setup(options = {}) {
         fetch: async (url, args) => { requests.push({url, args}); return options.fetch ? options.fetch(url, args) :
             {ok: true, blob: async () => new Blob(['original-bytes'], {type: 'image/jpeg'})}; },
         URL: {createObjectURL: blob => { blobs.push(blob); return 'blob:local'; }, revokeObjectURL: url => revoked.push(url)},
-        getCurrentUser: () => user, setTimeout: (fn, ms) => { if (ms === 1000) fn(); }});
+        nativeDownloads: options.nativeDownloads, nativeHttp: options.nativeHttp, getCurrentUser: () => user, setTimeout: (fn, ms) => { if (ms === 1000) fn(); }});
     return {api, node, downloads, blobs, revoked, copied, requests, changeUser: next => { user = next; }};
 }
 test('draft includes attribution and estimated dates without exposing email, GPS or image tokens', () => {
@@ -138,4 +138,43 @@ test('search details show FamilySearch for other contributors without granting e
         assert.equal(rendered.includes('enableTombDetailEditing()'),uid==='owner');
         assert.equal(rendered.includes('deleteMyContribution('),uid==='owner');
     }
+});
+
+
+test('Android only confirms saving after the native write completes and exposes the saved file',async()=>{
+    let complete;let received;const opened=[];
+    const s=setup({nativeDownloads:{saveFile:options=>{received=options;return new Promise(resolve=>{complete=resolve})},openFile:async options=>opened.push(options)}});
+    s.api.open(tomb);const pending=s.node('download-photo').events.click();
+    for(let i=0;i<20&&!complete;i++)await new Promise(resolve=>setImmediate(resolve));
+    assert.ok(complete);assert.equal(s.node('open-download').hidden,true);
+    assert.ok(!s.node('status').textContent.includes('verificada'));
+    assert.equal(Buffer.from(received.data,'base64').toString(),'original-bytes');
+    assert.equal(received.mimeType,'image/jpeg');
+    complete({bytes:14,filename:received.filename,path:'Descargas/Busca Tumbas/'+received.filename,uri:'content://media/external/downloads/123'});
+    await pending;assert.equal(s.node('open-download').hidden,false);
+    assert.ok(s.node('status').textContent.includes('Descargas/Busca Tumbas/'));
+    await s.node('open-download').events.click();assert.equal(opened[0].uri,'content://media/external/downloads/123');
+});
+
+test('Android save failures, cancellation and incomplete writes never claim a saved photo',async()=>{
+    for(const result of [new Error('Disk full'),{code:'SAVE_CANCELLED'},{bytes:0,path:'Descargas/test.jpg',uri:'content://test'}]){
+        const s=setup({nativeDownloads:{saveFile:async()=>{if(result instanceof Error||result.code)throw result;return result}}});
+        s.api.open(tomb);await s.node('download-photo').events.click();
+        assert.equal(s.node('open-download').hidden,true);
+        assert.ok(!s.node('status').textContent.includes('verificada'));
+        assert.equal(s.node('download-photo').disabled,false);
+    }
+});
+
+
+test('Android downloads the real image through native HTTP before verified storage',async()=>{
+    const requests=[];const writes=[];
+    const s=setup({fetch:()=>{throw Error('WebView fetch must not handle native photo downloads')},
+        nativeHttp:{request:async options=>{requests.push(options);return {status:200,headers:{'Content-Type':'image/jpeg'},data:Buffer.from('original-bytes').toString('base64')}}},
+        nativeDownloads:{saveFile:async options=>{writes.push(options);return {bytes:14,uri:'content://saved',path:'Descargas/Busca Tumbas/'+options.filename}}}});
+    s.api.open(tomb);await s.node('download-photo').events.click();
+    assert.equal(requests[0].url,tomb.imageUrl);
+    assert.equal(requests[0].responseType,'arraybuffer');
+    assert.equal(Buffer.from(writes[0].data,'base64').toString(),'original-bytes');
+    assert.equal(s.node('open-download').hidden,false);
 });
