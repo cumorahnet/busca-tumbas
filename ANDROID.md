@@ -101,3 +101,7 @@ PublicDownloadsPlugin guarda fotografías en Descargas/Busca Tumbas mediante Med
 Las fotografías se transfieren con HTTP nativo para evitar bloqueos CORS de la WebView; se mantienen los bytes originales. El navegador web conserva la descarga estándar y solo informa que se envió al navegador.
 
 Verificación en Samsung SM-A055M: descarga real desde el catálogo, extracción del archivo de /sdcard/Download/Busca Tumbas y comparación SHA-256 con el original.
+
+## Areas seguras e iPhone
+
+Las pantallas, dialogos, controles de camara y mensajes comparten un rectangulo seguro que suma los insets nativos o del navegador a su margen. npm run test:mobile:layout comprueba distintos tamanos y orientaciones en Chromium y WebKit. La preparacion nativa de iPhone y las limitaciones de validacion se documentan en IOS.md.

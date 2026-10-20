@@ -14,3 +14,5 @@ www/
 *.keystore
 keystore.properties
 .record-audit/
+
+ios/App/App/GoogleService-Info.plist

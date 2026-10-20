@@ -316,3 +316,7 @@ firmante). La contraseña se configura por separado y no se incluye en el despli
 Los comandos antiguos de cuentas independientes se conservan para mantenimiento;
 no intervienen en este acceso. Pruebas: `npm run test:superuser` y las suites de
 Functions y reglas.
+
+## iPhone
+
+La web se puede usar en Safari y agregar a la pantalla de inicio. El proyecto nativo iOS, las pruebas de compatibilidad y los pasos pendientes para App Store están documentados en [IOS.md](IOS.md). La compilación iOS requiere un Mac con Xcode; preparar el proyecto en Windows no equivale a una validación en iPhone.

@@ -50,7 +50,10 @@
       "**/*-debug.log",
       "**/*.test.*",
       "MONETIZATION.md",
-      "branding/**"
+      "branding/**",
+      "ios/**",
+      "IOS.md",
+      "storage.cors.json"
     ],
     "headers": [
       {

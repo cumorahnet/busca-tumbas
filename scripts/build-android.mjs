@@ -51,7 +51,7 @@ for (const match of [...html.matchAll(/(?:src|href)="(https:\/\/[^"]+)"/g)]) {
 await copyFile(path.join(root, 'node_modules/@capacitor/core/dist/capacitor.js'), path.join(output, 'vendor/capacitor.js'));
 html = html.replace('<head>', '<head>\n    <script src="vendor/capacitor.js"></script>');
 await writeFile(path.join(output, 'index.html'), html);
-for (const filename of ['mobile/app.css', 'mobile/app.js', 'mobile/install.js', 'mobile/familysearch.js', 'manifest.webmanifest', 'privacy.html', 'terms.html', 'delete-account.html', 'version.json', 'superuser-config.json', 'data/cemeteries-inegi-2026.json']) {
+for (const filename of ['mobile/app.css', 'mobile/app.js', 'mobile/viewport.js', 'mobile/install.js', 'mobile/familysearch.js', 'manifest.webmanifest', 'privacy.html', 'terms.html', 'delete-account.html', 'version.json', 'superuser-config.json', 'data/cemeteries-inegi-2026.json']) {
     await mkdir(path.dirname(path.join(output, filename)), { recursive: true });
     await copyFile(path.join(root, filename), path.join(output, filename));
 }

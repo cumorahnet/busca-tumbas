@@ -60,6 +60,7 @@
             node('status').textContent = '';
             node('download-photo').disabled = false;
             node('open-download').hidden = true;
+            node('share-photo').hidden = true;
         }
         function close() { if (dialog.open) dialog.close(); reset(); }
         function requireState() {
@@ -74,6 +75,10 @@
                 const saved = await nativeDownloads.saveFile({filename, mimeType: blob.type.split(';')[0], data: root.btoa(binary)});
                 if (saved.bytes !== blob.size || !saved.uri || !saved.path) throw new Error('El guardado no pudo verificarse.');
                 return {...saved, native: true};
+            }
+            if (typeof root.File === 'function' && typeof navigator.canShare === 'function' && typeof navigator.share === 'function') {
+                const file = new root.File([blob], filename, {type: blob.type});
+                if (navigator.canShare({files: [file]})) return {shareFile: file};
             }
             const url = urls.createObjectURL(blob);
             const link = document.createElement('a');
@@ -116,6 +121,10 @@
                         current.savedPhoto = saved;
                         node('open-download').hidden = false;
                         node('status').textContent = 'Fotografía guardada y verificada en ' + saved.path + '. Puedes abrirla con el botón Abrir foto guardada.';
+                    } else if (saved?.shareFile) {
+                        current.shareFile = saved.shareFile;
+                        node('share-photo').hidden = false;
+                        node('status').textContent = 'Foto lista. Toca Guardar o compartir foto y elige Guardar imagen o Guardar en Archivos en el menú del iPhone.';
                     } else {
                         node('status').textContent = 'Descarga enviada al navegador. Revisa su lista de descargas para comprobar que finalizó.';
                     }
@@ -163,6 +172,18 @@
         node('dismiss').addEventListener('click', close);
         dialog.addEventListener('cancel', event => { event.preventDefault(); close(); });
         node('download-photo').addEventListener('click', downloadPhoto);
+        node('share-photo').hidden = true;
+        node('share-photo').addEventListener('click', async () => {
+            let current;
+            try {
+                current = requireState();
+                if (!current.shareFile) return;
+                await navigator.share({files: [current.shareFile], title: current.draft.title, text: node('memory-description').value});
+                if (valid(current)) node('status').textContent = 'La foto se entregó a la opción que elegiste en el menú de compartir.';
+            } catch (error) {
+                if (valid(current)) node('status').textContent = error.name === 'AbortError' ? 'Se cerró el menú sin compartir. Puedes volver a intentarlo.' : 'No se pudo compartir. Usa Abrir foto original para guardar la imagen desde Safari.';
+            }
+        });
         node('open-download').hidden = true;
         node('open-download').addEventListener('click', async () => {
             let current;

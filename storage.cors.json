@@ -1,0 +1,20 @@
+[
+  {
+    "origin": [
+      "https://buscatumbas-2e7cc.web.app",
+      "https://buscatumbas-2e7cc.firebaseapp.com",
+      "https://localhost",
+      "capacitor://localhost"
+    ],
+    "method": [
+      "GET",
+      "HEAD"
+    ],
+    "responseHeader": [
+      "Content-Type",
+      "Content-Length",
+      "Content-Disposition"
+    ],
+    "maxAgeSeconds": 3600
+  }
+]
