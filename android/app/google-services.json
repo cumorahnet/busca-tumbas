@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "920637749030",
+    "project_id": "buscatumbas-2e7cc",
+    "storage_bucket": "buscatumbas-2e7cc.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:920637749030:android:fdc7eb0d8969cef3fdf3e7",
+        "android_client_info": {
+          "package_name": "com.cumorahnet.buscatumbas"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "920637749030-4l4ah1iol0umuoapga0p462vsa0ee9ou.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.cumorahnet.buscatumbas",
+            "certificate_hash": "356d61936de5fb7fc75e91d1f0b244a186428f0d"
+          }
+        },
+        {
+          "client_id": "920637749030-j027altobfq29cter4e2t50ujff7fng0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAlSnIe0KQIkmCALlbDvVJK-awqFuZqQtw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "920637749030-j027altobfq29cter4e2t50ujff7fng0.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

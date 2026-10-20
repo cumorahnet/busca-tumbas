@@ -33,7 +33,7 @@ La configuración apunta a API 36, Android mínimo 7 (API 24), versionCode 1 y v
 
 ## Integraciones y permisos
 
-- Firebase sigue usando el SDK web y el proyecto existente; este flujo no necesita google-services.json.
+- Correo y contraseña siguen usando el SDK web. Google usa @capacitor-firebase/authentication con skipNativeAuth y transfiere el token al SDK web; requiere android/app/google-services.json.
 - Si Authentication rechaza el origen local, revisa los dominios autorizados de Firebase y agrega localhost. Prueba el acceso por correo, verificación y recuperación.
 - Cámara y ubicación se solicitan únicamente al utilizar sus funciones. No se solicitan permisos de micrófono, almacenamiento amplio ni ubicación en segundo plano.
 - El botón Atrás cierra primero los diálogos y luego vuelve al menú; pide confirmación al abandonar captura. En la raíz minimiza la app.
@@ -76,3 +76,20 @@ El módulo es mobile/install.js y el service worker sw.js utiliza la red sin pre
 Al publicar en Play Store, poner data-temporary-install="off" en el elemento html de index.html y sustituir los botones por el enlace real de la ficha. No hay enlace de tienda ficticio ni fecha de publicación automática. Si se modifica la experiencia, actualizar la versión del script y la clave de aviso solo cuando corresponda.
 
 Verificación: npm run test:android cubre primera visita, segunda visita, evento tardío, aceptación, rechazo, instalación completada, iOS, errores y PNG reales. El diálogo nativo se simula en automatización; debe confirmarse en un teléfono compatible.
+
+## Acceso con Google (web/PWA y Android)
+
+El botón Continuar con Google exige aceptar los términos antes de abrir Google. En web usa una ventana emergente de Firebase; Android usa el selector nativo y crea la sesión del SDK web con el token obtenido, sin mantener una segunda sesión nativa.
+
+Configuración para mantener o reproducir la activación (proveedor Google y firma de desarrollo comprobados el 19 de octubre de 2026):
+
+1. En https://console.firebase.google.com/project/buscatumbas-2e7cc/authentication/providers agrega Google, selecciona el correo de asistencia y guarda. Esto crea el cliente OAuth necesario.
+2. Ejecuta `npm run google:sync` para comprobar el proveedor y descargar google-services.json con los clientes OAuth. La app Android com.cumorahnet.buscatumbas ya está registrada y tiene la huella SHA-1 de desarrollo 35:6D:61:93:6D:E5:FB:7F:C7:5E:91:D1:F0:B2:44:A1:86:42:8F:0D.
+3. Ejecuta `npm run android:apk` con Java 21 y verifica crear cuenta, salir y entrar con Google en un teléfono real. No publiques la integración hasta completar esta prueba y la configuración del proveedor.
+4. Para distribución en Google Play agrega también la SHA-1 del certificado de firma de aplicaciones de Play Console y vuelve a ejecutar `npm run google:sync`.
+
+`npm run google:check` consulta requisitos sin cambiar archivos. No imprime tokens ni secretos OAuth. Para web/PWA usa los dominios autorizados del proyecto (.web.app y .firebaseapp.com); un dominio propio también debe autorizarse en Authentication.
+
+El empaquetado Android copia la biblioteca JavaScript de @capacitor/core a www/vendor/capacitor.js y la carga antes del resto del código. El puente inyectado por la WebView requiere esta biblioteca para registrar los complementos. La prueba mobile-tests/native-runtime.test.mjs comprueba el flujo con esa biblioteca real.
+
+Verificación del 19 de octubre de 2026: APK compilado, instalado y registro con Google confirmado por el usuario en Samsung SM-A055M. Web/PWA publicada y proveedor Google comprobado con npm run google:check.

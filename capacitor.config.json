@@ -10,6 +10,12 @@
     "SystemBars": {
       "insetsHandling": "css",
       "style": "LIGHT"
+    },
+    "FirebaseAuthentication": {
+      "skipNativeAuth": true,
+      "providers": [
+        "google.com"
+      ]
     }
   }
 }
