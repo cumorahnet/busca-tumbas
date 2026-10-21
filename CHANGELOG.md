@@ -1,5 +1,3588 @@
 # CHANGELOG
 
+<!-- cdc-session:session-20261020174929-050531 -->
+## Sesión 20/10/2026, 01:40 p.m.
+
+### Resumen
+
+La sesión se enfocó en: Revisar y resolver los riesgos detectados en este cierre.. Se detectaron 1 cambio(s): 1 creado(s), 0 modificado(s) y 0 eliminado(s).
+
+### Cambios
+
+- .record-audit/auth-email-templates-before-20261020.json
+
+### Riesgos
+
+- El análisis incluye archivos que ya tenían cambios al iniciar la sesión.
+
+### Próximo paso
+
+- Revisar el diff y preparar un commit descriptivo.
+
+<!-- cdc-session:session-20261020030001-f1f326 -->
+## Sesión 19/10/2026, 11:09 p.m.
+
+### Resumen
+
+La sesión se enfocó en: Revisar y resolver los riesgos detectados en este cierre.. Se detectaron 211 cambio(s): 102 creado(s), 109 modificado(s) y 0 eliminado(s).
+
+### Cambios
+
+- .browser-check/familysearch-desktop.png
+- .browser-check/familysearch-download-result.json
+- .browser-check/familysearch-downloaded.jpg
+- .browser-check/familysearch-mobile.png
+- .browser-check/familysearch-profile/Crashpad/settings.dat
+- .browser-check/familysearch-profile/CrashpadMetrics-active.pma
+- .browser-check/familysearch-profile/CrashpadMetrics.pma
+- .browser-check/familysearch-profile/Default/Cache/Cache_Data/data_0
+- .browser-check/familysearch-profile/Default/Cache/Cache_Data/data_1
+- .browser-check/familysearch-profile/Default/Cache/Cache_Data/data_2
+- .browser-check/familysearch-profile/Default/Cache/Cache_Data/data_3
+- .browser-check/familysearch-profile/Default/Cache/Cache_Data/f_00000d
+- .browser-check/familysearch-profile/Default/Cache/Cache_Data/f_000012
+- .browser-check/familysearch-profile/Default/Cache/Cache_Data/f_000013
+- .browser-check/familysearch-profile/Default/Cache/Cache_Data/f_000014
+- .browser-check/familysearch-profile/Default/Cache/Cache_Data/f_000015
+- .browser-check/familysearch-profile/Default/Cache/Cache_Data/f_000016
+- .browser-check/familysearch-profile/Default/Cache/No_Vary_Search/journal.baj
+- .browser-check/familysearch-profile/Default/ClientCertificates/LOG
+- .browser-check/familysearch-profile/Default/ClientCertificates/LOG.old
+- .browser-check/familysearch-profile/Default/Code Cache/js/ba678a2fbd8c358c_0
+- .browser-check/familysearch-profile/Default/Code Cache/js/c1d2ca6ea4f69528_0
+- .browser-check/familysearch-profile/Default/Code Cache/js/index-dir/the-real-index
+- .browser-check/familysearch-profile/Default/Extension Rules/000003.log
+- .browser-check/familysearch-profile/Default/Extension Rules/LOG
+- .browser-check/familysearch-profile/Default/Extension Rules/LOG.old
+- .browser-check/familysearch-profile/Default/Extension Scripts/000003.log
+- .browser-check/familysearch-profile/Default/Extension Scripts/LOG
+- .browser-check/familysearch-profile/Default/Extension Scripts/LOG.old
+- .browser-check/familysearch-profile/Default/Extension State/000003.log
+- .browser-check/familysearch-profile/Default/Extension State/LOG
+- .browser-check/familysearch-profile/Default/Extension State/LOG.old
+- .browser-check/familysearch-profile/Default/Favicons-journal
+- .browser-check/familysearch-profile/Default/History-journal
+- .browser-check/familysearch-profile/Default/LOG
+- .browser-check/familysearch-profile/Default/LOG.old
+- .browser-check/familysearch-profile/Default/Local Storage/leveldb/LOG
+- .browser-check/familysearch-profile/Default/Local Storage/leveldb/LOG.old
+- .browser-check/familysearch-profile/Default/PersistentOriginTrials/LOG
+- .browser-check/familysearch-profile/Default/PersistentOriginTrials/LOG.old
+- .browser-check/familysearch-profile/Default/Segmentation Platform/SegmentInfoDB/LOG
+- .browser-check/familysearch-profile/Default/Segmentation Platform/SegmentInfoDB/LOG.old
+- .browser-check/familysearch-profile/Default/Segmentation Platform/SignalDB/LOG
+- .browser-check/familysearch-profile/Default/Segmentation Platform/SignalDB/LOG.old
+- .browser-check/familysearch-profile/Default/Segmentation Platform/SignalStorageConfigDB/LOG
+- .browser-check/familysearch-profile/Default/Segmentation Platform/SignalStorageConfigDB/LOG.old
+- .browser-check/familysearch-profile/Default/Service Worker/Database/LOG
+- .browser-check/familysearch-profile/Default/Service Worker/Database/LOG.old
+- .browser-check/familysearch-profile/Default/Service Worker/ScriptCache/4cb013792b196a35_1
+- .browser-check/familysearch-profile/Default/Service Worker/ScriptCache/index-dir/the-real-index
+- .browser-check/familysearch-profile/Default/Session Storage/000003.log
+- .browser-check/familysearch-profile/Default/Session Storage/CURRENT
+- .browser-check/familysearch-profile/Default/Session Storage/LOCK
+- .browser-check/familysearch-profile/Default/Session Storage/LOG
+- .browser-check/familysearch-profile/Default/Session Storage/MANIFEST-000001
+- .browser-check/familysearch-profile/Default/Site Characteristics Database/LOG
+- .browser-check/familysearch-profile/Default/Site Characteristics Database/LOG.old
+- .browser-check/familysearch-profile/Default/Sync Data/LevelDB/000003.log
+- .browser-check/familysearch-profile/Default/Sync Data/LevelDB/LOG
+- .browser-check/familysearch-profile/Default/Sync Data/LevelDB/LOG.old
+- .browser-check/familysearch-profile/Default/WebStorage/QuotaManager-journal
+- .browser-check/familysearch-profile/Default/chrome_cart_db/LOG
+- .browser-check/familysearch-profile/Default/chrome_cart_db/LOG.old
+- .browser-check/familysearch-profile/Default/commerce_subscription_db/LOG
+- .browser-check/familysearch-profile/Default/commerce_subscription_db/LOG.old
+- .browser-check/familysearch-profile/Default/discount_infos_db/LOG
+- .browser-check/familysearch-profile/Default/discount_infos_db/LOG.old
+- .browser-check/familysearch-profile/Default/discounts_db/LOG
+- .browser-check/familysearch-profile/Default/discounts_db/LOG.old
+- .browser-check/familysearch-profile/Default/parcel_tracking_db/LOG
+- .browser-check/familysearch-profile/Default/parcel_tracking_db/LOG.old
+- .browser-check/familysearch-profile/Default/shared_proto_db/000003.log
+- .browser-check/familysearch-profile/Default/shared_proto_db/LOG
+- .browser-check/familysearch-profile/Default/shared_proto_db/LOG.old
+- .browser-check/familysearch-profile/Default/shared_proto_db/metadata/000003.log
+- .browser-check/familysearch-profile/Default/shared_proto_db/metadata/LOG
+- .browser-check/familysearch-profile/Default/shared_proto_db/metadata/LOG.old
+- .browser-check/familysearch-profile/DevToolsActivePort
+- .browser-check/familysearch-profile/Last Version
+- .browser-check/familysearch-profile/Local State
+- .browser-check/familysearch-profile/Variations
+- .browser-check/familysearch-profile/VariationsSeedV2
+- .browser-check/familysearch-profile/segmentation_platform/ukm_db-wal
+- .browser-check/safe-chromium-android-buttons.png
+- .browser-check/safe-chromium-iphone-keyboard.png
+- .browser-check/safe-chromium-iphone-landscape.png
+- .browser-check/safe-chromium-iphone-portrait.png
+- .browser-check/safe-chromium-small-phone.png
+- .browser-check/safe-webkit-android-buttons.png
+- .browser-check/safe-webkit-iphone-keyboard.png
+- .browser-check/safe-webkit-iphone-landscape.png
+- .browser-check/safe-webkit-iphone-portrait.png
+- .browser-check/safe-webkit-small-phone.png
+- .firebase/hosting..cache
+- .gitignore
+- ANDROID.md
+- DECISIONS.md
+- IOS.md
+- README.md
+- SECURITY-REVIEW.md
+- android/.gradle/8.14.3/checksums/checksums.lock
+- android/.gradle/8.14.3/executionHistory/executionHistory.bin
+- android/.gradle/8.14.3/executionHistory/executionHistory.lock
+- android/.gradle/8.14.3/fileChanges/last-build.bin
+- android/.gradle/8.14.3/fileHashes/fileHashes.bin
+- android/.gradle/8.14.3/fileHashes/fileHashes.lock
+- android/.gradle/8.14.3/fileHashes/resourceHashesCache.bin
+- android/.gradle/buildOutputCleanup/buildOutputCleanup.lock
+- android/.gradle/buildOutputCleanup/outputFiles.bin
+- android/app/capacitor.build.gradle
+- android/app/src/main/assets/capacitor.config.json
+- android/app/src/main/assets/capacitor.plugins.json
+- android/app/src/main/assets/public/cordova.js
+- android/app/src/main/assets/public/cordova_plugins.js
+- android/app/src/main/assets/public/delete-account.html
+- android/app/src/main/assets/public/index.html
+- android/app/src/main/assets/public/mobile/app.css
+- android/app/src/main/assets/public/mobile/familysearch.js
+- android/app/src/main/assets/public/mobile/viewport.js
+- android/app/src/main/assets/public/privacy.html
+- android/app/src/main/assets/public/terms.html
+- android/app/src/main/java/com/cumorahnet/buscatumbas/MainActivity.java
+- android/app/src/main/java/com/cumorahnet/buscatumbas/PublicDownloadsPlugin.java
+- android/app/src/main/res/xml/config.xml
+- android/capacitor-cordova-android-plugins/build.gradle
+- android/capacitor-cordova-android-plugins/cordova.variables.gradle
+- android/capacitor-cordova-android-plugins/src/main/AndroidManifest.xml
+- android/capacitor.settings.gradle
+- delete-account.html
+- firebase.json
+- functions/security.test.js
+- functions/superuser-login.test.js
+- index.html
+- ios/.gitignore
+- ios/App/App.xcodeproj/project.pbxproj
+- ios/App/App.xcodeproj/project.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist
+- ios/App/App/AppDelegate.swift
+- ios/App/App/AppViewController.swift
+- ios/App/App/Assets.xcassets/AppIcon.appiconset/AppIcon-512@2x.png
+- ios/App/App/Assets.xcassets/AppIcon.appiconset/Contents.json
+- ios/App/App/Assets.xcassets/Contents.json
+- ios/App/App/Assets.xcassets/Splash.imageset/Contents.json
+- ios/App/App/Assets.xcassets/Splash.imageset/splash-2732x2732-1.png
+- ios/App/App/Assets.xcassets/Splash.imageset/splash-2732x2732-2.png
+- ios/App/App/Assets.xcassets/Splash.imageset/splash-2732x2732.png
+- ios/App/App/Base.lproj/LaunchScreen.storyboard
+- ios/App/App/Base.lproj/Main.storyboard
+- ios/App/App/GoogleService-Info.plist
+- ios/App/App/Info.plist
+- ios/App/App/PublicDownloadsPlugin.swift
+- ios/App/App/SceneDelegate.swift
+- ios/App/App/capacitor.config.json
+- ios/App/App/config.xml
+- ios/App/App/public/assets/brand/icon-180.png
+- ios/App/App/public/assets/brand/icon-192.png
+- ios/App/App/public/assets/brand/icon-32.png
+- ios/App/App/public/assets/brand/icon-512.png
+- ios/App/App/public/assets/brand/icon-64.png
+- ios/App/App/public/assets/brand/icon-maskable-512.png
+- ios/App/App/public/assets/brand/logo.png
+- ios/App/App/public/cordova.js
+- ios/App/App/public/cordova_plugins.js
+- ios/App/App/public/data/cemeteries-inegi-2026.json
+- ios/App/App/public/delete-account.html
+- ios/App/App/public/index.html
+- ios/App/App/public/manifest.webmanifest
+- ios/App/App/public/mobile/app.css
+- ios/App/App/public/mobile/app.js
+- ios/App/App/public/mobile/familysearch.js
+- ios/App/App/public/mobile/install.js
+- ios/App/App/public/mobile/viewport.js
+- ios/App/App/public/privacy.html
+- ios/App/App/public/superuser-config.json
+- ios/App/App/public/terms.html
+- ios/App/App/public/version.json
+- ios/App/CapApp-SPM/.gitignore
+- ios/App/CapApp-SPM/Package.swift
+- ios/App/CapApp-SPM/README.md
+- ios/App/CapApp-SPM/Sources/CapApp-SPM/CapApp-SPM.swift
+- ios/capacitor-cordova-ios-plugins/CordovaPluginsResources.podspec
+- ios/capacitor-cordova-ios-plugins/resources/.gitkeep
+- ios/capacitor-cordova-ios-plugins/sources/.gitkeep
+- ios/debug.xcconfig
+- mobile-tests/familysearch.test.mjs
+- mobile-tests/viewport.test.mjs
+- mobile/app.css
+- mobile/familysearch.js
+- mobile/viewport.js
+- package-lock.json
+- package.json
+- privacy.html
+- scripts/build-android.mjs
+- scripts/familysearch/README.md
+- scripts/firebase-api-key-security.mjs
+- scripts/generate-ios-assets.ps1
+- scripts/ios-firebase-config.mjs
+- scripts/verify-familysearch-ui.mjs
+- scripts/verify-ios-project.mjs
+- scripts/verify-mobile-safe-areas.mjs
+- security-tests/platform-admin.test.mjs
+- security-tests/rules.test.mjs
+- security-tests/superuser.test.mjs
+- storage.cors.json
+- terms.html
+- www/delete-account.html
+- www/index.html
+- www/mobile/app.css
+- www/mobile/familysearch.js
+- www/mobile/viewport.js
+- www/privacy.html
+- www/terms.html
+
+### Riesgos
+
+- Se modificaron archivos de configuración o infraestructura (android/.gradle/8.14.3/checksums/checksums.lock, android/.gradle/8.14.3/executionHistory/executionHistory.bin, android/.gradle/8.14.3/executionHistory/executionHistory.lock, android/.gradle/8.14.3/fileChanges/last-build.bin, android/.gradle/8.14.3/fileHashes/fileHashes.bin). Valida compatibilidad y despliegue.
+- La sesión contiene 211 cambios. Considera dividir la revisión o el commit para reducir el riesgo de integración.
+- El análisis incluye archivos que ya tenían cambios al iniciar la sesión.
+- Cambió la definición de dependencias; valida instalación y seguridad.
+
+### Próximo paso
+
+- Revisar y resolver los riesgos detectados en este cierre.
+- Ejecutar las pruebas automatizadas y validar el comportamiento afectado.
+- Revisar el diff y preparar un commit descriptivo.
+
+<!-- cdc-session:session-20261019221855-d1f970 -->
+## Sesión 19/10/2026, 04:19 p.m.
+
+### Resumen
+
+La sesión se enfocó en: Revisar y resolver los riesgos detectados en este cierre.. Se detectaron 0 cambio(s): 0 creado(s), 0 modificado(s) y 0 eliminado(s).
+
+### Cambios
+
+- No se detectaron archivos modificados.
+
+### Riesgos
+
+- No se detectaron archivos modificados. Confirma que el trabajo se haya guardado dentro del proyecto y fuera de carpetas ignoradas.
+- El análisis incluye archivos que ya tenían cambios al iniciar la sesión.
+
+### Próximo paso
+
+- Revisar y resolver los riesgos detectados en este cierre.
+- Definir el siguiente objetivo de trabajo del proyecto.
+
+<!-- cdc-session:session-20261018214604-4cbf07 -->
+## Sesión 18/10/2026, 09:19 p.m.
+
+### Resumen
+
+La sesión se enfocó en: Revisar y resolver los riesgos detectados en este cierre.. Se detectaron 2560 cambio(s): 2065 creado(s), 479 modificado(s) y 16 eliminado(s).
+
+### Cambios
+
+- .browser-check/brand-auth-mobile.html
+- .browser-check/brand-auth-mobile.png
+- .browser-check/brand-header-mobile.html
+- .browser-check/brand-header-mobile.png
+- .browser-check/brand-profile/Crashpad/settings.dat
+- .browser-check/brand-profile/CrashpadMetrics-active.pma
+- .browser-check/brand-profile/CrashpadMetrics.pma
+- .browser-check/brand-profile/Default/BookmarkMergedSurfaceOrdering
+- .browser-check/brand-profile/Default/Cache/Cache_Data/data_0
+- .browser-check/brand-profile/Default/Cache/Cache_Data/data_1
+- .browser-check/brand-profile/Default/Cache/Cache_Data/data_2
+- .browser-check/brand-profile/Default/Cache/No_Vary_Search/journal.baj
+- .browser-check/brand-profile/Default/ClientCertificates/LOG
+- .browser-check/brand-profile/Default/ClientCertificates/LOG.old
+- .browser-check/brand-profile/Default/DawnGraphiteCache/data_1
+- .browser-check/brand-profile/Default/DawnWebGPUCache/data_1
+- .browser-check/brand-profile/Default/Extension State/LOG
+- .browser-check/brand-profile/Default/Extension State/LOG.old
+- .browser-check/brand-profile/Default/Favicons
+- .browser-check/brand-profile/Default/Favicons-journal
+- .browser-check/brand-profile/Default/GPUCache/data_1
+- .browser-check/brand-profile/Default/History
+- .browser-check/brand-profile/Default/History-journal
+- .browser-check/brand-profile/Default/LOG
+- .browser-check/brand-profile/Default/LOG.old
+- .browser-check/brand-profile/Default/Local Storage/leveldb/LOG
+- .browser-check/brand-profile/Default/Local Storage/leveldb/LOG.old
+- .browser-check/brand-profile/Default/Network/Network Persistent State
+- .browser-check/brand-profile/Default/Network/Reporting and NEL
+- .browser-check/brand-profile/Default/Network/Reporting and NEL-journal
+- .browser-check/brand-profile/Default/Network/TransportSecurity
+- .browser-check/brand-profile/Default/PersistentOriginTrials/LOG
+- .browser-check/brand-profile/Default/PersistentOriginTrials/LOG.old
+- .browser-check/brand-profile/Default/Preferences
+- .browser-check/brand-profile/Default/Secure Preferences
+- .browser-check/brand-profile/Default/Segmentation Platform/SegmentInfoDB/LOG
+- .browser-check/brand-profile/Default/Segmentation Platform/SegmentInfoDB/LOG.old
+- .browser-check/brand-profile/Default/Segmentation Platform/SignalDB/LOG
+- .browser-check/brand-profile/Default/Segmentation Platform/SignalDB/LOG.old
+- .browser-check/brand-profile/Default/Segmentation Platform/SignalStorageConfigDB/LOG
+- .browser-check/brand-profile/Default/Segmentation Platform/SignalStorageConfigDB/LOG.old
+- .browser-check/brand-profile/Default/Service Worker/Database/LOG
+- .browser-check/brand-profile/Default/Service Worker/Database/LOG.old
+- .browser-check/brand-profile/Default/Session Storage/000003.log
+- .browser-check/brand-profile/Default/Session Storage/CURRENT
+- .browser-check/brand-profile/Default/Session Storage/LOCK
+- .browser-check/brand-profile/Default/Session Storage/LOG
+- .browser-check/brand-profile/Default/Session Storage/MANIFEST-000001
+- .browser-check/brand-profile/Default/Sessions/Session_13436771673413606
+- .browser-check/brand-profile/Default/Sessions/Session_13436771674237760
+- .browser-check/brand-profile/Default/Sessions/Session_13436849886047000
+- .browser-check/brand-profile/Default/Sessions/Session_13436849886820323
+- .browser-check/brand-profile/Default/Sessions/Tabs_13436771673417455
+- .browser-check/brand-profile/Default/Sessions/Tabs_13436771674241961
+- .browser-check/brand-profile/Default/Sessions/Tabs_13436849886052873
+- .browser-check/brand-profile/Default/Sessions/Tabs_13436849886825303
+- .browser-check/brand-profile/Default/Site Characteristics Database/LOG
+- .browser-check/brand-profile/Default/Site Characteristics Database/LOG.old
+- .browser-check/brand-profile/Default/Sync Data/LevelDB/LOG
+- .browser-check/brand-profile/Default/Sync Data/LevelDB/LOG.old
+- .browser-check/brand-profile/Default/Web Data
+- .browser-check/brand-profile/Default/Web Data-journal
+- .browser-check/brand-profile/Default/WebStorage/QuotaManager
+- .browser-check/brand-profile/Default/WebStorage/QuotaManager-journal
+- .browser-check/brand-profile/Default/chrome_cart_db/LOG
+- .browser-check/brand-profile/Default/chrome_cart_db/LOG.old
+- .browser-check/brand-profile/Default/commerce_subscription_db/LOG
+- .browser-check/brand-profile/Default/commerce_subscription_db/LOG.old
+- .browser-check/brand-profile/Default/discount_infos_db/LOG
+- .browser-check/brand-profile/Default/discount_infos_db/LOG.old
+- .browser-check/brand-profile/Default/discounts_db/LOG
+- .browser-check/brand-profile/Default/discounts_db/LOG.old
+- .browser-check/brand-profile/Default/parcel_tracking_db/LOG
+- .browser-check/brand-profile/Default/parcel_tracking_db/LOG.old
+- .browser-check/brand-profile/Default/shared_proto_db/000003.log
+- .browser-check/brand-profile/Default/shared_proto_db/LOG
+- .browser-check/brand-profile/Default/shared_proto_db/LOG.old
+- .browser-check/brand-profile/Default/shared_proto_db/metadata/000003.log
+- .browser-check/brand-profile/Default/shared_proto_db/metadata/LOG
+- .browser-check/brand-profile/Default/shared_proto_db/metadata/LOG.old
+- .browser-check/brand-profile/GrShaderCache/data_1
+- .browser-check/brand-profile/Last Version
+- .browser-check/brand-profile/Local State
+- .browser-check/brand-profile/ShaderCache/data_1
+- .browser-check/brand-profile/Variations
+- .browser-check/brand-profile/VariationsSeedV2
+- .browser-check/brand-profile/segmentation_platform/ukm_db
+- .browser-check/brand-splash.html
+- .browser-check/brand-splash.png
+- .browser-check/contribution-hover-profile/Crashpad/metadata
+- .browser-check/contribution-hover-profile/Crashpad/settings.dat
+- .browser-check/contribution-hover-profile/CrashpadMetrics-active.pma
+- .browser-check/contribution-hover-profile/CrashpadMetrics.pma
+- .browser-check/contribution-hover-profile/Default/Account Web Data
+- .browser-check/contribution-hover-profile/Default/Account Web Data-journal
+- .browser-check/contribution-hover-profile/Default/Affiliation Database
+- .browser-check/contribution-hover-profile/Default/Affiliation Database-journal
+- .browser-check/contribution-hover-profile/Default/Cache/Cache_Data/data_0
+- .browser-check/contribution-hover-profile/Default/Cache/Cache_Data/data_1
+- .browser-check/contribution-hover-profile/Default/Cache/Cache_Data/data_2
+- .browser-check/contribution-hover-profile/Default/Cache/Cache_Data/data_3
+- .browser-check/contribution-hover-profile/Default/Cache/Cache_Data/f_000001
+- .browser-check/contribution-hover-profile/Default/Cache/Cache_Data/f_000002
+- .browser-check/contribution-hover-profile/Default/Cache/Cache_Data/index
+- .browser-check/contribution-hover-profile/Default/Cache/No_Vary_Search/journal.baj
+- .browser-check/contribution-hover-profile/Default/Cache/No_Vary_Search/snapshot.baf
+- .browser-check/contribution-hover-profile/Default/ClientCertificates/LOCK
+- .browser-check/contribution-hover-profile/Default/ClientCertificates/LOG
+- .browser-check/contribution-hover-profile/Default/ClientCertificates/LOG.old
+- .browser-check/contribution-hover-profile/Default/Code Cache/js/ba678a2fbd8c358c_0
+- .browser-check/contribution-hover-profile/Default/Code Cache/js/index
+- .browser-check/contribution-hover-profile/Default/Code Cache/js/index-dir/the-real-index
+- .browser-check/contribution-hover-profile/Default/Code Cache/wasm/index
+- .browser-check/contribution-hover-profile/Default/Code Cache/wasm/index-dir/the-real-index
+- .browser-check/contribution-hover-profile/Default/DawnGraphiteCache/data_0
+- .browser-check/contribution-hover-profile/Default/DawnGraphiteCache/data_1
+- .browser-check/contribution-hover-profile/Default/DawnGraphiteCache/data_2
+- .browser-check/contribution-hover-profile/Default/DawnGraphiteCache/data_3
+- .browser-check/contribution-hover-profile/Default/DawnGraphiteCache/index
+- .browser-check/contribution-hover-profile/Default/DawnWebGPUCache/data_0
+- .browser-check/contribution-hover-profile/Default/DawnWebGPUCache/data_1
+- .browser-check/contribution-hover-profile/Default/DawnWebGPUCache/data_2
+- .browser-check/contribution-hover-profile/Default/DawnWebGPUCache/data_3
+- .browser-check/contribution-hover-profile/Default/DawnWebGPUCache/index
+- .browser-check/contribution-hover-profile/Default/Extension Rules/000003.log
+- .browser-check/contribution-hover-profile/Default/Extension Rules/CURRENT
+- .browser-check/contribution-hover-profile/Default/Extension Rules/LOCK
+- .browser-check/contribution-hover-profile/Default/Extension Rules/LOG
+- .browser-check/contribution-hover-profile/Default/Extension Rules/LOG.old
+- .browser-check/contribution-hover-profile/Default/Extension Rules/MANIFEST-000001
+- .browser-check/contribution-hover-profile/Default/Extension Scripts/000003.log
+- .browser-check/contribution-hover-profile/Default/Extension Scripts/CURRENT
+- .browser-check/contribution-hover-profile/Default/Extension Scripts/LOCK
+- .browser-check/contribution-hover-profile/Default/Extension Scripts/LOG
+- .browser-check/contribution-hover-profile/Default/Extension Scripts/LOG.old
+- .browser-check/contribution-hover-profile/Default/Extension Scripts/MANIFEST-000001
+- .browser-check/contribution-hover-profile/Default/Extension State/000003.log
+- .browser-check/contribution-hover-profile/Default/Extension State/CURRENT
+- .browser-check/contribution-hover-profile/Default/Extension State/LOCK
+- .browser-check/contribution-hover-profile/Default/Extension State/LOG
+- .browser-check/contribution-hover-profile/Default/Extension State/LOG.old
+- .browser-check/contribution-hover-profile/Default/Extension State/MANIFEST-000001
+- .browser-check/contribution-hover-profile/Default/Favicons
+- .browser-check/contribution-hover-profile/Default/Favicons-journal
+- .browser-check/contribution-hover-profile/Default/GPUCache/data_0
+- .browser-check/contribution-hover-profile/Default/GPUCache/data_1
+- .browser-check/contribution-hover-profile/Default/GPUCache/data_2
+- .browser-check/contribution-hover-profile/Default/GPUCache/data_3
+- .browser-check/contribution-hover-profile/Default/GPUCache/index
+- .browser-check/contribution-hover-profile/Default/History
+- .browser-check/contribution-hover-profile/Default/History-journal
+- .browser-check/contribution-hover-profile/Default/LOCK
+- .browser-check/contribution-hover-profile/Default/LOG
+- .browser-check/contribution-hover-profile/Default/LOG.old
+- .browser-check/contribution-hover-profile/Default/Local Storage/leveldb/000003.log
+- .browser-check/contribution-hover-profile/Default/Local Storage/leveldb/CURRENT
+- .browser-check/contribution-hover-profile/Default/Local Storage/leveldb/LOCK
+- .browser-check/contribution-hover-profile/Default/Local Storage/leveldb/LOG
+- .browser-check/contribution-hover-profile/Default/Local Storage/leveldb/LOG.old
+- .browser-check/contribution-hover-profile/Default/Local Storage/leveldb/MANIFEST-000001
+- .browser-check/contribution-hover-profile/Default/Login Data
+- .browser-check/contribution-hover-profile/Default/Login Data For Account
+- .browser-check/contribution-hover-profile/Default/Login Data For Account-journal
+- .browser-check/contribution-hover-profile/Default/Login Data-journal
+- .browser-check/contribution-hover-profile/Default/Network/Cookies
+- .browser-check/contribution-hover-profile/Default/Network/Cookies-journal
+- .browser-check/contribution-hover-profile/Default/Network/Device Bound Sessions
+- .browser-check/contribution-hover-profile/Default/Network/Device Bound Sessions-journal
+- .browser-check/contribution-hover-profile/Default/Network/NetworkDataMigrated
+- .browser-check/contribution-hover-profile/Default/Network/Reporting and NEL
+- .browser-check/contribution-hover-profile/Default/Network/Reporting and NEL-journal
+- .browser-check/contribution-hover-profile/Default/Network/Trust Tokens
+- .browser-check/contribution-hover-profile/Default/Network/Trust Tokens-journal
+- .browser-check/contribution-hover-profile/Default/PersistentOriginTrials/LOCK
+- .browser-check/contribution-hover-profile/Default/PersistentOriginTrials/LOG
+- .browser-check/contribution-hover-profile/Default/PersistentOriginTrials/LOG.old
+- .browser-check/contribution-hover-profile/Default/README
+- .browser-check/contribution-hover-profile/Default/Safe Browsing Network/NetworkDataMigrated
+- .browser-check/contribution-hover-profile/Default/Segmentation Platform/SegmentInfoDB/LOCK
+- .browser-check/contribution-hover-profile/Default/Segmentation Platform/SegmentInfoDB/LOG
+- .browser-check/contribution-hover-profile/Default/Segmentation Platform/SegmentInfoDB/LOG.old
+- .browser-check/contribution-hover-profile/Default/Segmentation Platform/SignalDB/LOCK
+- .browser-check/contribution-hover-profile/Default/Segmentation Platform/SignalDB/LOG
+- .browser-check/contribution-hover-profile/Default/Segmentation Platform/SignalDB/LOG.old
+- .browser-check/contribution-hover-profile/Default/Segmentation Platform/SignalStorageConfigDB/LOCK
+- .browser-check/contribution-hover-profile/Default/Segmentation Platform/SignalStorageConfigDB/LOG
+- .browser-check/contribution-hover-profile/Default/Segmentation Platform/SignalStorageConfigDB/LOG.old
+- .browser-check/contribution-hover-profile/Default/ServerCertificate
+- .browser-check/contribution-hover-profile/Default/ServerCertificate-journal
+- .browser-check/contribution-hover-profile/Default/Service Worker/Database/000003.log
+- .browser-check/contribution-hover-profile/Default/Service Worker/Database/CURRENT
+- .browser-check/contribution-hover-profile/Default/Service Worker/Database/LOCK
+- .browser-check/contribution-hover-profile/Default/Service Worker/Database/LOG
+- .browser-check/contribution-hover-profile/Default/Service Worker/Database/LOG.old
+- .browser-check/contribution-hover-profile/Default/Service Worker/Database/MANIFEST-000001
+- .browser-check/contribution-hover-profile/Default/Service Worker/ScriptCache/2cc80dabc69f58b6_0
+- .browser-check/contribution-hover-profile/Default/Service Worker/ScriptCache/4cb013792b196a35_0
+- .browser-check/contribution-hover-profile/Default/Service Worker/ScriptCache/4cb013792b196a35_1
+- .browser-check/contribution-hover-profile/Default/Service Worker/ScriptCache/index
+- .browser-check/contribution-hover-profile/Default/Service Worker/ScriptCache/index-dir/the-real-index
+- .browser-check/contribution-hover-profile/Default/Session Storage/000003.log
+- .browser-check/contribution-hover-profile/Default/Session Storage/CURRENT
+- .browser-check/contribution-hover-profile/Default/Session Storage/LOCK
+- .browser-check/contribution-hover-profile/Default/Session Storage/LOG
+- .browser-check/contribution-hover-profile/Default/Session Storage/MANIFEST-000001
+- .browser-check/contribution-hover-profile/Default/Shared Dictionary/cache/index
+- .browser-check/contribution-hover-profile/Default/Shared Dictionary/cache/index-dir/the-real-index
+- .browser-check/contribution-hover-profile/Default/Shared Dictionary/db
+- .browser-check/contribution-hover-profile/Default/Shared Dictionary/db-journal
+- .browser-check/contribution-hover-profile/Default/Site Characteristics Database/000003.log
+- .browser-check/contribution-hover-profile/Default/Site Characteristics Database/CURRENT
+- .browser-check/contribution-hover-profile/Default/Site Characteristics Database/LOCK
+- .browser-check/contribution-hover-profile/Default/Site Characteristics Database/LOG
+- .browser-check/contribution-hover-profile/Default/Site Characteristics Database/LOG.old
+- .browser-check/contribution-hover-profile/Default/Site Characteristics Database/MANIFEST-000001
+- .browser-check/contribution-hover-profile/Default/Sync Data/LevelDB/000003.log
+- .browser-check/contribution-hover-profile/Default/Sync Data/LevelDB/CURRENT
+- .browser-check/contribution-hover-profile/Default/Sync Data/LevelDB/LOCK
+- .browser-check/contribution-hover-profile/Default/Sync Data/LevelDB/LOG
+- .browser-check/contribution-hover-profile/Default/Sync Data/LevelDB/LOG.old
+- .browser-check/contribution-hover-profile/Default/Sync Data/LevelDB/MANIFEST-000001
+- .browser-check/contribution-hover-profile/Default/Top Sites
+- .browser-check/contribution-hover-profile/Default/Top Sites-journal
+- .browser-check/contribution-hover-profile/Default/Web Data
+- .browser-check/contribution-hover-profile/Default/Web Data-journal
+- .browser-check/contribution-hover-profile/Default/WebStorage/QuotaManager
+- .browser-check/contribution-hover-profile/Default/WebStorage/QuotaManager-journal
+- .browser-check/contribution-hover-profile/Default/chrome_cart_db/LOCK
+- .browser-check/contribution-hover-profile/Default/chrome_cart_db/LOG
+- .browser-check/contribution-hover-profile/Default/chrome_cart_db/LOG.old
+- .browser-check/contribution-hover-profile/Default/commerce_subscription_db/LOCK
+- .browser-check/contribution-hover-profile/Default/commerce_subscription_db/LOG
+- .browser-check/contribution-hover-profile/Default/commerce_subscription_db/LOG.old
+- .browser-check/contribution-hover-profile/Default/declarative_performance_observer.db
+- .browser-check/contribution-hover-profile/Default/declarative_performance_observer.db-journal
+- .browser-check/contribution-hover-profile/Default/discount_infos_db/LOCK
+- .browser-check/contribution-hover-profile/Default/discount_infos_db/LOG
+- .browser-check/contribution-hover-profile/Default/discount_infos_db/LOG.old
+- .browser-check/contribution-hover-profile/Default/discounts_db/LOCK
+- .browser-check/contribution-hover-profile/Default/discounts_db/LOG
+- .browser-check/contribution-hover-profile/Default/discounts_db/LOG.old
+- .browser-check/contribution-hover-profile/Default/parcel_tracking_db/LOCK
+- .browser-check/contribution-hover-profile/Default/parcel_tracking_db/LOG
+- .browser-check/contribution-hover-profile/Default/parcel_tracking_db/LOG.old
+- .browser-check/contribution-hover-profile/Default/shared_proto_db/000003.log
+- .browser-check/contribution-hover-profile/Default/shared_proto_db/CURRENT
+- .browser-check/contribution-hover-profile/Default/shared_proto_db/LOCK
+- .browser-check/contribution-hover-profile/Default/shared_proto_db/LOG
+- .browser-check/contribution-hover-profile/Default/shared_proto_db/LOG.old
+- .browser-check/contribution-hover-profile/Default/shared_proto_db/MANIFEST-000001
+- .browser-check/contribution-hover-profile/Default/shared_proto_db/metadata/000003.log
+- .browser-check/contribution-hover-profile/Default/shared_proto_db/metadata/CURRENT
+- .browser-check/contribution-hover-profile/Default/shared_proto_db/metadata/LOCK
+- .browser-check/contribution-hover-profile/Default/shared_proto_db/metadata/LOG
+- .browser-check/contribution-hover-profile/Default/shared_proto_db/metadata/LOG.old
+- .browser-check/contribution-hover-profile/Default/shared_proto_db/metadata/MANIFEST-000001
+- .browser-check/contribution-hover-profile/DevToolsActivePort
+- .browser-check/contribution-hover-profile/GPUPersistentCache/DawnGraphiteCache/NR2GNA44OGQUBFRRNDBXIX2VC7JXKYAS/cache.db
+- .browser-check/contribution-hover-profile/GPUPersistentCache/DawnGraphiteCache/NR2GNA44OGQUBFRRNDBXIX2VC7JXKYAS/cache.db-wal
+- .browser-check/contribution-hover-profile/GPUPersistentCache/DawnGraphiteCache/NR2GNA44OGQUBFRRNDBXIX2VC7JXKYAS/cache.journal
+- .browser-check/contribution-hover-profile/GrShaderCache/data_0
+- .browser-check/contribution-hover-profile/GrShaderCache/data_1
+- .browser-check/contribution-hover-profile/GrShaderCache/data_2
+- .browser-check/contribution-hover-profile/GrShaderCache/data_3
+- .browser-check/contribution-hover-profile/GrShaderCache/index
+- .browser-check/contribution-hover-profile/Last Version
+- .browser-check/contribution-hover-profile/Local State
+- .browser-check/contribution-hover-profile/ShaderCache/data_0
+- .browser-check/contribution-hover-profile/ShaderCache/data_1
+- .browser-check/contribution-hover-profile/ShaderCache/data_2
+- .browser-check/contribution-hover-profile/ShaderCache/data_3
+- .browser-check/contribution-hover-profile/ShaderCache/index
+- .browser-check/contribution-hover-profile/Variations
+- .browser-check/contribution-hover-profile/VariationsSafeSeedV2
+- .browser-check/contribution-hover-profile/VariationsSeedV2
+- .browser-check/contribution-hover-profile/es-ES-3-0.bdic
+- .browser-check/contribution-hover-profile/segmentation_platform/ukm_db
+- .browser-check/contribution-hover-profile/segmentation_platform/ukm_db-wal
+- .browser-check/contribution-hover.html
+- .browser-check/contribution-hover.mjs
+- .browser-check/familysearch-desktop.png
+- .browser-check/familysearch-mobile.png
+- .browser-check/familysearch-profile/Crashpad/metadata
+- .browser-check/familysearch-profile/Crashpad/settings.dat
+- .browser-check/familysearch-profile/CrashpadMetrics-active.pma
+- .browser-check/familysearch-profile/Default/Account Web Data
+- .browser-check/familysearch-profile/Default/Account Web Data-journal
+- .browser-check/familysearch-profile/Default/Affiliation Database
+- .browser-check/familysearch-profile/Default/Affiliation Database-journal
+- .browser-check/familysearch-profile/Default/Cache/Cache_Data/data_0
+- .browser-check/familysearch-profile/Default/Cache/Cache_Data/data_1
+- .browser-check/familysearch-profile/Default/Cache/Cache_Data/data_2
+- .browser-check/familysearch-profile/Default/Cache/Cache_Data/data_3
+- .browser-check/familysearch-profile/Default/Cache/Cache_Data/f_000001
+- .browser-check/familysearch-profile/Default/Cache/Cache_Data/f_000006
+- .browser-check/familysearch-profile/Default/Cache/Cache_Data/f_000007
+- .browser-check/familysearch-profile/Default/Cache/Cache_Data/f_000008
+- .browser-check/familysearch-profile/Default/Cache/Cache_Data/f_000009
+- .browser-check/familysearch-profile/Default/Cache/Cache_Data/f_00000a
+- .browser-check/familysearch-profile/Default/Cache/Cache_Data/f_00000b
+- .browser-check/familysearch-profile/Default/Cache/Cache_Data/f_00000c
+- .browser-check/familysearch-profile/Default/Cache/Cache_Data/index
+- .browser-check/familysearch-profile/Default/Cache/No_Vary_Search/journal.baj
+- .browser-check/familysearch-profile/Default/Cache/No_Vary_Search/snapshot.baf
+- .browser-check/familysearch-profile/Default/ClientCertificates/LOCK
+- .browser-check/familysearch-profile/Default/ClientCertificates/LOG
+- .browser-check/familysearch-profile/Default/Code Cache/js/2c2c09057fcf931b_0
+- .browser-check/familysearch-profile/Default/Code Cache/js/ba678a2fbd8c358c_0
+- .browser-check/familysearch-profile/Default/Code Cache/js/index
+- .browser-check/familysearch-profile/Default/Code Cache/js/index-dir/the-real-index
+- .browser-check/familysearch-profile/Default/Code Cache/wasm/index
+- .browser-check/familysearch-profile/Default/Code Cache/wasm/index-dir/the-real-index
+- .browser-check/familysearch-profile/Default/DawnGraphiteCache/data_0
+- .browser-check/familysearch-profile/Default/DawnGraphiteCache/data_1
+- .browser-check/familysearch-profile/Default/DawnGraphiteCache/data_2
+- .browser-check/familysearch-profile/Default/DawnGraphiteCache/data_3
+- .browser-check/familysearch-profile/Default/DawnGraphiteCache/index
+- .browser-check/familysearch-profile/Default/DawnWebGPUCache/data_0
+- .browser-check/familysearch-profile/Default/DawnWebGPUCache/data_1
+- .browser-check/familysearch-profile/Default/DawnWebGPUCache/data_2
+- .browser-check/familysearch-profile/Default/DawnWebGPUCache/data_3
+- .browser-check/familysearch-profile/Default/DawnWebGPUCache/index
+- .browser-check/familysearch-profile/Default/Extension Rules/000003.log
+- .browser-check/familysearch-profile/Default/Extension Rules/CURRENT
+- .browser-check/familysearch-profile/Default/Extension Rules/LOCK
+- .browser-check/familysearch-profile/Default/Extension Rules/LOG
+- .browser-check/familysearch-profile/Default/Extension Rules/MANIFEST-000001
+- .browser-check/familysearch-profile/Default/Extension Scripts/000003.log
+- .browser-check/familysearch-profile/Default/Extension Scripts/CURRENT
+- .browser-check/familysearch-profile/Default/Extension Scripts/LOCK
+- .browser-check/familysearch-profile/Default/Extension Scripts/LOG
+- .browser-check/familysearch-profile/Default/Extension Scripts/MANIFEST-000001
+- .browser-check/familysearch-profile/Default/Extension State/000003.log
+- .browser-check/familysearch-profile/Default/Extension State/CURRENT
+- .browser-check/familysearch-profile/Default/Extension State/LOCK
+- .browser-check/familysearch-profile/Default/Extension State/LOG
+- .browser-check/familysearch-profile/Default/Extension State/MANIFEST-000001
+- .browser-check/familysearch-profile/Default/Favicons
+- .browser-check/familysearch-profile/Default/Favicons-journal
+- .browser-check/familysearch-profile/Default/GPUCache/data_0
+- .browser-check/familysearch-profile/Default/GPUCache/data_1
+- .browser-check/familysearch-profile/Default/GPUCache/data_2
+- .browser-check/familysearch-profile/Default/GPUCache/data_3
+- .browser-check/familysearch-profile/Default/GPUCache/index
+- .browser-check/familysearch-profile/Default/History
+- .browser-check/familysearch-profile/Default/History-journal
+- .browser-check/familysearch-profile/Default/LOCK
+- .browser-check/familysearch-profile/Default/LOG
+- .browser-check/familysearch-profile/Default/Local Storage/leveldb/000003.log
+- .browser-check/familysearch-profile/Default/Local Storage/leveldb/CURRENT
+- .browser-check/familysearch-profile/Default/Local Storage/leveldb/LOCK
+- .browser-check/familysearch-profile/Default/Local Storage/leveldb/LOG
+- .browser-check/familysearch-profile/Default/Local Storage/leveldb/MANIFEST-000001
+- .browser-check/familysearch-profile/Default/Login Data
+- .browser-check/familysearch-profile/Default/Login Data For Account
+- .browser-check/familysearch-profile/Default/Login Data For Account-journal
+- .browser-check/familysearch-profile/Default/Login Data-journal
+- .browser-check/familysearch-profile/Default/Network/Cookies
+- .browser-check/familysearch-profile/Default/Network/Cookies-journal
+- .browser-check/familysearch-profile/Default/Network/Device Bound Sessions
+- .browser-check/familysearch-profile/Default/Network/Device Bound Sessions-journal
+- .browser-check/familysearch-profile/Default/Network/NetworkDataMigrated
+- .browser-check/familysearch-profile/Default/Network/Reporting and NEL
+- .browser-check/familysearch-profile/Default/Network/Reporting and NEL-journal
+- .browser-check/familysearch-profile/Default/Network/Trust Tokens
+- .browser-check/familysearch-profile/Default/Network/Trust Tokens-journal
+- .browser-check/familysearch-profile/Default/PersistentOriginTrials/LOCK
+- .browser-check/familysearch-profile/Default/PersistentOriginTrials/LOG
+- .browser-check/familysearch-profile/Default/README
+- .browser-check/familysearch-profile/Default/Safe Browsing Network/NetworkDataMigrated
+- .browser-check/familysearch-profile/Default/Segmentation Platform/SegmentInfoDB/LOCK
+- .browser-check/familysearch-profile/Default/Segmentation Platform/SegmentInfoDB/LOG
+- .browser-check/familysearch-profile/Default/Segmentation Platform/SignalDB/LOCK
+- .browser-check/familysearch-profile/Default/Segmentation Platform/SignalDB/LOG
+- .browser-check/familysearch-profile/Default/Segmentation Platform/SignalStorageConfigDB/LOCK
+- .browser-check/familysearch-profile/Default/Segmentation Platform/SignalStorageConfigDB/LOG
+- .browser-check/familysearch-profile/Default/ServerCertificate
+- .browser-check/familysearch-profile/Default/ServerCertificate-journal
+- .browser-check/familysearch-profile/Default/Service Worker/Database/000003.log
+- .browser-check/familysearch-profile/Default/Service Worker/Database/CURRENT
+- .browser-check/familysearch-profile/Default/Service Worker/Database/LOCK
+- .browser-check/familysearch-profile/Default/Service Worker/Database/LOG
+- .browser-check/familysearch-profile/Default/Service Worker/Database/MANIFEST-000001
+- .browser-check/familysearch-profile/Default/Service Worker/ScriptCache/2cc80dabc69f58b6_0
+- .browser-check/familysearch-profile/Default/Service Worker/ScriptCache/4cb013792b196a35_0
+- .browser-check/familysearch-profile/Default/Service Worker/ScriptCache/4cb013792b196a35_1
+- .browser-check/familysearch-profile/Default/Service Worker/ScriptCache/index
+- .browser-check/familysearch-profile/Default/Service Worker/ScriptCache/index-dir/the-real-index
+- .browser-check/familysearch-profile/Default/Session Storage/000003.log
+- .browser-check/familysearch-profile/Default/Session Storage/CURRENT
+- .browser-check/familysearch-profile/Default/Session Storage/LOCK
+- .browser-check/familysearch-profile/Default/Session Storage/LOG
+- .browser-check/familysearch-profile/Default/Session Storage/MANIFEST-000001
+- .browser-check/familysearch-profile/Default/Shared Dictionary/cache/index
+- .browser-check/familysearch-profile/Default/Shared Dictionary/cache/index-dir/the-real-index
+- .browser-check/familysearch-profile/Default/Shared Dictionary/db
+- .browser-check/familysearch-profile/Default/Shared Dictionary/db-journal
+- .browser-check/familysearch-profile/Default/Site Characteristics Database/000003.log
+- .browser-check/familysearch-profile/Default/Site Characteristics Database/CURRENT
+- .browser-check/familysearch-profile/Default/Site Characteristics Database/LOCK
+- .browser-check/familysearch-profile/Default/Site Characteristics Database/LOG
+- .browser-check/familysearch-profile/Default/Site Characteristics Database/MANIFEST-000001
+- .browser-check/familysearch-profile/Default/Sync Data/LevelDB/000003.log
+- .browser-check/familysearch-profile/Default/Sync Data/LevelDB/CURRENT
+- .browser-check/familysearch-profile/Default/Sync Data/LevelDB/LOCK
+- .browser-check/familysearch-profile/Default/Sync Data/LevelDB/LOG
+- .browser-check/familysearch-profile/Default/Sync Data/LevelDB/MANIFEST-000001
+- .browser-check/familysearch-profile/Default/Top Sites
+- .browser-check/familysearch-profile/Default/Top Sites-journal
+- .browser-check/familysearch-profile/Default/Web Data
+- .browser-check/familysearch-profile/Default/Web Data-journal
+- .browser-check/familysearch-profile/Default/WebStorage/QuotaManager
+- .browser-check/familysearch-profile/Default/WebStorage/QuotaManager-journal
+- .browser-check/familysearch-profile/Default/chrome_cart_db/LOCK
+- .browser-check/familysearch-profile/Default/chrome_cart_db/LOG
+- .browser-check/familysearch-profile/Default/commerce_subscription_db/LOCK
+- .browser-check/familysearch-profile/Default/commerce_subscription_db/LOG
+- .browser-check/familysearch-profile/Default/declarative_performance_observer.db
+- .browser-check/familysearch-profile/Default/declarative_performance_observer.db-journal
+- .browser-check/familysearch-profile/Default/discount_infos_db/LOCK
+- .browser-check/familysearch-profile/Default/discount_infos_db/LOG
+- .browser-check/familysearch-profile/Default/discounts_db/LOCK
+- .browser-check/familysearch-profile/Default/discounts_db/LOG
+- .browser-check/familysearch-profile/Default/parcel_tracking_db/LOCK
+- .browser-check/familysearch-profile/Default/parcel_tracking_db/LOG
+- .browser-check/familysearch-profile/Default/shared_proto_db/000003.log
+- .browser-check/familysearch-profile/Default/shared_proto_db/CURRENT
+- .browser-check/familysearch-profile/Default/shared_proto_db/LOCK
+- .browser-check/familysearch-profile/Default/shared_proto_db/LOG
+- .browser-check/familysearch-profile/Default/shared_proto_db/MANIFEST-000001
+- .browser-check/familysearch-profile/Default/shared_proto_db/metadata/000003.log
+- .browser-check/familysearch-profile/Default/shared_proto_db/metadata/CURRENT
+- .browser-check/familysearch-profile/Default/shared_proto_db/metadata/LOCK
+- .browser-check/familysearch-profile/Default/shared_proto_db/metadata/LOG
+- .browser-check/familysearch-profile/Default/shared_proto_db/metadata/MANIFEST-000001
+- .browser-check/familysearch-profile/DevToolsActivePort
+- .browser-check/familysearch-profile/GPUPersistentCache/DawnGraphiteCache/NR2GNA44OGQUBFRRNDBXIX2VC7JXKYAS/cache.db
+- .browser-check/familysearch-profile/GPUPersistentCache/DawnGraphiteCache/NR2GNA44OGQUBFRRNDBXIX2VC7JXKYAS/cache.db-wal
+- .browser-check/familysearch-profile/GPUPersistentCache/DawnGraphiteCache/NR2GNA44OGQUBFRRNDBXIX2VC7JXKYAS/cache.journal
+- .browser-check/familysearch-profile/GrShaderCache/data_0
+- .browser-check/familysearch-profile/GrShaderCache/data_1
+- .browser-check/familysearch-profile/GrShaderCache/data_2
+- .browser-check/familysearch-profile/GrShaderCache/data_3
+- .browser-check/familysearch-profile/GrShaderCache/index
+- .browser-check/familysearch-profile/Last Version
+- .browser-check/familysearch-profile/Local State
+- .browser-check/familysearch-profile/ShaderCache/data_0
+- .browser-check/familysearch-profile/ShaderCache/data_1
+- .browser-check/familysearch-profile/ShaderCache/data_2
+- .browser-check/familysearch-profile/ShaderCache/data_3
+- .browser-check/familysearch-profile/ShaderCache/index
+- .browser-check/familysearch-profile/Variations
+- .browser-check/familysearch-profile/VariationsSafeSeedV2
+- .browser-check/familysearch-profile/VariationsSeedV2
+- .browser-check/familysearch-profile/es-ES-3-0.bdic
+- .browser-check/familysearch-profile/segmentation_platform/ukm_db
+- .browser-check/familysearch-profile/segmentation_platform/ukm_db-wal
+- .browser-check/install-android-profile/Crashpad/settings.dat
+- .browser-check/install-android-profile/CrashpadMetrics-active.pma
+- .browser-check/install-android-profile/CrashpadMetrics.pma
+- .browser-check/install-android-profile/Default/BookmarkMergedSurfaceOrdering
+- .browser-check/install-android-profile/Default/Cache/Cache_Data/data_0
+- .browser-check/install-android-profile/Default/Cache/Cache_Data/data_1
+- .browser-check/install-android-profile/Default/Cache/Cache_Data/data_2
+- .browser-check/install-android-profile/Default/Cache/Cache_Data/data_3
+- .browser-check/install-android-profile/Default/Cache/Cache_Data/f_00001d
+- .browser-check/install-android-profile/Default/Cache/Cache_Data/f_00001e
+- .browser-check/install-android-profile/Default/Cache/Cache_Data/f_00001f
+- .browser-check/install-android-profile/Default/Cache/Cache_Data/f_000020
+- .browser-check/install-android-profile/Default/Cache/Cache_Data/f_000021
+- .browser-check/install-android-profile/Default/Cache/Cache_Data/f_000022
+- .browser-check/install-android-profile/Default/Cache/Cache_Data/f_000023
+- .browser-check/install-android-profile/Default/Cache/Cache_Data/f_000024
+- .browser-check/install-android-profile/Default/Cache/Cache_Data/f_000025
+- .browser-check/install-android-profile/Default/Cache/Cache_Data/f_000026
+- .browser-check/install-android-profile/Default/Cache/Cache_Data/f_000027
+- .browser-check/install-android-profile/Default/Cache/Cache_Data/f_000028
+- .browser-check/install-android-profile/Default/Cache/Cache_Data/f_000029
+- .browser-check/install-android-profile/Default/Cache/Cache_Data/f_00002a
+- .browser-check/install-android-profile/Default/Cache/Cache_Data/f_00002b
+- .browser-check/install-android-profile/Default/Cache/Cache_Data/f_00002c
+- .browser-check/install-android-profile/Default/Cache/Cache_Data/f_00002d
+- .browser-check/install-android-profile/Default/Cache/No_Vary_Search/journal.baj
+- .browser-check/install-android-profile/Default/ClientCertificates/LOG
+- .browser-check/install-android-profile/Default/ClientCertificates/LOG.old
+- .browser-check/install-android-profile/Default/Code Cache/js/1d6d81bc1901bd60_0
+- .browser-check/install-android-profile/Default/Code Cache/js/b4e308ad5080dc95_0
+- .browser-check/install-android-profile/Default/Code Cache/js/f81bcd061cd3a81f_0
+- .browser-check/install-android-profile/Default/Code Cache/js/index-dir/the-real-index
+- .browser-check/install-android-profile/Default/DawnGraphiteCache/data_1
+- .browser-check/install-android-profile/Default/DawnWebGPUCache/data_1
+- .browser-check/install-android-profile/Default/Extension State/LOG
+- .browser-check/install-android-profile/Default/Extension State/LOG.old
+- .browser-check/install-android-profile/Default/Favicons
+- .browser-check/install-android-profile/Default/Favicons-journal
+- .browser-check/install-android-profile/Default/GPUCache/data_1
+- .browser-check/install-android-profile/Default/History
+- .browser-check/install-android-profile/Default/History-journal
+- .browser-check/install-android-profile/Default/LOG
+- .browser-check/install-android-profile/Default/LOG.old
+- .browser-check/install-android-profile/Default/Local Storage/leveldb/000003.log
+- .browser-check/install-android-profile/Default/Local Storage/leveldb/LOG
+- .browser-check/install-android-profile/Default/Local Storage/leveldb/LOG.old
+- .browser-check/install-android-profile/Default/Network/Network Persistent State
+- .browser-check/install-android-profile/Default/Network/TransportSecurity
+- .browser-check/install-android-profile/Default/PersistentOriginTrials/LOG
+- .browser-check/install-android-profile/Default/PersistentOriginTrials/LOG.old
+- .browser-check/install-android-profile/Default/Preferences
+- .browser-check/install-android-profile/Default/Secure Preferences
+- .browser-check/install-android-profile/Default/Segmentation Platform/SegmentInfoDB/LOG
+- .browser-check/install-android-profile/Default/Segmentation Platform/SegmentInfoDB/LOG.old
+- .browser-check/install-android-profile/Default/Segmentation Platform/SignalDB/LOG
+- .browser-check/install-android-profile/Default/Segmentation Platform/SignalDB/LOG.old
+- .browser-check/install-android-profile/Default/Segmentation Platform/SignalStorageConfigDB/LOG
+- .browser-check/install-android-profile/Default/Segmentation Platform/SignalStorageConfigDB/LOG.old
+- .browser-check/install-android-profile/Default/Service Worker/Database/000003.log
+- .browser-check/install-android-profile/Default/Service Worker/Database/LOG
+- .browser-check/install-android-profile/Default/Service Worker/Database/LOG.old
+- .browser-check/install-android-profile/Default/Service Worker/ScriptCache/013888a1cda32b90_0
+- .browser-check/install-android-profile/Default/Service Worker/ScriptCache/013888a1cda32b90_1
+- .browser-check/install-android-profile/Default/Service Worker/ScriptCache/297ecea5cebb5dfe_0
+- .browser-check/install-android-profile/Default/Service Worker/ScriptCache/297ecea5cebb5dfe_1
+- .browser-check/install-android-profile/Default/Service Worker/ScriptCache/d0757ff92c7cde0a_0
+- .browser-check/install-android-profile/Default/Service Worker/ScriptCache/d0757ff92c7cde0a_1
+- .browser-check/install-android-profile/Default/Service Worker/ScriptCache/index-dir/the-real-index
+- .browser-check/install-android-profile/Default/Session Storage/000003.log
+- .browser-check/install-android-profile/Default/Session Storage/CURRENT
+- .browser-check/install-android-profile/Default/Session Storage/LOCK
+- .browser-check/install-android-profile/Default/Session Storage/LOG
+- .browser-check/install-android-profile/Default/Session Storage/MANIFEST-000001
+- .browser-check/install-android-profile/Default/Sessions/Session_13436830254630089
+- .browser-check/install-android-profile/Default/Sessions/Session_13436831063850396
+- .browser-check/install-android-profile/Default/Sessions/Session_13436835290349410
+- .browser-check/install-android-profile/Default/Sessions/Session_13436840821475776
+- .browser-check/install-android-profile/Default/Sessions/Tabs_13436830254633014
+- .browser-check/install-android-profile/Default/Sessions/Tabs_13436831063855438
+- .browser-check/install-android-profile/Default/Sessions/Tabs_13436835290354803
+- .browser-check/install-android-profile/Default/Sessions/Tabs_13436840821479745
+- .browser-check/install-android-profile/Default/Site Characteristics Database/LOG
+- .browser-check/install-android-profile/Default/Site Characteristics Database/LOG.old
+- .browser-check/install-android-profile/Default/Sync Data/LevelDB/LOG
+- .browser-check/install-android-profile/Default/Sync Data/LevelDB/LOG.old
+- .browser-check/install-android-profile/Default/Web Data
+- .browser-check/install-android-profile/Default/Web Data-journal
+- .browser-check/install-android-profile/Default/WebStorage/QuotaManager
+- .browser-check/install-android-profile/Default/WebStorage/QuotaManager-journal
+- .browser-check/install-android-profile/Default/chrome_cart_db/LOG
+- .browser-check/install-android-profile/Default/chrome_cart_db/LOG.old
+- .browser-check/install-android-profile/Default/commerce_subscription_db/LOG
+- .browser-check/install-android-profile/Default/commerce_subscription_db/LOG.old
+- .browser-check/install-android-profile/Default/discount_infos_db/LOG
+- .browser-check/install-android-profile/Default/discount_infos_db/LOG.old
+- .browser-check/install-android-profile/Default/discounts_db/LOG
+- .browser-check/install-android-profile/Default/discounts_db/LOG.old
+- .browser-check/install-android-profile/Default/parcel_tracking_db/LOG
+- .browser-check/install-android-profile/Default/parcel_tracking_db/LOG.old
+- .browser-check/install-android-profile/Default/shared_proto_db/000003.log
+- .browser-check/install-android-profile/Default/shared_proto_db/LOG
+- .browser-check/install-android-profile/Default/shared_proto_db/LOG.old
+- .browser-check/install-android-profile/Default/shared_proto_db/metadata/000003.log
+- .browser-check/install-android-profile/Default/shared_proto_db/metadata/LOG
+- .browser-check/install-android-profile/Default/shared_proto_db/metadata/LOG.old
+- .browser-check/install-android-profile/GrShaderCache/data_1
+- .browser-check/install-android-profile/Last Version
+- .browser-check/install-android-profile/Local State
+- .browser-check/install-android-profile/ShaderCache/data_1
+- .browser-check/install-android-profile/Variations
+- .browser-check/install-android-profile/VariationsSeedV2
+- .browser-check/install-android-profile/segmentation_platform/ukm_db
+- .browser-check/install-android.png
+- .browser-check/install-ios-profile/Crashpad/settings.dat
+- .browser-check/install-ios-profile/CrashpadMetrics-active.pma
+- .browser-check/install-ios-profile/CrashpadMetrics.pma
+- .browser-check/install-ios-profile/Default/BookmarkMergedSurfaceOrdering
+- .browser-check/install-ios-profile/Default/Cache/Cache_Data/data_0
+- .browser-check/install-ios-profile/Default/Cache/Cache_Data/data_1
+- .browser-check/install-ios-profile/Default/Cache/Cache_Data/data_2
+- .browser-check/install-ios-profile/Default/Cache/Cache_Data/data_3
+- .browser-check/install-ios-profile/Default/Cache/Cache_Data/f_00001f
+- .browser-check/install-ios-profile/Default/Cache/Cache_Data/f_000020
+- .browser-check/install-ios-profile/Default/Cache/Cache_Data/f_000021
+- .browser-check/install-ios-profile/Default/Cache/Cache_Data/f_000022
+- .browser-check/install-ios-profile/Default/Cache/Cache_Data/f_000023
+- .browser-check/install-ios-profile/Default/Cache/Cache_Data/f_000024
+- .browser-check/install-ios-profile/Default/Cache/Cache_Data/f_000025
+- .browser-check/install-ios-profile/Default/Cache/Cache_Data/f_000026
+- .browser-check/install-ios-profile/Default/Cache/Cache_Data/f_000027
+- .browser-check/install-ios-profile/Default/Cache/Cache_Data/f_000028
+- .browser-check/install-ios-profile/Default/Cache/Cache_Data/f_000029
+- .browser-check/install-ios-profile/Default/Cache/Cache_Data/f_00002a
+- .browser-check/install-ios-profile/Default/Cache/Cache_Data/f_00002b
+- .browser-check/install-ios-profile/Default/Cache/Cache_Data/f_00002c
+- .browser-check/install-ios-profile/Default/Cache/Cache_Data/f_00002d
+- .browser-check/install-ios-profile/Default/Cache/Cache_Data/f_00002e
+- .browser-check/install-ios-profile/Default/Cache/Cache_Data/f_00002f
+- .browser-check/install-ios-profile/Default/Cache/Cache_Data/f_000030
+- .browser-check/install-ios-profile/Default/Cache/No_Vary_Search/journal.baj
+- .browser-check/install-ios-profile/Default/ClientCertificates/LOG
+- .browser-check/install-ios-profile/Default/ClientCertificates/LOG.old
+- .browser-check/install-ios-profile/Default/Code Cache/js/1d6d81bc1901bd60_0
+- .browser-check/install-ios-profile/Default/Code Cache/js/b4e308ad5080dc95_0
+- .browser-check/install-ios-profile/Default/Code Cache/js/f81bcd061cd3a81f_0
+- .browser-check/install-ios-profile/Default/Code Cache/js/index-dir/the-real-index
+- .browser-check/install-ios-profile/Default/DawnGraphiteCache/data_1
+- .browser-check/install-ios-profile/Default/DawnWebGPUCache/data_1
+- .browser-check/install-ios-profile/Default/Extension State/LOG
+- .browser-check/install-ios-profile/Default/Extension State/LOG.old
+- .browser-check/install-ios-profile/Default/Favicons
+- .browser-check/install-ios-profile/Default/Favicons-journal
+- .browser-check/install-ios-profile/Default/GPUCache/data_1
+- .browser-check/install-ios-profile/Default/History
+- .browser-check/install-ios-profile/Default/History-journal
+- .browser-check/install-ios-profile/Default/LOG
+- .browser-check/install-ios-profile/Default/LOG.old
+- .browser-check/install-ios-profile/Default/Local Storage/leveldb/000003.log
+- .browser-check/install-ios-profile/Default/Local Storage/leveldb/LOG
+- .browser-check/install-ios-profile/Default/Local Storage/leveldb/LOG.old
+- .browser-check/install-ios-profile/Default/Network/Network Persistent State
+- .browser-check/install-ios-profile/Default/Network/TransportSecurity
+- .browser-check/install-ios-profile/Default/PersistentOriginTrials/LOG
+- .browser-check/install-ios-profile/Default/PersistentOriginTrials/LOG.old
+- .browser-check/install-ios-profile/Default/Preferences
+- .browser-check/install-ios-profile/Default/Secure Preferences
+- .browser-check/install-ios-profile/Default/Segmentation Platform/SegmentInfoDB/LOG
+- .browser-check/install-ios-profile/Default/Segmentation Platform/SegmentInfoDB/LOG.old
+- .browser-check/install-ios-profile/Default/Segmentation Platform/SignalDB/LOG
+- .browser-check/install-ios-profile/Default/Segmentation Platform/SignalDB/LOG.old
+- .browser-check/install-ios-profile/Default/Segmentation Platform/SignalStorageConfigDB/LOG
+- .browser-check/install-ios-profile/Default/Segmentation Platform/SignalStorageConfigDB/LOG.old
+- .browser-check/install-ios-profile/Default/Service Worker/Database/000003.log
+- .browser-check/install-ios-profile/Default/Service Worker/Database/LOG
+- .browser-check/install-ios-profile/Default/Service Worker/Database/LOG.old
+- .browser-check/install-ios-profile/Default/Service Worker/ScriptCache/013888a1cda32b90_0
+- .browser-check/install-ios-profile/Default/Service Worker/ScriptCache/013888a1cda32b90_1
+- .browser-check/install-ios-profile/Default/Service Worker/ScriptCache/297ecea5cebb5dfe_0
+- .browser-check/install-ios-profile/Default/Service Worker/ScriptCache/297ecea5cebb5dfe_1
+- .browser-check/install-ios-profile/Default/Service Worker/ScriptCache/d0757ff92c7cde0a_0
+- .browser-check/install-ios-profile/Default/Service Worker/ScriptCache/d0757ff92c7cde0a_1
+- .browser-check/install-ios-profile/Default/Service Worker/ScriptCache/index-dir/the-real-index
+- .browser-check/install-ios-profile/Default/Session Storage/000003.log
+- .browser-check/install-ios-profile/Default/Session Storage/CURRENT
+- .browser-check/install-ios-profile/Default/Session Storage/LOCK
+- .browser-check/install-ios-profile/Default/Session Storage/LOG
+- .browser-check/install-ios-profile/Default/Session Storage/MANIFEST-000001
+- .browser-check/install-ios-profile/Default/Sessions/Session_13436830255538923
+- .browser-check/install-ios-profile/Default/Sessions/Session_13436831064759495
+- .browser-check/install-ios-profile/Default/Sessions/Session_13436835291141752
+- .browser-check/install-ios-profile/Default/Sessions/Session_13436840822305058
+- .browser-check/install-ios-profile/Default/Sessions/Tabs_13436830255544276
+- .browser-check/install-ios-profile/Default/Sessions/Tabs_13436831064764755
+- .browser-check/install-ios-profile/Default/Sessions/Tabs_13436835291147838
+- .browser-check/install-ios-profile/Default/Sessions/Tabs_13436840822309377
+- .browser-check/install-ios-profile/Default/Site Characteristics Database/LOG
+- .browser-check/install-ios-profile/Default/Site Characteristics Database/LOG.old
+- .browser-check/install-ios-profile/Default/Sync Data/LevelDB/LOG
+- .browser-check/install-ios-profile/Default/Sync Data/LevelDB/LOG.old
+- .browser-check/install-ios-profile/Default/Web Data
+- .browser-check/install-ios-profile/Default/Web Data-journal
+- .browser-check/install-ios-profile/Default/WebStorage/QuotaManager
+- .browser-check/install-ios-profile/Default/WebStorage/QuotaManager-journal
+- .browser-check/install-ios-profile/Default/chrome_cart_db/LOG
+- .browser-check/install-ios-profile/Default/chrome_cart_db/LOG.old
+- .browser-check/install-ios-profile/Default/commerce_subscription_db/LOG
+- .browser-check/install-ios-profile/Default/commerce_subscription_db/LOG.old
+- .browser-check/install-ios-profile/Default/discount_infos_db/LOG
+- .browser-check/install-ios-profile/Default/discount_infos_db/LOG.old
+- .browser-check/install-ios-profile/Default/discounts_db/LOG
+- .browser-check/install-ios-profile/Default/discounts_db/LOG.old
+- .browser-check/install-ios-profile/Default/parcel_tracking_db/LOG
+- .browser-check/install-ios-profile/Default/parcel_tracking_db/LOG.old
+- .browser-check/install-ios-profile/Default/shared_proto_db/000003.log
+- .browser-check/install-ios-profile/Default/shared_proto_db/LOG
+- .browser-check/install-ios-profile/Default/shared_proto_db/LOG.old
+- .browser-check/install-ios-profile/Default/shared_proto_db/metadata/000003.log
+- .browser-check/install-ios-profile/Default/shared_proto_db/metadata/LOG
+- .browser-check/install-ios-profile/Default/shared_proto_db/metadata/LOG.old
+- .browser-check/install-ios-profile/GrShaderCache/data_1
+- .browser-check/install-ios-profile/Last Version
+- .browser-check/install-ios-profile/Local State
+- .browser-check/install-ios-profile/ShaderCache/data_1
+- .browser-check/install-ios-profile/Variations
+- .browser-check/install-ios-profile/VariationsSeedV2
+- .browser-check/install-ios-profile/segmentation_platform/ukm_db
+- .browser-check/install-ios.png
+- .browser-check/media-desktop.png
+- .browser-check/media-mobile.png
+- .browser-check/media-profile-desktop/Crashpad/settings.dat
+- .browser-check/media-profile-desktop/CrashpadMetrics-active.pma
+- .browser-check/media-profile-desktop/CrashpadMetrics.pma
+- .browser-check/media-profile-desktop/Default/BookmarkMergedSurfaceOrdering
+- .browser-check/media-profile-desktop/Default/Cache/Cache_Data/data_0
+- .browser-check/media-profile-desktop/Default/Cache/Cache_Data/data_1
+- .browser-check/media-profile-desktop/Default/Cache/Cache_Data/data_2
+- .browser-check/media-profile-desktop/Default/Cache/No_Vary_Search/journal.baj
+- .browser-check/media-profile-desktop/Default/ClientCertificates/LOG
+- .browser-check/media-profile-desktop/Default/ClientCertificates/LOG.old
+- .browser-check/media-profile-desktop/Default/DawnGraphiteCache/data_1
+- .browser-check/media-profile-desktop/Default/DawnWebGPUCache/data_1
+- .browser-check/media-profile-desktop/Default/Extension State/LOG
+- .browser-check/media-profile-desktop/Default/Extension State/LOG.old
+- .browser-check/media-profile-desktop/Default/Favicons
+- .browser-check/media-profile-desktop/Default/Favicons-journal
+- .browser-check/media-profile-desktop/Default/GPUCache/data_1
+- .browser-check/media-profile-desktop/Default/History
+- .browser-check/media-profile-desktop/Default/History-journal
+- .browser-check/media-profile-desktop/Default/LOG
+- .browser-check/media-profile-desktop/Default/LOG.old
+- .browser-check/media-profile-desktop/Default/Local Storage/leveldb/LOG
+- .browser-check/media-profile-desktop/Default/Local Storage/leveldb/LOG.old
+- .browser-check/media-profile-desktop/Default/Network/Network Persistent State
+- .browser-check/media-profile-desktop/Default/Network/Reporting and NEL
+- .browser-check/media-profile-desktop/Default/Network/Reporting and NEL-journal
+- .browser-check/media-profile-desktop/Default/Network/TransportSecurity
+- .browser-check/media-profile-desktop/Default/PersistentOriginTrials/LOG
+- .browser-check/media-profile-desktop/Default/PersistentOriginTrials/LOG.old
+- .browser-check/media-profile-desktop/Default/Preferences
+- .browser-check/media-profile-desktop/Default/Secure Preferences
+- .browser-check/media-profile-desktop/Default/Segmentation Platform/SegmentInfoDB/LOG
+- .browser-check/media-profile-desktop/Default/Segmentation Platform/SegmentInfoDB/LOG.old
+- .browser-check/media-profile-desktop/Default/Segmentation Platform/SignalDB/LOG
+- .browser-check/media-profile-desktop/Default/Segmentation Platform/SignalDB/LOG.old
+- .browser-check/media-profile-desktop/Default/Segmentation Platform/SignalStorageConfigDB/LOG
+- .browser-check/media-profile-desktop/Default/Segmentation Platform/SignalStorageConfigDB/LOG.old
+- .browser-check/media-profile-desktop/Default/Service Worker/Database/LOG
+- .browser-check/media-profile-desktop/Default/Service Worker/Database/LOG.old
+- .browser-check/media-profile-desktop/Default/Session Storage/000003.log
+- .browser-check/media-profile-desktop/Default/Session Storage/CURRENT
+- .browser-check/media-profile-desktop/Default/Session Storage/LOCK
+- .browser-check/media-profile-desktop/Default/Session Storage/LOG
+- .browser-check/media-profile-desktop/Default/Session Storage/MANIFEST-000001
+- .browser-check/media-profile-desktop/Default/Sessions/Session_13436600051022098
+- .browser-check/media-profile-desktop/Default/Sessions/Session_13436836816251653
+- .browser-check/media-profile-desktop/Default/Sessions/Tabs_13436600051025884
+- .browser-check/media-profile-desktop/Default/Sessions/Tabs_13436836816254239
+- .browser-check/media-profile-desktop/Default/Site Characteristics Database/LOG
+- .browser-check/media-profile-desktop/Default/Site Characteristics Database/LOG.old
+- .browser-check/media-profile-desktop/Default/Sync Data/LevelDB/LOG
+- .browser-check/media-profile-desktop/Default/Sync Data/LevelDB/LOG.old
+- .browser-check/media-profile-desktop/Default/Web Data
+- .browser-check/media-profile-desktop/Default/Web Data-journal
+- .browser-check/media-profile-desktop/Default/WebStorage/QuotaManager
+- .browser-check/media-profile-desktop/Default/WebStorage/QuotaManager-journal
+- .browser-check/media-profile-desktop/Default/chrome_cart_db/LOG
+- .browser-check/media-profile-desktop/Default/chrome_cart_db/LOG.old
+- .browser-check/media-profile-desktop/Default/commerce_subscription_db/LOG
+- .browser-check/media-profile-desktop/Default/commerce_subscription_db/LOG.old
+- .browser-check/media-profile-desktop/Default/discount_infos_db/LOG
+- .browser-check/media-profile-desktop/Default/discount_infos_db/LOG.old
+- .browser-check/media-profile-desktop/Default/discounts_db/LOG
+- .browser-check/media-profile-desktop/Default/discounts_db/LOG.old
+- .browser-check/media-profile-desktop/Default/parcel_tracking_db/LOG
+- .browser-check/media-profile-desktop/Default/parcel_tracking_db/LOG.old
+- .browser-check/media-profile-desktop/Default/shared_proto_db/000003.log
+- .browser-check/media-profile-desktop/Default/shared_proto_db/LOG
+- .browser-check/media-profile-desktop/Default/shared_proto_db/LOG.old
+- .browser-check/media-profile-desktop/Default/shared_proto_db/metadata/000003.log
+- .browser-check/media-profile-desktop/Default/shared_proto_db/metadata/LOG
+- .browser-check/media-profile-desktop/Default/shared_proto_db/metadata/LOG.old
+- .browser-check/media-profile-desktop/GrShaderCache/data_1
+- .browser-check/media-profile-desktop/Last Version
+- .browser-check/media-profile-desktop/Local State
+- .browser-check/media-profile-desktop/ShaderCache/data_1
+- .browser-check/media-profile-desktop/Variations
+- .browser-check/media-profile-desktop/VariationsSeedV2
+- .browser-check/media-profile-desktop/segmentation_platform/ukm_db
+- .browser-check/media-profile-mobile/Crashpad/settings.dat
+- .browser-check/media-profile-mobile/CrashpadMetrics-active.pma
+- .browser-check/media-profile-mobile/CrashpadMetrics.pma
+- .browser-check/media-profile-mobile/Default/BookmarkMergedSurfaceOrdering
+- .browser-check/media-profile-mobile/Default/Cache/Cache_Data/data_0
+- .browser-check/media-profile-mobile/Default/Cache/Cache_Data/data_1
+- .browser-check/media-profile-mobile/Default/Cache/Cache_Data/data_2
+- .browser-check/media-profile-mobile/Default/Cache/No_Vary_Search/journal.baj
+- .browser-check/media-profile-mobile/Default/ClientCertificates/LOG
+- .browser-check/media-profile-mobile/Default/ClientCertificates/LOG.old
+- .browser-check/media-profile-mobile/Default/DawnGraphiteCache/data_1
+- .browser-check/media-profile-mobile/Default/DawnWebGPUCache/data_1
+- .browser-check/media-profile-mobile/Default/Extension State/LOG
+- .browser-check/media-profile-mobile/Default/Extension State/LOG.old
+- .browser-check/media-profile-mobile/Default/Favicons
+- .browser-check/media-profile-mobile/Default/Favicons-journal
+- .browser-check/media-profile-mobile/Default/GPUCache/data_1
+- .browser-check/media-profile-mobile/Default/History
+- .browser-check/media-profile-mobile/Default/History-journal
+- .browser-check/media-profile-mobile/Default/LOG
+- .browser-check/media-profile-mobile/Default/LOG.old
+- .browser-check/media-profile-mobile/Default/Local Storage/leveldb/LOG
+- .browser-check/media-profile-mobile/Default/Local Storage/leveldb/LOG.old
+- .browser-check/media-profile-mobile/Default/Network/Network Persistent State
+- .browser-check/media-profile-mobile/Default/Network/Reporting and NEL
+- .browser-check/media-profile-mobile/Default/Network/Reporting and NEL-journal
+- .browser-check/media-profile-mobile/Default/Network/TransportSecurity
+- .browser-check/media-profile-mobile/Default/PersistentOriginTrials/LOG
+- .browser-check/media-profile-mobile/Default/PersistentOriginTrials/LOG.old
+- .browser-check/media-profile-mobile/Default/Preferences
+- .browser-check/media-profile-mobile/Default/Secure Preferences
+- .browser-check/media-profile-mobile/Default/Segmentation Platform/SegmentInfoDB/LOG
+- .browser-check/media-profile-mobile/Default/Segmentation Platform/SegmentInfoDB/LOG.old
+- .browser-check/media-profile-mobile/Default/Segmentation Platform/SignalDB/LOG
+- .browser-check/media-profile-mobile/Default/Segmentation Platform/SignalDB/LOG.old
+- .browser-check/media-profile-mobile/Default/Segmentation Platform/SignalStorageConfigDB/LOG
+- .browser-check/media-profile-mobile/Default/Segmentation Platform/SignalStorageConfigDB/LOG.old
+- .browser-check/media-profile-mobile/Default/Service Worker/Database/LOG
+- .browser-check/media-profile-mobile/Default/Service Worker/Database/LOG.old
+- .browser-check/media-profile-mobile/Default/Session Storage/000003.log
+- .browser-check/media-profile-mobile/Default/Session Storage/CURRENT
+- .browser-check/media-profile-mobile/Default/Session Storage/LOCK
+- .browser-check/media-profile-mobile/Default/Session Storage/LOG
+- .browser-check/media-profile-mobile/Default/Session Storage/MANIFEST-000001
+- .browser-check/media-profile-mobile/Default/Sessions/Session_13436600051893759
+- .browser-check/media-profile-mobile/Default/Sessions/Session_13436836817033795
+- .browser-check/media-profile-mobile/Default/Sessions/Tabs_13436600051900278
+- .browser-check/media-profile-mobile/Default/Sessions/Tabs_13436836817037545
+- .browser-check/media-profile-mobile/Default/Site Characteristics Database/LOG
+- .browser-check/media-profile-mobile/Default/Site Characteristics Database/LOG.old
+- .browser-check/media-profile-mobile/Default/Sync Data/LevelDB/LOG
+- .browser-check/media-profile-mobile/Default/Sync Data/LevelDB/LOG.old
+- .browser-check/media-profile-mobile/Default/Web Data
+- .browser-check/media-profile-mobile/Default/Web Data-journal
+- .browser-check/media-profile-mobile/Default/WebStorage/QuotaManager
+- .browser-check/media-profile-mobile/Default/WebStorage/QuotaManager-journal
+- .browser-check/media-profile-mobile/Default/chrome_cart_db/LOG
+- .browser-check/media-profile-mobile/Default/chrome_cart_db/LOG.old
+- .browser-check/media-profile-mobile/Default/commerce_subscription_db/LOG
+- .browser-check/media-profile-mobile/Default/commerce_subscription_db/LOG.old
+- .browser-check/media-profile-mobile/Default/discount_infos_db/LOG
+- .browser-check/media-profile-mobile/Default/discount_infos_db/LOG.old
+- .browser-check/media-profile-mobile/Default/discounts_db/LOG
+- .browser-check/media-profile-mobile/Default/discounts_db/LOG.old
+- .browser-check/media-profile-mobile/Default/parcel_tracking_db/LOG
+- .browser-check/media-profile-mobile/Default/parcel_tracking_db/LOG.old
+- .browser-check/media-profile-mobile/Default/shared_proto_db/000003.log
+- .browser-check/media-profile-mobile/Default/shared_proto_db/LOG
+- .browser-check/media-profile-mobile/Default/shared_proto_db/LOG.old
+- .browser-check/media-profile-mobile/Default/shared_proto_db/metadata/000003.log
+- .browser-check/media-profile-mobile/Default/shared_proto_db/metadata/LOG
+- .browser-check/media-profile-mobile/Default/shared_proto_db/metadata/LOG.old
+- .browser-check/media-profile-mobile/GrShaderCache/data_1
+- .browser-check/media-profile-mobile/Last Version
+- .browser-check/media-profile-mobile/Local State
+- .browser-check/media-profile-mobile/ShaderCache/data_1
+- .browser-check/media-profile-mobile/Variations
+- .browser-check/media-profile-mobile/VariationsSeedV2
+- .browser-check/media-profile-mobile/segmentation_platform/ukm_db
+- .browser-check/menu-desktop-profile/Crashpad/metadata
+- .browser-check/menu-desktop-profile/Crashpad/settings.dat
+- .browser-check/menu-desktop-profile/CrashpadMetrics-active.pma
+- .browser-check/menu-desktop-profile/CrashpadMetrics.pma
+- .browser-check/menu-desktop-profile/Default/Account Web Data
+- .browser-check/menu-desktop-profile/Default/Account Web Data-journal
+- .browser-check/menu-desktop-profile/Default/Affiliation Database
+- .browser-check/menu-desktop-profile/Default/Affiliation Database-journal
+- .browser-check/menu-desktop-profile/Default/BookmarkMergedSurfaceOrdering
+- .browser-check/menu-desktop-profile/Default/Cache/Cache_Data/data_0
+- .browser-check/menu-desktop-profile/Default/Cache/Cache_Data/data_1
+- .browser-check/menu-desktop-profile/Default/Cache/Cache_Data/data_2
+- .browser-check/menu-desktop-profile/Default/Cache/Cache_Data/data_3
+- .browser-check/menu-desktop-profile/Default/Cache/Cache_Data/f_000001
+- .browser-check/menu-desktop-profile/Default/Cache/Cache_Data/f_000002
+- .browser-check/menu-desktop-profile/Default/Cache/Cache_Data/f_000003
+- .browser-check/menu-desktop-profile/Default/Cache/Cache_Data/f_000004
+- .browser-check/menu-desktop-profile/Default/Cache/Cache_Data/f_000005
+- .browser-check/menu-desktop-profile/Default/Cache/Cache_Data/f_000006
+- .browser-check/menu-desktop-profile/Default/Cache/Cache_Data/f_000007
+- .browser-check/menu-desktop-profile/Default/Cache/Cache_Data/f_000008
+- .browser-check/menu-desktop-profile/Default/Cache/Cache_Data/f_000009
+- .browser-check/menu-desktop-profile/Default/Cache/Cache_Data/f_00000a
+- .browser-check/menu-desktop-profile/Default/Cache/Cache_Data/f_00000b
+- .browser-check/menu-desktop-profile/Default/Cache/Cache_Data/f_00000c
+- .browser-check/menu-desktop-profile/Default/Cache/Cache_Data/f_00000d
+- .browser-check/menu-desktop-profile/Default/Cache/Cache_Data/f_00000e
+- .browser-check/menu-desktop-profile/Default/Cache/Cache_Data/f_00000f
+- .browser-check/menu-desktop-profile/Default/Cache/Cache_Data/f_000010
+- .browser-check/menu-desktop-profile/Default/Cache/Cache_Data/f_000011
+- .browser-check/menu-desktop-profile/Default/Cache/Cache_Data/f_000012
+- .browser-check/menu-desktop-profile/Default/Cache/Cache_Data/f_000013
+- .browser-check/menu-desktop-profile/Default/Cache/Cache_Data/f_000014
+- .browser-check/menu-desktop-profile/Default/Cache/Cache_Data/f_000015
+- .browser-check/menu-desktop-profile/Default/Cache/Cache_Data/f_000016
+- .browser-check/menu-desktop-profile/Default/Cache/Cache_Data/f_000017
+- .browser-check/menu-desktop-profile/Default/Cache/Cache_Data/f_000018
+- .browser-check/menu-desktop-profile/Default/Cache/Cache_Data/f_000019
+- .browser-check/menu-desktop-profile/Default/Cache/Cache_Data/f_00001a
+- .browser-check/menu-desktop-profile/Default/Cache/Cache_Data/f_00001b
+- .browser-check/menu-desktop-profile/Default/Cache/Cache_Data/f_00001c
+- .browser-check/menu-desktop-profile/Default/Cache/Cache_Data/f_00001d
+- .browser-check/menu-desktop-profile/Default/Cache/Cache_Data/f_00001e
+- .browser-check/menu-desktop-profile/Default/Cache/Cache_Data/f_00001f
+- .browser-check/menu-desktop-profile/Default/Cache/Cache_Data/f_000020
+- .browser-check/menu-desktop-profile/Default/Cache/Cache_Data/f_000021
+- .browser-check/menu-desktop-profile/Default/Cache/Cache_Data/f_000022
+- .browser-check/menu-desktop-profile/Default/Cache/Cache_Data/f_000023
+- .browser-check/menu-desktop-profile/Default/Cache/Cache_Data/index
+- .browser-check/menu-desktop-profile/Default/Cache/No_Vary_Search/journal.baj
+- .browser-check/menu-desktop-profile/Default/Cache/No_Vary_Search/snapshot.baf
+- .browser-check/menu-desktop-profile/Default/ClientCertificates/LOCK
+- .browser-check/menu-desktop-profile/Default/ClientCertificates/LOG
+- .browser-check/menu-desktop-profile/Default/ClientCertificates/LOG.old
+- .browser-check/menu-desktop-profile/Default/Code Cache/js/6bacab497fbaf416_0
+- .browser-check/menu-desktop-profile/Default/Code Cache/js/acd2a4d113430fc6_0
+- .browser-check/menu-desktop-profile/Default/Code Cache/js/ba678a2fbd8c358c_0
+- .browser-check/menu-desktop-profile/Default/Code Cache/js/index
+- .browser-check/menu-desktop-profile/Default/Code Cache/js/index-dir/the-real-index
+- .browser-check/menu-desktop-profile/Default/Code Cache/wasm/index
+- .browser-check/menu-desktop-profile/Default/Code Cache/wasm/index-dir/the-real-index
+- .browser-check/menu-desktop-profile/Default/DawnGraphiteCache/data_0
+- .browser-check/menu-desktop-profile/Default/DawnGraphiteCache/data_1
+- .browser-check/menu-desktop-profile/Default/DawnGraphiteCache/data_2
+- .browser-check/menu-desktop-profile/Default/DawnGraphiteCache/data_3
+- .browser-check/menu-desktop-profile/Default/DawnGraphiteCache/index
+- .browser-check/menu-desktop-profile/Default/DawnWebGPUCache/data_0
+- .browser-check/menu-desktop-profile/Default/DawnWebGPUCache/data_1
+- .browser-check/menu-desktop-profile/Default/DawnWebGPUCache/data_2
+- .browser-check/menu-desktop-profile/Default/DawnWebGPUCache/data_3
+- .browser-check/menu-desktop-profile/Default/DawnWebGPUCache/index
+- .browser-check/menu-desktop-profile/Default/Extension Rules/000003.log
+- .browser-check/menu-desktop-profile/Default/Extension Rules/CURRENT
+- .browser-check/menu-desktop-profile/Default/Extension Rules/LOCK
+- .browser-check/menu-desktop-profile/Default/Extension Rules/LOG
+- .browser-check/menu-desktop-profile/Default/Extension Rules/MANIFEST-000001
+- .browser-check/menu-desktop-profile/Default/Extension Scripts/000003.log
+- .browser-check/menu-desktop-profile/Default/Extension Scripts/CURRENT
+- .browser-check/menu-desktop-profile/Default/Extension Scripts/LOCK
+- .browser-check/menu-desktop-profile/Default/Extension Scripts/LOG
+- .browser-check/menu-desktop-profile/Default/Extension Scripts/MANIFEST-000001
+- .browser-check/menu-desktop-profile/Default/Extension State/000003.log
+- .browser-check/menu-desktop-profile/Default/Extension State/CURRENT
+- .browser-check/menu-desktop-profile/Default/Extension State/LOCK
+- .browser-check/menu-desktop-profile/Default/Extension State/LOG
+- .browser-check/menu-desktop-profile/Default/Extension State/LOG.old
+- .browser-check/menu-desktop-profile/Default/Extension State/MANIFEST-000001
+- .browser-check/menu-desktop-profile/Default/Favicons
+- .browser-check/menu-desktop-profile/Default/Favicons-journal
+- .browser-check/menu-desktop-profile/Default/GPUCache/data_0
+- .browser-check/menu-desktop-profile/Default/GPUCache/data_1
+- .browser-check/menu-desktop-profile/Default/GPUCache/data_2
+- .browser-check/menu-desktop-profile/Default/GPUCache/data_3
+- .browser-check/menu-desktop-profile/Default/GPUCache/index
+- .browser-check/menu-desktop-profile/Default/History
+- .browser-check/menu-desktop-profile/Default/History-journal
+- .browser-check/menu-desktop-profile/Default/LOCK
+- .browser-check/menu-desktop-profile/Default/LOG
+- .browser-check/menu-desktop-profile/Default/LOG.old
+- .browser-check/menu-desktop-profile/Default/Local Storage/leveldb/000003.log
+- .browser-check/menu-desktop-profile/Default/Local Storage/leveldb/CURRENT
+- .browser-check/menu-desktop-profile/Default/Local Storage/leveldb/LOCK
+- .browser-check/menu-desktop-profile/Default/Local Storage/leveldb/LOG
+- .browser-check/menu-desktop-profile/Default/Local Storage/leveldb/LOG.old
+- .browser-check/menu-desktop-profile/Default/Local Storage/leveldb/MANIFEST-000001
+- .browser-check/menu-desktop-profile/Default/Login Data
+- .browser-check/menu-desktop-profile/Default/Login Data For Account
+- .browser-check/menu-desktop-profile/Default/Login Data For Account-journal
+- .browser-check/menu-desktop-profile/Default/Login Data-journal
+- .browser-check/menu-desktop-profile/Default/Network/Cookies
+- .browser-check/menu-desktop-profile/Default/Network/Cookies-journal
+- .browser-check/menu-desktop-profile/Default/Network/Device Bound Sessions
+- .browser-check/menu-desktop-profile/Default/Network/Device Bound Sessions-journal
+- .browser-check/menu-desktop-profile/Default/Network/Network Persistent State
+- .browser-check/menu-desktop-profile/Default/Network/NetworkDataMigrated
+- .browser-check/menu-desktop-profile/Default/Network/Reporting and NEL
+- .browser-check/menu-desktop-profile/Default/Network/Reporting and NEL-journal
+- .browser-check/menu-desktop-profile/Default/Network/TransportSecurity
+- .browser-check/menu-desktop-profile/Default/Network/Trust Tokens
+- .browser-check/menu-desktop-profile/Default/Network/Trust Tokens-journal
+- .browser-check/menu-desktop-profile/Default/PersistentOriginTrials/LOCK
+- .browser-check/menu-desktop-profile/Default/PersistentOriginTrials/LOG
+- .browser-check/menu-desktop-profile/Default/PersistentOriginTrials/LOG.old
+- .browser-check/menu-desktop-profile/Default/Preferences
+- .browser-check/menu-desktop-profile/Default/README
+- .browser-check/menu-desktop-profile/Default/Safe Browsing Network/NetworkDataMigrated
+- .browser-check/menu-desktop-profile/Default/Secure Preferences
+- .browser-check/menu-desktop-profile/Default/Segmentation Platform/SegmentInfoDB/LOCK
+- .browser-check/menu-desktop-profile/Default/Segmentation Platform/SegmentInfoDB/LOG
+- .browser-check/menu-desktop-profile/Default/Segmentation Platform/SegmentInfoDB/LOG.old
+- .browser-check/menu-desktop-profile/Default/Segmentation Platform/SignalDB/LOCK
+- .browser-check/menu-desktop-profile/Default/Segmentation Platform/SignalDB/LOG
+- .browser-check/menu-desktop-profile/Default/Segmentation Platform/SignalDB/LOG.old
+- .browser-check/menu-desktop-profile/Default/Segmentation Platform/SignalStorageConfigDB/LOCK
+- .browser-check/menu-desktop-profile/Default/Segmentation Platform/SignalStorageConfigDB/LOG
+- .browser-check/menu-desktop-profile/Default/Segmentation Platform/SignalStorageConfigDB/LOG.old
+- .browser-check/menu-desktop-profile/Default/ServerCertificate
+- .browser-check/menu-desktop-profile/Default/ServerCertificate-journal
+- .browser-check/menu-desktop-profile/Default/Service Worker/Database/000003.log
+- .browser-check/menu-desktop-profile/Default/Service Worker/Database/CURRENT
+- .browser-check/menu-desktop-profile/Default/Service Worker/Database/LOCK
+- .browser-check/menu-desktop-profile/Default/Service Worker/Database/LOG
+- .browser-check/menu-desktop-profile/Default/Service Worker/Database/LOG.old
+- .browser-check/menu-desktop-profile/Default/Service Worker/Database/MANIFEST-000001
+- .browser-check/menu-desktop-profile/Default/Service Worker/ScriptCache/2cc80dabc69f58b6_0
+- .browser-check/menu-desktop-profile/Default/Service Worker/ScriptCache/4cb013792b196a35_0
+- .browser-check/menu-desktop-profile/Default/Service Worker/ScriptCache/4cb013792b196a35_1
+- .browser-check/menu-desktop-profile/Default/Service Worker/ScriptCache/index
+- .browser-check/menu-desktop-profile/Default/Service Worker/ScriptCache/index-dir/the-real-index
+- .browser-check/menu-desktop-profile/Default/Session Storage/000003.log
+- .browser-check/menu-desktop-profile/Default/Session Storage/CURRENT
+- .browser-check/menu-desktop-profile/Default/Session Storage/LOCK
+- .browser-check/menu-desktop-profile/Default/Session Storage/LOG
+- .browser-check/menu-desktop-profile/Default/Session Storage/MANIFEST-000001
+- .browser-check/menu-desktop-profile/Default/Sessions/Session_13436836294497706
+- .browser-check/menu-desktop-profile/Default/Sessions/Session_13436840639910629
+- .browser-check/menu-desktop-profile/Default/Sessions/Tabs_13436836294501251
+- .browser-check/menu-desktop-profile/Default/Sessions/Tabs_13436840639914860
+- .browser-check/menu-desktop-profile/Default/Shared Dictionary/cache/index
+- .browser-check/menu-desktop-profile/Default/Shared Dictionary/cache/index-dir/the-real-index
+- .browser-check/menu-desktop-profile/Default/Shared Dictionary/db
+- .browser-check/menu-desktop-profile/Default/Shared Dictionary/db-journal
+- .browser-check/menu-desktop-profile/Default/Site Characteristics Database/000003.log
+- .browser-check/menu-desktop-profile/Default/Site Characteristics Database/CURRENT
+- .browser-check/menu-desktop-profile/Default/Site Characteristics Database/LOCK
+- .browser-check/menu-desktop-profile/Default/Site Characteristics Database/LOG
+- .browser-check/menu-desktop-profile/Default/Site Characteristics Database/LOG.old
+- .browser-check/menu-desktop-profile/Default/Site Characteristics Database/MANIFEST-000001
+- .browser-check/menu-desktop-profile/Default/Sync Data/LevelDB/000003.log
+- .browser-check/menu-desktop-profile/Default/Sync Data/LevelDB/CURRENT
+- .browser-check/menu-desktop-profile/Default/Sync Data/LevelDB/LOCK
+- .browser-check/menu-desktop-profile/Default/Sync Data/LevelDB/LOG
+- .browser-check/menu-desktop-profile/Default/Sync Data/LevelDB/LOG.old
+- .browser-check/menu-desktop-profile/Default/Sync Data/LevelDB/MANIFEST-000001
+- .browser-check/menu-desktop-profile/Default/Top Sites
+- .browser-check/menu-desktop-profile/Default/Top Sites-journal
+- .browser-check/menu-desktop-profile/Default/Web Data
+- .browser-check/menu-desktop-profile/Default/Web Data-journal
+- .browser-check/menu-desktop-profile/Default/WebStorage/QuotaManager
+- .browser-check/menu-desktop-profile/Default/WebStorage/QuotaManager-journal
+- .browser-check/menu-desktop-profile/Default/chrome_cart_db/LOCK
+- .browser-check/menu-desktop-profile/Default/chrome_cart_db/LOG
+- .browser-check/menu-desktop-profile/Default/chrome_cart_db/LOG.old
+- .browser-check/menu-desktop-profile/Default/commerce_subscription_db/LOCK
+- .browser-check/menu-desktop-profile/Default/commerce_subscription_db/LOG
+- .browser-check/menu-desktop-profile/Default/commerce_subscription_db/LOG.old
+- .browser-check/menu-desktop-profile/Default/declarative_performance_observer.db
+- .browser-check/menu-desktop-profile/Default/declarative_performance_observer.db-journal
+- .browser-check/menu-desktop-profile/Default/discount_infos_db/LOCK
+- .browser-check/menu-desktop-profile/Default/discount_infos_db/LOG
+- .browser-check/menu-desktop-profile/Default/discount_infos_db/LOG.old
+- .browser-check/menu-desktop-profile/Default/discounts_db/LOCK
+- .browser-check/menu-desktop-profile/Default/discounts_db/LOG
+- .browser-check/menu-desktop-profile/Default/discounts_db/LOG.old
+- .browser-check/menu-desktop-profile/Default/parcel_tracking_db/LOCK
+- .browser-check/menu-desktop-profile/Default/parcel_tracking_db/LOG
+- .browser-check/menu-desktop-profile/Default/parcel_tracking_db/LOG.old
+- .browser-check/menu-desktop-profile/Default/shared_proto_db/000003.log
+- .browser-check/menu-desktop-profile/Default/shared_proto_db/CURRENT
+- .browser-check/menu-desktop-profile/Default/shared_proto_db/LOCK
+- .browser-check/menu-desktop-profile/Default/shared_proto_db/LOG
+- .browser-check/menu-desktop-profile/Default/shared_proto_db/LOG.old
+- .browser-check/menu-desktop-profile/Default/shared_proto_db/MANIFEST-000001
+- .browser-check/menu-desktop-profile/Default/shared_proto_db/metadata/000003.log
+- .browser-check/menu-desktop-profile/Default/shared_proto_db/metadata/CURRENT
+- .browser-check/menu-desktop-profile/Default/shared_proto_db/metadata/LOCK
+- .browser-check/menu-desktop-profile/Default/shared_proto_db/metadata/LOG
+- .browser-check/menu-desktop-profile/Default/shared_proto_db/metadata/LOG.old
+- .browser-check/menu-desktop-profile/Default/shared_proto_db/metadata/MANIFEST-000001
+- .browser-check/menu-desktop-profile/GPUPersistentCache/DawnGraphiteCache/NR2GNA44OGQUBFRRNDBXIX2VC7JXKYAS/cache.db
+- .browser-check/menu-desktop-profile/GPUPersistentCache/DawnGraphiteCache/NR2GNA44OGQUBFRRNDBXIX2VC7JXKYAS/cache.db-wal
+- .browser-check/menu-desktop-profile/GPUPersistentCache/DawnGraphiteCache/NR2GNA44OGQUBFRRNDBXIX2VC7JXKYAS/cache.journal
+- .browser-check/menu-desktop-profile/GrShaderCache/data_0
+- .browser-check/menu-desktop-profile/GrShaderCache/data_1
+- .browser-check/menu-desktop-profile/GrShaderCache/data_2
+- .browser-check/menu-desktop-profile/GrShaderCache/data_3
+- .browser-check/menu-desktop-profile/GrShaderCache/index
+- .browser-check/menu-desktop-profile/Last Version
+- .browser-check/menu-desktop-profile/Local State
+- .browser-check/menu-desktop-profile/ShaderCache/data_0
+- .browser-check/menu-desktop-profile/ShaderCache/data_1
+- .browser-check/menu-desktop-profile/ShaderCache/data_2
+- .browser-check/menu-desktop-profile/ShaderCache/data_3
+- .browser-check/menu-desktop-profile/ShaderCache/index
+- .browser-check/menu-desktop-profile/Variations
+- .browser-check/menu-desktop-profile/VariationsSafeSeedV2
+- .browser-check/menu-desktop-profile/VariationsSeedV2
+- .browser-check/menu-desktop-profile/es-ES-3-0.bdic
+- .browser-check/menu-desktop-profile/extensions_crx_cache/metadata.json
+- .browser-check/menu-desktop-profile/segmentation_platform/ukm_db
+- .browser-check/menu-desktop.html
+- .browser-check/menu-desktop.png
+- .browser-check/menu-mobile-profile/Crashpad/metadata
+- .browser-check/menu-mobile-profile/Crashpad/settings.dat
+- .browser-check/menu-mobile-profile/CrashpadMetrics-active.pma
+- .browser-check/menu-mobile-profile/CrashpadMetrics.pma
+- .browser-check/menu-mobile-profile/Default/Account Web Data
+- .browser-check/menu-mobile-profile/Default/Account Web Data-journal
+- .browser-check/menu-mobile-profile/Default/Affiliation Database
+- .browser-check/menu-mobile-profile/Default/Affiliation Database-journal
+- .browser-check/menu-mobile-profile/Default/BookmarkMergedSurfaceOrdering
+- .browser-check/menu-mobile-profile/Default/Cache/Cache_Data/data_0
+- .browser-check/menu-mobile-profile/Default/Cache/Cache_Data/data_1
+- .browser-check/menu-mobile-profile/Default/Cache/Cache_Data/data_2
+- .browser-check/menu-mobile-profile/Default/Cache/Cache_Data/data_3
+- .browser-check/menu-mobile-profile/Default/Cache/Cache_Data/f_000001
+- .browser-check/menu-mobile-profile/Default/Cache/Cache_Data/f_000002
+- .browser-check/menu-mobile-profile/Default/Cache/Cache_Data/f_000003
+- .browser-check/menu-mobile-profile/Default/Cache/Cache_Data/f_000004
+- .browser-check/menu-mobile-profile/Default/Cache/Cache_Data/f_000005
+- .browser-check/menu-mobile-profile/Default/Cache/Cache_Data/f_000006
+- .browser-check/menu-mobile-profile/Default/Cache/Cache_Data/f_000007
+- .browser-check/menu-mobile-profile/Default/Cache/Cache_Data/f_000008
+- .browser-check/menu-mobile-profile/Default/Cache/Cache_Data/f_000009
+- .browser-check/menu-mobile-profile/Default/Cache/Cache_Data/f_00000a
+- .browser-check/menu-mobile-profile/Default/Cache/Cache_Data/f_00000b
+- .browser-check/menu-mobile-profile/Default/Cache/Cache_Data/f_00000c
+- .browser-check/menu-mobile-profile/Default/Cache/Cache_Data/f_00000d
+- .browser-check/menu-mobile-profile/Default/Cache/Cache_Data/f_00000e
+- .browser-check/menu-mobile-profile/Default/Cache/Cache_Data/f_00000f
+- .browser-check/menu-mobile-profile/Default/Cache/Cache_Data/f_000010
+- .browser-check/menu-mobile-profile/Default/Cache/Cache_Data/f_000011
+- .browser-check/menu-mobile-profile/Default/Cache/Cache_Data/f_000012
+- .browser-check/menu-mobile-profile/Default/Cache/Cache_Data/f_000013
+- .browser-check/menu-mobile-profile/Default/Cache/Cache_Data/f_000014
+- .browser-check/menu-mobile-profile/Default/Cache/Cache_Data/f_000015
+- .browser-check/menu-mobile-profile/Default/Cache/Cache_Data/f_000016
+- .browser-check/menu-mobile-profile/Default/Cache/Cache_Data/f_000017
+- .browser-check/menu-mobile-profile/Default/Cache/Cache_Data/f_000018
+- .browser-check/menu-mobile-profile/Default/Cache/Cache_Data/f_000019
+- .browser-check/menu-mobile-profile/Default/Cache/Cache_Data/f_00001a
+- .browser-check/menu-mobile-profile/Default/Cache/Cache_Data/f_00001b
+- .browser-check/menu-mobile-profile/Default/Cache/Cache_Data/f_00001c
+- .browser-check/menu-mobile-profile/Default/Cache/Cache_Data/f_00001d
+- .browser-check/menu-mobile-profile/Default/Cache/Cache_Data/f_00001e
+- .browser-check/menu-mobile-profile/Default/Cache/Cache_Data/f_00001f
+- .browser-check/menu-mobile-profile/Default/Cache/Cache_Data/f_000020
+- .browser-check/menu-mobile-profile/Default/Cache/Cache_Data/index
+- .browser-check/menu-mobile-profile/Default/Cache/No_Vary_Search/journal.baj
+- .browser-check/menu-mobile-profile/Default/Cache/No_Vary_Search/snapshot.baf
+- .browser-check/menu-mobile-profile/Default/ClientCertificates/LOCK
+- .browser-check/menu-mobile-profile/Default/ClientCertificates/LOG
+- .browser-check/menu-mobile-profile/Default/ClientCertificates/LOG.old
+- .browser-check/menu-mobile-profile/Default/Code Cache/js/6bacab497fbaf416_0
+- .browser-check/menu-mobile-profile/Default/Code Cache/js/acd2a4d113430fc6_0
+- .browser-check/menu-mobile-profile/Default/Code Cache/js/ba678a2fbd8c358c_0
+- .browser-check/menu-mobile-profile/Default/Code Cache/js/index
+- .browser-check/menu-mobile-profile/Default/Code Cache/js/index-dir/the-real-index
+- .browser-check/menu-mobile-profile/Default/Code Cache/wasm/index
+- .browser-check/menu-mobile-profile/Default/Code Cache/wasm/index-dir/the-real-index
+- .browser-check/menu-mobile-profile/Default/DawnGraphiteCache/data_0
+- .browser-check/menu-mobile-profile/Default/DawnGraphiteCache/data_1
+- .browser-check/menu-mobile-profile/Default/DawnGraphiteCache/data_2
+- .browser-check/menu-mobile-profile/Default/DawnGraphiteCache/data_3
+- .browser-check/menu-mobile-profile/Default/DawnGraphiteCache/index
+- .browser-check/menu-mobile-profile/Default/DawnWebGPUCache/data_0
+- .browser-check/menu-mobile-profile/Default/DawnWebGPUCache/data_1
+- .browser-check/menu-mobile-profile/Default/DawnWebGPUCache/data_2
+- .browser-check/menu-mobile-profile/Default/DawnWebGPUCache/data_3
+- .browser-check/menu-mobile-profile/Default/DawnWebGPUCache/index
+- .browser-check/menu-mobile-profile/Default/Extension Rules/000003.log
+- .browser-check/menu-mobile-profile/Default/Extension Rules/CURRENT
+- .browser-check/menu-mobile-profile/Default/Extension Rules/LOCK
+- .browser-check/menu-mobile-profile/Default/Extension Rules/LOG
+- .browser-check/menu-mobile-profile/Default/Extension Rules/MANIFEST-000001
+- .browser-check/menu-mobile-profile/Default/Extension Scripts/000003.log
+- .browser-check/menu-mobile-profile/Default/Extension Scripts/CURRENT
+- .browser-check/menu-mobile-profile/Default/Extension Scripts/LOCK
+- .browser-check/menu-mobile-profile/Default/Extension Scripts/LOG
+- .browser-check/menu-mobile-profile/Default/Extension Scripts/MANIFEST-000001
+- .browser-check/menu-mobile-profile/Default/Extension State/000003.log
+- .browser-check/menu-mobile-profile/Default/Extension State/CURRENT
+- .browser-check/menu-mobile-profile/Default/Extension State/LOCK
+- .browser-check/menu-mobile-profile/Default/Extension State/LOG
+- .browser-check/menu-mobile-profile/Default/Extension State/LOG.old
+- .browser-check/menu-mobile-profile/Default/Extension State/MANIFEST-000001
+- .browser-check/menu-mobile-profile/Default/Favicons
+- .browser-check/menu-mobile-profile/Default/Favicons-journal
+- .browser-check/menu-mobile-profile/Default/GPUCache/data_0
+- .browser-check/menu-mobile-profile/Default/GPUCache/data_1
+- .browser-check/menu-mobile-profile/Default/GPUCache/data_2
+- .browser-check/menu-mobile-profile/Default/GPUCache/data_3
+- .browser-check/menu-mobile-profile/Default/GPUCache/index
+- .browser-check/menu-mobile-profile/Default/History
+- .browser-check/menu-mobile-profile/Default/History-journal
+- .browser-check/menu-mobile-profile/Default/LOCK
+- .browser-check/menu-mobile-profile/Default/LOG
+- .browser-check/menu-mobile-profile/Default/LOG.old
+- .browser-check/menu-mobile-profile/Default/Local Storage/leveldb/000003.log
+- .browser-check/menu-mobile-profile/Default/Local Storage/leveldb/CURRENT
+- .browser-check/menu-mobile-profile/Default/Local Storage/leveldb/LOCK
+- .browser-check/menu-mobile-profile/Default/Local Storage/leveldb/LOG
+- .browser-check/menu-mobile-profile/Default/Local Storage/leveldb/LOG.old
+- .browser-check/menu-mobile-profile/Default/Local Storage/leveldb/MANIFEST-000001
+- .browser-check/menu-mobile-profile/Default/Login Data
+- .browser-check/menu-mobile-profile/Default/Login Data For Account
+- .browser-check/menu-mobile-profile/Default/Login Data For Account-journal
+- .browser-check/menu-mobile-profile/Default/Login Data-journal
+- .browser-check/menu-mobile-profile/Default/Network/Cookies
+- .browser-check/menu-mobile-profile/Default/Network/Cookies-journal
+- .browser-check/menu-mobile-profile/Default/Network/Device Bound Sessions
+- .browser-check/menu-mobile-profile/Default/Network/Device Bound Sessions-journal
+- .browser-check/menu-mobile-profile/Default/Network/Network Persistent State
+- .browser-check/menu-mobile-profile/Default/Network/NetworkDataMigrated
+- .browser-check/menu-mobile-profile/Default/Network/Reporting and NEL
+- .browser-check/menu-mobile-profile/Default/Network/Reporting and NEL-journal
+- .browser-check/menu-mobile-profile/Default/Network/TransportSecurity
+- .browser-check/menu-mobile-profile/Default/Network/Trust Tokens
+- .browser-check/menu-mobile-profile/Default/Network/Trust Tokens-journal
+- .browser-check/menu-mobile-profile/Default/PersistentOriginTrials/LOCK
+- .browser-check/menu-mobile-profile/Default/PersistentOriginTrials/LOG
+- .browser-check/menu-mobile-profile/Default/PersistentOriginTrials/LOG.old
+- .browser-check/menu-mobile-profile/Default/Preferences
+- .browser-check/menu-mobile-profile/Default/README
+- .browser-check/menu-mobile-profile/Default/Safe Browsing Network/NetworkDataMigrated
+- .browser-check/menu-mobile-profile/Default/Secure Preferences
+- .browser-check/menu-mobile-profile/Default/Segmentation Platform/SegmentInfoDB/LOCK
+- .browser-check/menu-mobile-profile/Default/Segmentation Platform/SegmentInfoDB/LOG
+- .browser-check/menu-mobile-profile/Default/Segmentation Platform/SegmentInfoDB/LOG.old
+- .browser-check/menu-mobile-profile/Default/Segmentation Platform/SignalDB/LOCK
+- .browser-check/menu-mobile-profile/Default/Segmentation Platform/SignalDB/LOG
+- .browser-check/menu-mobile-profile/Default/Segmentation Platform/SignalDB/LOG.old
+- .browser-check/menu-mobile-profile/Default/Segmentation Platform/SignalStorageConfigDB/LOCK
+- .browser-check/menu-mobile-profile/Default/Segmentation Platform/SignalStorageConfigDB/LOG
+- .browser-check/menu-mobile-profile/Default/Segmentation Platform/SignalStorageConfigDB/LOG.old
+- .browser-check/menu-mobile-profile/Default/ServerCertificate
+- .browser-check/menu-mobile-profile/Default/ServerCertificate-journal
+- .browser-check/menu-mobile-profile/Default/Service Worker/Database/000003.log
+- .browser-check/menu-mobile-profile/Default/Service Worker/Database/CURRENT
+- .browser-check/menu-mobile-profile/Default/Service Worker/Database/LOCK
+- .browser-check/menu-mobile-profile/Default/Service Worker/Database/LOG
+- .browser-check/menu-mobile-profile/Default/Service Worker/Database/LOG.old
+- .browser-check/menu-mobile-profile/Default/Service Worker/Database/MANIFEST-000001
+- .browser-check/menu-mobile-profile/Default/Service Worker/ScriptCache/2cc80dabc69f58b6_0
+- .browser-check/menu-mobile-profile/Default/Service Worker/ScriptCache/4cb013792b196a35_0
+- .browser-check/menu-mobile-profile/Default/Service Worker/ScriptCache/4cb013792b196a35_1
+- .browser-check/menu-mobile-profile/Default/Service Worker/ScriptCache/index
+- .browser-check/menu-mobile-profile/Default/Service Worker/ScriptCache/index-dir/the-real-index
+- .browser-check/menu-mobile-profile/Default/Session Storage/000003.log
+- .browser-check/menu-mobile-profile/Default/Session Storage/CURRENT
+- .browser-check/menu-mobile-profile/Default/Session Storage/LOCK
+- .browser-check/menu-mobile-profile/Default/Session Storage/LOG
+- .browser-check/menu-mobile-profile/Default/Session Storage/MANIFEST-000001
+- .browser-check/menu-mobile-profile/Default/Sessions/Session_13436836293500318
+- .browser-check/menu-mobile-profile/Default/Sessions/Session_13436840638892998
+- .browser-check/menu-mobile-profile/Default/Sessions/Tabs_13436836293503465
+- .browser-check/menu-mobile-profile/Default/Sessions/Tabs_13436840638896750
+- .browser-check/menu-mobile-profile/Default/Shared Dictionary/cache/index
+- .browser-check/menu-mobile-profile/Default/Shared Dictionary/cache/index-dir/the-real-index
+- .browser-check/menu-mobile-profile/Default/Shared Dictionary/db
+- .browser-check/menu-mobile-profile/Default/Shared Dictionary/db-journal
+- .browser-check/menu-mobile-profile/Default/Site Characteristics Database/000003.log
+- .browser-check/menu-mobile-profile/Default/Site Characteristics Database/CURRENT
+- .browser-check/menu-mobile-profile/Default/Site Characteristics Database/LOCK
+- .browser-check/menu-mobile-profile/Default/Site Characteristics Database/LOG
+- .browser-check/menu-mobile-profile/Default/Site Characteristics Database/LOG.old
+- .browser-check/menu-mobile-profile/Default/Site Characteristics Database/MANIFEST-000001
+- .browser-check/menu-mobile-profile/Default/Sync Data/LevelDB/000003.log
+- .browser-check/menu-mobile-profile/Default/Sync Data/LevelDB/CURRENT
+- .browser-check/menu-mobile-profile/Default/Sync Data/LevelDB/LOCK
+- .browser-check/menu-mobile-profile/Default/Sync Data/LevelDB/LOG
+- .browser-check/menu-mobile-profile/Default/Sync Data/LevelDB/LOG.old
+- .browser-check/menu-mobile-profile/Default/Sync Data/LevelDB/MANIFEST-000001
+- .browser-check/menu-mobile-profile/Default/Top Sites
+- .browser-check/menu-mobile-profile/Default/Top Sites-journal
+- .browser-check/menu-mobile-profile/Default/Web Data
+- .browser-check/menu-mobile-profile/Default/Web Data-journal
+- .browser-check/menu-mobile-profile/Default/WebStorage/QuotaManager
+- .browser-check/menu-mobile-profile/Default/WebStorage/QuotaManager-journal
+- .browser-check/menu-mobile-profile/Default/chrome_cart_db/LOCK
+- .browser-check/menu-mobile-profile/Default/chrome_cart_db/LOG
+- .browser-check/menu-mobile-profile/Default/chrome_cart_db/LOG.old
+- .browser-check/menu-mobile-profile/Default/commerce_subscription_db/LOCK
+- .browser-check/menu-mobile-profile/Default/commerce_subscription_db/LOG
+- .browser-check/menu-mobile-profile/Default/commerce_subscription_db/LOG.old
+- .browser-check/menu-mobile-profile/Default/declarative_performance_observer.db
+- .browser-check/menu-mobile-profile/Default/declarative_performance_observer.db-journal
+- .browser-check/menu-mobile-profile/Default/discount_infos_db/LOCK
+- .browser-check/menu-mobile-profile/Default/discount_infos_db/LOG
+- .browser-check/menu-mobile-profile/Default/discount_infos_db/LOG.old
+- .browser-check/menu-mobile-profile/Default/discounts_db/LOCK
+- .browser-check/menu-mobile-profile/Default/discounts_db/LOG
+- .browser-check/menu-mobile-profile/Default/discounts_db/LOG.old
+- .browser-check/menu-mobile-profile/Default/parcel_tracking_db/LOCK
+- .browser-check/menu-mobile-profile/Default/parcel_tracking_db/LOG
+- .browser-check/menu-mobile-profile/Default/parcel_tracking_db/LOG.old
+- .browser-check/menu-mobile-profile/Default/shared_proto_db/000003.log
+- .browser-check/menu-mobile-profile/Default/shared_proto_db/CURRENT
+- .browser-check/menu-mobile-profile/Default/shared_proto_db/LOCK
+- .browser-check/menu-mobile-profile/Default/shared_proto_db/LOG
+- .browser-check/menu-mobile-profile/Default/shared_proto_db/LOG.old
+- .browser-check/menu-mobile-profile/Default/shared_proto_db/MANIFEST-000001
+- .browser-check/menu-mobile-profile/Default/shared_proto_db/metadata/000003.log
+- .browser-check/menu-mobile-profile/Default/shared_proto_db/metadata/CURRENT
+- .browser-check/menu-mobile-profile/Default/shared_proto_db/metadata/LOCK
+- .browser-check/menu-mobile-profile/Default/shared_proto_db/metadata/LOG
+- .browser-check/menu-mobile-profile/Default/shared_proto_db/metadata/LOG.old
+- .browser-check/menu-mobile-profile/Default/shared_proto_db/metadata/MANIFEST-000001
+- .browser-check/menu-mobile-profile/GPUPersistentCache/DawnGraphiteCache/NR2GNA44OGQUBFRRNDBXIX2VC7JXKYAS/cache.db
+- .browser-check/menu-mobile-profile/GPUPersistentCache/DawnGraphiteCache/NR2GNA44OGQUBFRRNDBXIX2VC7JXKYAS/cache.db-wal
+- .browser-check/menu-mobile-profile/GPUPersistentCache/DawnGraphiteCache/NR2GNA44OGQUBFRRNDBXIX2VC7JXKYAS/cache.journal
+- .browser-check/menu-mobile-profile/GrShaderCache/data_0
+- .browser-check/menu-mobile-profile/GrShaderCache/data_1
+- .browser-check/menu-mobile-profile/GrShaderCache/data_2
+- .browser-check/menu-mobile-profile/GrShaderCache/data_3
+- .browser-check/menu-mobile-profile/GrShaderCache/index
+- .browser-check/menu-mobile-profile/Last Version
+- .browser-check/menu-mobile-profile/Local State
+- .browser-check/menu-mobile-profile/ShaderCache/data_0
+- .browser-check/menu-mobile-profile/ShaderCache/data_1
+- .browser-check/menu-mobile-profile/ShaderCache/data_2
+- .browser-check/menu-mobile-profile/ShaderCache/data_3
+- .browser-check/menu-mobile-profile/ShaderCache/index
+- .browser-check/menu-mobile-profile/Variations
+- .browser-check/menu-mobile-profile/VariationsSafeSeedV2
+- .browser-check/menu-mobile-profile/VariationsSeedV2
+- .browser-check/menu-mobile-profile/extensions_crx_cache/metadata.json
+- .browser-check/menu-mobile-profile/segmentation_platform/ukm_db
+- .browser-check/menu-mobile.html
+- .browser-check/menu-mobile.png
+- .browser-check/menu-preview.mjs
+- .browser-check/photo-desktop-profile/Crashpad/metadata
+- .browser-check/photo-desktop-profile/Crashpad/settings.dat
+- .browser-check/photo-desktop-profile/CrashpadMetrics-active.pma
+- .browser-check/photo-desktop-profile/Default/Account Web Data
+- .browser-check/photo-desktop-profile/Default/Account Web Data-journal
+- .browser-check/photo-desktop-profile/Default/Affiliation Database
+- .browser-check/photo-desktop-profile/Default/Affiliation Database-journal
+- .browser-check/photo-desktop-profile/Default/BookmarkMergedSurfaceOrdering
+- .browser-check/photo-desktop-profile/Default/Cache/Cache_Data/data_0
+- .browser-check/photo-desktop-profile/Default/Cache/Cache_Data/data_1
+- .browser-check/photo-desktop-profile/Default/Cache/Cache_Data/data_2
+- .browser-check/photo-desktop-profile/Default/Cache/Cache_Data/data_3
+- .browser-check/photo-desktop-profile/Default/Cache/Cache_Data/f_000001
+- .browser-check/photo-desktop-profile/Default/Cache/Cache_Data/f_000002
+- .browser-check/photo-desktop-profile/Default/Cache/Cache_Data/index
+- .browser-check/photo-desktop-profile/Default/Cache/No_Vary_Search/journal.baj
+- .browser-check/photo-desktop-profile/Default/Cache/No_Vary_Search/snapshot.baf
+- .browser-check/photo-desktop-profile/Default/ClientCertificates/LOCK
+- .browser-check/photo-desktop-profile/Default/ClientCertificates/LOG
+- .browser-check/photo-desktop-profile/Default/Code Cache/js/ba678a2fbd8c358c_0
+- .browser-check/photo-desktop-profile/Default/Code Cache/js/index
+- .browser-check/photo-desktop-profile/Default/Code Cache/js/index-dir/the-real-index
+- .browser-check/photo-desktop-profile/Default/Code Cache/wasm/index
+- .browser-check/photo-desktop-profile/Default/Code Cache/wasm/index-dir/the-real-index
+- .browser-check/photo-desktop-profile/Default/DawnGraphiteCache/data_0
+- .browser-check/photo-desktop-profile/Default/DawnGraphiteCache/data_1
+- .browser-check/photo-desktop-profile/Default/DawnGraphiteCache/data_2
+- .browser-check/photo-desktop-profile/Default/DawnGraphiteCache/data_3
+- .browser-check/photo-desktop-profile/Default/DawnGraphiteCache/index
+- .browser-check/photo-desktop-profile/Default/DawnWebGPUCache/data_0
+- .browser-check/photo-desktop-profile/Default/DawnWebGPUCache/data_1
+- .browser-check/photo-desktop-profile/Default/DawnWebGPUCache/data_2
+- .browser-check/photo-desktop-profile/Default/DawnWebGPUCache/data_3
+- .browser-check/photo-desktop-profile/Default/DawnWebGPUCache/index
+- .browser-check/photo-desktop-profile/Default/Extension Rules/000003.log
+- .browser-check/photo-desktop-profile/Default/Extension Rules/CURRENT
+- .browser-check/photo-desktop-profile/Default/Extension Rules/LOCK
+- .browser-check/photo-desktop-profile/Default/Extension Rules/LOG
+- .browser-check/photo-desktop-profile/Default/Extension Rules/MANIFEST-000001
+- .browser-check/photo-desktop-profile/Default/Extension Scripts/000003.log
+- .browser-check/photo-desktop-profile/Default/Extension Scripts/CURRENT
+- .browser-check/photo-desktop-profile/Default/Extension Scripts/LOCK
+- .browser-check/photo-desktop-profile/Default/Extension Scripts/LOG
+- .browser-check/photo-desktop-profile/Default/Extension Scripts/MANIFEST-000001
+- .browser-check/photo-desktop-profile/Default/Extension State/000003.log
+- .browser-check/photo-desktop-profile/Default/Extension State/CURRENT
+- .browser-check/photo-desktop-profile/Default/Extension State/LOCK
+- .browser-check/photo-desktop-profile/Default/Extension State/LOG
+- .browser-check/photo-desktop-profile/Default/Extension State/MANIFEST-000001
+- .browser-check/photo-desktop-profile/Default/Favicons
+- .browser-check/photo-desktop-profile/Default/Favicons-journal
+- .browser-check/photo-desktop-profile/Default/GPUCache/data_0
+- .browser-check/photo-desktop-profile/Default/GPUCache/data_1
+- .browser-check/photo-desktop-profile/Default/GPUCache/data_2
+- .browser-check/photo-desktop-profile/Default/GPUCache/data_3
+- .browser-check/photo-desktop-profile/Default/GPUCache/index
+- .browser-check/photo-desktop-profile/Default/History
+- .browser-check/photo-desktop-profile/Default/History-journal
+- .browser-check/photo-desktop-profile/Default/LOCK
+- .browser-check/photo-desktop-profile/Default/LOG
+- .browser-check/photo-desktop-profile/Default/Local Storage/leveldb/000003.log
+- .browser-check/photo-desktop-profile/Default/Local Storage/leveldb/CURRENT
+- .browser-check/photo-desktop-profile/Default/Local Storage/leveldb/LOCK
+- .browser-check/photo-desktop-profile/Default/Local Storage/leveldb/LOG
+- .browser-check/photo-desktop-profile/Default/Local Storage/leveldb/MANIFEST-000001
+- .browser-check/photo-desktop-profile/Default/Login Data
+- .browser-check/photo-desktop-profile/Default/Login Data For Account
+- .browser-check/photo-desktop-profile/Default/Login Data For Account-journal
+- .browser-check/photo-desktop-profile/Default/Login Data-journal
+- .browser-check/photo-desktop-profile/Default/Network/Cookies
+- .browser-check/photo-desktop-profile/Default/Network/Cookies-journal
+- .browser-check/photo-desktop-profile/Default/Network/Device Bound Sessions
+- .browser-check/photo-desktop-profile/Default/Network/Device Bound Sessions-journal
+- .browser-check/photo-desktop-profile/Default/Network/Network Persistent State
+- .browser-check/photo-desktop-profile/Default/Network/NetworkDataMigrated
+- .browser-check/photo-desktop-profile/Default/Network/Reporting and NEL
+- .browser-check/photo-desktop-profile/Default/Network/Reporting and NEL-journal
+- .browser-check/photo-desktop-profile/Default/Network/TransportSecurity
+- .browser-check/photo-desktop-profile/Default/Network/Trust Tokens
+- .browser-check/photo-desktop-profile/Default/Network/Trust Tokens-journal
+- .browser-check/photo-desktop-profile/Default/PersistentOriginTrials/LOCK
+- .browser-check/photo-desktop-profile/Default/PersistentOriginTrials/LOG
+- .browser-check/photo-desktop-profile/Default/Preferences
+- .browser-check/photo-desktop-profile/Default/README
+- .browser-check/photo-desktop-profile/Default/Safe Browsing Network/NetworkDataMigrated
+- .browser-check/photo-desktop-profile/Default/Secure Preferences
+- .browser-check/photo-desktop-profile/Default/Segmentation Platform/SegmentInfoDB/LOCK
+- .browser-check/photo-desktop-profile/Default/Segmentation Platform/SegmentInfoDB/LOG
+- .browser-check/photo-desktop-profile/Default/Segmentation Platform/SignalDB/LOCK
+- .browser-check/photo-desktop-profile/Default/Segmentation Platform/SignalDB/LOG
+- .browser-check/photo-desktop-profile/Default/Segmentation Platform/SignalStorageConfigDB/LOCK
+- .browser-check/photo-desktop-profile/Default/Segmentation Platform/SignalStorageConfigDB/LOG
+- .browser-check/photo-desktop-profile/Default/ServerCertificate
+- .browser-check/photo-desktop-profile/Default/ServerCertificate-journal
+- .browser-check/photo-desktop-profile/Default/Service Worker/Database/000003.log
+- .browser-check/photo-desktop-profile/Default/Service Worker/Database/CURRENT
+- .browser-check/photo-desktop-profile/Default/Service Worker/Database/LOCK
+- .browser-check/photo-desktop-profile/Default/Service Worker/Database/LOG
+- .browser-check/photo-desktop-profile/Default/Service Worker/Database/MANIFEST-000001
+- .browser-check/photo-desktop-profile/Default/Service Worker/ScriptCache/2cc80dabc69f58b6_0
+- .browser-check/photo-desktop-profile/Default/Service Worker/ScriptCache/4cb013792b196a35_0
+- .browser-check/photo-desktop-profile/Default/Service Worker/ScriptCache/4cb013792b196a35_1
+- .browser-check/photo-desktop-profile/Default/Service Worker/ScriptCache/index
+- .browser-check/photo-desktop-profile/Default/Service Worker/ScriptCache/index-dir/the-real-index
+- .browser-check/photo-desktop-profile/Default/Session Storage/000003.log
+- .browser-check/photo-desktop-profile/Default/Session Storage/CURRENT
+- .browser-check/photo-desktop-profile/Default/Session Storage/LOCK
+- .browser-check/photo-desktop-profile/Default/Session Storage/LOG
+- .browser-check/photo-desktop-profile/Default/Session Storage/MANIFEST-000001
+- .browser-check/photo-desktop-profile/Default/Sessions/Session_13436836815263167
+- .browser-check/photo-desktop-profile/Default/Sessions/Tabs_13436836815269969
+- .browser-check/photo-desktop-profile/Default/Shared Dictionary/cache/index
+- .browser-check/photo-desktop-profile/Default/Shared Dictionary/cache/index-dir/the-real-index
+- .browser-check/photo-desktop-profile/Default/Shared Dictionary/db
+- .browser-check/photo-desktop-profile/Default/Shared Dictionary/db-journal
+- .browser-check/photo-desktop-profile/Default/Site Characteristics Database/000003.log
+- .browser-check/photo-desktop-profile/Default/Site Characteristics Database/CURRENT
+- .browser-check/photo-desktop-profile/Default/Site Characteristics Database/LOCK
+- .browser-check/photo-desktop-profile/Default/Site Characteristics Database/LOG
+- .browser-check/photo-desktop-profile/Default/Site Characteristics Database/MANIFEST-000001
+- .browser-check/photo-desktop-profile/Default/Sync Data/LevelDB/000003.log
+- .browser-check/photo-desktop-profile/Default/Sync Data/LevelDB/CURRENT
+- .browser-check/photo-desktop-profile/Default/Sync Data/LevelDB/LOCK
+- .browser-check/photo-desktop-profile/Default/Sync Data/LevelDB/LOG
+- .browser-check/photo-desktop-profile/Default/Sync Data/LevelDB/MANIFEST-000001
+- .browser-check/photo-desktop-profile/Default/Top Sites
+- .browser-check/photo-desktop-profile/Default/Top Sites-journal
+- .browser-check/photo-desktop-profile/Default/Web Data
+- .browser-check/photo-desktop-profile/Default/Web Data-journal
+- .browser-check/photo-desktop-profile/Default/WebStorage/QuotaManager
+- .browser-check/photo-desktop-profile/Default/WebStorage/QuotaManager-journal
+- .browser-check/photo-desktop-profile/Default/chrome_cart_db/LOCK
+- .browser-check/photo-desktop-profile/Default/chrome_cart_db/LOG
+- .browser-check/photo-desktop-profile/Default/commerce_subscription_db/LOCK
+- .browser-check/photo-desktop-profile/Default/commerce_subscription_db/LOG
+- .browser-check/photo-desktop-profile/Default/declarative_performance_observer.db
+- .browser-check/photo-desktop-profile/Default/declarative_performance_observer.db-journal
+- .browser-check/photo-desktop-profile/Default/discount_infos_db/LOCK
+- .browser-check/photo-desktop-profile/Default/discount_infos_db/LOG
+- .browser-check/photo-desktop-profile/Default/discounts_db/LOCK
+- .browser-check/photo-desktop-profile/Default/discounts_db/LOG
+- .browser-check/photo-desktop-profile/Default/parcel_tracking_db/LOCK
+- .browser-check/photo-desktop-profile/Default/parcel_tracking_db/LOG
+- .browser-check/photo-desktop-profile/Default/shared_proto_db/000003.log
+- .browser-check/photo-desktop-profile/Default/shared_proto_db/CURRENT
+- .browser-check/photo-desktop-profile/Default/shared_proto_db/LOCK
+- .browser-check/photo-desktop-profile/Default/shared_proto_db/LOG
+- .browser-check/photo-desktop-profile/Default/shared_proto_db/MANIFEST-000001
+- .browser-check/photo-desktop-profile/Default/shared_proto_db/metadata/000003.log
+- .browser-check/photo-desktop-profile/Default/shared_proto_db/metadata/CURRENT
+- .browser-check/photo-desktop-profile/Default/shared_proto_db/metadata/LOCK
+- .browser-check/photo-desktop-profile/Default/shared_proto_db/metadata/LOG
+- .browser-check/photo-desktop-profile/Default/shared_proto_db/metadata/MANIFEST-000001
+- .browser-check/photo-desktop-profile/GPUPersistentCache/DawnGraphiteCache/NR2GNA44OGQUBFRRNDBXIX2VC7JXKYAS/cache.db
+- .browser-check/photo-desktop-profile/GPUPersistentCache/DawnGraphiteCache/NR2GNA44OGQUBFRRNDBXIX2VC7JXKYAS/cache.db-wal
+- .browser-check/photo-desktop-profile/GPUPersistentCache/DawnGraphiteCache/NR2GNA44OGQUBFRRNDBXIX2VC7JXKYAS/cache.journal
+- .browser-check/photo-desktop-profile/GrShaderCache/data_0
+- .browser-check/photo-desktop-profile/GrShaderCache/data_1
+- .browser-check/photo-desktop-profile/GrShaderCache/data_2
+- .browser-check/photo-desktop-profile/GrShaderCache/data_3
+- .browser-check/photo-desktop-profile/GrShaderCache/index
+- .browser-check/photo-desktop-profile/Last Version
+- .browser-check/photo-desktop-profile/Local State
+- .browser-check/photo-desktop-profile/ShaderCache/data_0
+- .browser-check/photo-desktop-profile/ShaderCache/data_1
+- .browser-check/photo-desktop-profile/ShaderCache/data_2
+- .browser-check/photo-desktop-profile/ShaderCache/data_3
+- .browser-check/photo-desktop-profile/ShaderCache/index
+- .browser-check/photo-desktop-profile/Variations
+- .browser-check/photo-desktop-profile/VariationsSafeSeedV2
+- .browser-check/photo-desktop-profile/VariationsSeedV2
+- .browser-check/photo-desktop-profile/es-ES-3-0.bdic
+- .browser-check/photo-desktop-profile/extensions_crx_cache/metadata.json
+- .browser-check/photo-desktop-profile/segmentation_platform/ukm_db
+- .browser-check/photo-desktop.html
+- .browser-check/photo-desktop.png
+- .browser-check/photo-mobile-profile/Crashpad/metadata
+- .browser-check/photo-mobile-profile/Crashpad/settings.dat
+- .browser-check/photo-mobile-profile/CrashpadMetrics-active.pma
+- .browser-check/photo-mobile-profile/CrashpadMetrics.pma
+- .browser-check/photo-mobile-profile/Default/Account Web Data
+- .browser-check/photo-mobile-profile/Default/Account Web Data-journal
+- .browser-check/photo-mobile-profile/Default/Affiliation Database
+- .browser-check/photo-mobile-profile/Default/Affiliation Database-journal
+- .browser-check/photo-mobile-profile/Default/BookmarkMergedSurfaceOrdering
+- .browser-check/photo-mobile-profile/Default/Cache/Cache_Data/data_0
+- .browser-check/photo-mobile-profile/Default/Cache/Cache_Data/data_1
+- .browser-check/photo-mobile-profile/Default/Cache/Cache_Data/data_2
+- .browser-check/photo-mobile-profile/Default/Cache/Cache_Data/data_3
+- .browser-check/photo-mobile-profile/Default/Cache/Cache_Data/f_000001
+- .browser-check/photo-mobile-profile/Default/Cache/Cache_Data/f_000002
+- .browser-check/photo-mobile-profile/Default/Cache/Cache_Data/index
+- .browser-check/photo-mobile-profile/Default/Cache/No_Vary_Search/journal.baj
+- .browser-check/photo-mobile-profile/Default/Cache/No_Vary_Search/snapshot.baf
+- .browser-check/photo-mobile-profile/Default/ClientCertificates/LOCK
+- .browser-check/photo-mobile-profile/Default/ClientCertificates/LOG
+- .browser-check/photo-mobile-profile/Default/ClientCertificates/LOG.old
+- .browser-check/photo-mobile-profile/Default/Code Cache/js/ba678a2fbd8c358c_0
+- .browser-check/photo-mobile-profile/Default/Code Cache/js/index
+- .browser-check/photo-mobile-profile/Default/Code Cache/js/index-dir/the-real-index
+- .browser-check/photo-mobile-profile/Default/Code Cache/wasm/index
+- .browser-check/photo-mobile-profile/Default/Code Cache/wasm/index-dir/the-real-index
+- .browser-check/photo-mobile-profile/Default/DawnGraphiteCache/data_0
+- .browser-check/photo-mobile-profile/Default/DawnGraphiteCache/data_1
+- .browser-check/photo-mobile-profile/Default/DawnGraphiteCache/data_2
+- .browser-check/photo-mobile-profile/Default/DawnGraphiteCache/data_3
+- .browser-check/photo-mobile-profile/Default/DawnGraphiteCache/index
+- .browser-check/photo-mobile-profile/Default/DawnWebGPUCache/data_0
+- .browser-check/photo-mobile-profile/Default/DawnWebGPUCache/data_1
+- .browser-check/photo-mobile-profile/Default/DawnWebGPUCache/data_2
+- .browser-check/photo-mobile-profile/Default/DawnWebGPUCache/data_3
+- .browser-check/photo-mobile-profile/Default/DawnWebGPUCache/index
+- .browser-check/photo-mobile-profile/Default/Extension Rules/000003.log
+- .browser-check/photo-mobile-profile/Default/Extension Rules/CURRENT
+- .browser-check/photo-mobile-profile/Default/Extension Rules/LOCK
+- .browser-check/photo-mobile-profile/Default/Extension Rules/LOG
+- .browser-check/photo-mobile-profile/Default/Extension Rules/MANIFEST-000001
+- .browser-check/photo-mobile-profile/Default/Extension Scripts/000003.log
+- .browser-check/photo-mobile-profile/Default/Extension Scripts/CURRENT
+- .browser-check/photo-mobile-profile/Default/Extension Scripts/LOCK
+- .browser-check/photo-mobile-profile/Default/Extension Scripts/LOG
+- .browser-check/photo-mobile-profile/Default/Extension Scripts/MANIFEST-000001
+- .browser-check/photo-mobile-profile/Default/Extension State/000003.log
+- .browser-check/photo-mobile-profile/Default/Extension State/CURRENT
+- .browser-check/photo-mobile-profile/Default/Extension State/LOCK
+- .browser-check/photo-mobile-profile/Default/Extension State/LOG
+- .browser-check/photo-mobile-profile/Default/Extension State/LOG.old
+- .browser-check/photo-mobile-profile/Default/Extension State/MANIFEST-000001
+- .browser-check/photo-mobile-profile/Default/Favicons
+- .browser-check/photo-mobile-profile/Default/Favicons-journal
+- .browser-check/photo-mobile-profile/Default/GPUCache/data_0
+- .browser-check/photo-mobile-profile/Default/GPUCache/data_1
+- .browser-check/photo-mobile-profile/Default/GPUCache/data_2
+- .browser-check/photo-mobile-profile/Default/GPUCache/data_3
+- .browser-check/photo-mobile-profile/Default/GPUCache/index
+- .browser-check/photo-mobile-profile/Default/History
+- .browser-check/photo-mobile-profile/Default/History-journal
+- .browser-check/photo-mobile-profile/Default/LOCK
+- .browser-check/photo-mobile-profile/Default/LOG
+- .browser-check/photo-mobile-profile/Default/LOG.old
+- .browser-check/photo-mobile-profile/Default/Local Storage/leveldb/000003.log
+- .browser-check/photo-mobile-profile/Default/Local Storage/leveldb/CURRENT
+- .browser-check/photo-mobile-profile/Default/Local Storage/leveldb/LOCK
+- .browser-check/photo-mobile-profile/Default/Local Storage/leveldb/LOG
+- .browser-check/photo-mobile-profile/Default/Local Storage/leveldb/LOG.old
+- .browser-check/photo-mobile-profile/Default/Local Storage/leveldb/MANIFEST-000001
+- .browser-check/photo-mobile-profile/Default/Login Data
+- .browser-check/photo-mobile-profile/Default/Login Data For Account
+- .browser-check/photo-mobile-profile/Default/Login Data For Account-journal
+- .browser-check/photo-mobile-profile/Default/Login Data-journal
+- .browser-check/photo-mobile-profile/Default/Network/Cookies
+- .browser-check/photo-mobile-profile/Default/Network/Cookies-journal
+- .browser-check/photo-mobile-profile/Default/Network/Device Bound Sessions
+- .browser-check/photo-mobile-profile/Default/Network/Device Bound Sessions-journal
+- .browser-check/photo-mobile-profile/Default/Network/Network Persistent State
+- .browser-check/photo-mobile-profile/Default/Network/NetworkDataMigrated
+- .browser-check/photo-mobile-profile/Default/Network/Reporting and NEL
+- .browser-check/photo-mobile-profile/Default/Network/Reporting and NEL-journal
+- .browser-check/photo-mobile-profile/Default/Network/TransportSecurity
+- .browser-check/photo-mobile-profile/Default/Network/Trust Tokens
+- .browser-check/photo-mobile-profile/Default/Network/Trust Tokens-journal
+- .browser-check/photo-mobile-profile/Default/PersistentOriginTrials/LOCK
+- .browser-check/photo-mobile-profile/Default/PersistentOriginTrials/LOG
+- .browser-check/photo-mobile-profile/Default/PersistentOriginTrials/LOG.old
+- .browser-check/photo-mobile-profile/Default/Preferences
+- .browser-check/photo-mobile-profile/Default/README
+- .browser-check/photo-mobile-profile/Default/Safe Browsing Network/NetworkDataMigrated
+- .browser-check/photo-mobile-profile/Default/Secure Preferences
+- .browser-check/photo-mobile-profile/Default/Segmentation Platform/SegmentInfoDB/LOCK
+- .browser-check/photo-mobile-profile/Default/Segmentation Platform/SegmentInfoDB/LOG
+- .browser-check/photo-mobile-profile/Default/Segmentation Platform/SegmentInfoDB/LOG.old
+- .browser-check/photo-mobile-profile/Default/Segmentation Platform/SignalDB/LOCK
+- .browser-check/photo-mobile-profile/Default/Segmentation Platform/SignalDB/LOG
+- .browser-check/photo-mobile-profile/Default/Segmentation Platform/SignalDB/LOG.old
+- .browser-check/photo-mobile-profile/Default/Segmentation Platform/SignalStorageConfigDB/LOCK
+- .browser-check/photo-mobile-profile/Default/Segmentation Platform/SignalStorageConfigDB/LOG
+- .browser-check/photo-mobile-profile/Default/Segmentation Platform/SignalStorageConfigDB/LOG.old
+- .browser-check/photo-mobile-profile/Default/ServerCertificate
+- .browser-check/photo-mobile-profile/Default/ServerCertificate-journal
+- .browser-check/photo-mobile-profile/Default/Service Worker/Database/000003.log
+- .browser-check/photo-mobile-profile/Default/Service Worker/Database/CURRENT
+- .browser-check/photo-mobile-profile/Default/Service Worker/Database/LOCK
+- .browser-check/photo-mobile-profile/Default/Service Worker/Database/LOG
+- .browser-check/photo-mobile-profile/Default/Service Worker/Database/LOG.old
+- .browser-check/photo-mobile-profile/Default/Service Worker/Database/MANIFEST-000001
+- .browser-check/photo-mobile-profile/Default/Service Worker/ScriptCache/2cc80dabc69f58b6_0
+- .browser-check/photo-mobile-profile/Default/Service Worker/ScriptCache/4cb013792b196a35_0
+- .browser-check/photo-mobile-profile/Default/Service Worker/ScriptCache/4cb013792b196a35_1
+- .browser-check/photo-mobile-profile/Default/Service Worker/ScriptCache/index
+- .browser-check/photo-mobile-profile/Default/Service Worker/ScriptCache/index-dir/the-real-index
+- .browser-check/photo-mobile-profile/Default/Session Storage/000003.log
+- .browser-check/photo-mobile-profile/Default/Session Storage/CURRENT
+- .browser-check/photo-mobile-profile/Default/Session Storage/LOCK
+- .browser-check/photo-mobile-profile/Default/Session Storage/LOG
+- .browser-check/photo-mobile-profile/Default/Session Storage/MANIFEST-000001
+- .browser-check/photo-mobile-profile/Default/Sessions/Session_13436836808006230
+- .browser-check/photo-mobile-profile/Default/Sessions/Session_13436836814196890
+- .browser-check/photo-mobile-profile/Default/Sessions/Tabs_13436836808011532
+- .browser-check/photo-mobile-profile/Default/Sessions/Tabs_13436836814203641
+- .browser-check/photo-mobile-profile/Default/Shared Dictionary/cache/index
+- .browser-check/photo-mobile-profile/Default/Shared Dictionary/cache/index-dir/the-real-index
+- .browser-check/photo-mobile-profile/Default/Shared Dictionary/db
+- .browser-check/photo-mobile-profile/Default/Shared Dictionary/db-journal
+- .browser-check/photo-mobile-profile/Default/Site Characteristics Database/000003.log
+- .browser-check/photo-mobile-profile/Default/Site Characteristics Database/CURRENT
+- .browser-check/photo-mobile-profile/Default/Site Characteristics Database/LOCK
+- .browser-check/photo-mobile-profile/Default/Site Characteristics Database/LOG
+- .browser-check/photo-mobile-profile/Default/Site Characteristics Database/LOG.old
+- .browser-check/photo-mobile-profile/Default/Site Characteristics Database/MANIFEST-000001
+- .browser-check/photo-mobile-profile/Default/Sync Data/LevelDB/000003.log
+- .browser-check/photo-mobile-profile/Default/Sync Data/LevelDB/CURRENT
+- .browser-check/photo-mobile-profile/Default/Sync Data/LevelDB/LOCK
+- .browser-check/photo-mobile-profile/Default/Sync Data/LevelDB/LOG
+- .browser-check/photo-mobile-profile/Default/Sync Data/LevelDB/LOG.old
+- .browser-check/photo-mobile-profile/Default/Sync Data/LevelDB/MANIFEST-000001
+- .browser-check/photo-mobile-profile/Default/Top Sites
+- .browser-check/photo-mobile-profile/Default/Top Sites-journal
+- .browser-check/photo-mobile-profile/Default/Web Data
+- .browser-check/photo-mobile-profile/Default/Web Data-journal
+- .browser-check/photo-mobile-profile/Default/WebStorage/QuotaManager
+- .browser-check/photo-mobile-profile/Default/WebStorage/QuotaManager-journal
+- .browser-check/photo-mobile-profile/Default/chrome_cart_db/LOCK
+- .browser-check/photo-mobile-profile/Default/chrome_cart_db/LOG
+- .browser-check/photo-mobile-profile/Default/chrome_cart_db/LOG.old
+- .browser-check/photo-mobile-profile/Default/commerce_subscription_db/LOCK
+- .browser-check/photo-mobile-profile/Default/commerce_subscription_db/LOG
+- .browser-check/photo-mobile-profile/Default/commerce_subscription_db/LOG.old
+- .browser-check/photo-mobile-profile/Default/declarative_performance_observer.db
+- .browser-check/photo-mobile-profile/Default/declarative_performance_observer.db-journal
+- .browser-check/photo-mobile-profile/Default/discount_infos_db/LOCK
+- .browser-check/photo-mobile-profile/Default/discount_infos_db/LOG
+- .browser-check/photo-mobile-profile/Default/discount_infos_db/LOG.old
+- .browser-check/photo-mobile-profile/Default/discounts_db/LOCK
+- .browser-check/photo-mobile-profile/Default/discounts_db/LOG
+- .browser-check/photo-mobile-profile/Default/discounts_db/LOG.old
+- .browser-check/photo-mobile-profile/Default/parcel_tracking_db/LOCK
+- .browser-check/photo-mobile-profile/Default/parcel_tracking_db/LOG
+- .browser-check/photo-mobile-profile/Default/parcel_tracking_db/LOG.old
+- .browser-check/photo-mobile-profile/Default/shared_proto_db/000003.log
+- .browser-check/photo-mobile-profile/Default/shared_proto_db/CURRENT
+- .browser-check/photo-mobile-profile/Default/shared_proto_db/LOCK
+- .browser-check/photo-mobile-profile/Default/shared_proto_db/LOG
+- .browser-check/photo-mobile-profile/Default/shared_proto_db/LOG.old
+- .browser-check/photo-mobile-profile/Default/shared_proto_db/MANIFEST-000001
+- .browser-check/photo-mobile-profile/Default/shared_proto_db/metadata/000003.log
+- .browser-check/photo-mobile-profile/Default/shared_proto_db/metadata/CURRENT
+- .browser-check/photo-mobile-profile/Default/shared_proto_db/metadata/LOCK
+- .browser-check/photo-mobile-profile/Default/shared_proto_db/metadata/LOG
+- .browser-check/photo-mobile-profile/Default/shared_proto_db/metadata/LOG.old
+- .browser-check/photo-mobile-profile/Default/shared_proto_db/metadata/MANIFEST-000001
+- .browser-check/photo-mobile-profile/GPUPersistentCache/DawnGraphiteCache/NR2GNA44OGQUBFRRNDBXIX2VC7JXKYAS/cache.db
+- .browser-check/photo-mobile-profile/GPUPersistentCache/DawnGraphiteCache/NR2GNA44OGQUBFRRNDBXIX2VC7JXKYAS/cache.db-wal
+- .browser-check/photo-mobile-profile/GPUPersistentCache/DawnGraphiteCache/NR2GNA44OGQUBFRRNDBXIX2VC7JXKYAS/cache.journal
+- .browser-check/photo-mobile-profile/GrShaderCache/data_0
+- .browser-check/photo-mobile-profile/GrShaderCache/data_1
+- .browser-check/photo-mobile-profile/GrShaderCache/data_2
+- .browser-check/photo-mobile-profile/GrShaderCache/data_3
+- .browser-check/photo-mobile-profile/GrShaderCache/index
+- .browser-check/photo-mobile-profile/Last Version
+- .browser-check/photo-mobile-profile/Local State
+- .browser-check/photo-mobile-profile/ShaderCache/data_0
+- .browser-check/photo-mobile-profile/ShaderCache/data_1
+- .browser-check/photo-mobile-profile/ShaderCache/data_2
+- .browser-check/photo-mobile-profile/ShaderCache/data_3
+- .browser-check/photo-mobile-profile/ShaderCache/index
+- .browser-check/photo-mobile-profile/Variations
+- .browser-check/photo-mobile-profile/VariationsSafeSeedV2
+- .browser-check/photo-mobile-profile/VariationsSeedV2
+- .browser-check/photo-mobile-profile/extensions_crx_cache/metadata.json
+- .browser-check/photo-mobile-profile/segmentation_platform/ukm_db
+- .browser-check/photo-mobile.html
+- .browser-check/photo-mobile.png
+- .browser-check/photo-preview.html
+- .browser-check/photo-preview.mjs
+- .browser-check/search-desktop-profile/Crashpad/metadata
+- .browser-check/search-desktop-profile/Crashpad/settings.dat
+- .browser-check/search-desktop-profile/CrashpadMetrics-active.pma
+- .browser-check/search-desktop-profile/CrashpadMetrics.pma
+- .browser-check/search-desktop-profile/Default/Account Web Data
+- .browser-check/search-desktop-profile/Default/Account Web Data-journal
+- .browser-check/search-desktop-profile/Default/Affiliation Database
+- .browser-check/search-desktop-profile/Default/Affiliation Database-journal
+- .browser-check/search-desktop-profile/Default/BookmarkMergedSurfaceOrdering
+- .browser-check/search-desktop-profile/Default/Cache/Cache_Data/data_0
+- .browser-check/search-desktop-profile/Default/Cache/Cache_Data/data_1
+- .browser-check/search-desktop-profile/Default/Cache/Cache_Data/data_2
+- .browser-check/search-desktop-profile/Default/Cache/Cache_Data/data_3
+- .browser-check/search-desktop-profile/Default/Cache/Cache_Data/f_000001
+- .browser-check/search-desktop-profile/Default/Cache/Cache_Data/f_000002
+- .browser-check/search-desktop-profile/Default/Cache/Cache_Data/index
+- .browser-check/search-desktop-profile/Default/Cache/No_Vary_Search/journal.baj
+- .browser-check/search-desktop-profile/Default/Cache/No_Vary_Search/snapshot.baf
+- .browser-check/search-desktop-profile/Default/ClientCertificates/LOCK
+- .browser-check/search-desktop-profile/Default/ClientCertificates/LOG
+- .browser-check/search-desktop-profile/Default/ClientCertificates/LOG.old
+- .browser-check/search-desktop-profile/Default/Code Cache/js/ba678a2fbd8c358c_0
+- .browser-check/search-desktop-profile/Default/Code Cache/js/index
+- .browser-check/search-desktop-profile/Default/Code Cache/js/index-dir/the-real-index
+- .browser-check/search-desktop-profile/Default/Code Cache/wasm/index
+- .browser-check/search-desktop-profile/Default/Code Cache/wasm/index-dir/the-real-index
+- .browser-check/search-desktop-profile/Default/DawnGraphiteCache/data_0
+- .browser-check/search-desktop-profile/Default/DawnGraphiteCache/data_1
+- .browser-check/search-desktop-profile/Default/DawnGraphiteCache/data_2
+- .browser-check/search-desktop-profile/Default/DawnGraphiteCache/data_3
+- .browser-check/search-desktop-profile/Default/DawnGraphiteCache/index
+- .browser-check/search-desktop-profile/Default/DawnWebGPUCache/data_0
+- .browser-check/search-desktop-profile/Default/DawnWebGPUCache/data_1
+- .browser-check/search-desktop-profile/Default/DawnWebGPUCache/data_2
+- .browser-check/search-desktop-profile/Default/DawnWebGPUCache/data_3
+- .browser-check/search-desktop-profile/Default/DawnWebGPUCache/index
+- .browser-check/search-desktop-profile/Default/Extension Rules/000003.log
+- .browser-check/search-desktop-profile/Default/Extension Rules/CURRENT
+- .browser-check/search-desktop-profile/Default/Extension Rules/LOCK
+- .browser-check/search-desktop-profile/Default/Extension Rules/LOG
+- .browser-check/search-desktop-profile/Default/Extension Rules/MANIFEST-000001
+- .browser-check/search-desktop-profile/Default/Extension Scripts/000003.log
+- .browser-check/search-desktop-profile/Default/Extension Scripts/CURRENT
+- .browser-check/search-desktop-profile/Default/Extension Scripts/LOCK
+- .browser-check/search-desktop-profile/Default/Extension Scripts/LOG
+- .browser-check/search-desktop-profile/Default/Extension Scripts/MANIFEST-000001
+- .browser-check/search-desktop-profile/Default/Extension State/000003.log
+- .browser-check/search-desktop-profile/Default/Extension State/CURRENT
+- .browser-check/search-desktop-profile/Default/Extension State/LOCK
+- .browser-check/search-desktop-profile/Default/Extension State/LOG
+- .browser-check/search-desktop-profile/Default/Extension State/LOG.old
+- .browser-check/search-desktop-profile/Default/Extension State/MANIFEST-000001
+- .browser-check/search-desktop-profile/Default/Favicons
+- .browser-check/search-desktop-profile/Default/Favicons-journal
+- .browser-check/search-desktop-profile/Default/GPUCache/data_0
+- .browser-check/search-desktop-profile/Default/GPUCache/data_1
+- .browser-check/search-desktop-profile/Default/GPUCache/data_2
+- .browser-check/search-desktop-profile/Default/GPUCache/data_3
+- .browser-check/search-desktop-profile/Default/GPUCache/index
+- .browser-check/search-desktop-profile/Default/History
+- .browser-check/search-desktop-profile/Default/History-journal
+- .browser-check/search-desktop-profile/Default/LOCK
+- .browser-check/search-desktop-profile/Default/LOG
+- .browser-check/search-desktop-profile/Default/LOG.old
+- .browser-check/search-desktop-profile/Default/Local Storage/leveldb/000003.log
+- .browser-check/search-desktop-profile/Default/Local Storage/leveldb/CURRENT
+- .browser-check/search-desktop-profile/Default/Local Storage/leveldb/LOCK
+- .browser-check/search-desktop-profile/Default/Local Storage/leveldb/LOG
+- .browser-check/search-desktop-profile/Default/Local Storage/leveldb/LOG.old
+- .browser-check/search-desktop-profile/Default/Local Storage/leveldb/MANIFEST-000001
+- .browser-check/search-desktop-profile/Default/Login Data
+- .browser-check/search-desktop-profile/Default/Login Data For Account
+- .browser-check/search-desktop-profile/Default/Login Data For Account-journal
+- .browser-check/search-desktop-profile/Default/Login Data-journal
+- .browser-check/search-desktop-profile/Default/Network/Cookies
+- .browser-check/search-desktop-profile/Default/Network/Cookies-journal
+- .browser-check/search-desktop-profile/Default/Network/Device Bound Sessions
+- .browser-check/search-desktop-profile/Default/Network/Device Bound Sessions-journal
+- .browser-check/search-desktop-profile/Default/Network/Network Persistent State
+- .browser-check/search-desktop-profile/Default/Network/NetworkDataMigrated
+- .browser-check/search-desktop-profile/Default/Network/Reporting and NEL
+- .browser-check/search-desktop-profile/Default/Network/Reporting and NEL-journal
+- .browser-check/search-desktop-profile/Default/Network/TransportSecurity
+- .browser-check/search-desktop-profile/Default/Network/Trust Tokens
+- .browser-check/search-desktop-profile/Default/Network/Trust Tokens-journal
+- .browser-check/search-desktop-profile/Default/PersistentOriginTrials/LOCK
+- .browser-check/search-desktop-profile/Default/PersistentOriginTrials/LOG
+- .browser-check/search-desktop-profile/Default/PersistentOriginTrials/LOG.old
+- .browser-check/search-desktop-profile/Default/Preferences
+- .browser-check/search-desktop-profile/Default/README
+- .browser-check/search-desktop-profile/Default/Safe Browsing Network/NetworkDataMigrated
+- .browser-check/search-desktop-profile/Default/Secure Preferences
+- .browser-check/search-desktop-profile/Default/Segmentation Platform/SegmentInfoDB/LOCK
+- .browser-check/search-desktop-profile/Default/Segmentation Platform/SegmentInfoDB/LOG
+- .browser-check/search-desktop-profile/Default/Segmentation Platform/SegmentInfoDB/LOG.old
+- .browser-check/search-desktop-profile/Default/Segmentation Platform/SignalDB/LOCK
+- .browser-check/search-desktop-profile/Default/Segmentation Platform/SignalDB/LOG
+- .browser-check/search-desktop-profile/Default/Segmentation Platform/SignalDB/LOG.old
+- .browser-check/search-desktop-profile/Default/Segmentation Platform/SignalStorageConfigDB/LOCK
+- .browser-check/search-desktop-profile/Default/Segmentation Platform/SignalStorageConfigDB/LOG
+- .browser-check/search-desktop-profile/Default/Segmentation Platform/SignalStorageConfigDB/LOG.old
+- .browser-check/search-desktop-profile/Default/ServerCertificate
+- .browser-check/search-desktop-profile/Default/ServerCertificate-journal
+- .browser-check/search-desktop-profile/Default/Service Worker/Database/000003.log
+- .browser-check/search-desktop-profile/Default/Service Worker/Database/CURRENT
+- .browser-check/search-desktop-profile/Default/Service Worker/Database/LOCK
+- .browser-check/search-desktop-profile/Default/Service Worker/Database/LOG
+- .browser-check/search-desktop-profile/Default/Service Worker/Database/LOG.old
+- .browser-check/search-desktop-profile/Default/Service Worker/Database/MANIFEST-000001
+- .browser-check/search-desktop-profile/Default/Service Worker/ScriptCache/2cc80dabc69f58b6_0
+- .browser-check/search-desktop-profile/Default/Service Worker/ScriptCache/4cb013792b196a35_0
+- .browser-check/search-desktop-profile/Default/Service Worker/ScriptCache/4cb013792b196a35_1
+- .browser-check/search-desktop-profile/Default/Service Worker/ScriptCache/index
+- .browser-check/search-desktop-profile/Default/Service Worker/ScriptCache/index-dir/the-real-index
+- .browser-check/search-desktop-profile/Default/Session Storage/000003.log
+- .browser-check/search-desktop-profile/Default/Session Storage/CURRENT
+- .browser-check/search-desktop-profile/Default/Session Storage/LOCK
+- .browser-check/search-desktop-profile/Default/Session Storage/LOG
+- .browser-check/search-desktop-profile/Default/Session Storage/MANIFEST-000001
+- .browser-check/search-desktop-profile/Default/Sessions/Session_13436844460311899
+- .browser-check/search-desktop-profile/Default/Sessions/Session_13436847302207465
+- .browser-check/search-desktop-profile/Default/Sessions/Tabs_13436844460315712
+- .browser-check/search-desktop-profile/Default/Sessions/Tabs_13436847302218872
+- .browser-check/search-desktop-profile/Default/Shared Dictionary/cache/index
+- .browser-check/search-desktop-profile/Default/Shared Dictionary/cache/index-dir/the-real-index
+- .browser-check/search-desktop-profile/Default/Shared Dictionary/db
+- .browser-check/search-desktop-profile/Default/Shared Dictionary/db-journal
+- .browser-check/search-desktop-profile/Default/Site Characteristics Database/000003.log
+- .browser-check/search-desktop-profile/Default/Site Characteristics Database/CURRENT
+- .browser-check/search-desktop-profile/Default/Site Characteristics Database/LOCK
+- .browser-check/search-desktop-profile/Default/Site Characteristics Database/LOG
+- .browser-check/search-desktop-profile/Default/Site Characteristics Database/LOG.old
+- .browser-check/search-desktop-profile/Default/Site Characteristics Database/MANIFEST-000001
+- .browser-check/search-desktop-profile/Default/Sync Data/LevelDB/000003.log
+- .browser-check/search-desktop-profile/Default/Sync Data/LevelDB/CURRENT
+- .browser-check/search-desktop-profile/Default/Sync Data/LevelDB/LOCK
+- .browser-check/search-desktop-profile/Default/Sync Data/LevelDB/LOG
+- .browser-check/search-desktop-profile/Default/Sync Data/LevelDB/LOG.old
+- .browser-check/search-desktop-profile/Default/Sync Data/LevelDB/MANIFEST-000001
+- .browser-check/search-desktop-profile/Default/Top Sites
+- .browser-check/search-desktop-profile/Default/Top Sites-journal
+- .browser-check/search-desktop-profile/Default/Web Data
+- .browser-check/search-desktop-profile/Default/Web Data-journal
+- .browser-check/search-desktop-profile/Default/WebStorage/QuotaManager
+- .browser-check/search-desktop-profile/Default/WebStorage/QuotaManager-journal
+- .browser-check/search-desktop-profile/Default/chrome_cart_db/LOCK
+- .browser-check/search-desktop-profile/Default/chrome_cart_db/LOG
+- .browser-check/search-desktop-profile/Default/chrome_cart_db/LOG.old
+- .browser-check/search-desktop-profile/Default/commerce_subscription_db/LOCK
+- .browser-check/search-desktop-profile/Default/commerce_subscription_db/LOG
+- .browser-check/search-desktop-profile/Default/commerce_subscription_db/LOG.old
+- .browser-check/search-desktop-profile/Default/declarative_performance_observer.db
+- .browser-check/search-desktop-profile/Default/declarative_performance_observer.db-journal
+- .browser-check/search-desktop-profile/Default/discount_infos_db/LOCK
+- .browser-check/search-desktop-profile/Default/discount_infos_db/LOG
+- .browser-check/search-desktop-profile/Default/discount_infos_db/LOG.old
+- .browser-check/search-desktop-profile/Default/discounts_db/LOCK
+- .browser-check/search-desktop-profile/Default/discounts_db/LOG
+- .browser-check/search-desktop-profile/Default/discounts_db/LOG.old
+- .browser-check/search-desktop-profile/Default/parcel_tracking_db/LOCK
+- .browser-check/search-desktop-profile/Default/parcel_tracking_db/LOG
+- .browser-check/search-desktop-profile/Default/parcel_tracking_db/LOG.old
+- .browser-check/search-desktop-profile/Default/shared_proto_db/000003.log
+- .browser-check/search-desktop-profile/Default/shared_proto_db/CURRENT
+- .browser-check/search-desktop-profile/Default/shared_proto_db/LOCK
+- .browser-check/search-desktop-profile/Default/shared_proto_db/LOG
+- .browser-check/search-desktop-profile/Default/shared_proto_db/LOG.old
+- .browser-check/search-desktop-profile/Default/shared_proto_db/MANIFEST-000001
+- .browser-check/search-desktop-profile/Default/shared_proto_db/metadata/000003.log
+- .browser-check/search-desktop-profile/Default/shared_proto_db/metadata/CURRENT
+- .browser-check/search-desktop-profile/Default/shared_proto_db/metadata/LOCK
+- .browser-check/search-desktop-profile/Default/shared_proto_db/metadata/LOG
+- .browser-check/search-desktop-profile/Default/shared_proto_db/metadata/LOG.old
+- .browser-check/search-desktop-profile/Default/shared_proto_db/metadata/MANIFEST-000001
+- .browser-check/search-desktop-profile/GPUPersistentCache/DawnGraphiteCache/NR2GNA44OGQUBFRRNDBXIX2VC7JXKYAS/cache.db
+- .browser-check/search-desktop-profile/GPUPersistentCache/DawnGraphiteCache/NR2GNA44OGQUBFRRNDBXIX2VC7JXKYAS/cache.db-wal
+- .browser-check/search-desktop-profile/GPUPersistentCache/DawnGraphiteCache/NR2GNA44OGQUBFRRNDBXIX2VC7JXKYAS/cache.journal
+- .browser-check/search-desktop-profile/GrShaderCache/data_0
+- .browser-check/search-desktop-profile/GrShaderCache/data_1
+- .browser-check/search-desktop-profile/GrShaderCache/data_2
+- .browser-check/search-desktop-profile/GrShaderCache/data_3
+- .browser-check/search-desktop-profile/GrShaderCache/index
+- .browser-check/search-desktop-profile/Last Version
+- .browser-check/search-desktop-profile/Local State
+- .browser-check/search-desktop-profile/ShaderCache/data_0
+- .browser-check/search-desktop-profile/ShaderCache/data_1
+- .browser-check/search-desktop-profile/ShaderCache/data_2
+- .browser-check/search-desktop-profile/ShaderCache/data_3
+- .browser-check/search-desktop-profile/ShaderCache/index
+- .browser-check/search-desktop-profile/Variations
+- .browser-check/search-desktop-profile/VariationsSafeSeedV2
+- .browser-check/search-desktop-profile/VariationsSeedV2
+- .browser-check/search-desktop-profile/es-ES-3-0.bdic
+- .browser-check/search-desktop-profile/extensions_crx_cache/metadata.json
+- .browser-check/search-desktop-profile/segmentation_platform/ukm_db
+- .browser-check/search-desktop.png
+- .browser-check/search-mobile-profile/Crashpad/metadata
+- .browser-check/search-mobile-profile/Crashpad/settings.dat
+- .browser-check/search-mobile-profile/CrashpadMetrics-active.pma
+- .browser-check/search-mobile-profile/CrashpadMetrics.pma
+- .browser-check/search-mobile-profile/Default/Account Web Data
+- .browser-check/search-mobile-profile/Default/Account Web Data-journal
+- .browser-check/search-mobile-profile/Default/Affiliation Database
+- .browser-check/search-mobile-profile/Default/Affiliation Database-journal
+- .browser-check/search-mobile-profile/Default/BookmarkMergedSurfaceOrdering
+- .browser-check/search-mobile-profile/Default/Cache/Cache_Data/data_0
+- .browser-check/search-mobile-profile/Default/Cache/Cache_Data/data_1
+- .browser-check/search-mobile-profile/Default/Cache/Cache_Data/data_2
+- .browser-check/search-mobile-profile/Default/Cache/Cache_Data/data_3
+- .browser-check/search-mobile-profile/Default/Cache/Cache_Data/f_000001
+- .browser-check/search-mobile-profile/Default/Cache/Cache_Data/index
+- .browser-check/search-mobile-profile/Default/Cache/No_Vary_Search/journal.baj
+- .browser-check/search-mobile-profile/Default/Cache/No_Vary_Search/snapshot.baf
+- .browser-check/search-mobile-profile/Default/ClientCertificates/LOCK
+- .browser-check/search-mobile-profile/Default/ClientCertificates/LOG
+- .browser-check/search-mobile-profile/Default/ClientCertificates/LOG.old
+- .browser-check/search-mobile-profile/Default/Code Cache/js/ba678a2fbd8c358c_0
+- .browser-check/search-mobile-profile/Default/Code Cache/js/index
+- .browser-check/search-mobile-profile/Default/Code Cache/js/index-dir/the-real-index
+- .browser-check/search-mobile-profile/Default/Code Cache/wasm/index
+- .browser-check/search-mobile-profile/Default/Code Cache/wasm/index-dir/the-real-index
+- .browser-check/search-mobile-profile/Default/DawnGraphiteCache/data_0
+- .browser-check/search-mobile-profile/Default/DawnGraphiteCache/data_1
+- .browser-check/search-mobile-profile/Default/DawnGraphiteCache/data_2
+- .browser-check/search-mobile-profile/Default/DawnGraphiteCache/data_3
+- .browser-check/search-mobile-profile/Default/DawnGraphiteCache/index
+- .browser-check/search-mobile-profile/Default/DawnWebGPUCache/data_0
+- .browser-check/search-mobile-profile/Default/DawnWebGPUCache/data_1
+- .browser-check/search-mobile-profile/Default/DawnWebGPUCache/data_2
+- .browser-check/search-mobile-profile/Default/DawnWebGPUCache/data_3
+- .browser-check/search-mobile-profile/Default/DawnWebGPUCache/index
+- .browser-check/search-mobile-profile/Default/Extension Rules/000003.log
+- .browser-check/search-mobile-profile/Default/Extension Rules/CURRENT
+- .browser-check/search-mobile-profile/Default/Extension Rules/LOCK
+- .browser-check/search-mobile-profile/Default/Extension Rules/LOG
+- .browser-check/search-mobile-profile/Default/Extension Rules/MANIFEST-000001
+- .browser-check/search-mobile-profile/Default/Extension Scripts/000003.log
+- .browser-check/search-mobile-profile/Default/Extension Scripts/CURRENT
+- .browser-check/search-mobile-profile/Default/Extension Scripts/LOCK
+- .browser-check/search-mobile-profile/Default/Extension Scripts/LOG
+- .browser-check/search-mobile-profile/Default/Extension Scripts/MANIFEST-000001
+- .browser-check/search-mobile-profile/Default/Extension State/000003.log
+- .browser-check/search-mobile-profile/Default/Extension State/CURRENT
+- .browser-check/search-mobile-profile/Default/Extension State/LOCK
+- .browser-check/search-mobile-profile/Default/Extension State/LOG
+- .browser-check/search-mobile-profile/Default/Extension State/LOG.old
+- .browser-check/search-mobile-profile/Default/Extension State/MANIFEST-000001
+- .browser-check/search-mobile-profile/Default/Favicons
+- .browser-check/search-mobile-profile/Default/Favicons-journal
+- .browser-check/search-mobile-profile/Default/GPUCache/data_0
+- .browser-check/search-mobile-profile/Default/GPUCache/data_1
+- .browser-check/search-mobile-profile/Default/GPUCache/data_2
+- .browser-check/search-mobile-profile/Default/GPUCache/data_3
+- .browser-check/search-mobile-profile/Default/GPUCache/index
+- .browser-check/search-mobile-profile/Default/History
+- .browser-check/search-mobile-profile/Default/History-journal
+- .browser-check/search-mobile-profile/Default/LOCK
+- .browser-check/search-mobile-profile/Default/LOG
+- .browser-check/search-mobile-profile/Default/LOG.old
+- .browser-check/search-mobile-profile/Default/Local Storage/leveldb/000003.log
+- .browser-check/search-mobile-profile/Default/Local Storage/leveldb/CURRENT
+- .browser-check/search-mobile-profile/Default/Local Storage/leveldb/LOCK
+- .browser-check/search-mobile-profile/Default/Local Storage/leveldb/LOG
+- .browser-check/search-mobile-profile/Default/Local Storage/leveldb/LOG.old
+- .browser-check/search-mobile-profile/Default/Local Storage/leveldb/MANIFEST-000001
+- .browser-check/search-mobile-profile/Default/Login Data
+- .browser-check/search-mobile-profile/Default/Login Data For Account
+- .browser-check/search-mobile-profile/Default/Login Data For Account-journal
+- .browser-check/search-mobile-profile/Default/Login Data-journal
+- .browser-check/search-mobile-profile/Default/Network/Cookies
+- .browser-check/search-mobile-profile/Default/Network/Cookies-journal
+- .browser-check/search-mobile-profile/Default/Network/Device Bound Sessions
+- .browser-check/search-mobile-profile/Default/Network/Device Bound Sessions-journal
+- .browser-check/search-mobile-profile/Default/Network/Network Persistent State
+- .browser-check/search-mobile-profile/Default/Network/NetworkDataMigrated
+- .browser-check/search-mobile-profile/Default/Network/Reporting and NEL
+- .browser-check/search-mobile-profile/Default/Network/Reporting and NEL-journal
+- .browser-check/search-mobile-profile/Default/Network/TransportSecurity
+- .browser-check/search-mobile-profile/Default/Network/Trust Tokens
+- .browser-check/search-mobile-profile/Default/Network/Trust Tokens-journal
+- .browser-check/search-mobile-profile/Default/PersistentOriginTrials/LOCK
+- .browser-check/search-mobile-profile/Default/PersistentOriginTrials/LOG
+- .browser-check/search-mobile-profile/Default/PersistentOriginTrials/LOG.old
+- .browser-check/search-mobile-profile/Default/Preferences
+- .browser-check/search-mobile-profile/Default/README
+- .browser-check/search-mobile-profile/Default/Safe Browsing Network/NetworkDataMigrated
+- .browser-check/search-mobile-profile/Default/Secure Preferences
+- .browser-check/search-mobile-profile/Default/Segmentation Platform/SegmentInfoDB/LOCK
+- .browser-check/search-mobile-profile/Default/Segmentation Platform/SegmentInfoDB/LOG
+- .browser-check/search-mobile-profile/Default/Segmentation Platform/SegmentInfoDB/LOG.old
+- .browser-check/search-mobile-profile/Default/Segmentation Platform/SignalDB/LOCK
+- .browser-check/search-mobile-profile/Default/Segmentation Platform/SignalDB/LOG
+- .browser-check/search-mobile-profile/Default/Segmentation Platform/SignalDB/LOG.old
+- .browser-check/search-mobile-profile/Default/Segmentation Platform/SignalStorageConfigDB/LOCK
+- .browser-check/search-mobile-profile/Default/Segmentation Platform/SignalStorageConfigDB/LOG
+- .browser-check/search-mobile-profile/Default/Segmentation Platform/SignalStorageConfigDB/LOG.old
+- .browser-check/search-mobile-profile/Default/ServerCertificate
+- .browser-check/search-mobile-profile/Default/ServerCertificate-journal
+- .browser-check/search-mobile-profile/Default/Service Worker/Database/000003.log
+- .browser-check/search-mobile-profile/Default/Service Worker/Database/CURRENT
+- .browser-check/search-mobile-profile/Default/Service Worker/Database/LOCK
+- .browser-check/search-mobile-profile/Default/Service Worker/Database/LOG
+- .browser-check/search-mobile-profile/Default/Service Worker/Database/LOG.old
+- .browser-check/search-mobile-profile/Default/Service Worker/Database/MANIFEST-000001
+- .browser-check/search-mobile-profile/Default/Service Worker/ScriptCache/2cc80dabc69f58b6_0
+- .browser-check/search-mobile-profile/Default/Service Worker/ScriptCache/4cb013792b196a35_0
+- .browser-check/search-mobile-profile/Default/Service Worker/ScriptCache/4cb013792b196a35_1
+- .browser-check/search-mobile-profile/Default/Service Worker/ScriptCache/index
+- .browser-check/search-mobile-profile/Default/Service Worker/ScriptCache/index-dir/the-real-index
+- .browser-check/search-mobile-profile/Default/Session Storage/000003.log
+- .browser-check/search-mobile-profile/Default/Session Storage/CURRENT
+- .browser-check/search-mobile-profile/Default/Session Storage/LOCK
+- .browser-check/search-mobile-profile/Default/Session Storage/LOG
+- .browser-check/search-mobile-profile/Default/Session Storage/MANIFEST-000001
+- .browser-check/search-mobile-profile/Default/Sessions/Session_13436844459399997
+- .browser-check/search-mobile-profile/Default/Sessions/Session_13436847300276086
+- .browser-check/search-mobile-profile/Default/Sessions/Tabs_13436844459407491
+- .browser-check/search-mobile-profile/Default/Sessions/Tabs_13436847300280265
+- .browser-check/search-mobile-profile/Default/Shared Dictionary/cache/index
+- .browser-check/search-mobile-profile/Default/Shared Dictionary/cache/index-dir/the-real-index
+- .browser-check/search-mobile-profile/Default/Shared Dictionary/db
+- .browser-check/search-mobile-profile/Default/Shared Dictionary/db-journal
+- .browser-check/search-mobile-profile/Default/Site Characteristics Database/000003.log
+- .browser-check/search-mobile-profile/Default/Site Characteristics Database/CURRENT
+- .browser-check/search-mobile-profile/Default/Site Characteristics Database/LOCK
+- .browser-check/search-mobile-profile/Default/Site Characteristics Database/LOG
+- .browser-check/search-mobile-profile/Default/Site Characteristics Database/LOG.old
+- .browser-check/search-mobile-profile/Default/Site Characteristics Database/MANIFEST-000001
+- .browser-check/search-mobile-profile/Default/Sync Data/LevelDB/000003.log
+- .browser-check/search-mobile-profile/Default/Sync Data/LevelDB/CURRENT
+- .browser-check/search-mobile-profile/Default/Sync Data/LevelDB/LOCK
+- .browser-check/search-mobile-profile/Default/Sync Data/LevelDB/LOG
+- .browser-check/search-mobile-profile/Default/Sync Data/LevelDB/LOG.old
+- .browser-check/search-mobile-profile/Default/Sync Data/LevelDB/MANIFEST-000001
+- .browser-check/search-mobile-profile/Default/Top Sites
+- .browser-check/search-mobile-profile/Default/Top Sites-journal
+- .browser-check/search-mobile-profile/Default/Web Data
+- .browser-check/search-mobile-profile/Default/Web Data-journal
+- .browser-check/search-mobile-profile/Default/WebStorage/QuotaManager
+- .browser-check/search-mobile-profile/Default/WebStorage/QuotaManager-journal
+- .browser-check/search-mobile-profile/Default/chrome_cart_db/LOCK
+- .browser-check/search-mobile-profile/Default/chrome_cart_db/LOG
+- .browser-check/search-mobile-profile/Default/chrome_cart_db/LOG.old
+- .browser-check/search-mobile-profile/Default/commerce_subscription_db/LOCK
+- .browser-check/search-mobile-profile/Default/commerce_subscription_db/LOG
+- .browser-check/search-mobile-profile/Default/commerce_subscription_db/LOG.old
+- .browser-check/search-mobile-profile/Default/declarative_performance_observer.db
+- .browser-check/search-mobile-profile/Default/declarative_performance_observer.db-journal
+- .browser-check/search-mobile-profile/Default/discount_infos_db/LOCK
+- .browser-check/search-mobile-profile/Default/discount_infos_db/LOG
+- .browser-check/search-mobile-profile/Default/discount_infos_db/LOG.old
+- .browser-check/search-mobile-profile/Default/discounts_db/LOCK
+- .browser-check/search-mobile-profile/Default/discounts_db/LOG
+- .browser-check/search-mobile-profile/Default/discounts_db/LOG.old
+- .browser-check/search-mobile-profile/Default/parcel_tracking_db/LOCK
+- .browser-check/search-mobile-profile/Default/parcel_tracking_db/LOG
+- .browser-check/search-mobile-profile/Default/parcel_tracking_db/LOG.old
+- .browser-check/search-mobile-profile/Default/shared_proto_db/000003.log
+- .browser-check/search-mobile-profile/Default/shared_proto_db/CURRENT
+- .browser-check/search-mobile-profile/Default/shared_proto_db/LOCK
+- .browser-check/search-mobile-profile/Default/shared_proto_db/LOG
+- .browser-check/search-mobile-profile/Default/shared_proto_db/LOG.old
+- .browser-check/search-mobile-profile/Default/shared_proto_db/MANIFEST-000001
+- .browser-check/search-mobile-profile/Default/shared_proto_db/metadata/000003.log
+- .browser-check/search-mobile-profile/Default/shared_proto_db/metadata/CURRENT
+- .browser-check/search-mobile-profile/Default/shared_proto_db/metadata/LOCK
+- .browser-check/search-mobile-profile/Default/shared_proto_db/metadata/LOG
+- .browser-check/search-mobile-profile/Default/shared_proto_db/metadata/LOG.old
+- .browser-check/search-mobile-profile/Default/shared_proto_db/metadata/MANIFEST-000001
+- .browser-check/search-mobile-profile/GPUPersistentCache/DawnGraphiteCache/NR2GNA44OGQUBFRRNDBXIX2VC7JXKYAS/cache.db
+- .browser-check/search-mobile-profile/GPUPersistentCache/DawnGraphiteCache/NR2GNA44OGQUBFRRNDBXIX2VC7JXKYAS/cache.db-wal
+- .browser-check/search-mobile-profile/GPUPersistentCache/DawnGraphiteCache/NR2GNA44OGQUBFRRNDBXIX2VC7JXKYAS/cache.journal
+- .browser-check/search-mobile-profile/GrShaderCache/data_0
+- .browser-check/search-mobile-profile/GrShaderCache/data_1
+- .browser-check/search-mobile-profile/GrShaderCache/data_2
+- .browser-check/search-mobile-profile/GrShaderCache/data_3
+- .browser-check/search-mobile-profile/GrShaderCache/index
+- .browser-check/search-mobile-profile/Last Version
+- .browser-check/search-mobile-profile/Local State
+- .browser-check/search-mobile-profile/ShaderCache/data_0
+- .browser-check/search-mobile-profile/ShaderCache/data_1
+- .browser-check/search-mobile-profile/ShaderCache/data_2
+- .browser-check/search-mobile-profile/ShaderCache/data_3
+- .browser-check/search-mobile-profile/ShaderCache/index
+- .browser-check/search-mobile-profile/Variations
+- .browser-check/search-mobile-profile/VariationsSafeSeedV2
+- .browser-check/search-mobile-profile/VariationsSeedV2
+- .browser-check/search-mobile-profile/extensions_crx_cache/metadata.json
+- .browser-check/search-mobile-profile/segmentation_platform/ukm_db
+- .browser-check/search-mobile.png
+- .browser-check/search-preview.html
+- .browser-check/search-preview.mjs
+- .browser-check/tomb-media.html
+- .browser-check/zoom-desktop-profile/Crashpad/metadata
+- .browser-check/zoom-desktop-profile/Crashpad/settings.dat
+- .browser-check/zoom-desktop-profile/CrashpadMetrics-active.pma
+- .browser-check/zoom-desktop-profile/CrashpadMetrics.pma
+- .browser-check/zoom-desktop-profile/Default/Account Web Data
+- .browser-check/zoom-desktop-profile/Default/Account Web Data-journal
+- .browser-check/zoom-desktop-profile/Default/Affiliation Database
+- .browser-check/zoom-desktop-profile/Default/Affiliation Database-journal
+- .browser-check/zoom-desktop-profile/Default/BookmarkMergedSurfaceOrdering
+- .browser-check/zoom-desktop-profile/Default/Cache/Cache_Data/data_0
+- .browser-check/zoom-desktop-profile/Default/Cache/Cache_Data/data_1
+- .browser-check/zoom-desktop-profile/Default/Cache/Cache_Data/data_2
+- .browser-check/zoom-desktop-profile/Default/Cache/Cache_Data/data_3
+- .browser-check/zoom-desktop-profile/Default/Cache/Cache_Data/f_000001
+- .browser-check/zoom-desktop-profile/Default/Cache/Cache_Data/f_000002
+- .browser-check/zoom-desktop-profile/Default/Cache/Cache_Data/index
+- .browser-check/zoom-desktop-profile/Default/Cache/No_Vary_Search/journal.baj
+- .browser-check/zoom-desktop-profile/Default/Cache/No_Vary_Search/snapshot.baf
+- .browser-check/zoom-desktop-profile/Default/ClientCertificates/LOCK
+- .browser-check/zoom-desktop-profile/Default/ClientCertificates/LOG
+- .browser-check/zoom-desktop-profile/Default/ClientCertificates/LOG.old
+- .browser-check/zoom-desktop-profile/Default/Code Cache/js/ba678a2fbd8c358c_0
+- .browser-check/zoom-desktop-profile/Default/Code Cache/js/index
+- .browser-check/zoom-desktop-profile/Default/Code Cache/js/index-dir/the-real-index
+- .browser-check/zoom-desktop-profile/Default/Code Cache/wasm/index
+- .browser-check/zoom-desktop-profile/Default/Code Cache/wasm/index-dir/the-real-index
+- .browser-check/zoom-desktop-profile/Default/DawnGraphiteCache/data_0
+- .browser-check/zoom-desktop-profile/Default/DawnGraphiteCache/data_1
+- .browser-check/zoom-desktop-profile/Default/DawnGraphiteCache/data_2
+- .browser-check/zoom-desktop-profile/Default/DawnGraphiteCache/data_3
+- .browser-check/zoom-desktop-profile/Default/DawnGraphiteCache/index
+- .browser-check/zoom-desktop-profile/Default/DawnWebGPUCache/data_0
+- .browser-check/zoom-desktop-profile/Default/DawnWebGPUCache/data_1
+- .browser-check/zoom-desktop-profile/Default/DawnWebGPUCache/data_2
+- .browser-check/zoom-desktop-profile/Default/DawnWebGPUCache/data_3
+- .browser-check/zoom-desktop-profile/Default/DawnWebGPUCache/index
+- .browser-check/zoom-desktop-profile/Default/Extension Rules/000003.log
+- .browser-check/zoom-desktop-profile/Default/Extension Rules/CURRENT
+- .browser-check/zoom-desktop-profile/Default/Extension Rules/LOCK
+- .browser-check/zoom-desktop-profile/Default/Extension Rules/LOG
+- .browser-check/zoom-desktop-profile/Default/Extension Rules/MANIFEST-000001
+- .browser-check/zoom-desktop-profile/Default/Extension Scripts/000003.log
+- .browser-check/zoom-desktop-profile/Default/Extension Scripts/CURRENT
+- .browser-check/zoom-desktop-profile/Default/Extension Scripts/LOCK
+- .browser-check/zoom-desktop-profile/Default/Extension Scripts/LOG
+- .browser-check/zoom-desktop-profile/Default/Extension Scripts/MANIFEST-000001
+- .browser-check/zoom-desktop-profile/Default/Extension State/000003.log
+- .browser-check/zoom-desktop-profile/Default/Extension State/CURRENT
+- .browser-check/zoom-desktop-profile/Default/Extension State/LOCK
+- .browser-check/zoom-desktop-profile/Default/Extension State/LOG
+- .browser-check/zoom-desktop-profile/Default/Extension State/LOG.old
+- .browser-check/zoom-desktop-profile/Default/Extension State/MANIFEST-000001
+- .browser-check/zoom-desktop-profile/Default/Favicons
+- .browser-check/zoom-desktop-profile/Default/Favicons-journal
+- .browser-check/zoom-desktop-profile/Default/GPUCache/data_0
+- .browser-check/zoom-desktop-profile/Default/GPUCache/data_1
+- .browser-check/zoom-desktop-profile/Default/GPUCache/data_2
+- .browser-check/zoom-desktop-profile/Default/GPUCache/data_3
+- .browser-check/zoom-desktop-profile/Default/GPUCache/index
+- .browser-check/zoom-desktop-profile/Default/History
+- .browser-check/zoom-desktop-profile/Default/History-journal
+- .browser-check/zoom-desktop-profile/Default/LOCK
+- .browser-check/zoom-desktop-profile/Default/LOG
+- .browser-check/zoom-desktop-profile/Default/LOG.old
+- .browser-check/zoom-desktop-profile/Default/Local Storage/leveldb/000003.log
+- .browser-check/zoom-desktop-profile/Default/Local Storage/leveldb/CURRENT
+- .browser-check/zoom-desktop-profile/Default/Local Storage/leveldb/LOCK
+- .browser-check/zoom-desktop-profile/Default/Local Storage/leveldb/LOG
+- .browser-check/zoom-desktop-profile/Default/Local Storage/leveldb/LOG.old
+- .browser-check/zoom-desktop-profile/Default/Local Storage/leveldb/MANIFEST-000001
+- .browser-check/zoom-desktop-profile/Default/Login Data
+- .browser-check/zoom-desktop-profile/Default/Login Data For Account
+- .browser-check/zoom-desktop-profile/Default/Login Data For Account-journal
+- .browser-check/zoom-desktop-profile/Default/Login Data-journal
+- .browser-check/zoom-desktop-profile/Default/Network/Cookies
+- .browser-check/zoom-desktop-profile/Default/Network/Cookies-journal
+- .browser-check/zoom-desktop-profile/Default/Network/Device Bound Sessions
+- .browser-check/zoom-desktop-profile/Default/Network/Device Bound Sessions-journal
+- .browser-check/zoom-desktop-profile/Default/Network/Network Persistent State
+- .browser-check/zoom-desktop-profile/Default/Network/NetworkDataMigrated
+- .browser-check/zoom-desktop-profile/Default/Network/Reporting and NEL
+- .browser-check/zoom-desktop-profile/Default/Network/Reporting and NEL-journal
+- .browser-check/zoom-desktop-profile/Default/Network/TransportSecurity
+- .browser-check/zoom-desktop-profile/Default/Network/Trust Tokens
+- .browser-check/zoom-desktop-profile/Default/Network/Trust Tokens-journal
+- .browser-check/zoom-desktop-profile/Default/PersistentOriginTrials/LOCK
+- .browser-check/zoom-desktop-profile/Default/PersistentOriginTrials/LOG
+- .browser-check/zoom-desktop-profile/Default/PersistentOriginTrials/LOG.old
+- .browser-check/zoom-desktop-profile/Default/Preferences
+- .browser-check/zoom-desktop-profile/Default/README
+- .browser-check/zoom-desktop-profile/Default/Safe Browsing Network/NetworkDataMigrated
+- .browser-check/zoom-desktop-profile/Default/Secure Preferences
+- .browser-check/zoom-desktop-profile/Default/Segmentation Platform/SegmentInfoDB/LOCK
+- .browser-check/zoom-desktop-profile/Default/Segmentation Platform/SegmentInfoDB/LOG
+- .browser-check/zoom-desktop-profile/Default/Segmentation Platform/SegmentInfoDB/LOG.old
+- .browser-check/zoom-desktop-profile/Default/Segmentation Platform/SignalDB/LOCK
+- .browser-check/zoom-desktop-profile/Default/Segmentation Platform/SignalDB/LOG
+- .browser-check/zoom-desktop-profile/Default/Segmentation Platform/SignalDB/LOG.old
+- .browser-check/zoom-desktop-profile/Default/Segmentation Platform/SignalStorageConfigDB/LOCK
+- .browser-check/zoom-desktop-profile/Default/Segmentation Platform/SignalStorageConfigDB/LOG
+- .browser-check/zoom-desktop-profile/Default/Segmentation Platform/SignalStorageConfigDB/LOG.old
+- .browser-check/zoom-desktop-profile/Default/ServerCertificate
+- .browser-check/zoom-desktop-profile/Default/ServerCertificate-journal
+- .browser-check/zoom-desktop-profile/Default/Service Worker/Database/000003.log
+- .browser-check/zoom-desktop-profile/Default/Service Worker/Database/CURRENT
+- .browser-check/zoom-desktop-profile/Default/Service Worker/Database/LOCK
+- .browser-check/zoom-desktop-profile/Default/Service Worker/Database/LOG
+- .browser-check/zoom-desktop-profile/Default/Service Worker/Database/LOG.old
+- .browser-check/zoom-desktop-profile/Default/Service Worker/Database/MANIFEST-000001
+- .browser-check/zoom-desktop-profile/Default/Service Worker/ScriptCache/2cc80dabc69f58b6_0
+- .browser-check/zoom-desktop-profile/Default/Service Worker/ScriptCache/4cb013792b196a35_0
+- .browser-check/zoom-desktop-profile/Default/Service Worker/ScriptCache/4cb013792b196a35_1
+- .browser-check/zoom-desktop-profile/Default/Service Worker/ScriptCache/index
+- .browser-check/zoom-desktop-profile/Default/Service Worker/ScriptCache/index-dir/the-real-index
+- .browser-check/zoom-desktop-profile/Default/Session Storage/000003.log
+- .browser-check/zoom-desktop-profile/Default/Session Storage/CURRENT
+- .browser-check/zoom-desktop-profile/Default/Session Storage/LOCK
+- .browser-check/zoom-desktop-profile/Default/Session Storage/LOG
+- .browser-check/zoom-desktop-profile/Default/Session Storage/MANIFEST-000001
+- .browser-check/zoom-desktop-profile/Default/Sessions/Session_13436844727034688
+- .browser-check/zoom-desktop-profile/Default/Sessions/Session_13436847304694708
+- .browser-check/zoom-desktop-profile/Default/Sessions/Tabs_13436844727042456
+- .browser-check/zoom-desktop-profile/Default/Sessions/Tabs_13436847304701291
+- .browser-check/zoom-desktop-profile/Default/Shared Dictionary/cache/index
+- .browser-check/zoom-desktop-profile/Default/Shared Dictionary/cache/index-dir/the-real-index
+- .browser-check/zoom-desktop-profile/Default/Shared Dictionary/db
+- .browser-check/zoom-desktop-profile/Default/Shared Dictionary/db-journal
+- .browser-check/zoom-desktop-profile/Default/Site Characteristics Database/000003.log
+- .browser-check/zoom-desktop-profile/Default/Site Characteristics Database/CURRENT
+- .browser-check/zoom-desktop-profile/Default/Site Characteristics Database/LOCK
+- .browser-check/zoom-desktop-profile/Default/Site Characteristics Database/LOG
+- .browser-check/zoom-desktop-profile/Default/Site Characteristics Database/LOG.old
+- .browser-check/zoom-desktop-profile/Default/Site Characteristics Database/MANIFEST-000001
+- .browser-check/zoom-desktop-profile/Default/Sync Data/LevelDB/000003.log
+- .browser-check/zoom-desktop-profile/Default/Sync Data/LevelDB/CURRENT
+- .browser-check/zoom-desktop-profile/Default/Sync Data/LevelDB/LOCK
+- .browser-check/zoom-desktop-profile/Default/Sync Data/LevelDB/LOG
+- .browser-check/zoom-desktop-profile/Default/Sync Data/LevelDB/LOG.old
+- .browser-check/zoom-desktop-profile/Default/Sync Data/LevelDB/MANIFEST-000001
+- .browser-check/zoom-desktop-profile/Default/Top Sites
+- .browser-check/zoom-desktop-profile/Default/Top Sites-journal
+- .browser-check/zoom-desktop-profile/Default/Web Data
+- .browser-check/zoom-desktop-profile/Default/Web Data-journal
+- .browser-check/zoom-desktop-profile/Default/WebStorage/QuotaManager
+- .browser-check/zoom-desktop-profile/Default/WebStorage/QuotaManager-journal
+- .browser-check/zoom-desktop-profile/Default/chrome_cart_db/LOCK
+- .browser-check/zoom-desktop-profile/Default/chrome_cart_db/LOG
+- .browser-check/zoom-desktop-profile/Default/chrome_cart_db/LOG.old
+- .browser-check/zoom-desktop-profile/Default/commerce_subscription_db/LOCK
+- .browser-check/zoom-desktop-profile/Default/commerce_subscription_db/LOG
+- .browser-check/zoom-desktop-profile/Default/commerce_subscription_db/LOG.old
+- .browser-check/zoom-desktop-profile/Default/declarative_performance_observer.db
+- .browser-check/zoom-desktop-profile/Default/declarative_performance_observer.db-journal
+- .browser-check/zoom-desktop-profile/Default/discount_infos_db/LOCK
+- .browser-check/zoom-desktop-profile/Default/discount_infos_db/LOG
+- .browser-check/zoom-desktop-profile/Default/discount_infos_db/LOG.old
+- .browser-check/zoom-desktop-profile/Default/discounts_db/LOCK
+- .browser-check/zoom-desktop-profile/Default/discounts_db/LOG
+- .browser-check/zoom-desktop-profile/Default/discounts_db/LOG.old
+- .browser-check/zoom-desktop-profile/Default/parcel_tracking_db/LOCK
+- .browser-check/zoom-desktop-profile/Default/parcel_tracking_db/LOG
+- .browser-check/zoom-desktop-profile/Default/parcel_tracking_db/LOG.old
+- .browser-check/zoom-desktop-profile/Default/shared_proto_db/000003.log
+- .browser-check/zoom-desktop-profile/Default/shared_proto_db/CURRENT
+- .browser-check/zoom-desktop-profile/Default/shared_proto_db/LOCK
+- .browser-check/zoom-desktop-profile/Default/shared_proto_db/LOG
+- .browser-check/zoom-desktop-profile/Default/shared_proto_db/LOG.old
+- .browser-check/zoom-desktop-profile/Default/shared_proto_db/MANIFEST-000001
+- .browser-check/zoom-desktop-profile/Default/shared_proto_db/metadata/000003.log
+- .browser-check/zoom-desktop-profile/Default/shared_proto_db/metadata/CURRENT
+- .browser-check/zoom-desktop-profile/Default/shared_proto_db/metadata/LOCK
+- .browser-check/zoom-desktop-profile/Default/shared_proto_db/metadata/LOG
+- .browser-check/zoom-desktop-profile/Default/shared_proto_db/metadata/LOG.old
+- .browser-check/zoom-desktop-profile/Default/shared_proto_db/metadata/MANIFEST-000001
+- .browser-check/zoom-desktop-profile/GPUPersistentCache/DawnGraphiteCache/NR2GNA44OGQUBFRRNDBXIX2VC7JXKYAS/cache.db
+- .browser-check/zoom-desktop-profile/GPUPersistentCache/DawnGraphiteCache/NR2GNA44OGQUBFRRNDBXIX2VC7JXKYAS/cache.db-wal
+- .browser-check/zoom-desktop-profile/GPUPersistentCache/DawnGraphiteCache/NR2GNA44OGQUBFRRNDBXIX2VC7JXKYAS/cache.journal
+- .browser-check/zoom-desktop-profile/GrShaderCache/data_0
+- .browser-check/zoom-desktop-profile/GrShaderCache/data_1
+- .browser-check/zoom-desktop-profile/GrShaderCache/data_2
+- .browser-check/zoom-desktop-profile/GrShaderCache/data_3
+- .browser-check/zoom-desktop-profile/GrShaderCache/index
+- .browser-check/zoom-desktop-profile/Last Version
+- .browser-check/zoom-desktop-profile/Local State
+- .browser-check/zoom-desktop-profile/ShaderCache/data_0
+- .browser-check/zoom-desktop-profile/ShaderCache/data_1
+- .browser-check/zoom-desktop-profile/ShaderCache/data_2
+- .browser-check/zoom-desktop-profile/ShaderCache/data_3
+- .browser-check/zoom-desktop-profile/ShaderCache/index
+- .browser-check/zoom-desktop-profile/Variations
+- .browser-check/zoom-desktop-profile/VariationsSafeSeedV2
+- .browser-check/zoom-desktop-profile/VariationsSeedV2
+- .browser-check/zoom-desktop-profile/es-ES-3-0.bdic
+- .browser-check/zoom-desktop-profile/extensions_crx_cache/metadata.json
+- .browser-check/zoom-desktop-profile/segmentation_platform/ukm_db
+- .browser-check/zoom-desktop.png
+- .browser-check/zoom-mobile-profile/Crashpad/metadata
+- .browser-check/zoom-mobile-profile/Crashpad/settings.dat
+- .browser-check/zoom-mobile-profile/CrashpadMetrics-active.pma
+- .browser-check/zoom-mobile-profile/CrashpadMetrics.pma
+- .browser-check/zoom-mobile-profile/Default/Account Web Data
+- .browser-check/zoom-mobile-profile/Default/Account Web Data-journal
+- .browser-check/zoom-mobile-profile/Default/Affiliation Database
+- .browser-check/zoom-mobile-profile/Default/Affiliation Database-journal
+- .browser-check/zoom-mobile-profile/Default/BookmarkMergedSurfaceOrdering
+- .browser-check/zoom-mobile-profile/Default/Cache/Cache_Data/data_0
+- .browser-check/zoom-mobile-profile/Default/Cache/Cache_Data/data_1
+- .browser-check/zoom-mobile-profile/Default/Cache/Cache_Data/data_2
+- .browser-check/zoom-mobile-profile/Default/Cache/Cache_Data/data_3
+- .browser-check/zoom-mobile-profile/Default/Cache/Cache_Data/f_000001
+- .browser-check/zoom-mobile-profile/Default/Cache/Cache_Data/f_000002
+- .browser-check/zoom-mobile-profile/Default/Cache/Cache_Data/index
+- .browser-check/zoom-mobile-profile/Default/Cache/No_Vary_Search/journal.baj
+- .browser-check/zoom-mobile-profile/Default/Cache/No_Vary_Search/snapshot.baf
+- .browser-check/zoom-mobile-profile/Default/ClientCertificates/LOCK
+- .browser-check/zoom-mobile-profile/Default/ClientCertificates/LOG
+- .browser-check/zoom-mobile-profile/Default/ClientCertificates/LOG.old
+- .browser-check/zoom-mobile-profile/Default/Code Cache/js/ba678a2fbd8c358c_0
+- .browser-check/zoom-mobile-profile/Default/Code Cache/js/index
+- .browser-check/zoom-mobile-profile/Default/Code Cache/js/index-dir/the-real-index
+- .browser-check/zoom-mobile-profile/Default/Code Cache/wasm/index
+- .browser-check/zoom-mobile-profile/Default/Code Cache/wasm/index-dir/the-real-index
+- .browser-check/zoom-mobile-profile/Default/DawnGraphiteCache/data_0
+- .browser-check/zoom-mobile-profile/Default/DawnGraphiteCache/data_1
+- .browser-check/zoom-mobile-profile/Default/DawnGraphiteCache/data_2
+- .browser-check/zoom-mobile-profile/Default/DawnGraphiteCache/data_3
+- .browser-check/zoom-mobile-profile/Default/DawnGraphiteCache/index
+- .browser-check/zoom-mobile-profile/Default/DawnWebGPUCache/data_0
+- .browser-check/zoom-mobile-profile/Default/DawnWebGPUCache/data_1
+- .browser-check/zoom-mobile-profile/Default/DawnWebGPUCache/data_2
+- .browser-check/zoom-mobile-profile/Default/DawnWebGPUCache/data_3
+- .browser-check/zoom-mobile-profile/Default/DawnWebGPUCache/index
+- .browser-check/zoom-mobile-profile/Default/Extension Rules/000003.log
+- .browser-check/zoom-mobile-profile/Default/Extension Rules/CURRENT
+- .browser-check/zoom-mobile-profile/Default/Extension Rules/LOCK
+- .browser-check/zoom-mobile-profile/Default/Extension Rules/LOG
+- .browser-check/zoom-mobile-profile/Default/Extension Rules/MANIFEST-000001
+- .browser-check/zoom-mobile-profile/Default/Extension Scripts/000003.log
+- .browser-check/zoom-mobile-profile/Default/Extension Scripts/CURRENT
+- .browser-check/zoom-mobile-profile/Default/Extension Scripts/LOCK
+- .browser-check/zoom-mobile-profile/Default/Extension Scripts/LOG
+- .browser-check/zoom-mobile-profile/Default/Extension Scripts/MANIFEST-000001
+- .browser-check/zoom-mobile-profile/Default/Extension State/000003.log
+- .browser-check/zoom-mobile-profile/Default/Extension State/CURRENT
+- .browser-check/zoom-mobile-profile/Default/Extension State/LOCK
+- .browser-check/zoom-mobile-profile/Default/Extension State/LOG
+- .browser-check/zoom-mobile-profile/Default/Extension State/LOG.old
+- .browser-check/zoom-mobile-profile/Default/Extension State/MANIFEST-000001
+- .browser-check/zoom-mobile-profile/Default/Favicons
+- .browser-check/zoom-mobile-profile/Default/Favicons-journal
+- .browser-check/zoom-mobile-profile/Default/GPUCache/data_0
+- .browser-check/zoom-mobile-profile/Default/GPUCache/data_1
+- .browser-check/zoom-mobile-profile/Default/GPUCache/data_2
+- .browser-check/zoom-mobile-profile/Default/GPUCache/data_3
+- .browser-check/zoom-mobile-profile/Default/GPUCache/index
+- .browser-check/zoom-mobile-profile/Default/History
+- .browser-check/zoom-mobile-profile/Default/History-journal
+- .browser-check/zoom-mobile-profile/Default/LOCK
+- .browser-check/zoom-mobile-profile/Default/LOG
+- .browser-check/zoom-mobile-profile/Default/LOG.old
+- .browser-check/zoom-mobile-profile/Default/Local Storage/leveldb/000003.log
+- .browser-check/zoom-mobile-profile/Default/Local Storage/leveldb/CURRENT
+- .browser-check/zoom-mobile-profile/Default/Local Storage/leveldb/LOCK
+- .browser-check/zoom-mobile-profile/Default/Local Storage/leveldb/LOG
+- .browser-check/zoom-mobile-profile/Default/Local Storage/leveldb/LOG.old
+- .browser-check/zoom-mobile-profile/Default/Local Storage/leveldb/MANIFEST-000001
+- .browser-check/zoom-mobile-profile/Default/Login Data
+- .browser-check/zoom-mobile-profile/Default/Login Data For Account
+- .browser-check/zoom-mobile-profile/Default/Login Data For Account-journal
+- .browser-check/zoom-mobile-profile/Default/Login Data-journal
+- .browser-check/zoom-mobile-profile/Default/Network/Cookies
+- .browser-check/zoom-mobile-profile/Default/Network/Cookies-journal
+- .browser-check/zoom-mobile-profile/Default/Network/Device Bound Sessions
+- .browser-check/zoom-mobile-profile/Default/Network/Device Bound Sessions-journal
+- .browser-check/zoom-mobile-profile/Default/Network/Network Persistent State
+- .browser-check/zoom-mobile-profile/Default/Network/NetworkDataMigrated
+- .browser-check/zoom-mobile-profile/Default/Network/Reporting and NEL
+- .browser-check/zoom-mobile-profile/Default/Network/Reporting and NEL-journal
+- .browser-check/zoom-mobile-profile/Default/Network/TransportSecurity
+- .browser-check/zoom-mobile-profile/Default/Network/Trust Tokens
+- .browser-check/zoom-mobile-profile/Default/Network/Trust Tokens-journal
+- .browser-check/zoom-mobile-profile/Default/PersistentOriginTrials/LOCK
+- .browser-check/zoom-mobile-profile/Default/PersistentOriginTrials/LOG
+- .browser-check/zoom-mobile-profile/Default/PersistentOriginTrials/LOG.old
+- .browser-check/zoom-mobile-profile/Default/Preferences
+- .browser-check/zoom-mobile-profile/Default/README
+- .browser-check/zoom-mobile-profile/Default/Safe Browsing Network/NetworkDataMigrated
+- .browser-check/zoom-mobile-profile/Default/Secure Preferences
+- .browser-check/zoom-mobile-profile/Default/Segmentation Platform/SegmentInfoDB/LOCK
+- .browser-check/zoom-mobile-profile/Default/Segmentation Platform/SegmentInfoDB/LOG
+- .browser-check/zoom-mobile-profile/Default/Segmentation Platform/SegmentInfoDB/LOG.old
+- .browser-check/zoom-mobile-profile/Default/Segmentation Platform/SignalDB/LOCK
+- .browser-check/zoom-mobile-profile/Default/Segmentation Platform/SignalDB/LOG
+- .browser-check/zoom-mobile-profile/Default/Segmentation Platform/SignalDB/LOG.old
+- .browser-check/zoom-mobile-profile/Default/Segmentation Platform/SignalStorageConfigDB/LOCK
+- .browser-check/zoom-mobile-profile/Default/Segmentation Platform/SignalStorageConfigDB/LOG
+- .browser-check/zoom-mobile-profile/Default/Segmentation Platform/SignalStorageConfigDB/LOG.old
+- .browser-check/zoom-mobile-profile/Default/ServerCertificate
+- .browser-check/zoom-mobile-profile/Default/ServerCertificate-journal
+- .browser-check/zoom-mobile-profile/Default/Service Worker/Database/000003.log
+- .browser-check/zoom-mobile-profile/Default/Service Worker/Database/CURRENT
+- .browser-check/zoom-mobile-profile/Default/Service Worker/Database/LOCK
+- .browser-check/zoom-mobile-profile/Default/Service Worker/Database/LOG
+- .browser-check/zoom-mobile-profile/Default/Service Worker/Database/LOG.old
+- .browser-check/zoom-mobile-profile/Default/Service Worker/Database/MANIFEST-000001
+- .browser-check/zoom-mobile-profile/Default/Service Worker/ScriptCache/2cc80dabc69f58b6_0
+- .browser-check/zoom-mobile-profile/Default/Service Worker/ScriptCache/4cb013792b196a35_0
+- .browser-check/zoom-mobile-profile/Default/Service Worker/ScriptCache/4cb013792b196a35_1
+- .browser-check/zoom-mobile-profile/Default/Service Worker/ScriptCache/index
+- .browser-check/zoom-mobile-profile/Default/Service Worker/ScriptCache/index-dir/the-real-index
+- .browser-check/zoom-mobile-profile/Default/Session Storage/000003.log
+- .browser-check/zoom-mobile-profile/Default/Session Storage/CURRENT
+- .browser-check/zoom-mobile-profile/Default/Session Storage/LOCK
+- .browser-check/zoom-mobile-profile/Default/Session Storage/LOG
+- .browser-check/zoom-mobile-profile/Default/Session Storage/MANIFEST-000001
+- .browser-check/zoom-mobile-profile/Default/Sessions/Session_13436844725966010
+- .browser-check/zoom-mobile-profile/Default/Sessions/Session_13436847303612158
+- .browser-check/zoom-mobile-profile/Default/Sessions/Tabs_13436844725979382
+- .browser-check/zoom-mobile-profile/Default/Sessions/Tabs_13436847303622853
+- .browser-check/zoom-mobile-profile/Default/Shared Dictionary/cache/index
+- .browser-check/zoom-mobile-profile/Default/Shared Dictionary/cache/index-dir/the-real-index
+- .browser-check/zoom-mobile-profile/Default/Shared Dictionary/db
+- .browser-check/zoom-mobile-profile/Default/Shared Dictionary/db-journal
+- .browser-check/zoom-mobile-profile/Default/Site Characteristics Database/000003.log
+- .browser-check/zoom-mobile-profile/Default/Site Characteristics Database/CURRENT
+- .browser-check/zoom-mobile-profile/Default/Site Characteristics Database/LOCK
+- .browser-check/zoom-mobile-profile/Default/Site Characteristics Database/LOG
+- .browser-check/zoom-mobile-profile/Default/Site Characteristics Database/LOG.old
+- .browser-check/zoom-mobile-profile/Default/Site Characteristics Database/MANIFEST-000001
+- .browser-check/zoom-mobile-profile/Default/Sync Data/LevelDB/000003.log
+- .browser-check/zoom-mobile-profile/Default/Sync Data/LevelDB/CURRENT
+- .browser-check/zoom-mobile-profile/Default/Sync Data/LevelDB/LOCK
+- .browser-check/zoom-mobile-profile/Default/Sync Data/LevelDB/LOG
+- .browser-check/zoom-mobile-profile/Default/Sync Data/LevelDB/LOG.old
+- .browser-check/zoom-mobile-profile/Default/Sync Data/LevelDB/MANIFEST-000001
+- .browser-check/zoom-mobile-profile/Default/Top Sites
+- .browser-check/zoom-mobile-profile/Default/Top Sites-journal
+- .browser-check/zoom-mobile-profile/Default/Web Data
+- .browser-check/zoom-mobile-profile/Default/Web Data-journal
+- .browser-check/zoom-mobile-profile/Default/WebStorage/QuotaManager
+- .browser-check/zoom-mobile-profile/Default/WebStorage/QuotaManager-journal
+- .browser-check/zoom-mobile-profile/Default/chrome_cart_db/LOCK
+- .browser-check/zoom-mobile-profile/Default/chrome_cart_db/LOG
+- .browser-check/zoom-mobile-profile/Default/chrome_cart_db/LOG.old
+- .browser-check/zoom-mobile-profile/Default/commerce_subscription_db/LOCK
+- .browser-check/zoom-mobile-profile/Default/commerce_subscription_db/LOG
+- .browser-check/zoom-mobile-profile/Default/commerce_subscription_db/LOG.old
+- .browser-check/zoom-mobile-profile/Default/declarative_performance_observer.db
+- .browser-check/zoom-mobile-profile/Default/declarative_performance_observer.db-journal
+- .browser-check/zoom-mobile-profile/Default/discount_infos_db/LOCK
+- .browser-check/zoom-mobile-profile/Default/discount_infos_db/LOG
+- .browser-check/zoom-mobile-profile/Default/discount_infos_db/LOG.old
+- .browser-check/zoom-mobile-profile/Default/discounts_db/LOCK
+- .browser-check/zoom-mobile-profile/Default/discounts_db/LOG
+- .browser-check/zoom-mobile-profile/Default/discounts_db/LOG.old
+- .browser-check/zoom-mobile-profile/Default/parcel_tracking_db/LOCK
+- .browser-check/zoom-mobile-profile/Default/parcel_tracking_db/LOG
+- .browser-check/zoom-mobile-profile/Default/parcel_tracking_db/LOG.old
+- .browser-check/zoom-mobile-profile/Default/shared_proto_db/000003.log
+- .browser-check/zoom-mobile-profile/Default/shared_proto_db/CURRENT
+- .browser-check/zoom-mobile-profile/Default/shared_proto_db/LOCK
+- .browser-check/zoom-mobile-profile/Default/shared_proto_db/LOG
+- .browser-check/zoom-mobile-profile/Default/shared_proto_db/LOG.old
+- .browser-check/zoom-mobile-profile/Default/shared_proto_db/MANIFEST-000001
+- .browser-check/zoom-mobile-profile/Default/shared_proto_db/metadata/000003.log
+- .browser-check/zoom-mobile-profile/Default/shared_proto_db/metadata/CURRENT
+- .browser-check/zoom-mobile-profile/Default/shared_proto_db/metadata/LOCK
+- .browser-check/zoom-mobile-profile/Default/shared_proto_db/metadata/LOG
+- .browser-check/zoom-mobile-profile/Default/shared_proto_db/metadata/LOG.old
+- .browser-check/zoom-mobile-profile/Default/shared_proto_db/metadata/MANIFEST-000001
+- .browser-check/zoom-mobile-profile/GPUPersistentCache/DawnGraphiteCache/NR2GNA44OGQUBFRRNDBXIX2VC7JXKYAS/cache.db
+- .browser-check/zoom-mobile-profile/GPUPersistentCache/DawnGraphiteCache/NR2GNA44OGQUBFRRNDBXIX2VC7JXKYAS/cache.db-wal
+- .browser-check/zoom-mobile-profile/GPUPersistentCache/DawnGraphiteCache/NR2GNA44OGQUBFRRNDBXIX2VC7JXKYAS/cache.journal
+- .browser-check/zoom-mobile-profile/GrShaderCache/data_0
+- .browser-check/zoom-mobile-profile/GrShaderCache/data_1
+- .browser-check/zoom-mobile-profile/GrShaderCache/data_2
+- .browser-check/zoom-mobile-profile/GrShaderCache/data_3
+- .browser-check/zoom-mobile-profile/GrShaderCache/index
+- .browser-check/zoom-mobile-profile/Last Version
+- .browser-check/zoom-mobile-profile/Local State
+- .browser-check/zoom-mobile-profile/ShaderCache/data_0
+- .browser-check/zoom-mobile-profile/ShaderCache/data_1
+- .browser-check/zoom-mobile-profile/ShaderCache/data_2
+- .browser-check/zoom-mobile-profile/ShaderCache/data_3
+- .browser-check/zoom-mobile-profile/ShaderCache/index
+- .browser-check/zoom-mobile-profile/Variations
+- .browser-check/zoom-mobile-profile/VariationsSafeSeedV2
+- .browser-check/zoom-mobile-profile/VariationsSeedV2
+- .browser-check/zoom-mobile-profile/es-ES-3-0.bdic
+- .browser-check/zoom-mobile-profile/extensions_crx_cache/metadata.json
+- .browser-check/zoom-mobile-profile/segmentation_platform/ukm_db
+- .browser-check/zoom-mobile.png
+- .browser-check/zoom-preview.html
+- .browser-check/zoom-preview.mjs
+- .firebase/hosting..cache
+- android/.gradle/8.14.3/checksums/checksums.lock
+- android/.gradle/8.14.3/executionHistory/executionHistory.bin
+- android/.gradle/8.14.3/executionHistory/executionHistory.lock
+- android/.gradle/8.14.3/fileChanges/last-build.bin
+- android/.gradle/8.14.3/fileHashes/fileHashes.bin
+- android/.gradle/8.14.3/fileHashes/fileHashes.lock
+- android/.gradle/buildOutputCleanup/buildOutputCleanup.lock
+- android/.gradle/buildOutputCleanup/outputFiles.bin
+- android/.gradle/file-system.probe
+- android/app/capacitor.build.gradle
+- android/app/src/main/assets/capacitor.config.json
+- android/app/src/main/assets/capacitor.plugins.json
+- android/app/src/main/assets/public/assets/brand/icon-180.png
+- android/app/src/main/assets/public/assets/brand/icon-192.png
+- android/app/src/main/assets/public/assets/brand/icon-32.png
+- android/app/src/main/assets/public/assets/brand/icon-512.png
+- android/app/src/main/assets/public/assets/brand/icon-64.png
+- android/app/src/main/assets/public/assets/brand/icon-maskable-512.png
+- android/app/src/main/assets/public/assets/brand/logo.png
+- android/app/src/main/assets/public/cordova.js
+- android/app/src/main/assets/public/cordova_plugins.js
+- android/app/src/main/assets/public/index.html
+- android/app/src/main/assets/public/manifest.webmanifest
+- android/app/src/main/assets/public/mobile/app.css
+- android/app/src/main/assets/public/mobile/app.js
+- android/app/src/main/assets/public/mobile/familysearch.js
+- android/app/src/main/assets/public/mobile/install.js
+- android/app/src/main/res/drawable-land-hdpi/splash.png
+- android/app/src/main/res/drawable-land-mdpi/splash.png
+- android/app/src/main/res/drawable-land-xhdpi/splash.png
+- android/app/src/main/res/drawable-land-xxhdpi/splash.png
+- android/app/src/main/res/drawable-land-xxxhdpi/splash.png
+- android/app/src/main/res/drawable-nodpi/buscatumbas_logo.png
+- android/app/src/main/res/drawable-port-hdpi/splash.png
+- android/app/src/main/res/drawable-port-mdpi/splash.png
+- android/app/src/main/res/drawable-port-xhdpi/splash.png
+- android/app/src/main/res/drawable-port-xxhdpi/splash.png
+- android/app/src/main/res/drawable-port-xxxhdpi/splash.png
+- android/app/src/main/res/drawable/splash.png
+- android/app/src/main/res/mipmap-hdpi/ic_launcher.png
+- android/app/src/main/res/mipmap-hdpi/ic_launcher_foreground.png
+- android/app/src/main/res/mipmap-hdpi/ic_launcher_round.png
+- android/app/src/main/res/mipmap-mdpi/ic_launcher.png
+- android/app/src/main/res/mipmap-mdpi/ic_launcher_foreground.png
+- android/app/src/main/res/mipmap-mdpi/ic_launcher_round.png
+- android/app/src/main/res/mipmap-xhdpi/ic_launcher.png
+- android/app/src/main/res/mipmap-xhdpi/ic_launcher_foreground.png
+- android/app/src/main/res/mipmap-xhdpi/ic_launcher_round.png
+- android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png
+- android/app/src/main/res/mipmap-xxhdpi/ic_launcher_foreground.png
+- android/app/src/main/res/mipmap-xxhdpi/ic_launcher_round.png
+- android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png
+- android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_foreground.png
+- android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png
+- android/app/src/main/res/values/ic_launcher_background.xml
+- android/app/src/main/res/xml/config.xml
+- android/capacitor-cordova-android-plugins/build.gradle
+- android/capacitor-cordova-android-plugins/cordova.variables.gradle
+- android/capacitor-cordova-android-plugins/src/main/AndroidManifest.xml
+- android/capacitor.settings.gradle
+- assets/brand/icon-180.png
+- assets/brand/icon-192.png
+- assets/brand/icon-32.png
+- assets/brand/icon-512.png
+- assets/brand/icon-64.png
+- assets/brand/icon-maskable-512.png
+- assets/brand/logo.png
+- capacitor.config.json
+- index.html
+- manifest.webmanifest
+- mobile-tests/android.test.mjs
+- mobile-tests/familysearch.test.mjs
+- mobile-tests/install.test.mjs
+- mobile/app.css
+- mobile/app.js
+- mobile/familysearch.js
+- scripts/build-android.mjs
+- scripts/familysearch/README.md
+- scripts/generate-brand-assets.ps1
+- scripts/verify-familysearch-ui.mjs
+- security-tests/search.test.mjs
+- www/assets/brand/icon-180.png
+- www/assets/brand/icon-192.png
+- www/assets/brand/icon-32.png
+- www/assets/brand/icon-512.png
+- www/assets/brand/icon-64.png
+- www/assets/brand/icon-maskable-512.png
+- www/assets/brand/logo.png
+- www/index.html
+- www/manifest.webmanifest
+- www/mobile/app.css
+- www/mobile/app.js
+- www/mobile/familysearch.js
+
+### Riesgos
+
+- Se eliminaron 16 archivo(s). Confirma que las eliminaciones sean intencionales antes de integrar los cambios.
+- Se modificaron archivos de configuración o infraestructura (android/.gradle/8.14.3/checksums/checksums.lock, android/.gradle/8.14.3/executionHistory/executionHistory.bin, android/.gradle/8.14.3/executionHistory/executionHistory.lock, android/.gradle/8.14.3/fileChanges/last-build.bin, android/.gradle/8.14.3/fileHashes/fileHashes.bin). Valida compatibilidad y despliegue.
+- La sesión contiene 2560 cambios. Considera dividir la revisión o el commit para reducir el riesgo de integración.
+- El análisis incluye archivos que ya tenían cambios al iniciar la sesión.
+
+### Próximo paso
+
+- Revisar y resolver los riesgos detectados en este cierre.
+- Ejecutar las pruebas automatizadas y validar el comportamiento afectado.
+- Revisar el diff y preparar un commit descriptivo.
+
+<!-- cdc-session:session-20261018044954-bb3e21 -->
+## Sesión 17/10/2026, 11:05 p.m.
+
+### Resumen
+
+La sesión se enfocó en: Revisar y resolver los riesgos detectados en este cierre.. Se detectaron 0 cambio(s): 0 creado(s), 0 modificado(s) y 0 eliminado(s).
+
+### Cambios
+
+- No se detectaron archivos modificados.
+
+### Riesgos
+
+- No se detectaron archivos modificados. Confirma que el trabajo se haya guardado dentro del proyecto y fuera de carpetas ignoradas.
+- El análisis incluye archivos que ya tenían cambios al iniciar la sesión.
+
+### Próximo paso
+
+- Revisar y resolver los riesgos detectados en este cierre.
+- Definir el siguiente objetivo de trabajo del proyecto.
+
+<!-- cdc-session:session-20261017231818-bd832d -->
+## Sesión 17/10/2026, 10:43 p.m.
+
+### Resumen
+
+La sesión se enfocó en: Revisar y resolver los riesgos detectados en este cierre.. Se detectaron 682 cambio(s): 611 creado(s), 71 modificado(s) y 0 eliminado(s).
+
+### Cambios
+
+- .browser-check/brand-auth-mobile.html
+- .browser-check/brand-auth-mobile.png
+- .browser-check/brand-header-mobile.html
+- .browser-check/brand-header-mobile.png
+- .browser-check/brand-profile/Crashpad/metadata
+- .browser-check/brand-profile/Crashpad/settings.dat
+- .browser-check/brand-profile/CrashpadMetrics-active.pma
+- .browser-check/brand-profile/CrashpadMetrics.pma
+- .browser-check/brand-profile/Default/Account Web Data
+- .browser-check/brand-profile/Default/Account Web Data-journal
+- .browser-check/brand-profile/Default/Affiliation Database
+- .browser-check/brand-profile/Default/Affiliation Database-journal
+- .browser-check/brand-profile/Default/BookmarkMergedSurfaceOrdering
+- .browser-check/brand-profile/Default/Cache/Cache_Data/data_0
+- .browser-check/brand-profile/Default/Cache/Cache_Data/data_1
+- .browser-check/brand-profile/Default/Cache/Cache_Data/data_2
+- .browser-check/brand-profile/Default/Cache/Cache_Data/data_3
+- .browser-check/brand-profile/Default/Cache/Cache_Data/f_000001
+- .browser-check/brand-profile/Default/Cache/Cache_Data/index
+- .browser-check/brand-profile/Default/Cache/No_Vary_Search/journal.baj
+- .browser-check/brand-profile/Default/Cache/No_Vary_Search/snapshot.baf
+- .browser-check/brand-profile/Default/ClientCertificates/LOCK
+- .browser-check/brand-profile/Default/ClientCertificates/LOG
+- .browser-check/brand-profile/Default/ClientCertificates/LOG.old
+- .browser-check/brand-profile/Default/Code Cache/js/ba678a2fbd8c358c_0
+- .browser-check/brand-profile/Default/Code Cache/js/index
+- .browser-check/brand-profile/Default/Code Cache/js/index-dir/the-real-index
+- .browser-check/brand-profile/Default/Code Cache/wasm/index
+- .browser-check/brand-profile/Default/Code Cache/wasm/index-dir/the-real-index
+- .browser-check/brand-profile/Default/DawnGraphiteCache/data_0
+- .browser-check/brand-profile/Default/DawnGraphiteCache/data_1
+- .browser-check/brand-profile/Default/DawnGraphiteCache/data_2
+- .browser-check/brand-profile/Default/DawnGraphiteCache/data_3
+- .browser-check/brand-profile/Default/DawnGraphiteCache/index
+- .browser-check/brand-profile/Default/DawnWebGPUCache/data_0
+- .browser-check/brand-profile/Default/DawnWebGPUCache/data_1
+- .browser-check/brand-profile/Default/DawnWebGPUCache/data_2
+- .browser-check/brand-profile/Default/DawnWebGPUCache/data_3
+- .browser-check/brand-profile/Default/DawnWebGPUCache/index
+- .browser-check/brand-profile/Default/Extension Rules/000003.log
+- .browser-check/brand-profile/Default/Extension Rules/CURRENT
+- .browser-check/brand-profile/Default/Extension Rules/LOCK
+- .browser-check/brand-profile/Default/Extension Rules/LOG
+- .browser-check/brand-profile/Default/Extension Rules/MANIFEST-000001
+- .browser-check/brand-profile/Default/Extension Scripts/000003.log
+- .browser-check/brand-profile/Default/Extension Scripts/CURRENT
+- .browser-check/brand-profile/Default/Extension Scripts/LOCK
+- .browser-check/brand-profile/Default/Extension Scripts/LOG
+- .browser-check/brand-profile/Default/Extension Scripts/MANIFEST-000001
+- .browser-check/brand-profile/Default/Extension State/000003.log
+- .browser-check/brand-profile/Default/Extension State/CURRENT
+- .browser-check/brand-profile/Default/Extension State/LOCK
+- .browser-check/brand-profile/Default/Extension State/LOG
+- .browser-check/brand-profile/Default/Extension State/LOG.old
+- .browser-check/brand-profile/Default/Extension State/MANIFEST-000001
+- .browser-check/brand-profile/Default/Favicons
+- .browser-check/brand-profile/Default/Favicons-journal
+- .browser-check/brand-profile/Default/GPUCache/data_0
+- .browser-check/brand-profile/Default/GPUCache/data_1
+- .browser-check/brand-profile/Default/GPUCache/data_2
+- .browser-check/brand-profile/Default/GPUCache/data_3
+- .browser-check/brand-profile/Default/GPUCache/index
+- .browser-check/brand-profile/Default/History
+- .browser-check/brand-profile/Default/History-journal
+- .browser-check/brand-profile/Default/LOCK
+- .browser-check/brand-profile/Default/LOG
+- .browser-check/brand-profile/Default/LOG.old
+- .browser-check/brand-profile/Default/Local Storage/leveldb/000003.log
+- .browser-check/brand-profile/Default/Local Storage/leveldb/CURRENT
+- .browser-check/brand-profile/Default/Local Storage/leveldb/LOCK
+- .browser-check/brand-profile/Default/Local Storage/leveldb/LOG
+- .browser-check/brand-profile/Default/Local Storage/leveldb/LOG.old
+- .browser-check/brand-profile/Default/Local Storage/leveldb/MANIFEST-000001
+- .browser-check/brand-profile/Default/Login Data
+- .browser-check/brand-profile/Default/Login Data For Account
+- .browser-check/brand-profile/Default/Login Data For Account-journal
+- .browser-check/brand-profile/Default/Login Data-journal
+- .browser-check/brand-profile/Default/Network/Cookies
+- .browser-check/brand-profile/Default/Network/Cookies-journal
+- .browser-check/brand-profile/Default/Network/Device Bound Sessions
+- .browser-check/brand-profile/Default/Network/Device Bound Sessions-journal
+- .browser-check/brand-profile/Default/Network/Network Persistent State
+- .browser-check/brand-profile/Default/Network/NetworkDataMigrated
+- .browser-check/brand-profile/Default/Network/Reporting and NEL
+- .browser-check/brand-profile/Default/Network/Reporting and NEL-journal
+- .browser-check/brand-profile/Default/Network/TransportSecurity
+- .browser-check/brand-profile/Default/Network/Trust Tokens
+- .browser-check/brand-profile/Default/Network/Trust Tokens-journal
+- .browser-check/brand-profile/Default/PersistentOriginTrials/LOCK
+- .browser-check/brand-profile/Default/PersistentOriginTrials/LOG
+- .browser-check/brand-profile/Default/PersistentOriginTrials/LOG.old
+- .browser-check/brand-profile/Default/Preferences
+- .browser-check/brand-profile/Default/README
+- .browser-check/brand-profile/Default/Safe Browsing Network/NetworkDataMigrated
+- .browser-check/brand-profile/Default/Secure Preferences
+- .browser-check/brand-profile/Default/Segmentation Platform/SegmentInfoDB/LOCK
+- .browser-check/brand-profile/Default/Segmentation Platform/SegmentInfoDB/LOG
+- .browser-check/brand-profile/Default/Segmentation Platform/SegmentInfoDB/LOG.old
+- .browser-check/brand-profile/Default/Segmentation Platform/SignalDB/LOCK
+- .browser-check/brand-profile/Default/Segmentation Platform/SignalDB/LOG
+- .browser-check/brand-profile/Default/Segmentation Platform/SignalDB/LOG.old
+- .browser-check/brand-profile/Default/Segmentation Platform/SignalStorageConfigDB/LOCK
+- .browser-check/brand-profile/Default/Segmentation Platform/SignalStorageConfigDB/LOG
+- .browser-check/brand-profile/Default/Segmentation Platform/SignalStorageConfigDB/LOG.old
+- .browser-check/brand-profile/Default/ServerCertificate
+- .browser-check/brand-profile/Default/ServerCertificate-journal
+- .browser-check/brand-profile/Default/Service Worker/Database/000003.log
+- .browser-check/brand-profile/Default/Service Worker/Database/CURRENT
+- .browser-check/brand-profile/Default/Service Worker/Database/LOCK
+- .browser-check/brand-profile/Default/Service Worker/Database/LOG
+- .browser-check/brand-profile/Default/Service Worker/Database/LOG.old
+- .browser-check/brand-profile/Default/Service Worker/Database/MANIFEST-000001
+- .browser-check/brand-profile/Default/Service Worker/ScriptCache/2cc80dabc69f58b6_0
+- .browser-check/brand-profile/Default/Service Worker/ScriptCache/4cb013792b196a35_0
+- .browser-check/brand-profile/Default/Service Worker/ScriptCache/4cb013792b196a35_1
+- .browser-check/brand-profile/Default/Service Worker/ScriptCache/index
+- .browser-check/brand-profile/Default/Service Worker/ScriptCache/index-dir/the-real-index
+- .browser-check/brand-profile/Default/Session Storage/000003.log
+- .browser-check/brand-profile/Default/Session Storage/CURRENT
+- .browser-check/brand-profile/Default/Session Storage/LOCK
+- .browser-check/brand-profile/Default/Session Storage/LOG
+- .browser-check/brand-profile/Default/Session Storage/MANIFEST-000001
+- .browser-check/brand-profile/Default/Sessions/Session_13436771673413606
+- .browser-check/brand-profile/Default/Sessions/Session_13436771674237760
+- .browser-check/brand-profile/Default/Sessions/Tabs_13436771673417455
+- .browser-check/brand-profile/Default/Sessions/Tabs_13436771674241961
+- .browser-check/brand-profile/Default/Shared Dictionary/cache/index
+- .browser-check/brand-profile/Default/Shared Dictionary/cache/index-dir/the-real-index
+- .browser-check/brand-profile/Default/Shared Dictionary/db
+- .browser-check/brand-profile/Default/Shared Dictionary/db-journal
+- .browser-check/brand-profile/Default/Site Characteristics Database/000003.log
+- .browser-check/brand-profile/Default/Site Characteristics Database/CURRENT
+- .browser-check/brand-profile/Default/Site Characteristics Database/LOCK
+- .browser-check/brand-profile/Default/Site Characteristics Database/LOG
+- .browser-check/brand-profile/Default/Site Characteristics Database/LOG.old
+- .browser-check/brand-profile/Default/Site Characteristics Database/MANIFEST-000001
+- .browser-check/brand-profile/Default/Sync Data/LevelDB/000003.log
+- .browser-check/brand-profile/Default/Sync Data/LevelDB/CURRENT
+- .browser-check/brand-profile/Default/Sync Data/LevelDB/LOCK
+- .browser-check/brand-profile/Default/Sync Data/LevelDB/LOG
+- .browser-check/brand-profile/Default/Sync Data/LevelDB/LOG.old
+- .browser-check/brand-profile/Default/Sync Data/LevelDB/MANIFEST-000001
+- .browser-check/brand-profile/Default/Top Sites
+- .browser-check/brand-profile/Default/Top Sites-journal
+- .browser-check/brand-profile/Default/Web Data
+- .browser-check/brand-profile/Default/Web Data-journal
+- .browser-check/brand-profile/Default/WebStorage/QuotaManager
+- .browser-check/brand-profile/Default/WebStorage/QuotaManager-journal
+- .browser-check/brand-profile/Default/chrome_cart_db/LOCK
+- .browser-check/brand-profile/Default/chrome_cart_db/LOG
+- .browser-check/brand-profile/Default/chrome_cart_db/LOG.old
+- .browser-check/brand-profile/Default/commerce_subscription_db/LOCK
+- .browser-check/brand-profile/Default/commerce_subscription_db/LOG
+- .browser-check/brand-profile/Default/commerce_subscription_db/LOG.old
+- .browser-check/brand-profile/Default/declarative_performance_observer.db
+- .browser-check/brand-profile/Default/declarative_performance_observer.db-journal
+- .browser-check/brand-profile/Default/discount_infos_db/LOCK
+- .browser-check/brand-profile/Default/discount_infos_db/LOG
+- .browser-check/brand-profile/Default/discount_infos_db/LOG.old
+- .browser-check/brand-profile/Default/discounts_db/LOCK
+- .browser-check/brand-profile/Default/discounts_db/LOG
+- .browser-check/brand-profile/Default/discounts_db/LOG.old
+- .browser-check/brand-profile/Default/parcel_tracking_db/LOCK
+- .browser-check/brand-profile/Default/parcel_tracking_db/LOG
+- .browser-check/brand-profile/Default/parcel_tracking_db/LOG.old
+- .browser-check/brand-profile/Default/shared_proto_db/000003.log
+- .browser-check/brand-profile/Default/shared_proto_db/CURRENT
+- .browser-check/brand-profile/Default/shared_proto_db/LOCK
+- .browser-check/brand-profile/Default/shared_proto_db/LOG
+- .browser-check/brand-profile/Default/shared_proto_db/LOG.old
+- .browser-check/brand-profile/Default/shared_proto_db/MANIFEST-000001
+- .browser-check/brand-profile/Default/shared_proto_db/metadata/000003.log
+- .browser-check/brand-profile/Default/shared_proto_db/metadata/CURRENT
+- .browser-check/brand-profile/Default/shared_proto_db/metadata/LOCK
+- .browser-check/brand-profile/Default/shared_proto_db/metadata/LOG
+- .browser-check/brand-profile/Default/shared_proto_db/metadata/LOG.old
+- .browser-check/brand-profile/Default/shared_proto_db/metadata/MANIFEST-000001
+- .browser-check/brand-profile/GPUPersistentCache/DawnGraphiteCache/NR2GNA44OGQUBFRRNDBXIX2VC7JXKYAS/cache.db
+- .browser-check/brand-profile/GPUPersistentCache/DawnGraphiteCache/NR2GNA44OGQUBFRRNDBXIX2VC7JXKYAS/cache.db-wal
+- .browser-check/brand-profile/GPUPersistentCache/DawnGraphiteCache/NR2GNA44OGQUBFRRNDBXIX2VC7JXKYAS/cache.journal
+- .browser-check/brand-profile/GrShaderCache/data_0
+- .browser-check/brand-profile/GrShaderCache/data_1
+- .browser-check/brand-profile/GrShaderCache/data_2
+- .browser-check/brand-profile/GrShaderCache/data_3
+- .browser-check/brand-profile/GrShaderCache/index
+- .browser-check/brand-profile/Last Version
+- .browser-check/brand-profile/Local State
+- .browser-check/brand-profile/ShaderCache/data_0
+- .browser-check/brand-profile/ShaderCache/data_1
+- .browser-check/brand-profile/ShaderCache/data_2
+- .browser-check/brand-profile/ShaderCache/data_3
+- .browser-check/brand-profile/ShaderCache/index
+- .browser-check/brand-profile/Variations
+- .browser-check/brand-profile/VariationsSafeSeedV2
+- .browser-check/brand-profile/VariationsSeedV2
+- .browser-check/brand-profile/es-ES-3-0.bdic
+- .browser-check/brand-profile/extensions_crx_cache/metadata.json
+- .browser-check/brand-profile/segmentation_platform/ukm_db
+- .browser-check/brand-splash.html
+- .browser-check/brand-splash.png
+- .browser-check/install-android-profile/Crashpad/metadata
+- .browser-check/install-android-profile/Crashpad/settings.dat
+- .browser-check/install-android-profile/CrashpadMetrics-active.pma
+- .browser-check/install-android-profile/Default/Account Web Data
+- .browser-check/install-android-profile/Default/Account Web Data-journal
+- .browser-check/install-android-profile/Default/Affiliation Database
+- .browser-check/install-android-profile/Default/Affiliation Database-journal
+- .browser-check/install-android-profile/Default/BookmarkMergedSurfaceOrdering
+- .browser-check/install-android-profile/Default/Cache/Cache_Data/data_0
+- .browser-check/install-android-profile/Default/Cache/Cache_Data/data_1
+- .browser-check/install-android-profile/Default/Cache/Cache_Data/data_2
+- .browser-check/install-android-profile/Default/Cache/Cache_Data/data_3
+- .browser-check/install-android-profile/Default/Cache/Cache_Data/f_000001
+- .browser-check/install-android-profile/Default/Cache/Cache_Data/f_000002
+- .browser-check/install-android-profile/Default/Cache/Cache_Data/f_000003
+- .browser-check/install-android-profile/Default/Cache/Cache_Data/f_000004
+- .browser-check/install-android-profile/Default/Cache/Cache_Data/f_000005
+- .browser-check/install-android-profile/Default/Cache/Cache_Data/f_000006
+- .browser-check/install-android-profile/Default/Cache/Cache_Data/f_000007
+- .browser-check/install-android-profile/Default/Cache/Cache_Data/index
+- .browser-check/install-android-profile/Default/Cache/No_Vary_Search/journal.baj
+- .browser-check/install-android-profile/Default/Cache/No_Vary_Search/snapshot.baf
+- .browser-check/install-android-profile/Default/ClientCertificates/LOCK
+- .browser-check/install-android-profile/Default/ClientCertificates/LOG
+- .browser-check/install-android-profile/Default/Code Cache/js/ba678a2fbd8c358c_0
+- .browser-check/install-android-profile/Default/Code Cache/js/e235dd88deb3dc10_0
+- .browser-check/install-android-profile/Default/Code Cache/js/index
+- .browser-check/install-android-profile/Default/Code Cache/js/index-dir/the-real-index
+- .browser-check/install-android-profile/Default/Code Cache/wasm/index
+- .browser-check/install-android-profile/Default/Code Cache/wasm/index-dir/the-real-index
+- .browser-check/install-android-profile/Default/DawnGraphiteCache/data_0
+- .browser-check/install-android-profile/Default/DawnGraphiteCache/data_1
+- .browser-check/install-android-profile/Default/DawnGraphiteCache/data_2
+- .browser-check/install-android-profile/Default/DawnGraphiteCache/data_3
+- .browser-check/install-android-profile/Default/DawnGraphiteCache/index
+- .browser-check/install-android-profile/Default/DawnWebGPUCache/data_0
+- .browser-check/install-android-profile/Default/DawnWebGPUCache/data_1
+- .browser-check/install-android-profile/Default/DawnWebGPUCache/data_2
+- .browser-check/install-android-profile/Default/DawnWebGPUCache/data_3
+- .browser-check/install-android-profile/Default/DawnWebGPUCache/index
+- .browser-check/install-android-profile/Default/Extension Rules/000003.log
+- .browser-check/install-android-profile/Default/Extension Rules/CURRENT
+- .browser-check/install-android-profile/Default/Extension Rules/LOCK
+- .browser-check/install-android-profile/Default/Extension Rules/LOG
+- .browser-check/install-android-profile/Default/Extension Rules/MANIFEST-000001
+- .browser-check/install-android-profile/Default/Extension Scripts/000003.log
+- .browser-check/install-android-profile/Default/Extension Scripts/CURRENT
+- .browser-check/install-android-profile/Default/Extension Scripts/LOCK
+- .browser-check/install-android-profile/Default/Extension Scripts/LOG
+- .browser-check/install-android-profile/Default/Extension Scripts/MANIFEST-000001
+- .browser-check/install-android-profile/Default/Extension State/000003.log
+- .browser-check/install-android-profile/Default/Extension State/CURRENT
+- .browser-check/install-android-profile/Default/Extension State/LOCK
+- .browser-check/install-android-profile/Default/Extension State/LOG
+- .browser-check/install-android-profile/Default/Extension State/MANIFEST-000001
+- .browser-check/install-android-profile/Default/Favicons
+- .browser-check/install-android-profile/Default/Favicons-journal
+- .browser-check/install-android-profile/Default/GPUCache/data_0
+- .browser-check/install-android-profile/Default/GPUCache/data_1
+- .browser-check/install-android-profile/Default/GPUCache/data_2
+- .browser-check/install-android-profile/Default/GPUCache/data_3
+- .browser-check/install-android-profile/Default/GPUCache/index
+- .browser-check/install-android-profile/Default/History
+- .browser-check/install-android-profile/Default/History-journal
+- .browser-check/install-android-profile/Default/LOCK
+- .browser-check/install-android-profile/Default/LOG
+- .browser-check/install-android-profile/Default/Local Storage/leveldb/000003.log
+- .browser-check/install-android-profile/Default/Local Storage/leveldb/CURRENT
+- .browser-check/install-android-profile/Default/Local Storage/leveldb/LOCK
+- .browser-check/install-android-profile/Default/Local Storage/leveldb/LOG
+- .browser-check/install-android-profile/Default/Local Storage/leveldb/MANIFEST-000001
+- .browser-check/install-android-profile/Default/Login Data
+- .browser-check/install-android-profile/Default/Login Data For Account
+- .browser-check/install-android-profile/Default/Login Data For Account-journal
+- .browser-check/install-android-profile/Default/Login Data-journal
+- .browser-check/install-android-profile/Default/Network/Cookies
+- .browser-check/install-android-profile/Default/Network/Cookies-journal
+- .browser-check/install-android-profile/Default/Network/Device Bound Sessions
+- .browser-check/install-android-profile/Default/Network/Device Bound Sessions-journal
+- .browser-check/install-android-profile/Default/Network/Network Persistent State
+- .browser-check/install-android-profile/Default/Network/NetworkDataMigrated
+- .browser-check/install-android-profile/Default/Network/Reporting and NEL
+- .browser-check/install-android-profile/Default/Network/Reporting and NEL-journal
+- .browser-check/install-android-profile/Default/Network/TransportSecurity
+- .browser-check/install-android-profile/Default/Network/Trust Tokens
+- .browser-check/install-android-profile/Default/Network/Trust Tokens-journal
+- .browser-check/install-android-profile/Default/PersistentOriginTrials/LOCK
+- .browser-check/install-android-profile/Default/PersistentOriginTrials/LOG
+- .browser-check/install-android-profile/Default/Preferences
+- .browser-check/install-android-profile/Default/README
+- .browser-check/install-android-profile/Default/Safe Browsing Network/NetworkDataMigrated
+- .browser-check/install-android-profile/Default/Secure Preferences
+- .browser-check/install-android-profile/Default/Segmentation Platform/SegmentInfoDB/LOCK
+- .browser-check/install-android-profile/Default/Segmentation Platform/SegmentInfoDB/LOG
+- .browser-check/install-android-profile/Default/Segmentation Platform/SignalDB/LOCK
+- .browser-check/install-android-profile/Default/Segmentation Platform/SignalDB/LOG
+- .browser-check/install-android-profile/Default/Segmentation Platform/SignalStorageConfigDB/LOCK
+- .browser-check/install-android-profile/Default/Segmentation Platform/SignalStorageConfigDB/LOG
+- .browser-check/install-android-profile/Default/ServerCertificate
+- .browser-check/install-android-profile/Default/ServerCertificate-journal
+- .browser-check/install-android-profile/Default/Service Worker/Database/000003.log
+- .browser-check/install-android-profile/Default/Service Worker/Database/CURRENT
+- .browser-check/install-android-profile/Default/Service Worker/Database/LOCK
+- .browser-check/install-android-profile/Default/Service Worker/Database/LOG
+- .browser-check/install-android-profile/Default/Service Worker/Database/MANIFEST-000001
+- .browser-check/install-android-profile/Default/Service Worker/ScriptCache/2cc80dabc69f58b6_0
+- .browser-check/install-android-profile/Default/Service Worker/ScriptCache/4cb013792b196a35_0
+- .browser-check/install-android-profile/Default/Service Worker/ScriptCache/4cb013792b196a35_1
+- .browser-check/install-android-profile/Default/Service Worker/ScriptCache/f1cdccba37924bda_0
+- .browser-check/install-android-profile/Default/Service Worker/ScriptCache/f1cdccba37924bda_1
+- .browser-check/install-android-profile/Default/Service Worker/ScriptCache/index
+- .browser-check/install-android-profile/Default/Service Worker/ScriptCache/index-dir/the-real-index
+- .browser-check/install-android-profile/Default/Session Storage/000003.log
+- .browser-check/install-android-profile/Default/Session Storage/CURRENT
+- .browser-check/install-android-profile/Default/Session Storage/LOCK
+- .browser-check/install-android-profile/Default/Session Storage/LOG
+- .browser-check/install-android-profile/Default/Session Storage/MANIFEST-000001
+- .browser-check/install-android-profile/Default/Sessions/Session_13436771925800330
+- .browser-check/install-android-profile/Default/Sessions/Tabs_13436771925808647
+- .browser-check/install-android-profile/Default/Shared Dictionary/cache/index
+- .browser-check/install-android-profile/Default/Shared Dictionary/cache/index-dir/the-real-index
+- .browser-check/install-android-profile/Default/Shared Dictionary/db
+- .browser-check/install-android-profile/Default/Shared Dictionary/db-journal
+- .browser-check/install-android-profile/Default/Site Characteristics Database/000003.log
+- .browser-check/install-android-profile/Default/Site Characteristics Database/CURRENT
+- .browser-check/install-android-profile/Default/Site Characteristics Database/LOCK
+- .browser-check/install-android-profile/Default/Site Characteristics Database/LOG
+- .browser-check/install-android-profile/Default/Site Characteristics Database/MANIFEST-000001
+- .browser-check/install-android-profile/Default/Sync Data/LevelDB/000003.log
+- .browser-check/install-android-profile/Default/Sync Data/LevelDB/CURRENT
+- .browser-check/install-android-profile/Default/Sync Data/LevelDB/LOCK
+- .browser-check/install-android-profile/Default/Sync Data/LevelDB/LOG
+- .browser-check/install-android-profile/Default/Sync Data/LevelDB/MANIFEST-000001
+- .browser-check/install-android-profile/Default/Top Sites
+- .browser-check/install-android-profile/Default/Top Sites-journal
+- .browser-check/install-android-profile/Default/Web Data
+- .browser-check/install-android-profile/Default/Web Data-journal
+- .browser-check/install-android-profile/Default/WebStorage/QuotaManager
+- .browser-check/install-android-profile/Default/WebStorage/QuotaManager-journal
+- .browser-check/install-android-profile/Default/chrome_cart_db/LOCK
+- .browser-check/install-android-profile/Default/chrome_cart_db/LOG
+- .browser-check/install-android-profile/Default/commerce_subscription_db/LOCK
+- .browser-check/install-android-profile/Default/commerce_subscription_db/LOG
+- .browser-check/install-android-profile/Default/declarative_performance_observer.db
+- .browser-check/install-android-profile/Default/declarative_performance_observer.db-journal
+- .browser-check/install-android-profile/Default/discount_infos_db/LOCK
+- .browser-check/install-android-profile/Default/discount_infos_db/LOG
+- .browser-check/install-android-profile/Default/discounts_db/LOCK
+- .browser-check/install-android-profile/Default/discounts_db/LOG
+- .browser-check/install-android-profile/Default/parcel_tracking_db/LOCK
+- .browser-check/install-android-profile/Default/parcel_tracking_db/LOG
+- .browser-check/install-android-profile/Default/shared_proto_db/000003.log
+- .browser-check/install-android-profile/Default/shared_proto_db/CURRENT
+- .browser-check/install-android-profile/Default/shared_proto_db/LOCK
+- .browser-check/install-android-profile/Default/shared_proto_db/LOG
+- .browser-check/install-android-profile/Default/shared_proto_db/MANIFEST-000001
+- .browser-check/install-android-profile/Default/shared_proto_db/metadata/000003.log
+- .browser-check/install-android-profile/Default/shared_proto_db/metadata/CURRENT
+- .browser-check/install-android-profile/Default/shared_proto_db/metadata/LOCK
+- .browser-check/install-android-profile/Default/shared_proto_db/metadata/LOG
+- .browser-check/install-android-profile/Default/shared_proto_db/metadata/MANIFEST-000001
+- .browser-check/install-android-profile/GPUPersistentCache/DawnGraphiteCache/NR2GNA44OGQUBFRRNDBXIX2VC7JXKYAS/cache.db
+- .browser-check/install-android-profile/GPUPersistentCache/DawnGraphiteCache/NR2GNA44OGQUBFRRNDBXIX2VC7JXKYAS/cache.db-wal
+- .browser-check/install-android-profile/GPUPersistentCache/DawnGraphiteCache/NR2GNA44OGQUBFRRNDBXIX2VC7JXKYAS/cache.journal
+- .browser-check/install-android-profile/GrShaderCache/data_0
+- .browser-check/install-android-profile/GrShaderCache/data_1
+- .browser-check/install-android-profile/GrShaderCache/data_2
+- .browser-check/install-android-profile/GrShaderCache/data_3
+- .browser-check/install-android-profile/GrShaderCache/index
+- .browser-check/install-android-profile/Last Version
+- .browser-check/install-android-profile/Local State
+- .browser-check/install-android-profile/ShaderCache/data_0
+- .browser-check/install-android-profile/ShaderCache/data_1
+- .browser-check/install-android-profile/ShaderCache/data_2
+- .browser-check/install-android-profile/ShaderCache/data_3
+- .browser-check/install-android-profile/ShaderCache/index
+- .browser-check/install-android-profile/Variations
+- .browser-check/install-android-profile/VariationsSafeSeedV2
+- .browser-check/install-android-profile/VariationsSeedV2
+- .browser-check/install-android-profile/es-ES-3-0.bdic
+- .browser-check/install-android-profile/extensions_crx_cache/metadata.json
+- .browser-check/install-android-profile/segmentation_platform/ukm_db
+- .browser-check/install-android.png
+- .browser-check/install-ios-profile/Crashpad/metadata
+- .browser-check/install-ios-profile/Crashpad/settings.dat
+- .browser-check/install-ios-profile/CrashpadMetrics-active.pma
+- .browser-check/install-ios-profile/Default/Account Web Data
+- .browser-check/install-ios-profile/Default/Account Web Data-journal
+- .browser-check/install-ios-profile/Default/Affiliation Database
+- .browser-check/install-ios-profile/Default/Affiliation Database-journal
+- .browser-check/install-ios-profile/Default/BookmarkMergedSurfaceOrdering
+- .browser-check/install-ios-profile/Default/Cache/Cache_Data/data_0
+- .browser-check/install-ios-profile/Default/Cache/Cache_Data/data_1
+- .browser-check/install-ios-profile/Default/Cache/Cache_Data/data_2
+- .browser-check/install-ios-profile/Default/Cache/Cache_Data/data_3
+- .browser-check/install-ios-profile/Default/Cache/Cache_Data/f_000001
+- .browser-check/install-ios-profile/Default/Cache/Cache_Data/f_000002
+- .browser-check/install-ios-profile/Default/Cache/Cache_Data/f_000003
+- .browser-check/install-ios-profile/Default/Cache/Cache_Data/f_000004
+- .browser-check/install-ios-profile/Default/Cache/Cache_Data/f_000005
+- .browser-check/install-ios-profile/Default/Cache/Cache_Data/f_000006
+- .browser-check/install-ios-profile/Default/Cache/Cache_Data/f_000007
+- .browser-check/install-ios-profile/Default/Cache/Cache_Data/index
+- .browser-check/install-ios-profile/Default/Cache/No_Vary_Search/journal.baj
+- .browser-check/install-ios-profile/Default/Cache/No_Vary_Search/snapshot.baf
+- .browser-check/install-ios-profile/Default/ClientCertificates/LOCK
+- .browser-check/install-ios-profile/Default/ClientCertificates/LOG
+- .browser-check/install-ios-profile/Default/Code Cache/js/ba678a2fbd8c358c_0
+- .browser-check/install-ios-profile/Default/Code Cache/js/e235dd88deb3dc10_0
+- .browser-check/install-ios-profile/Default/Code Cache/js/index
+- .browser-check/install-ios-profile/Default/Code Cache/js/index-dir/the-real-index
+- .browser-check/install-ios-profile/Default/Code Cache/wasm/index
+- .browser-check/install-ios-profile/Default/Code Cache/wasm/index-dir/the-real-index
+- .browser-check/install-ios-profile/Default/DawnGraphiteCache/data_0
+- .browser-check/install-ios-profile/Default/DawnGraphiteCache/data_1
+- .browser-check/install-ios-profile/Default/DawnGraphiteCache/data_2
+- .browser-check/install-ios-profile/Default/DawnGraphiteCache/data_3
+- .browser-check/install-ios-profile/Default/DawnGraphiteCache/index
+- .browser-check/install-ios-profile/Default/DawnWebGPUCache/data_0
+- .browser-check/install-ios-profile/Default/DawnWebGPUCache/data_1
+- .browser-check/install-ios-profile/Default/DawnWebGPUCache/data_2
+- .browser-check/install-ios-profile/Default/DawnWebGPUCache/data_3
+- .browser-check/install-ios-profile/Default/DawnWebGPUCache/index
+- .browser-check/install-ios-profile/Default/Extension Rules/000003.log
+- .browser-check/install-ios-profile/Default/Extension Rules/CURRENT
+- .browser-check/install-ios-profile/Default/Extension Rules/LOCK
+- .browser-check/install-ios-profile/Default/Extension Rules/LOG
+- .browser-check/install-ios-profile/Default/Extension Rules/MANIFEST-000001
+- .browser-check/install-ios-profile/Default/Extension Scripts/000003.log
+- .browser-check/install-ios-profile/Default/Extension Scripts/CURRENT
+- .browser-check/install-ios-profile/Default/Extension Scripts/LOCK
+- .browser-check/install-ios-profile/Default/Extension Scripts/LOG
+- .browser-check/install-ios-profile/Default/Extension Scripts/MANIFEST-000001
+- .browser-check/install-ios-profile/Default/Extension State/000003.log
+- .browser-check/install-ios-profile/Default/Extension State/CURRENT
+- .browser-check/install-ios-profile/Default/Extension State/LOCK
+- .browser-check/install-ios-profile/Default/Extension State/LOG
+- .browser-check/install-ios-profile/Default/Extension State/MANIFEST-000001
+- .browser-check/install-ios-profile/Default/Favicons
+- .browser-check/install-ios-profile/Default/Favicons-journal
+- .browser-check/install-ios-profile/Default/GPUCache/data_0
+- .browser-check/install-ios-profile/Default/GPUCache/data_1
+- .browser-check/install-ios-profile/Default/GPUCache/data_2
+- .browser-check/install-ios-profile/Default/GPUCache/data_3
+- .browser-check/install-ios-profile/Default/GPUCache/index
+- .browser-check/install-ios-profile/Default/History
+- .browser-check/install-ios-profile/Default/History-journal
+- .browser-check/install-ios-profile/Default/LOCK
+- .browser-check/install-ios-profile/Default/LOG
+- .browser-check/install-ios-profile/Default/Local Storage/leveldb/000003.log
+- .browser-check/install-ios-profile/Default/Local Storage/leveldb/CURRENT
+- .browser-check/install-ios-profile/Default/Local Storage/leveldb/LOCK
+- .browser-check/install-ios-profile/Default/Local Storage/leveldb/LOG
+- .browser-check/install-ios-profile/Default/Local Storage/leveldb/MANIFEST-000001
+- .browser-check/install-ios-profile/Default/Login Data
+- .browser-check/install-ios-profile/Default/Login Data For Account
+- .browser-check/install-ios-profile/Default/Login Data For Account-journal
+- .browser-check/install-ios-profile/Default/Login Data-journal
+- .browser-check/install-ios-profile/Default/Network/Cookies
+- .browser-check/install-ios-profile/Default/Network/Cookies-journal
+- .browser-check/install-ios-profile/Default/Network/Device Bound Sessions
+- .browser-check/install-ios-profile/Default/Network/Device Bound Sessions-journal
+- .browser-check/install-ios-profile/Default/Network/Network Persistent State
+- .browser-check/install-ios-profile/Default/Network/NetworkDataMigrated
+- .browser-check/install-ios-profile/Default/Network/Reporting and NEL
+- .browser-check/install-ios-profile/Default/Network/Reporting and NEL-journal
+- .browser-check/install-ios-profile/Default/Network/TransportSecurity
+- .browser-check/install-ios-profile/Default/Network/Trust Tokens
+- .browser-check/install-ios-profile/Default/Network/Trust Tokens-journal
+- .browser-check/install-ios-profile/Default/PersistentOriginTrials/LOCK
+- .browser-check/install-ios-profile/Default/PersistentOriginTrials/LOG
+- .browser-check/install-ios-profile/Default/Preferences
+- .browser-check/install-ios-profile/Default/README
+- .browser-check/install-ios-profile/Default/Safe Browsing Network/NetworkDataMigrated
+- .browser-check/install-ios-profile/Default/Secure Preferences
+- .browser-check/install-ios-profile/Default/Segmentation Platform/SegmentInfoDB/LOCK
+- .browser-check/install-ios-profile/Default/Segmentation Platform/SegmentInfoDB/LOG
+- .browser-check/install-ios-profile/Default/Segmentation Platform/SignalDB/LOCK
+- .browser-check/install-ios-profile/Default/Segmentation Platform/SignalDB/LOG
+- .browser-check/install-ios-profile/Default/Segmentation Platform/SignalStorageConfigDB/LOCK
+- .browser-check/install-ios-profile/Default/Segmentation Platform/SignalStorageConfigDB/LOG
+- .browser-check/install-ios-profile/Default/ServerCertificate
+- .browser-check/install-ios-profile/Default/ServerCertificate-journal
+- .browser-check/install-ios-profile/Default/Service Worker/Database/000003.log
+- .browser-check/install-ios-profile/Default/Service Worker/Database/CURRENT
+- .browser-check/install-ios-profile/Default/Service Worker/Database/LOCK
+- .browser-check/install-ios-profile/Default/Service Worker/Database/LOG
+- .browser-check/install-ios-profile/Default/Service Worker/Database/MANIFEST-000001
+- .browser-check/install-ios-profile/Default/Service Worker/ScriptCache/2cc80dabc69f58b6_0
+- .browser-check/install-ios-profile/Default/Service Worker/ScriptCache/4cb013792b196a35_0
+- .browser-check/install-ios-profile/Default/Service Worker/ScriptCache/4cb013792b196a35_1
+- .browser-check/install-ios-profile/Default/Service Worker/ScriptCache/f1cdccba37924bda_0
+- .browser-check/install-ios-profile/Default/Service Worker/ScriptCache/f1cdccba37924bda_1
+- .browser-check/install-ios-profile/Default/Service Worker/ScriptCache/index
+- .browser-check/install-ios-profile/Default/Service Worker/ScriptCache/index-dir/the-real-index
+- .browser-check/install-ios-profile/Default/Session Storage/000003.log
+- .browser-check/install-ios-profile/Default/Session Storage/CURRENT
+- .browser-check/install-ios-profile/Default/Session Storage/LOCK
+- .browser-check/install-ios-profile/Default/Session Storage/LOG
+- .browser-check/install-ios-profile/Default/Session Storage/MANIFEST-000001
+- .browser-check/install-ios-profile/Default/Sessions/Session_13436771926730138
+- .browser-check/install-ios-profile/Default/Sessions/Tabs_13436771926740422
+- .browser-check/install-ios-profile/Default/Shared Dictionary/cache/index
+- .browser-check/install-ios-profile/Default/Shared Dictionary/cache/index-dir/the-real-index
+- .browser-check/install-ios-profile/Default/Shared Dictionary/db
+- .browser-check/install-ios-profile/Default/Shared Dictionary/db-journal
+- .browser-check/install-ios-profile/Default/Site Characteristics Database/000003.log
+- .browser-check/install-ios-profile/Default/Site Characteristics Database/CURRENT
+- .browser-check/install-ios-profile/Default/Site Characteristics Database/LOCK
+- .browser-check/install-ios-profile/Default/Site Characteristics Database/LOG
+- .browser-check/install-ios-profile/Default/Site Characteristics Database/MANIFEST-000001
+- .browser-check/install-ios-profile/Default/Sync Data/LevelDB/000003.log
+- .browser-check/install-ios-profile/Default/Sync Data/LevelDB/CURRENT
+- .browser-check/install-ios-profile/Default/Sync Data/LevelDB/LOCK
+- .browser-check/install-ios-profile/Default/Sync Data/LevelDB/LOG
+- .browser-check/install-ios-profile/Default/Sync Data/LevelDB/MANIFEST-000001
+- .browser-check/install-ios-profile/Default/Top Sites
+- .browser-check/install-ios-profile/Default/Top Sites-journal
+- .browser-check/install-ios-profile/Default/Web Data
+- .browser-check/install-ios-profile/Default/Web Data-journal
+- .browser-check/install-ios-profile/Default/WebStorage/QuotaManager
+- .browser-check/install-ios-profile/Default/WebStorage/QuotaManager-journal
+- .browser-check/install-ios-profile/Default/chrome_cart_db/LOCK
+- .browser-check/install-ios-profile/Default/chrome_cart_db/LOG
+- .browser-check/install-ios-profile/Default/commerce_subscription_db/LOCK
+- .browser-check/install-ios-profile/Default/commerce_subscription_db/LOG
+- .browser-check/install-ios-profile/Default/declarative_performance_observer.db
+- .browser-check/install-ios-profile/Default/declarative_performance_observer.db-journal
+- .browser-check/install-ios-profile/Default/discount_infos_db/LOCK
+- .browser-check/install-ios-profile/Default/discount_infos_db/LOG
+- .browser-check/install-ios-profile/Default/discounts_db/LOCK
+- .browser-check/install-ios-profile/Default/discounts_db/LOG
+- .browser-check/install-ios-profile/Default/parcel_tracking_db/LOCK
+- .browser-check/install-ios-profile/Default/parcel_tracking_db/LOG
+- .browser-check/install-ios-profile/Default/shared_proto_db/000003.log
+- .browser-check/install-ios-profile/Default/shared_proto_db/CURRENT
+- .browser-check/install-ios-profile/Default/shared_proto_db/LOCK
+- .browser-check/install-ios-profile/Default/shared_proto_db/LOG
+- .browser-check/install-ios-profile/Default/shared_proto_db/MANIFEST-000001
+- .browser-check/install-ios-profile/Default/shared_proto_db/metadata/000003.log
+- .browser-check/install-ios-profile/Default/shared_proto_db/metadata/CURRENT
+- .browser-check/install-ios-profile/Default/shared_proto_db/metadata/LOCK
+- .browser-check/install-ios-profile/Default/shared_proto_db/metadata/LOG
+- .browser-check/install-ios-profile/Default/shared_proto_db/metadata/MANIFEST-000001
+- .browser-check/install-ios-profile/GPUPersistentCache/DawnGraphiteCache/NR2GNA44OGQUBFRRNDBXIX2VC7JXKYAS/cache.db
+- .browser-check/install-ios-profile/GPUPersistentCache/DawnGraphiteCache/NR2GNA44OGQUBFRRNDBXIX2VC7JXKYAS/cache.db-wal
+- .browser-check/install-ios-profile/GPUPersistentCache/DawnGraphiteCache/NR2GNA44OGQUBFRRNDBXIX2VC7JXKYAS/cache.journal
+- .browser-check/install-ios-profile/GrShaderCache/data_0
+- .browser-check/install-ios-profile/GrShaderCache/data_1
+- .browser-check/install-ios-profile/GrShaderCache/data_2
+- .browser-check/install-ios-profile/GrShaderCache/data_3
+- .browser-check/install-ios-profile/GrShaderCache/index
+- .browser-check/install-ios-profile/Last Version
+- .browser-check/install-ios-profile/Local State
+- .browser-check/install-ios-profile/ShaderCache/data_0
+- .browser-check/install-ios-profile/ShaderCache/data_1
+- .browser-check/install-ios-profile/ShaderCache/data_2
+- .browser-check/install-ios-profile/ShaderCache/data_3
+- .browser-check/install-ios-profile/ShaderCache/index
+- .browser-check/install-ios-profile/Variations
+- .browser-check/install-ios-profile/VariationsSafeSeedV2
+- .browser-check/install-ios-profile/VariationsSeedV2
+- .browser-check/install-ios-profile/es-ES-3-0.bdic
+- .browser-check/install-ios-profile/extensions_crx_cache/metadata.json
+- .browser-check/install-ios-profile/segmentation_platform/ukm_db
+- .browser-check/install-ios.png
+- .firebase/hosting..cache
+- ANDROID.md
+- MONETIZATION.md
+- NEXT.md
+- android/.gradle/8.14.3/checksums/checksums.lock
+- android/.gradle/8.14.3/executionHistory/executionHistory.bin
+- android/.gradle/8.14.3/executionHistory/executionHistory.lock
+- android/.gradle/8.14.3/fileChanges/last-build.bin
+- android/.gradle/8.14.3/fileHashes/fileHashes.bin
+- android/.gradle/8.14.3/fileHashes/fileHashes.lock
+- android/.gradle/8.14.3/fileHashes/resourceHashesCache.bin
+- android/.gradle/8.14.3/gc.properties
+- android/.gradle/buildOutputCleanup/buildOutputCleanup.lock
+- android/.gradle/buildOutputCleanup/outputFiles.bin
+- android/.gradle/file-system.probe
+- android/.gradle/vcs-1/gc.properties
+- android/app/capacitor.build.gradle
+- android/app/src/main/AndroidManifest.xml
+- android/app/src/main/assets/capacitor.config.json
+- android/app/src/main/assets/capacitor.plugins.json
+- android/app/src/main/assets/public/assets/brand/icon-180.png
+- android/app/src/main/assets/public/assets/brand/icon-192.png
+- android/app/src/main/assets/public/assets/brand/icon-32.png
+- android/app/src/main/assets/public/assets/brand/icon-512.png
+- android/app/src/main/assets/public/assets/brand/icon-64.png
+- android/app/src/main/assets/public/assets/brand/icon-maskable-512.png
+- android/app/src/main/assets/public/assets/brand/logo.png
+- android/app/src/main/assets/public/cordova.js
+- android/app/src/main/assets/public/cordova_plugins.js
+- android/app/src/main/assets/public/delete-account.html
+- android/app/src/main/assets/public/index.html
+- android/app/src/main/assets/public/manifest.webmanifest
+- android/app/src/main/assets/public/privacy.html
+- android/app/src/main/assets/public/superuser-config.json
+- android/app/src/main/assets/public/terms.html
+- android/app/src/main/assets/public/version.json
+- android/app/src/main/res/drawable-land-hdpi/splash.png
+- android/app/src/main/res/drawable-land-mdpi/splash.png
+- android/app/src/main/res/drawable-land-xhdpi/splash.png
+- android/app/src/main/res/drawable-land-xxhdpi/splash.png
+- android/app/src/main/res/drawable-land-xxxhdpi/splash.png
+- android/app/src/main/res/drawable-nodpi/buscatumbas_logo.png
+- android/app/src/main/res/drawable-port-hdpi/splash.png
+- android/app/src/main/res/drawable-port-mdpi/splash.png
+- android/app/src/main/res/drawable-port-xhdpi/splash.png
+- android/app/src/main/res/drawable-port-xxhdpi/splash.png
+- android/app/src/main/res/drawable-port-xxxhdpi/splash.png
+- android/app/src/main/res/drawable/buscatumbas_icon.xml
+- android/app/src/main/res/drawable/splash.png
+- android/app/src/main/res/mipmap-hdpi/ic_launcher.png
+- android/app/src/main/res/mipmap-hdpi/ic_launcher_foreground.png
+- android/app/src/main/res/mipmap-hdpi/ic_launcher_round.png
+- android/app/src/main/res/mipmap-mdpi/ic_launcher.png
+- android/app/src/main/res/mipmap-mdpi/ic_launcher_foreground.png
+- android/app/src/main/res/mipmap-mdpi/ic_launcher_round.png
+- android/app/src/main/res/mipmap-xhdpi/ic_launcher.png
+- android/app/src/main/res/mipmap-xhdpi/ic_launcher_foreground.png
+- android/app/src/main/res/mipmap-xhdpi/ic_launcher_round.png
+- android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png
+- android/app/src/main/res/mipmap-xxhdpi/ic_launcher_foreground.png
+- android/app/src/main/res/mipmap-xxhdpi/ic_launcher_round.png
+- android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png
+- android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_foreground.png
+- android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png
+- android/app/src/main/res/xml/config.xml
+- android/capacitor-cordova-android-plugins/build.gradle
+- android/capacitor-cordova-android-plugins/cordova.variables.gradle
+- android/capacitor-cordova-android-plugins/src/main/AndroidManifest.xml
+- android/capacitor.settings.gradle
+- assets/brand/icon-180.png
+- assets/brand/icon-192.png
+- assets/brand/icon-32.png
+- assets/brand/icon-512.png
+- assets/brand/icon-64.png
+- assets/brand/icon-maskable-512.png
+- assets/brand/logo.png
+- branding/README.md
+- branding/logo-original.jpg
+- branding/logo-transparent.png
+- delete-account.html
+- firebase.json
+- functions/index.js
+- functions/monetization-config.json
+- functions/monetization.test.js
+- index.html
+- manifest.webmanifest
+- mobile-tests/android.test.mjs
+- mobile-tests/install.test.mjs
+- mobile/app.css
+- mobile/install.js
+- package.json
+- privacy.html
+- scripts/build-android.mjs
+- scripts/generate-brand-assets.ps1
+- scripts/verify-branding-ui.mjs
+- scripts/verify-install-ui.mjs
+- security-tests/death-age.test.mjs
+- security-tests/dispute-notifications.test.mjs
+- security-tests/monetization.test.mjs
+- security-tests/terms.test.mjs
+- sw.js
+- terms.html
+- www/assets/brand/icon-180.png
+- www/assets/brand/icon-192.png
+- www/assets/brand/icon-32.png
+- www/assets/brand/icon-512.png
+- www/assets/brand/icon-64.png
+- www/assets/brand/icon-maskable-512.png
+- www/assets/brand/logo.png
+- www/delete-account.html
+- www/index.html
+- www/manifest.webmanifest
+- www/mobile/app.css
+- www/mobile/install.js
+- www/privacy.html
+- www/terms.html
+
+### Riesgos
+
+- Se modificaron archivos de configuración o infraestructura (android/.gradle/8.14.3/checksums/checksums.lock, android/.gradle/8.14.3/executionHistory/executionHistory.bin, android/.gradle/8.14.3/executionHistory/executionHistory.lock, android/.gradle/8.14.3/fileChanges/last-build.bin, android/.gradle/8.14.3/fileHashes/fileHashes.bin). Valida compatibilidad y despliegue.
+- La sesión contiene 682 cambios. Considera dividir la revisión o el commit para reducir el riesgo de integración.
+- El análisis incluye archivos que ya tenían cambios al iniciar la sesión.
+- Cambió la definición de dependencias; valida instalación y seguridad.
+
+### Próximo paso
+
+- Revisar y resolver los riesgos detectados en este cierre.
+- Ejecutar las pruebas automatizadas y validar el comportamiento afectado.
+- Revisar el diff y preparar un commit descriptivo.
+
 <!-- cdc-session:session-20261017202008-b5867a -->
 ## Sesión 17/10/2026, 04:20 p.m.
 

@@ -7,7 +7,10 @@
 }
 [hidden] { display: none !important; }
 html { scroll-padding-block: calc(1rem + var(--app-safe-top)) calc(1rem + var(--app-safe-bottom)); }
-body, .container-main { min-height: 100dvh; }
+/* Keep one document scroll: centering a viewport-height flex child plus the
+   footer clips the top and makes the footer cover the scrolling content. */
+body { display: block; height: auto; min-height: 100dvh; }
+.container-main { min-height: 100dvh; overflow-y: visible; }
 .container-main {
     padding: calc(1rem + var(--app-safe-top)) calc(1rem + var(--app-safe-right)) calc(1.5rem + var(--app-safe-bottom)) calc(1rem + var(--app-safe-left));
 }
@@ -44,7 +47,7 @@ body, .container-main { min-height: 100dvh; }
     padding: .75rem 1rem; font-size: .875rem; text-align: center;
 }
 
-.app-legal-links { display: flex; flex-wrap: wrap; justify-content: center; gap: .5rem 1rem; padding: 1rem; font-size: .875rem; }
+.app-legal-links { display: flex; flex-wrap: wrap; justify-content: center; gap: .5rem 1rem; padding: 1rem calc(1rem + var(--app-safe-right)) calc(1rem + var(--app-safe-bottom)) calc(1rem + var(--app-safe-left)); font-size: .875rem; }
 .app-legal-links a { padding: .65rem .25rem; }
 
 #pwa-install-dialog { width: min(440px, calc(100% - 2rem)); max-height: calc(var(--app-visible-height, 100dvh) - var(--app-safe-top) - var(--app-safe-bottom) - 1.5rem); overflow-y: auto; border: 0; border-radius: 1.25rem; padding: 1.5rem; color: #0f172a; box-shadow: 0 20px 60px #0f172a40; }

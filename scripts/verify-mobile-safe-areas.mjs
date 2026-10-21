@@ -42,6 +42,19 @@ try{
                 const b=element.getBoundingClientRect();
                 if(b.top<s.top-.6||b.bottom>innerHeight-s.bottom+.6||b.left<s.left-.6||b.right>innerWidth-s.right+.6)throw Error(label+' outside safe rectangle '+JSON.stringify({x:b.x,y:b.y,width:b.width,height:b.height}));
             };
+            // Exercise the real home page and footer together, including document scroll.
+            node('main-app').style.display='flex';
+            node('mode-selection-card').style.display='flex';
+            const main=node('main-app');
+            const footer=document.querySelector('footer.app-legal-links');
+            const first=main.querySelector('.app-header');
+            if(first.getBoundingClientRect().top<s.top-.6)throw Error('home header starts under status bar');
+            if(footer.getBoundingClientRect().top<main.getBoundingClientRect().bottom-.6)throw Error('footer overlaps home content');
+            const last=footer.querySelector('a:last-child');
+            window.scrollTo({top:document.documentElement.scrollHeight,behavior:'instant'});
+            within(last,'last legal link');
+            window.scrollTo({top:0,behavior:'instant'});
+            node('main-app').style.display='none';
             node('ia-modal').style.display='flex';
             within(node('cam-top-bar'),'camera exit');within(node('snap-btn'),'camera shutter');
             node('ia-modal').style.display='none';

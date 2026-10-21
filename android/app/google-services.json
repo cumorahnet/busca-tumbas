@@ -22,6 +22,14 @@
           }
         },
         {
+          "client_id": "920637749030-u55v0sfesbjsujchd2oup01epata569q.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.cumorahnet.buscatumbas",
+            "certificate_hash": "8bbc14274197b1e82baf73ee6af5a13f61f574b3"
+          }
+        },
+        {
           "client_id": "920637749030-j027altobfq29cter4e2t50ujff7fng0.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -37,6 +45,13 @@
             {
               "client_id": "920637749030-j027altobfq29cter4e2t50ujff7fng0.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "920637749030-979qte8d0sl325th8g1jdfe1nnvue0hd.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.cumorahnet.buscatumbas"
+              }
             }
           ]
         }
