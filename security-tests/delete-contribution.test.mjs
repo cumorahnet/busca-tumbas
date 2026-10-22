@@ -20,9 +20,10 @@ test('admin deletes from duplicate detail with no personal contributions loaded 
     assert.deepEqual(s.calls.map(call=>call[0]),['delete','close','admin','audit']);
     assert.equal(s.calls[0][1].recordId,'record');
 });
-test('owner can delete from detail without previously loading personal list',async()=>{
+test('owner cannot delete their contribution without administrator access',async()=>{
     const s=setup({admin:false});await s.ctx.deleteMyContribution('tomb','record');
-    assert.deepEqual(s.calls.map(call=>call[0]),['delete','close','mine']);
+    assert.deepEqual(s.calls,[]);
+    assert.ok(s.notices.some(text=>text.includes('Solo el administrador')));
 });
 test('non-owner and cancelled confirmation never call deletion',async()=>{
     for(const options of [{admin:false,owner:'other'},{confirm:false}]) {

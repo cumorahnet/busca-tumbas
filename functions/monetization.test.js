@@ -12,6 +12,7 @@ function setup() {
   const db = {collection: name => ({where() { return this; }, get: async () => ({docs: name === "tumbas" ? Array.from({length:20}, (_,i)=>({id:String(i)})) : [], size:0}), doc: () => ({})}),
     runTransaction: async fn => fn({get: async () => ({exists: true, data:()=>stored}), set: (_ref, data) => {stored={...stored,...data};}})};
   const modules = {
+    "./account-profile":require("./account-profile"), "./user-audit":()=>({run:(_operation,request,handler)=>handler(request)}),
     "./tomb-history":require("./tomb-history"), "./photo-download":require("./photo-download"), "./public-catalog":require("./public-catalog"),
     "./record-writes": () => ({}), "./superuser-password": {elevated: token => token.platform_admin === true}, "./monetization-config.json": policy,
     "firebase-functions/v2/firestore": {onDocumentWrittenWithAuthContext: (_options, handler) => handler},
@@ -22,7 +23,7 @@ function setup() {
   };
   const ctx={exports:{},require:name=>{if(!(name in modules))throw Error(name);return modules[name];},Date:class extends Date {static now(){return now;}}};
   vm.createContext(ctx);vm.runInContext(fs.readFileSync(__dirname+"/index.js","utf8"),ctx);
-  const request={auth:{uid:"a".repeat(28),token:{email_verified:true}},data:{uid:"b".repeat(28),days:30}};
+  const request={auth:{uid:"a".repeat(28),token:{email_verified:true,profile_complete:true}},data:{uid:"b".repeat(28),days:30}};
   return {ctx,request,policy,setNow:value=>{now=Date.parse(value);},stored:()=>stored};
 }
 test("launch lasts 90 days and blocks monetization even if switches are enabled early",()=>{

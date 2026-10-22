@@ -137,7 +137,7 @@ module.exports = function recordWrites({db, onCall, HttpsError, FieldValue, GeoP
       }
       if (!edit && current.exists) throw new HttpsError("already-exists", "El identificador ya está ocupado.");
       if (published.location) published.location = new GeoPoint(published.location.latitude, published.location.longitude);
-      if (edit) transaction.update(reference, {...fields, updatedAt: now});
+      if (edit) transaction.update(reference, {...fields, auditActorId: uid, updatedAt: now});
       else transaction.create(reference, published);
       transaction.set(lock, {updatedAt: now});
       return {saved: true, recordId};
@@ -246,11 +246,11 @@ module.exports = function recordWrites({db, onCall, HttpsError, FieldValue, GeoP
     });
   };
   return {
-    crearAportacionTumba: onCall({enforceAppCheck: false}, (request) => save(request, false)),
-    crearAportacionPanteon: onCall({enforceAppCheck: false}, (request) => save(request, true)),
-    actualizarAportacionPanteon: onCall({enforceAppCheck: false}, (request) => save(request, true, true)),
-    aclararDisputaDuplicado: onCall({enforceAppCheck: false}, reply),
-    resolverDisputaDuplicado: onCall({enforceAppCheck: false}, resolve),
+    crearAportacionTumba: onCall({auditOperation:"crearAportacionTumba", enforceAppCheck: false}, (request) => save(request, false)),
+    crearAportacionPanteon: onCall({auditOperation:"crearAportacionPanteon", enforceAppCheck: false}, (request) => save(request, true)),
+    actualizarAportacionPanteon: onCall({auditOperation:"actualizarAportacionPanteon", enforceAppCheck: false}, (request) => save(request, true, true)),
+    aclararDisputaDuplicado: onCall({auditOperation:"aclararDisputaDuplicado", enforceAppCheck: false}, reply),
+    resolverDisputaDuplicado: onCall({auditOperation:"resolverDisputaDuplicado", enforceAppCheck: false}, resolve),
     obtenerComparacionDisputa: onCall({enforceAppCheck: false}, async request => {
       requireAdmin(request);
       const snapshot = await caseReference(request.data?.caseId).get();

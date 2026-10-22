@@ -57,7 +57,11 @@ module.exports = ({db, getUser, HttpsError, FieldValue, requireUser, enforceRate
     await eventRef.set(entry);
   }
   async function list(request) {
+    const uid = requireUser(request);
     const {ref, data} = await record(request);
+    if (uid !== (data.contributorId || data.userId) && !elevated(request.auth.token)) {
+      throw new HttpsError("permission-denied", "Solo el aportador y el administrador pueden consultar este historial.");
+    }
     let query = ref.collection("history").orderBy("changedAt", "desc");
     const after = request.data?.after;
     if (after !== undefined) {

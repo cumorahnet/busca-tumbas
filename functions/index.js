@@ -1,6 +1,6 @@
 "use strict";
 
-const {onCall, onRequest, HttpsError} = require("firebase-functions/v2/https");
+const {onCall: firebaseOnCall, onRequest, HttpsError} = require("firebase-functions/v2/https");
 const {onDocumentWrittenWithAuthContext} = require("firebase-functions/v2/firestore");
 const {defineSecret} = require("firebase-functions/params");
 const {setGlobalOptions} = require("firebase-functions/v2");
@@ -19,19 +19,41 @@ setGlobalOptions({
 });
 
 const db = getFirestore();
+const userAudit = require("./user-audit")({db, FieldValue, HttpsError, requireUser, requireAdmin});
+function onCall(options, handler) {
+  const {auditOperation, ...settings} = options;
+  return firebaseOnCall(settings, auditOperation ? request => userAudit.run(auditOperation, request, handler) : handler);
+}
+exports.registrarActividadBase = onDocumentWrittenWithAuthContext({document:"{collectionId}/{documentId}", retry:true}, userAudit.capture);
+exports.registrarActividadDetalle = onDocumentWrittenWithAuthContext({document:"{collectionId}/{documentId}/{subcollectionId}/{childId}", retry:true}, event => userAudit.capture(event, true));
+exports.obtenerHistorialUsuario = onCall({enforceAppCheck:false}, userAudit.list);
+exports.buscarUsuarioHistorialAdmin = onCall({enforceAppCheck:false}, async request => {
+  requireAdmin(request);
+  const query = typeof request.data?.query === "string" ? request.data.query.trim() : "";
+  if (!query || query.length > 254 || query.includes("/")) throw new HttpsError("invalid-argument", "Escribe el correo o identificador del usuario.");
+  try {
+    const user = await (query.includes("@") ? getAuth().getUserByEmail(query) : getAuth().getUser(query));
+    return {uid:user.uid, name:user.displayName || user.email || user.uid};
+  } catch { throw new HttpsError("not-found", "No se encontró la cuenta."); }
+});
+const accountProfile = require("./account-profile")({db, FieldValue, HttpsError, requireUser,
+  requireVerified, requireAdmin, getUser: uid => getAuth().getUser(uid),
+  setClaims:async (uid, claims) => getAuth().setCustomUserClaims(uid, {...(await getAuth().getUser(uid)).customClaims, ...claims})});
+exports.obtenerMiCuenta = onCall({enforceAppCheck:false}, accountProfile.get);
+exports.actualizarMiCuenta = onCall({enforceAppCheck:false}, accountProfile.update);
 const tombHistory = require("./tomb-history")({db, FieldValue, HttpsError, requireUser, enforceRateLimit,
   getUser:uid => getAuth().getUser(uid)});
 exports.registrarHistorialTumba = onDocumentWrittenWithAuthContext({document:"tumbas/{recordId}", retry:true}, tombHistory.auditTomb);
 exports.registrarHistorialFotografia = onDocumentWrittenWithAuthContext({document:"tumbas/{recordId}/photos/{photoId}", retry:true}, tombHistory.auditPhoto);
 exports.obtenerHistorialTumba = onCall({enforceAppCheck:false}, tombHistory.list);
-exports.contactarColaboradorTumba = onCall({enforceAppCheck:false}, tombHistory.contact);
+exports.contactarColaboradorTumba = onCall({auditOperation:"contactarColaboradorTumba", enforceAppCheck:false}, tombHistory.contact);
 exports.descargarFotografiaTumba = onRequest(require("./photo-download")({db, bucket:getStorage().bucket(),
   verifyIdToken:(token, revoked) => getAuth().verifyIdToken(token, revoked)}));
 exports.consultarCatalogoPublico = onCall({enforceAppCheck: false}, require('./public-catalog')({
   db, HttpsError,
   photoUrl: storagePath => require('firebase-admin/storage').getDownloadURL(getStorage().bucket().file(storagePath)),
 }));
-exports.aportarFotoOUbicacionTumba = onCall({enforceAppCheck:false}, async request => {
+exports.aportarFotoOUbicacionTumba = onCall({auditOperation:"aportarFotoOUbicacionTumba", enforceAppCheck:false}, async request => {
   requireUser(request);
   return require("./tomb-media")({db, bucket:getStorage().bucket(), FieldValue, HttpsError, requireUser})(request);
 });
@@ -42,7 +64,7 @@ const CONTRIBUTIONS_PER_REWARD = 10;
 const REWARD_DAYS = 30;
 const DAY_IN_MILLISECONDS = 24 * 60 * 60 * 1000;
 
-function requireUser(request) {
+function requireVerified(request) {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
   }
@@ -53,6 +75,14 @@ function requireUser(request) {
     );
   }
   return request.auth.uid;
+}
+
+function requireUser(request) {
+  const uid = requireVerified(request);
+  if (request.auth.token.profile_complete !== true && !elevated(request.auth.token)) {
+    throw new HttpsError("failed-precondition", "Completa todos los datos de tu cuenta antes de continuar.");
+  }
+  return uid;
 }
 
 function requireAdmin(request) {
@@ -206,7 +236,7 @@ exports.obtenerEstadoBeneficios = onCall(
 );
 
 exports.activarPlusAdmin = onCall(
-    {enforceAppCheck: false},
+    {auditOperation:"activarPlusAdmin", enforceAppCheck: false},
     async (request) => {
       requireAdmin(request);
       if (!getMonetizationPolicy().plusSalesEnabled) {
@@ -247,7 +277,7 @@ exports.activarPlusAdmin = onCall(
     },
 );
 
-exports.enviarNotaError = onCall({enforceAppCheck: false}, async (request) => {
+exports.enviarNotaError = onCall({auditOperation:"enviarNotaError", enforceAppCheck: false}, async (request) => {
   requireUser(request);
   await enforceRateLimit(request.auth.uid, "error_note", 20);
   return require("./error-notes").submit(db, request, FieldValue, HttpsError);
@@ -258,7 +288,7 @@ exports.obtenerNotasErrorAdmin = onCall({enforceAppCheck: false}, async (request
   return {cases: await require("./error-notes").list(db)};
 });
 
-exports.resolverNotasErrorAdmin = onCall({enforceAppCheck: false}, async (request) => {
+exports.resolverNotasErrorAdmin = onCall({auditOperation:"resolverNotasErrorAdmin", enforceAppCheck: false}, async (request) => {
   requireAdmin(request);
   const {caseId, note} = request.data || {};
   if (typeof caseId !== "string" || !/^(tomb|cemetery)_[A-Za-z0-9_-]{1,128}$/.test(caseId) ||
@@ -279,7 +309,7 @@ exports.resolverNotasErrorAdmin = onCall({enforceAppCheck: false}, async (reques
   return {ok: true};
 });
 
-exports.auditarDuplicadosAdmin = onCall({enforceAppCheck: false}, async (request) => {
+exports.auditarDuplicadosAdmin = onCall({auditOperation:"auditarDuplicadosAdmin", enforceAppCheck: false}, async (request) => {
   requireAdmin(request);
   const {findExistingDuplicates} = require("./duplicate-audit");
   const [tombs, cemeteries] = await Promise.all([
@@ -405,7 +435,7 @@ exports.obtenerEstadisticasAdmin = onCall(
 );
 
 exports.eliminarRegistroAdmin = onCall(
-    {enforceAppCheck: false},
+    {auditOperation:"eliminarRegistroAdmin", enforceAppCheck: false},
     async (request) => {
       requireAdmin(request);
       const recordId = String(request.data?.recordId || "");
@@ -416,7 +446,7 @@ exports.eliminarRegistroAdmin = onCall(
       const snapshot = await reference.get();
       if (!snapshot.exists) throw new HttpsError("not-found", "El registro no existe.");
       const userId = snapshot.data().userId;
-      await reference.delete();
+      await userAudit.remove(reference, request);
       if (userId) {
         await getStorage().bucket()
             .file(`tumbas_images/${userId}/${recordId}.jpg`)
@@ -426,8 +456,8 @@ exports.eliminarRegistroAdmin = onCall(
     },
 );
 
-exports.eliminarMiAportacion = onCall({enforceAppCheck: false}, async (request) => {
-  const uid = requireUser(request);
+exports.eliminarMiAportacion = onCall({auditOperation:"eliminarMiAportacion", enforceAppCheck: false}, async (request) => {
+  requireAdmin(request);
   const {recordType, recordId} = request.data || {};
   if (!["tomb", "cemetery"].includes(recordType) ||
       typeof recordId !== "string" || !/^[A-Za-z0-9_-]{1,128}$/.test(recordId)) {
@@ -437,19 +467,7 @@ exports.eliminarMiAportacion = onCall({enforceAppCheck: false}, async (request) 
   const snapshot = await reference.get();
   if (!snapshot.exists) throw new HttpsError("not-found", "La aportación ya no existe.");
   const record = snapshot.data();
-  const admin = elevated(request.auth.token);
-  if (!admin) {
-    const moderation = await db.collection("_moderation").doc(uid).get();
-    if (moderation.data()?.suspendedUntil?.toMillis?.() > Date.now()) {
-      throw new HttpsError("permission-denied", "Tus aportaciones estÃ¡n suspendidas temporalmente.");
-    }
-  }
-  if (!admin && (recordType === "tomb"
-    ? (record.contributorId || record.userId) !== uid
-    : record.contributorId !== uid || record.status !== "pending")) {
-    throw new HttpsError("permission-denied", "No tienes permiso para eliminar esta aportación.");
-  }
-  await reference.delete();
+  await userAudit.remove(reference, request);
   if (recordType === "tomb") {
     const owner = record.userId || record.contributorId;
     if (owner) await getStorage().bucket()
@@ -469,7 +487,7 @@ exports.eliminarMiAportacion = onCall({enforceAppCheck: false}, async (request) 
   return {deleted: true};
 });
 
-exports.actualizarAportacionTumba = onCall({enforceAppCheck: false}, async (request) => {
+exports.actualizarAportacionTumba = onCall({auditOperation:"actualizarAportacionTumba", enforceAppCheck: false}, async (request) => {
   const uid = requireUser(request);
   const {recordId, changes} = request.data || {};
   if (typeof recordId !== "string" || !/^[A-Za-z0-9_-]{1,128}$/.test(recordId) ||
@@ -518,7 +536,7 @@ exports.actualizarAportacionTumba = onCall({enforceAppCheck: false}, async (requ
   return {updated: true};
 });
 
-exports.gestionarAporteAdmin = onCall({enforceAppCheck: false}, async (request) => {
+exports.gestionarAporteAdmin = onCall({auditOperation:"gestionarAporteAdmin", enforceAppCheck: false}, async (request) => {
   requireAdmin(request);
   const {recordType, recordId, action, note, days, changes} = request.data || {};
   if (!["tomb", "cemetery"].includes(recordType) ||
@@ -622,7 +640,7 @@ exports.gestionarAporteAdmin = onCall({enforceAppCheck: false}, async (request) 
 });
 
 exports.vaciarBaseAdmin = onCall(
-    {enforceAppCheck: false, timeoutSeconds: 540, memory: "512MiB"},
+    {auditOperation:"vaciarBaseAdmin", enforceAppCheck: false, timeoutSeconds: 540, memory: "512MiB"},
     async (request) => {
       requireAdmin(request);
       if (request.data?.confirmation !== "BORRAR TODOS LOS REGISTROS") {
@@ -630,10 +648,10 @@ exports.vaciarBaseAdmin = onCall(
       }
       let deleted = 0;
       while (true) {
-        const snapshot = await db.collection("tumbas").limit(400).get();
+        const snapshot = await db.collection("tumbas").limit(100).get();
         if (snapshot.empty) break;
         const batch = db.batch();
-        snapshot.docs.forEach((document) => batch.delete(document.ref));
+        snapshot.docs.forEach((document) => userAudit.addDeletion(batch, document, request));
         await batch.commit();
         deleted += snapshot.size;
       }

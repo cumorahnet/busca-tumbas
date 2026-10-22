@@ -25,7 +25,7 @@ function setup() {
     requireUser:request => {if(!request.auth?.token.email_verified) throw new HttpsError("unauthenticated","login");return request.auth.uid;}});
   const event=(before,after,id="event1") => ({id, time:"2026-10-21T18:00:00Z", params:{recordId:"tomb"}, authType:"service_account", authId:"service@example.com",
     data:{before:{exists:!!before, data:() => before}, after:{exists:!!after, data:() => after}}});
-  const auth={uid:"viewer",token:{name:"Visitante",email_verified:true}};
+  const auth={uid:"owner",token:{name:"Visitante",email_verified:true}};
   return {rows, api, event, auth};
 }
 test("history keeps old and new values, trusted editor and event time, and retries do not duplicate", async () => {
@@ -37,7 +37,7 @@ test("history keeps old and new values, trusted editor and event time, and retri
   const entry=entries[0][1];assert.equal(entry.actorUid,"editor");assert.equal(entry.actorName,"Editora");
   assert.equal(entry.changedAt.toISOString(),new Date(event.time).toISOString());
   assert.deepEqual(entry.changes,[{field:"nombres",before:"Ana",after:"Ana María"}]);
-  const listed=await s.api.list({data:{recordId:"tomb"}});
+  const listed=await s.api.list({auth:s.auth,data:{recordId:"tomb"}});
   assert.equal(listed.entries[0].actorName,"Editora");
   assert.equal(listed.entries[0].actorUid,undefined);
   assert.doesNotMatch(JSON.stringify(listed),/private@example|service@example/);
@@ -53,11 +53,11 @@ test("photos, locations and system changes have separate and accurate attributio
 });
 test("legacy records show only known last edit metadata and private records stay private", async () => {
   const s=setup();s.rows.set("tumbas/tomb",{...s.rows.get("tumbas/tomb"),last_updated:new Date("2026-10-20"),last_updated_by:"editor"});
-  const result=await s.api.list({data:{recordId:"tomb"}});
+  const result=await s.api.list({auth:s.auth,data:{recordId:"tomb"}});
   assert.equal(result.entries[0].action,"legacy_edit");assert.deepEqual(result.entries[0].changes,[]);
   assert.equal(result.initial.id,"original");
   s.rows.set("tumbas/tomb",{visibility:"private"});
-  await assert.rejects(s.api.list({data:{recordId:"tomb"}}),{code:"not-found"});
+  await assert.rejects(s.api.list({auth:s.auth,data:{recordId:"tomb"}}),{code:"not-found"});
 });
 test("private contact resolves the recipient from the history, never from client-supplied accounts", async () => {
   const s=setup();await s.api.auditTomb(s.event({nombres:"Ana"},{nombres:"Ana María",last_updated_by:"editor",last_updated:new Date()},"edit"));
@@ -66,15 +66,22 @@ test("private contact resolves the recipient from the history, never from client
   const request={auth:s.auth,data:{recordId:"tomb",entryId:eventId,contactKey:listed.entries[0].contactKey,purpose:"thanks",message:"Gracias",targetUid:"victim"}};
   const result=await s.api.contact(request);await s.api.contact(request);
   const thread=s.rows.get(`correction_requests/${result.threadId}`);
-  assert.deepEqual(thread.participants,["viewer","editor"]);
+  assert.deepEqual(thread.participants,["owner","editor"]);
   assert.equal(thread.messages.length,2);assert.equal(thread.kind,"contact");
   assert.match(thread.description,/Agradecimiento/);
   await assert.rejects(s.api.contact({data:request.data}),{code:"unauthenticated"});
 });
 
 test("a stale contact entry cannot redirect a message to a changed contributor", async () => {
-  const s=setup();const listed=await s.api.list({data:{recordId:"tomb"}});
+  const s=setup();const listed=await s.api.list({auth:s.auth,data:{recordId:"tomb"}});
   s.rows.set("tumbas/tomb",{...s.rows.get("tumbas/tomb"),userId:"another"});
   await assert.rejects(s.api.contact({auth:s.auth,data:{recordId:"tomb",entryId:"original",contactKey:listed.initial.contactKey,purpose:"question",message:"Consulta"}}),{code:"failed-precondition"});
   assert.equal([...s.rows.keys()].some(key=>key.startsWith("correction_requests/")),false);
+});
+
+test("history is private to the owner and elevated administrator", async () => {
+  const s=setup();
+  await assert.rejects(s.api.list({data:{recordId:"tomb"}}),{code:"unauthenticated"});
+  await assert.rejects(s.api.list({auth:{uid:"other",token:{email_verified:true}},data:{recordId:"tomb"}}),{code:"permission-denied"});
+  await s.api.list({auth:{uid:"admin",token:{email_verified:true,platform_admin:true,superuser_session:true,superuser_until:Date.now()/1000+3600}},data:{recordId:"tomb"}});
 });

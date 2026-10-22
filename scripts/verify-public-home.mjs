@@ -5,7 +5,7 @@ import path from 'node:path';
 import {chromium, webkit} from 'playwright';
 const original = await fs.readFile('index.html', 'utf8');
 const source = (await fs.readFile('www/index.html', 'utf8')).replace(/<script\b[^>]*>[^]*?<\/script>/gi, '');
-const names = ['requireMember', 'continueBrowsing', 'showModeSelection', 'isPublicTomb', 'tombSummaryHtml', 'loadRecentTombs', 'displaySearchResults', 'scrollToSearchResultsStart', 'selectAddTombMode', 'renderTombDetail', 'recordDetailPhotoHtml', 'prepareForFamilySearch', 'openTombAction', 'renderTombActionCard', 'backRecordDetail', 'recordDetailMainMenu', 'enableTombDetailEditing', 'detailDataHtml', 'historyEntryHtml', 'loadTombHistory', 'openHistoryContact', 'sendHistoryContact', 'formatCoordinates', 'formatTimestamp', 'formatProperName', 'escapeHtml', 'inlineJsValue', 'tombOwnerId'];
+const names = ['requireMember', 'continueBrowsing', 'showModeSelection', 'isPublicTomb', 'tombSummaryHtml', 'loadRecentTombs', 'displaySearchResults', 'scrollToSearchResultsStart', 'selectAddTombMode', 'renderTombDetail', 'recordDetailPhotoHtml', 'prepareForFamilySearch', 'openTombAction', 'renderTombActionCard', 'backRecordDetail', 'recordDetailMainMenu', 'enableTombDetailEditing', 'detailDataHtml', 'historyEntryHtml', 'toggleTombHistory', 'loadTombHistory', 'openHistoryContact', 'sendHistoryContact', 'formatCoordinates', 'formatTimestamp', 'formatProperName', 'escapeHtml', 'inlineJsValue', 'tombOwnerId'];
 const functions = names.map(name => {
     const match = original.match(new RegExp('(?:async )?function ' + name + '\\([^]*?\\n}'));
     assert.ok(match, name);
@@ -64,7 +64,7 @@ try {
             assert.equal(await page.locator('.home-actions button').count(), 2);
             assert.equal(await page.locator('.primary-navigation').isVisible(), false);
             assert.equal(await page.locator('#auth-screen').isVisible(), false);
-            assert.equal(await page.locator('#bottom-navigation button').count(), 3);
+            assert.equal(await page.locator('#bottom-navigation button').count(), 4);
             await page.screenshot({path: `.browser-check/public-home-${engine}.png`, fullPage: true});
             await page.evaluate(async () => {
                 const snapshot = await catalogCollection('tumbas').get();
@@ -132,6 +132,9 @@ try {
             assert.equal(await page.locator('#correction-description').isVisible(),true);
             assert.equal(await page.locator('[data-tomb-edit]').count(),0);
             await page.getByRole('button',{name:'Volver',exact:true}).click();
+            assert.equal(await page.getByRole('button',{name:'Historial',exact:true}).count(),0);
+            await page.evaluate(()=>{auth.currentUser={uid:'owner',emailVerified:true};renderTombDetail();});
+            await page.getByRole('button',{name:'Historial',exact:true}).click();
             await page.locator('#tomb-history-list').getByText('Editora',{exact:false}).waitFor();
             await page.locator('#tomb-history-list').getByRole('button',{name:'Contactar al colaborador'}).first().click();
             assert.equal(await page.locator('#history-contact-message').isVisible(),true);

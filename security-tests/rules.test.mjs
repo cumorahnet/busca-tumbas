@@ -4,7 +4,7 @@ import {initializeTestEnvironment, assertFails, assertSucceeds} from '@firebase/
 let env;
 before(async()=>{ env=await initializeTestEnvironment({projectId:'demo-buscatumbas-security',firestore:{rules:readFileSync('firestore.rules','utf8')},storage:{rules:readFileSync('storage.rules','utf8')}}); });
 after(async()=>{await env?.cleanup();});
-const user=(uid,email=uid+'@example.com',verified=true)=>env.authenticatedContext(uid,{email,email_verified:verified});
+const user=(uid,email=uid+'@example.com',verified=true)=>env.authenticatedContext(uid,{email,email_verified:verified,profile_complete:true});
 const tomb=(uid)=>({userId:uid,contributorId:uid,timestamp:new Date(),imageUrl:'https://example.com/photo.jpg',visibility:'public',status:'published'});
 
 test('suspension blocks contributions and uploads while preserving reading and expires automatically',async()=>{
@@ -28,6 +28,14 @@ test('suspension blocks contributions and uploads while preserving reading and e
 });
 const message=(uid,text='Original')=>({senderId:uid,senderName:uid,text,createdAt:Date.now()});
 const thread=(uid,owner,tombId)=>({tombId,tombName:'Test',tombOwnerId:owner,requesterId:uid,requesterName:uid,description:'Correction',status:'open',participants:[owner,uid],readBy:[uid],messages:[message(uid)]});
+
+test('incomplete verified profiles cannot modify conversations or write audit records',async()=>{
+ const client=env.authenticatedContext('incomplete',{email_verified:true,profile_complete:false}).firestore();
+ await env.withSecurityRulesDisabled(context=>context.firestore().doc('correction_requests/incomplete-thread').set(thread('incomplete','owner','record')));
+ await assertFails(client.doc('correction_requests/incomplete-thread').update({readBy:['incomplete','owner']}));
+ await assertFails(client.doc('_userAudit/incomplete/events/forged').set({action:'forged'}));
+ await assertFails(client.doc('_accountProfiles/incomplete/history/forged').set({changes:[]}));
+});
 
 test('community places cannot bypass server uniqueness checks with direct writes',async()=>{
  const base={name:'Lugar comunitario',normalizedName:'lugar comunitario',stateCode:'01',municipalityCode:'001',photoUrl:'photo',source:'community',status:'pending',contributorId:'places',locality:'Local',aliases:[]};

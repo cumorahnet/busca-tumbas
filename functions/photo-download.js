@@ -18,7 +18,8 @@ module.exports = ({db, bucket, verifyIdToken}) => async (req, res) => {
     if (!token) throw new Error("No token");
     user = await verifyIdToken(token, true);
     if (user.email_verified !== true) throw new Error("Not verified");
-  } catch { return res.status(401).send("Inicia sesión con una cuenta verificada para descargar."); }
+    if (user.profile_complete !== true && !elevated(user)) throw new Error("Incomplete profile");
+  } catch { return res.status(401).send("Inicia sesión con una cuenta verificada y completa para descargar."); }
   const recordId = req.query.recordId;
   if (typeof recordId !== "string" || !/^[A-Za-z0-9_-]{1,128}$/.test(recordId)) return res.status(400).send("Registro no válido.");
   try {

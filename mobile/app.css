@@ -142,10 +142,35 @@ body { padding-bottom: calc(76px + var(--app-safe-bottom)); }
 #account-menu { margin-top:1.5rem; width:100%; }
 #account-menu summary { padding:1rem 0; cursor:pointer; }
 #bottom-navigation { position:fixed; inset:auto 0 0; z-index:1000; display:flex; justify-content:space-around; background:white; border-top:1px solid #e2e8f0; padding:.5rem max(.5rem,var(--app-safe-right)) calc(.5rem + var(--app-safe-bottom)) max(.5rem,var(--app-safe-left)); }
-#bottom-navigation button { display:grid; gap:.3rem; justify-items:center; border:0; background:transparent; color:#334155; min-width:72px; min-height:44px; }
+#bottom-navigation button { display:grid; gap:.3rem; justify-items:center; border:0; background:transparent; color:#334155; min-width:0; flex:1; min-height:44px; font-size:clamp(.65rem,2.8vw,.9rem); }
+
+/* The identity bar stays visible in every module and above record dialogs. */
+body { padding-top: calc(100px + var(--app-safe-top)); }
+#main-app > .app-header { position: fixed; inset: 0 0 auto; width: 100%; max-width: none; margin: 0; padding: .6rem max(1rem,var(--app-safe-right)) .6rem max(1rem,var(--app-safe-left)); padding-top: calc(.6rem + var(--app-safe-top)); border-radius: 0; z-index: 20000; box-shadow: 0 2px 12px #0f172a20; }
+.app-header > .d-flex { margin-bottom: 0 !important; flex-wrap: nowrap !important; flex-direction:row; gap:.5rem; }
+.header-account-actions { display:flex; align-items:center; gap:.5rem; min-width:0; }
+#header-account-user { max-width: min(35vw,260px); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.app-header .header-tagline { display:none; }
+.app-header .app-brand-logo { width:40px; height:40px; }
+#main-app > .app-header #back-to-mode-selection { min-height:30px; margin: .2rem 0 0; padding:.1rem .6rem; }
+#account-dialog, #user-history-dialog { width:min(700px,calc(100% - 1.5rem)); max-height:calc(100dvh - 130px - var(--app-safe-top) - var(--app-safe-bottom)); margin:auto; overflow:auto; overflow-wrap:anywhere; border:1px solid #e4deef; border-radius:1rem; padding:1.25rem; }
+#account-dialog::backdrop { background:#0f172a99; }
+#user-history-dialog::backdrop { background:#0f172a99; }
+#record-detail-modal { padding-top:calc(110px + var(--app-safe-top)); }
+#record-detail-modal .record-detail-dialog { max-height:calc(100dvh - 140px - var(--app-safe-top) - var(--app-safe-bottom)); }
+#duplicate-dispute-alert, #my-disputes-menu-count, #my-disputes-submenu-count { display:none !important; }
+@media (max-width:480px) {
+    .app-header .app-brand-header { gap:.35rem; }
+    .app-header .app-brand-header h4 { font-size:.9rem; }
+    .app-header .app-brand-logo { width:30px; height:30px; }
+    .header-account-actions { gap:.3rem; }
+    .app-header .version-pill { font-size:.65rem; padding:.3rem; margin:0 !important; }
+    #header-account-user { font-size:.7rem; max-width:23vw; }
+    #header-logout { font-size:.7rem; padding:.3rem; }
+}
 #main-app .header-tagline,#main-app .app-header .badge { display:none !important; }
 #main-app .app-header > div:first-child { margin-bottom:0 !important; }
-@media(max-width:768px) { .app-brand-header img { width:40px; height:40px; } .app-header .version-pill { display:none; } .home-actions .menu-action { padding:1rem; } }
+@media(max-width:768px) { .app-brand-header img { width:30px; height:30px; } .app-header .version-pill { display:inline-block; } .home-actions .menu-action { padding:1rem; } }
 .tomb-detail-actions { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:.75rem; }
 .tomb-detail-actions .btn { min-height:48px; white-space:normal; }
 .tomb-action-card { max-width:42rem; margin-inline:auto; }

@@ -15,6 +15,7 @@ function setup(ownerClaims = {}, candidates = []) {
     runTransaction: async (callback) => callback({get: async (ref) => ref.path.includes("/") ? snapshot : {docs: candidates},
       set: (ref, data) => writes.push([ref.path, data]), update: (ref, data) => writes.push([ref.path, data])})};
   const modules = {
+    "./account-profile":require("./account-profile"), "./user-audit":()=>({run:(_operation,request,handler)=>handler(request)}),
     "./superuser-password": require("./superuser-password"),
     "firebase-functions/v2/firestore": {onDocumentWrittenWithAuthContext: (_options, handler) => handler},
     "firebase-functions/v2/https": {onRequest: handler => handler, onCall: (_opts, callback) => callback, HttpsError},
@@ -28,15 +29,15 @@ function setup(ownerClaims = {}, candidates = []) {
   const ctx = {exports: {}, require: (name) => modules[name] || (["./record-writes", "./duplicates", "./similarity", "./tomb-history", "./photo-download", "./public-catalog"].includes(name) ? require(name) : undefined)};
   vm.createContext(ctx);
   vm.runInContext(fs.readFileSync(__dirname + "/index.js", "utf8"), ctx);
-  const auth = {uid: "admin", token: {email_verified: true, platform_admin: true,
+  const auth = {uid: "admin", token: {email_verified: true, profile_complete:true, platform_admin: true,
     superuser_session: true, superuser_until: Date.now() / 1000 + 60}};
-  return {writes, record, editTomb: changes => ctx.exports.actualizarAportacionTumba({auth:{uid:"owner",token:{email_verified:true}},data:{recordId:"record",changes}}), run: (data, session = auth) => ctx.exports.gestionarAporteAdmin({auth: session,
+  return {writes, record, editTomb: changes => ctx.exports.actualizarAportacionTumba({auth:{uid:"owner",token:{email_verified:true,profile_complete:true}},data:{recordId:"record",changes}}), run: (data, session = auth) => ctx.exports.gestionarAporteAdmin({auth: session,
     data: {recordType: "tomb", recordId: "record", note: "Dato incorrecto", ...data}})};
 }
 test("ordinary and expired sessions cannot moderate", async () => {
   const s = setup();
-  await assert.rejects(s.run({action: "reject"}, {uid: "owner", token: {email_verified: true}}), {code: "permission-denied"});
-  await assert.rejects(s.run({action: "reject"}, {uid: "admin", token: {email_verified: true,
+  await assert.rejects(s.run({action: "reject"}, {uid: "owner", token: {email_verified: true, profile_complete:true}}), {code: "permission-denied"});
+  await assert.rejects(s.run({action: "reject"}, {uid: "admin", token: {email_verified: true, profile_complete:true,
     platform_admin: true, superuser_session: true, superuser_until: 1}}), {code: "permission-denied"});
   assert.equal(s.writes.length, 0);
 });

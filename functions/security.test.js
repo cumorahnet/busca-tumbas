@@ -8,6 +8,7 @@ class HttpsError extends Error {
 }
 const context = {exports: {}, require: (name) => {
   const modules = {
+    "./account-profile":require("./account-profile"), "./user-audit": deps => ({...require("./user-audit")(deps),run:async (_operation, request, handler) => {deps.requireUser(request);return handler(request);}}),
     "./tomb-history":require("./tomb-history"), "./photo-download":require("./photo-download"), "./public-catalog":require("./public-catalog"),
     "./record-writes": require("./record-writes"),
     "./duplicates": require("./duplicates"),
@@ -28,7 +29,7 @@ const context = {exports: {}, require: (name) => {
 vm.createContext(context);
 vm.runInContext(fs.readFileSync(__dirname + "/index.js", "utf8"), context);
 for (const [name, handler] of Object.entries(context.exports)) {
-  if (["autorizarSuperusuario", "consultarCatalogoPublico", "obtenerHistorialTumba", "registrarHistorialTumba", "registrarHistorialFotografia", "descargarFotografiaTumba"].includes(name)) continue;
+  if (["registrarActividadBase", "registrarActividadDetalle", "autorizarSuperusuario", "consultarCatalogoPublico", "obtenerHistorialTumba", "registrarHistorialTumba", "registrarHistorialFotografia", "descargarFotografiaTumba"].includes(name)) continue;
   test(name + " rejects anonymous and unverified users, including admin email", async () => {
     await assert.rejects(handler({}), {code: "unauthenticated"});
     for (const email of ["user@example.com", "buscatumbas@cumorahnet.com"]) {
@@ -38,7 +39,7 @@ for (const [name, handler] of Object.entries(context.exports)) {
 }
 for (const name of ["auditarDuplicadosAdmin", "activarPlusAdmin", "obtenerEstadisticasAdmin", "eliminarRegistroAdmin", "vaciarBaseAdmin", "obtenerNotasErrorAdmin", "resolverNotasErrorAdmin", "obtenerComparacionDisputa", "resolverDisputaDuplicado"]) {
   test(name + " rejects a verified non-admin", async () => {
-    await assert.rejects(context.exports[name]({auth: {uid: "user", token: {email: "user@example.com", email_verified: true}}}), {code: "permission-denied"});
+    await assert.rejects(context.exports[name]({auth: {uid: "user", token: {email: "user@example.com", email_verified: true, profile_complete:true}}}), {code: "permission-denied"});
   });
 }
 test("coordinates reject null, empty strings, booleans and out of range values", () => {
@@ -48,15 +49,20 @@ test("coordinates reject null, empty strings, booleans and out of range values",
   assert.equal(context.validateCoordinates(0, -180).longitude, -180);
 });
 
+test("verified accounts cannot perform member operations before completing their profile", () => {
+  assert.throws(() => context.requireUser({auth:{uid:"member",token:{email_verified:true}}}),{code:"failed-precondition"});
+  assert.equal(context.requireUser({auth:{uid:"member",token:{email_verified:true,profile_complete:true}}}),"member");
+});
+
 for (const name of ["activarPlusAdmin", "obtenerEstadisticasAdmin", "eliminarRegistroAdmin", "vaciarBaseAdmin"]) {
   test(name + " denies the old admin email without a server-issued role", async () => {
-    await assert.rejects(context.exports[name]({auth: {uid: "ordinary-user", token: {email: "buscatumbas@cumorahnet.com", email_verified: true}}}), {code: "permission-denied"});
+    await assert.rejects(context.exports[name]({auth: {uid: "ordinary-user", token: {email: "buscatumbas@cumorahnet.com", email_verified: true, profile_complete:true}}}), {code: "permission-denied"});
   });
 }
 test("global role must be boolean true and email verified", () => {
   for (const role of [undefined, false, "true", "platform_admin"]) {
-    assert.throws(() => context.requireAdmin({auth: {uid: "user", token: {email_verified: true, platform_admin: role}}}), {code: "permission-denied"});
+    assert.throws(() => context.requireAdmin({auth: {uid: "user", token: {email_verified: true, profile_complete:true, platform_admin: role}}}), {code: "permission-denied"});
   }
-  assert.throws(() => context.requireAdmin({auth: {uid: "dedicated", token: {email_verified: true, platform_admin: true}}}), {code: "permission-denied"});
-  assert.doesNotThrow(() => context.requireAdmin({auth: {uid: "dedicated", token: {email_verified: true, platform_admin: true, superuser_session: true, superuser_until: Date.now()/1000+60}}}));
+  assert.throws(() => context.requireAdmin({auth: {uid: "dedicated", token: {email_verified: true, profile_complete:true, platform_admin: true}}}), {code: "permission-denied"});
+  assert.doesNotThrow(() => context.requireAdmin({auth: {uid: "dedicated", token: {email_verified: true, profile_complete:true, platform_admin: true, superuser_session: true, superuser_until: Date.now()/1000+60}}}));
 });

@@ -128,7 +128,7 @@ service cloud.firestore {
       allow read: if signedIn();
       // Identity writes are validated and serialized in callable functions.
       allow create, update: if false;
-      allow delete: if canContribute() && ownsExistingRecord();
+      allow delete: if isAdmin();
     }
 
     function validMessage(message) {
@@ -186,7 +186,7 @@ service cloud.firestore {
         && (!request.resource.data.keys().hasAny(['recordType'])
           || request.resource.data.recordType in ['tomb', 'cemetery'])
         && request.resource.data.status == 'open';
-      allow update: if signedIn()
+      allow update: if signedIn() && request.auth.token.get('profile_complete', false) == true
         && request.auth.uid in resource.data.participants
         && request.resource.data.participants == resource.data.participants
         && request.resource.data.tombId == resource.data.tombId
@@ -220,10 +220,7 @@ service cloud.firestore {
       // Moderation status changes do not alter identity.
       allow update: if isAdmin() && request.resource.data.diff(resource.data).affectedKeys()
         .hasOnly(['status', 'adminNote', 'reviewedAt', 'reviewedBy', 'updatedAt']);
-      allow delete: if isAdmin()
-        || (canContribute()
-          && resource.data.contributorId == request.auth.uid
-          && resource.data.status == 'pending');
+      allow delete: if isAdmin();
     }
 
     // Solo Cloud Functions usa esta colección con Admin SDK.

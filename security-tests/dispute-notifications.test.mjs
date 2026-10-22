@@ -6,7 +6,7 @@ const html = fs.readFileSync('index.html','utf8');
 function setup(admin = true) {
     const nodes = new Map(); const notices = []; const listeners = [];
     const ctx = {duplicateDisputeUnsubscribe:null,myDuplicateDisputeUnsubscribe:null,
-        adminDuplicateDisputes:[],myDuplicateDisputes:[],activeAdminDisputeId:null,duplicateDisputeListenerGeneration:0,
+        correctionInboxItems:[],adminDuplicateDisputes:[],myDuplicateDisputes:[],activeAdminDisputeId:null,duplicateDisputeListenerGeneration:0,
         duplicateDisputeComparisons:new Map(), duplicateDisputeSelections:new Map(), duplicateDisputeResolutionNotes:new Map(),
         auth:{currentUser:{uid:'owner',emailVerified:true}},isSuperuserActive:()=>admin,
         document:{getElementById:id=>{if(!nodes.has(id))nodes.set(id,{innerHTML:'',hidden:true,textContent:'',setAttribute(name,value){this[name]=value;}});return nodes.get(id);}},
@@ -15,7 +15,7 @@ function setup(admin = true) {
             const item={field,value,callback,stopped:false};listeners.push(item);return ()=>{item.stopped=true;};
         }})})}};
     vm.createContext(ctx);
-    for (const name of ['escapeHtml','inlineJsValue','safeImageUrl','duplicateDisputeReason','renderDisputeComparison','changeAdminDispute','renderDuplicateDisputes','selectDisputePublication','resolveSelectedDisputePublication','startDuplicateDisputeNotifications']) {
+    for (const name of ['escapeHtml','inlineJsValue','safeImageUrl','duplicateDisputeReason','updateMessagesCount','renderDisputeComparison','changeAdminDispute','renderDuplicateDisputes','selectDisputePublication','resolveSelectedDisputePublication','startDuplicateDisputeNotifications']) {
         const source=html.match(new RegExp('(?:async )?function '+name+'\\([^]*?\\n}'));
         assert.ok(source,name);vm.runInContext(source[0],ctx);
     }
