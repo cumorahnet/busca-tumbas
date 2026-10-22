@@ -5,7 +5,7 @@ import path from 'node:path';
 import {chromium, webkit} from 'playwright';
 const original = await fs.readFile('index.html', 'utf8');
 const source = (await fs.readFile('www/index.html', 'utf8')).replace(/<script\b[^>]*>[^]*?<\/script>/gi, '');
-const names = ['requireMember', 'continueBrowsing', 'showModeSelection', 'loadRecentTombs', 'selectAddTombMode', 'renderTombDetail', 'prepareForFamilySearch', 'requestTombChanges', 'escapeHtml', 'inlineJsValue', 'tombOwnerId'];
+const names = ['requireMember', 'continueBrowsing', 'showModeSelection', 'tombSummaryHtml', 'loadRecentTombs', 'displaySearchResults', 'scrollToSearchResultsStart', 'selectAddTombMode', 'renderTombDetail', 'prepareForFamilySearch', 'requestTombChanges', 'escapeHtml', 'inlineJsValue', 'tombOwnerId'];
 const functions = names.map(name => {
     const match = original.match(new RegExp('(?:async )?function ' + name + '\\([^]*?\\n}'));
     assert.ok(match, name);
@@ -57,6 +57,21 @@ try {
             assert.equal(await page.locator('#auth-screen').isVisible(), false);
             assert.equal(await page.locator('#bottom-navigation button').count(), 3);
             await page.screenshot({path: `.browser-check/public-home-${engine}.png`, fullPage: true});
+            await page.evaluate(async () => {
+                const snapshot = await catalogCollection('tumbas').get();
+                displaySearchResults(snapshot.docs.map(doc => ({id:doc.id,...doc.data()})));
+                document.getElementById('mode-selection-card').style.display = 'none';
+                document.getElementById('search-tomb-section').style.display = 'block';
+                window.openTombDetail = id => { window.openedSearchRecord = id; };
+            });
+            assert.equal(await page.locator('#tomb-search-result-list .recent-tomb').count(), 1);
+            assert.equal(await page.locator('#tomb-search-result-detail').count(), 0);
+            assert.equal(await page.locator('#record-detail-modal').isVisible(), false);
+            assert.match(await page.locator('#tomb-search-result-list').textContent(), /1920.*2000.*80 años/);
+            await page.locator('#tomb-search-result-list .recent-tomb').click();
+            assert.equal(await page.evaluate(() => window.openedSearchRecord), 'example');
+            await page.screenshot({path: `.browser-check/search-summary-${engine}.png`, fullPage: true});
+            await page.evaluate(() => showModeSelection());
             await page.getByRole('button', {name: /^Aportar/}).click();
             assert.equal(await page.locator('#auth-screen').isVisible(), true);
             await page.getByRole('button', {name: 'Seguir explorando sin cuenta'}).click();

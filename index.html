@@ -1055,87 +1055,13 @@
             margin-right: 0.5rem;
             color: #94a3b8;
         }
-        .tomb-search-layout {
-            display: grid;
-            grid-template-columns: minmax(210px, 270px) minmax(0, 1fr);
-            gap: 1rem;
-            margin-top: 1rem;
-            align-items: start;
-        }
-        .tomb-search-list {
-            display: grid;
-            gap: 0.45rem;
-            max-height: 650px;
-            overflow-y: auto;
-            padding-right: 0.25rem;
-        }
-        .tomb-search-list-item {
-            width: 100%;
-            padding: 0.65rem 0.75rem;
-            border: 1px solid var(--border);
-            border-radius: 0.75rem;
-            background: #fff;
-            color: var(--primary);
-            text-align: left;
-            font-size: 0.8rem;
-            line-height: 1.25;
-        }
-        .tomb-search-list-item strong {
-            display: block;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-        .tomb-search-list-item small { color: #64748b; }
-        .tomb-search-list-item.active {
-            color: #fff;
-            background: var(--accent);
-            border-color: var(--accent);
-            box-shadow: 0 0.35rem 0.8rem rgba(59,130,246,0.2);
-        }
-        .tomb-search-list-item.active small { color: rgba(255,255,255,0.82); }
-        .tomb-search-detail {
-            min-height: 340px;
-            padding: 1rem;
+        .search-summary-list {
+            padding: .25rem 1rem;
             border: 1px solid var(--border);
             border-radius: 1rem;
-            background: #fff;
+            background: white;
         }
-        .tomb-search-detail-grid {
-            display: grid;
-            grid-template-columns: minmax(220px, 40%) minmax(0, 1fr);
-            gap: 1rem;
-            align-items: start;
-        }
-        .tomb-search-detail-image {
-            display: block;
-            width: 100%;
-            height: auto;
-            object-fit: contain;
-            border-radius: 0.85rem;
-            background: transparent;
-        }
-        @media (max-width: 768px) {
-            .tomb-search-layout { grid-template-columns: 1fr; }
-            .tomb-search-list {
-                grid-template-columns: minmax(0, 1fr);
-                grid-auto-rows: var(--search-result-row-height, max-content);
-                max-height: min(50dvh, calc(4 * var(--search-result-row-height, 3rem) + 3 * 0.45rem));
-                overflow-x: hidden;
-                overflow-y: auto;
-                scrollbar-gutter: stable;
-                scrollbar-width: thin;
-                scrollbar-color: #5c4e99 #f1edf8;
-                overscroll-behavior-y: contain;
-                padding: 0 0.25rem 0 0;
-            }
-            .tomb-search-list::-webkit-scrollbar { width: 6px; }
-            .tomb-search-list::-webkit-scrollbar-track { background: #f1edf8; border-radius: 6px; }
-            .tomb-search-list::-webkit-scrollbar-thumb { background: #5c4e99; border-radius: 6px; }
-            .tomb-search-list-item { min-width: 0; min-height: 3rem; }
-            .tomb-search-list-item strong { white-space: normal; overflow-wrap: anywhere; }
-            .tomb-search-detail-grid { grid-template-columns: 1fr; }
-        }
+        .search-summary-list .recent-tomb:last-child { border-bottom: 0; }
 
         /* Add styling for the checkbox groups in search */
         .search-fields-group {
@@ -5604,20 +5530,21 @@ function continueBrowsing() {
     document.getElementById('main-app').style.display = 'flex';
 }
 
+function tombSummaryHtml(tomb) {
+    const year = value => String(value || '').match(/(?:^|\D)(\d{4})(?:\D|$)/)?.[1] || '—';
+    const ageValue = Number.isInteger(tomb.edad_defuncion) ? tomb.edad_defuncion : calculateAgeFromDates(tomb.fecha_nacimiento, tomb.fecha_defuncion);
+    const age = ageValue !== null ? ` (${ageValue} años)` : '';
+    const location = [tomb.municipio_panteon, tomb.estado_panteon, tomb.pais_panteon].filter(Boolean).join(', ');
+    return `<button type="button" class="recent-tomb" onclick="openTombDetail(${inlineJsValue(tomb.id)})"><img src="${escapeHtml(safeImageUrl(tomb.imageUrl))}" alt="Fotografía de la lápida" loading="lazy"><span><strong>${escapeHtml(tomb.nombre_finado || 'Nombre sin registrar')}</strong><span>${escapeHtml(year(tomb.fecha_nacimiento) + ' – ' + year(tomb.fecha_defuncion) + age)}</span><span>${escapeHtml(tomb.nombre_panteon || 'Lugar sin registrar')}</span><small>${escapeHtml(location)}</small></span></button>`;
+}
+
 async function loadRecentTombs() {
     const list = document.getElementById('recent-tombs-list');
     if (list.dataset.loaded === 'true') return;
     list.textContent = 'Cargando lápidas recientes…';
     try {
         const snapshot = await catalogCollection('tumbas').orderBy('timestamp', 'desc').limit(12).get();
-        list.innerHTML = snapshot.docs.length ? snapshot.docs.map(doc => {
-            const tomb = doc.data();
-            const year = value => String(value || '').match(/(?:^|\D)(\d{4})(?:\D|$)/)?.[1] || '—';
-            const ageValue = Number.isInteger(tomb.edad_defuncion) ? tomb.edad_defuncion : calculateAgeFromDates(tomb.fecha_nacimiento, tomb.fecha_defuncion);
-            const age = ageValue !== null ? ` (${ageValue} años)` : '';
-            const location = [tomb.municipio_panteon, tomb.estado_panteon, tomb.pais_panteon].filter(Boolean).join(', ');
-            return `<button type="button" class="recent-tomb" onclick="openTombDetail(${inlineJsValue(doc.id)})"><img src="${escapeHtml(safeImageUrl(tomb.imageUrl))}" alt="Fotografía de la lápida" loading="lazy"><span><strong>${escapeHtml(tomb.nombre_finado || 'Nombre sin registrar')}</strong><span>${escapeHtml(year(tomb.fecha_nacimiento) + ' – ' + year(tomb.fecha_defuncion) + age)}</span><span>${escapeHtml(tomb.nombre_panteon || 'Lugar sin registrar')}</span><small>${escapeHtml(location)}</small></span></button>`;
-        }).join('') : '<p class="text-muted">Todavía no hay lápidas publicadas.</p>';
+        list.innerHTML = snapshot.docs.length ? snapshot.docs.map(doc => tombSummaryHtml({id: doc.id, ...doc.data()})).join('') : '<p class="text-muted">Todavía no hay lápidas publicadas.</p>';
         list.dataset.loaded = 'true';
     } catch (error) {
         list.innerHTML = '<p>No se pudieron cargar las lápidas recientes.</p><button type="button" class="btn btn-outline-primary" onclick="loadRecentTombs()">Reintentar</button>';
@@ -6986,15 +6913,6 @@ async function performSearch() {
     }
 }
 
-function sizeMobileSearchResultList() {
-    const list = document.getElementById('tomb-search-result-list');
-    if (!list) return;
-    list.style.removeProperty('--search-result-row-height');
-    if (!window.matchMedia('(max-width: 768px)').matches) return;
-    const buttons = [...list.querySelectorAll('.tomb-search-list-item')];
-    const rowHeight = buttons.reduce((height, button) => Math.max(height, Math.ceil(button.getBoundingClientRect().height)), 0);
-    if (rowHeight > 0) list.style.setProperty('--search-result-row-height', `${rowHeight}px`);
-}
 function scrollToSearchResultsStart() {
     requestAnimationFrame(() => {
         const container = document.getElementById('search-results-container');
@@ -7018,61 +6936,11 @@ function displaySearchResults(results) {
         return;
     }
 
-    searchResultsContainer.innerHTML = `<div class="tomb-search-layout">
-        <div class="tomb-search-list" id="tomb-search-result-list" aria-label="Resultados por nombre">
-            ${results.map(tomb => `<button type="button" class="tomb-search-list-item"
-                data-tomb-id="${escapeHtml(tomb.id)}"
-                onclick="showSearchTombDetail(${inlineJsValue(tomb.id)}, this)">
-                <strong>${escapeHtml(tomb.nombre_finado) || 'Finado desconocido'}</strong>
-            </button>`).join('')}
-        </div>
-        <div class="tomb-search-detail" id="tomb-search-result-detail"></div>
-    </div>`;
-    const firstButton = document.querySelector('#tomb-search-result-list .tomb-search-list-item');
-    showSearchTombDetail(results[0].id, firstButton);
-    sizeMobileSearchResultList();
-}
-
-window.addEventListener('resize', () => requestAnimationFrame(sizeMobileSearchResultList));
-document.fonts?.ready.then(sizeMobileSearchResultList);
-
-function showSearchTombDetail(tombId, selectedButton = null) {
-    const tomb = currentSearchResults.find(item => item.id === tombId);
-    const container = document.getElementById('tomb-search-result-detail');
-    if (!tomb || !container) return;
-    document.querySelectorAll('#tomb-search-result-list .tomb-search-list-item').forEach(button => {
-        const isSelected = button === selectedButton || button.dataset.tombId === tombId;
-        button.classList.toggle('active', isSelected);
-        button.setAttribute('aria-pressed', String(isSelected));
-    });
-    const contributor = tomb.contributor_name || tomb.contributor_email || 'Colaborador no identificado';
-    const contributionCount = Number(tomb._contributionCount) || 0;
-    container.innerHTML = `<div class="tomb-search-detail-grid">
-        <div>
-            <img class="tomb-search-detail-image zoomable-image"
-                src="${escapeHtml(safeImageUrl(tomb.imageUrl))}"
-                alt="Fotografía de la tumba de ${escapeHtml(tomb.nombre_finado) || 'finado desconocido'}"
-                onclick="openImageZoom(this.src)">
-            <div class="contributor-summary">
-                <i class="fas fa-user-circle me-1"></i>Aportado por
-                <strong>${escapeHtml(contributor)}</strong> ·
-                <strong>${contributionCount}</strong> aporte${contributionCount === 1 ? '' : 's'}
-            </div>
-        </div>
-        <div>
-            <h6 class="fw-bold mb-3">${escapeHtml(tomb.nombre_finado) || 'Finado desconocido'}</h6>
-            <div class="record-data-list">
-                ${detailDataHtml(tomb)}
-                <div class="record-data-item"><small>Ubicación de captura</small><span>${escapeHtml(formatCoordinates(tomb.geolocation))}</span></div>
-                <div class="record-data-item"><small>Ubicación del panteón</small><span>${escapeHtml(formatCoordinates(tomb.panteon_geolocation))}</span></div>
-                <div class="record-data-item"><small>Fecha de aportación</small><span>${escapeHtml(formatTimestamp(tomb.timestamp))}</span></div>
-            </div>
-            <button class="btn btn-primary w-100 mt-3" onclick="openTombDetail(${inlineJsValue(tomb.id)})">
-                <i class="fas fa-expand me-1"></i>Abrir ficha completa
-            </button>
-        </div>
+    searchResultsContainer.innerHTML = `<div class="search-summary-list" id="tomb-search-result-list" aria-label="Resultados de la búsqueda">
+        ${results.map(tomb => tombSummaryHtml(tomb)).join('')}
     </div>`;
 }
+
 
 function closeRecordDetail() {
     document.getElementById('record-detail-modal').style.display = 'none';
