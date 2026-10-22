@@ -12,6 +12,9 @@ function setup(records=[]) {
  const catalog=[{state:'Jalisco',stateCode:'14',municipality:'Guadalajara'},{state:'Jalisco',stateCode:'14',municipality:'Zapopan'},{state:'Puebla',stateCode:'21',municipality:'Puebla'}];
  const ctx={document:{getElementById:id=>id.endsWith('-mode')&&!['search-nombres-mode','search-apellido-paterno-mode','search-apellido-materno-mode'].includes(id)?null:get(id)},Option:function(text,value){return {text,value,dataset:{}};},searchStateChoices:null,searchMunicipalityChoices:null,loadCemeteryCatalog:async()=>catalog,createSearchableLocationSelect:()=>({enable(){},disable(){},destroy(){}}),normalizeSearchText:value=>String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim(),normalizeWildcardSearchPattern:value=>value.trim(),hasSearchWildcards:()=>false,getWildcardLiteralPrefix:value=>value,catalogCollection:()=>query,db:{collection:()=>query},auth:{currentUser:{uid:'test'}},showToast:message=>notices.push(message),getFirebaseErrorMessage:err=>err.message,displaySearchResults:value=>{results=value;},console};
  vm.createContext(ctx);
+ for (const name of ['normalizeSearchText','spanishPhoneticKey','editDistance','soundsSimilar','tombNamePartMatches','normalizeWildcardSearchPattern','hasSearchWildcards','getWildcardLiteralPrefix','matchesSearchPattern','matchesAllSearchTerms']) {
+  vm.runInContext(source.match(new RegExp('function '+name+'\\([^]*?\\n}'))[0],ctx);
+ }
  vm.runInContext(source.slice(source.indexOf('function searchCriterionFields()'),source.indexOf('function selectSearchTombMode()')),ctx);
  vm.runInContext(source.slice(source.indexOf('async function performSearch()'),source.indexOf('function displaySearchResults(')),ctx);
  ctx.resetSearchCriteria();
@@ -38,6 +41,40 @@ test('date range stays active while either bound has a value',()=>{
  to.value='';to.oninput();assert.equal(s.get('enable-birth-date-search').checked,false);
 });
 const records=[{nombre_finado:'One',estado_panteon:'Jalisco',municipio_panteon:'Guadalajara'},{nombre_finado:'Two',estado_panteon:'Jalisco',municipio_panteon:'Zapopan',pais_panteon:'Mexico'},{nombre_finado:'Three',estado_panteon:'Puebla',municipio_panteon:'Puebla',pais_panteon:'Mexico'},{nombre_finado:'Four',estado_panteon:'Texas',municipio_panteon:'Austin',pais_panteon:'Estados Unidos'}];
+
+test('name wildcards match words, accents and legacy full names in either match mode',()=>{
+ const {ctx}=setup();
+ for(const mode of ['exact','similar']) {
+  assert.equal(ctx.tombNamePartMatches({nombres:'María Elena'},'nombres','MAR*',mode),true);
+  assert.equal(ctx.tombNamePartMatches({nombres:'María Elena'},'nombres','Mar?a',mode),true);
+  assert.equal(ctx.tombNamePartMatches({apellido_paterno:'López'},'apellido_paterno','L?pez',mode),true);
+  assert.equal(ctx.tombNamePartMatches({nombre_finado:'Juan Hernández López'},'apellido_paterno','Hern*',mode),true);
+  assert.equal(ctx.tombNamePartMatches({nombres:'Mario'},'nombres','Mar?a',mode),false);
+  assert.equal(ctx.tombNamePartMatches({nombres:'Juan'},'nombres','Ju??n',mode),false);
+  assert.equal(ctx.tombNamePartMatches({nombres:'Ana'},'nombres','Ana*',mode),true);
+  assert.equal(ctx.tombNamePartMatches({nombres:'Ana'},'nombres','?',mode),false);
+  assert.equal(ctx.tombNamePartMatches({nombres:'J'},'nombres','?',mode),true);
+ }
+});
+
+test('guest search combines name and surname wildcards with a location',async()=>{
+ const s=setup([{nombres:'María',apellido_paterno:'López',estado_panteon:'Jalisco'}, {nombres:'Marta',apellido_paterno:'López',estado_panteon:'Puebla'}, {nombres:'Mario',apellido_paterno:'López',estado_panteon:'Jalisco'}]);
+ s.ctx.auth.currentUser=null;
+ s.get('search-nombres').value='Mar?a';s.get('search-nombres').oninput();
+ s.get('search-apellido-paterno').value='L?pez';s.get('search-apellido-paterno').oninput();
+ s.get('search-estado-panteon').value='Jalisco';await s.get('search-estado-panteon').onchange();
+ await s.ctx.performSearch();assert.deepEqual(Array.from(s.results(),row=>row.nombres),['María']);
+});
+
+test('cemetery wildcard patterns support contains, one character and literal punctuation safely',async()=>{
+ const s=setup([{nombre_panteon:'Panteón Jardín Eterno'}, {nombre_panteon:'Panteón Municipal'}]);
+ s.get('search-nombre-panteon').value='*ETERNO*';s.get('search-nombre-panteon').oninput();
+ await s.ctx.performSearch();assert.equal(s.results().length,1);
+ assert.equal(s.ctx.matchesSearchPattern('Panteón Municipal','Pante?n Mun*'),true);
+ assert.equal(s.ctx.matchesSearchPattern('María','Mar?a'),true);
+ assert.equal(s.ctx.matchesSearchPattern('María','Mar??a'),false);
+ assert.equal(s.ctx.matchesSearchPattern('Panteón Municipal','*(a|b)*'),false);
+});
 
 test('guests can search without a Firebase account',async()=>{
  const s=setup(records);s.ctx.auth.currentUser=null;

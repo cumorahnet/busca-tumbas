@@ -2003,6 +2003,12 @@
         <div class="card-custom">
             <h5 class="fw-bold mb-3 text-center" style="color:var(--primary);">Buscar Tumbas</h5>
             <p class="section-subtitle text-center mb-4">Escribe o selecciona un dato para activar su criterio. Puedes buscar solo por estado o agregar un municipio. Todos los criterios activos deben coincidir.</p>
+            <div id="search-wildcard-help" class="small border rounded p-3 mb-3">
+                <strong>¿No recuerdas el nombre completo?</strong> Usa comodines en nombres, apellidos y nombre del panteón:
+                <strong><code>*</code></strong> sustituye cero o más caracteres (<code>Mar*</code>: María o Marcos; <code>*López*</code>: contiene López).
+                <strong><code>?</code></strong> sustituye exactamente un carácter (<code>Mar?a</code>: María o Marta).
+                Se ignoran mayúsculas y acentos. Si escribes comodines, se aplica ese patrón aunque elijas «Suena parecido».
+            </div>
 
             <div class="fields-grid mb-3">
                 <div class="field-group search-fields-group">
@@ -2011,7 +2017,7 @@
                         <label class="form-check-label field-label" for="enable-nombres-search">Nombre(s)</label>
                     </div>
                     <div class="name-search-controls">
-                        <input type="text" id="search-nombres" class="form-control" maxlength="100" placeholder="Ej: Juan Carlos">
+                        <input type="text" id="search-nombres" class="form-control" maxlength="100" placeholder="Ej: Juan Carlos o Mar*" aria-describedby="search-wildcard-help">
                         <select id="search-nombres-mode" class="form-select" aria-label="Coincidencia de nombres">
                             <option value="exact">Exacto</option><option value="similar">Suena parecido</option>
                         </select>
@@ -2023,7 +2029,7 @@
                         <label class="form-check-label field-label" for="enable-apellido-paterno-search">Apellido paterno</label>
                     </div>
                     <div class="name-search-controls">
-                        <input type="text" id="search-apellido-paterno" class="form-control" maxlength="80" placeholder="Apellido paterno">
+                        <input type="text" id="search-apellido-paterno" class="form-control" maxlength="80" placeholder="Ej: Hernández o Hern*" aria-describedby="search-wildcard-help">
                         <select id="search-apellido-paterno-mode" class="form-select" aria-label="Coincidencia de apellido paterno">
                             <option value="exact">Exacto</option><option value="similar">Suena parecido</option>
                         </select>
@@ -2035,7 +2041,7 @@
                         <label class="form-check-label field-label" for="enable-apellido-materno-search">Apellido materno</label>
                     </div>
                     <div class="name-search-controls">
-                        <input type="text" id="search-apellido-materno" class="form-control" maxlength="80" placeholder="Apellido materno">
+                        <input type="text" id="search-apellido-materno" class="form-control" maxlength="80" placeholder="Ej: López o L?pez" aria-describedby="search-wildcard-help">
                         <select id="search-apellido-materno-mode" class="form-select" aria-label="Coincidencia de apellido materno">
                             <option value="exact">Exacto</option><option value="similar">Suena parecido</option>
                         </select>
@@ -2048,7 +2054,7 @@
                         <label class="form-check-label field-label" for="enable-panteon-search">Nombre del Panteón</label>
                     </div>
                     <input type="text" id="search-nombre-panteon" class="form-control" maxlength="100"
-                        list="search-cemetery-suggestions" autocomplete="off" spellcheck="false"
+                        list="search-cemetery-suggestions" autocomplete="off" spellcheck="false" aria-describedby="search-wildcard-help"
                         placeholder="Escribe para seleccionar un panteón o usa *Eterno*">
                     <datalist id="search-cemetery-suggestions"></datalist>
                 </div>
@@ -2674,11 +2680,14 @@ function soundsSimilar(first, second) {
 
 function tombNamePartMatches(tomb, field, searchValue, mode) {
     const expected = normalizeSearchText(searchValue);
-    if (!expected) return true;
     const stored = normalizeSearchText(tomb[field]);
     const fullName = normalizeSearchText(tomb.nombre_finado);
     const source = stored || fullName;
     const candidates = [source, ...source.split(' ').filter(Boolean)];
+    if (hasSearchWildcards(searchValue)) {
+        return candidates.some(candidate => candidate && matchesSearchPattern(candidate, searchValue));
+    }
+    if (!expected) return true;
     return candidates.some(candidate => mode === 'similar'
         ? soundsSimilar(candidate, expected)
         : candidate === expected || (!stored && candidate.includes(expected)));
