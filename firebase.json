@@ -55,6 +55,7 @@
       "IOS.md",
       "storage.cors.json"
     ],
+    "rewrites": [{"source": "/api/tomb-photo", "function": {"functionId": "descargarFotografiaTumba", "region": "us-central1"}}],
     "headers": [
       {
         "source": "/mobile/install.js",

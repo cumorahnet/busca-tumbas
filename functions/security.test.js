@@ -8,16 +8,18 @@ class HttpsError extends Error {
 }
 const context = {exports: {}, require: (name) => {
   const modules = {
+    "./tomb-history":require("./tomb-history"), "./photo-download":require("./photo-download"), "./public-catalog":require("./public-catalog"),
     "./record-writes": require("./record-writes"),
     "./duplicates": require("./duplicates"),
     "./similarity": require("./similarity"),
     "./superuser-password": require("./superuser-password"),
-    "firebase-functions/v2/https": {onCall: (_options, handler) => handler, HttpsError},
+    "firebase-functions/v2/firestore": {onDocumentWrittenWithAuthContext: (_options, handler) => handler},
+    "firebase-functions/v2/https": {onRequest: handler => handler, onCall: (_options, handler) => handler, HttpsError},
     "firebase-functions/params": {defineSecret: () => ({value: () => "test"})},
     "firebase-functions/v2": {setGlobalOptions: () => {}},
     "firebase-admin/app": {initializeApp: () => {}},
     "firebase-admin/firestore": {getFirestore: () => ({}), FieldValue: {}},
-    "firebase-admin/storage": {},
+    "firebase-admin/storage": {getStorage:()=>({bucket:()=>({})})},
     "firebase-admin/auth": {},
   };
   if (!modules[name]) throw new Error("Unexpected module: " + name);
@@ -26,7 +28,7 @@ const context = {exports: {}, require: (name) => {
 vm.createContext(context);
 vm.runInContext(fs.readFileSync(__dirname + "/index.js", "utf8"), context);
 for (const [name, handler] of Object.entries(context.exports)) {
-  if (name === "autorizarSuperusuario") continue;
+  if (["autorizarSuperusuario", "consultarCatalogoPublico", "obtenerHistorialTumba", "registrarHistorialTumba", "registrarHistorialFotografia", "descargarFotografiaTumba"].includes(name)) continue;
   test(name + " rejects anonymous and unverified users, including admin email", async () => {
     await assert.rejects(handler({}), {code: "unauthenticated"});
     for (const email of ["user@example.com", "buscatumbas@cumorahnet.com"]) {

@@ -1241,7 +1241,7 @@
     <script src="mobile/viewport.js?v=1" defer></script>
     <script src="mobile/install.js?v=3" defer></script>
     <script src="mobile/share.js?v=2" defer></script>
-    <script src="mobile/familysearch.js?v=5" defer></script>
+    <script src="mobile/familysearch.js?v=6" defer></script>
 </head>
 <body>
 
@@ -5533,6 +5533,10 @@ function continueBrowsing() {
     document.getElementById('main-app').style.display = 'flex';
 }
 
+function isPublicTomb(tomb) {
+    return !['private', 'hidden'].includes(tomb.visibility) && !['rejected', 'deleted', 'pending', 'hidden'].includes(tomb.status);
+}
+
 function tombSummaryHtml(tomb) {
     const year = value => String(value || '').match(/(?:^|\D)(\d{4})(?:\D|$)/)?.[1] || '—';
     const ageValue = Number.isInteger(tomb.edad_defuncion) ? tomb.edad_defuncion : calculateAgeFromDates(tomb.fecha_nacimiento, tomb.fecha_defuncion);
@@ -5547,7 +5551,8 @@ async function loadRecentTombs() {
     list.textContent = 'Cargando lápidas recientes…';
     try {
         const snapshot = await catalogCollection('tumbas').orderBy('timestamp', 'desc').limit(12).get();
-        list.innerHTML = snapshot.docs.length ? snapshot.docs.map(doc => tombSummaryHtml({id: doc.id, ...doc.data()})).join('') : '<p class="text-muted">Todavía no hay lápidas publicadas.</p>';
+        const published = snapshot.docs.filter(doc => isPublicTomb(doc.data()));
+        list.innerHTML = published.length ? published.map(doc => tombSummaryHtml({id: doc.id, ...doc.data()})).join('') : '<p class="text-muted">Todavía no hay lápidas publicadas.</p>';
         list.dataset.loaded = 'true';
     } catch (error) {
         list.innerHTML = '<p>No se pudieron cargar las lápidas recientes.</p><button type="button" class="btn btn-outline-primary" onclick="loadRecentTombs()">Reintentar</button>';
@@ -6833,7 +6838,7 @@ async function performSearch() {
         const snapshot = await query.get();
         let results = [];
         snapshot.forEach(doc => {
-            if (doc.data().status === 'rejected') return;
+            if (!isPublicTomb(doc.data())) return;
             results.push({ id: doc.id, ...doc.data() });
         });
         if (activeLocationFilterField) {
@@ -6968,7 +6973,15 @@ function prepareForFamilySearch(tombId) {
         if (!window.BuscaTumbasFamilySearch) throw new Error('Recarga la página para preparar tu fotografía.');
         if (!familySearchPreparation) familySearchPreparation = window.BuscaTumbasFamilySearch.createController({
             document, navigator, fetch: window.fetch.bind(window), URL: window.URL,
-            getCurrentUser: () => auth.currentUser
+            getCurrentUser: () => auth.currentUser,
+            fetchPhoto: async ({recordId, signal}) => {
+                const user = auth.currentUser;
+                if (!user?.emailVerified) throw new Error('Inicia sesión para descargar.');
+                const token = await user.getIdToken();
+                return fetch('/api/tomb-photo?recordId=' + encodeURIComponent(recordId), {
+                    headers: {Authorization: 'Bearer ' + token}, credentials: 'omit', cache: 'no-store', signal
+                });
+            }
         });
         familySearchPreparation.open(tomb);
     } catch (error) { showToast(error.message, '#ef4444'); }
@@ -7134,6 +7147,98 @@ async function addLocationToExistingTomb() {
     } finally { button.disabled=false; }
 }
 
+let tombHistoryEntries = [];
+let tombHistoryCursor = null;
+let tombHistoryBusy = false;
+
+function historyEntryHtml(entry) {
+    const labels = {original:'Registro inicial', created:'Registro creado', edited:'Datos actualizados', deleted:'Registro eliminado',
+        photo_added:'Fotografía añadida', photo_removed:'Fotografía eliminada', photo_updated:'Fotografía actualizada', legacy_edit:'Última edición anterior al historial'};
+    const fields = {nombre_finado:'Nombre completo', nombres:'Nombre(s)', apellido_paterno:'Apellido paterno', apellido_materno:'Apellido materno',
+        fecha_nacimiento:'Nacimiento', fecha_defuncion:'Defunción', fecha_nacimiento_estimada:'Nacimiento estimado', edad_defuncion:'Edad al fallecer',
+        nombre_panteon:'Panteón', pais_panteon:'País', estado_panteon:'Estado', municipio_panteon:'Municipio', colonia_panteon:'Colonia / poblado',
+        geolocation:'Ubicación de la tumba', panteon_geolocation:'Ubicación del panteón', imageUrl:'Fotografía principal', photograph:'Fotografía adicional', status:'Estado de publicación', visibility:'Visibilidad'};
+    const display = value => value == null || value === '' ? 'Sin dato' : typeof value === 'boolean' ? (value ? 'Sí' : 'No') :
+        typeof value === 'object' ? formatCoordinates(value) : String(value);
+    const date = entry.changedAt ? new Date(entry.changedAt).toLocaleString('es-MX') : 'Fecha no disponible';
+    return `<article class="tomb-history-entry py-3 border-bottom">
+        <strong>${escapeHtml(labels[entry.action] || 'Cambio registrado')}</strong>
+        <p class="small mb-1">${escapeHtml(date)} · ${escapeHtml(entry.actorName)}</p>
+        ${entry.action === 'legacy_edit' ? '<p class="small text-muted">Se conserva la última fecha y autor conocidos. No existe un detalle de los valores anteriores a la activación del historial.</p>' : ''}
+        ${entry.changes.length ? `<details class="small"><summary>Ver cambios (${entry.changes.length})</summary><dl class="mt-2">${entry.changes.map(change => `<dt>${escapeHtml(fields[change.field] || 'Dato del registro')}</dt><dd><span class="text-muted">Antes:</span> ${escapeHtml(display(change.before))}<br><span class="text-muted">Después:</span> ${escapeHtml(display(change.after))}</dd>`).join('')}</dl></details>` : ''}
+        ${entry.canContact ? `<button type="button" class="btn btn-outline-primary btn-sm mt-2" onclick="openHistoryContact(${inlineJsValue(entry.id)})">Contactar al colaborador</button>` : ''}
+    </article>`;
+}
+
+async function loadTombHistory(reset = true) {
+    const recordId = currentDetailTomb?.id;
+    const list = document.getElementById('tomb-history-list');
+    const more = document.getElementById('tomb-history-more');
+    if (!recordId || !list || !more || !reset && tombHistoryBusy) return;
+    if (reset) { tombHistoryEntries = []; tombHistoryCursor = null; list.textContent = 'Cargando historial…'; }
+    tombHistoryBusy = true;
+    more.innerHTML = '';
+    try {
+        const response = await functionsApi.httpsCallable('obtenerHistorialTumba')({recordId, ...(reset || !tombHistoryCursor ? {} : {after:tombHistoryCursor})});
+        if (!list.isConnected || currentDetailTomb?.id !== recordId) return;
+        const data = response.data;
+        const initial = data.initial || tombHistoryEntries.find(entry => entry.id === 'original');
+        tombHistoryEntries = [...tombHistoryEntries.filter(entry => entry.id !== 'original'), ...data.entries];
+        if (initial) tombHistoryEntries.push(initial);
+        tombHistoryCursor = data.after;
+        list.innerHTML = tombHistoryEntries.map(historyEntryHtml).join('') || '<p class="small">Todavía no hay cambios registrados.</p>';
+        if (data.more) more.innerHTML = '<button type="button" class="btn btn-outline-secondary btn-sm mt-2" onclick="loadTombHistory(false)">Ver cambios anteriores</button>';
+    } catch (error) {
+        if (!list.isConnected || currentDetailTomb?.id !== recordId) return;
+        if (reset) list.textContent = 'No se pudo cargar el historial.';
+        more.innerHTML = '<button type="button" class="btn btn-outline-secondary btn-sm" onclick="loadTombHistory()">Reintentar historial</button>';
+    } finally { tombHistoryBusy = false; }
+}
+
+function openHistoryContact(entryId, actorName = '', key = '') {
+    const recordId = currentDetailTomb?.id;
+    if (!recordId) return;
+    const name = actorName || tombHistoryEntries.find(entry => entry.id === entryId)?.actorName || 'Colaborador';
+    const contactKey = key || tombHistoryEntries.find(entry => entry.id === entryId)?.contactKey || '';
+    const fromSearch = document.getElementById('search-tomb-section').style.display === 'block';
+    if (!requireMember(async () => {
+        if (fromSearch) {
+            document.getElementById('mode-selection-card').style.display = 'none';
+            document.getElementById('search-tomb-section').style.display = 'block';
+            document.getElementById('back-to-mode-selection').style.display = 'block';
+        }
+        await openTombDetail(recordId);
+        if (currentDetailTomb?.id === recordId) openHistoryContact(entryId, name, contactKey);
+    }, 'Inicia sesión o regístrate para contactar al colaborador.')) return;
+    currentTombAction = 'contact';
+    renderTombActionCard('Contactar al colaborador', `
+        <p>Mensaje para <strong>${escapeHtml(name)}</strong>. Se enviará por la mensajería de Busca Tumbas; no se publicarán correos electrónicos.</p>
+        <label for="history-contact-purpose" class="form-label">Motivo</label>
+        <select id="history-contact-purpose" class="form-select mb-3"><option value="thanks">Agradecimiento</option><option value="question">Consulta</option><option value="dispute">Controversia o aclaración</option></select>
+        <label for="history-contact-message" class="form-label">Mensaje</label>
+        <textarea id="history-contact-message" class="form-control mb-3" rows="5" maxlength="1500" placeholder="Escribe tu mensaje al colaborador."></textarea>
+        <button type="button" id="history-contact-send" data-entry-id="${escapeHtml(entryId)}" data-contact-key="${escapeHtml(contactKey)}" class="btn btn-primary" onclick="sendHistoryContact()">Enviar mensaje</button>`);
+}
+
+async function sendHistoryContact() {
+    const button = document.getElementById('history-contact-send');
+    const recordId = currentDetailTomb?.id;
+    const message = document.getElementById('history-contact-message')?.value.trim();
+    if (!recordId || !button || button.disabled) return;
+    if (!message) return showToast('Escribe el mensaje antes de enviarlo.', '#f59e0b');
+    button.disabled = true;
+    try {
+        const response = await functionsApi.httpsCallable('contactarColaboradorTumba')({recordId, entryId:button.dataset.entryId, contactKey:button.dataset.contactKey,
+            purpose:document.getElementById('history-contact-purpose').value, message});
+        closeRecordDetail();
+        await showCorrectionsInbox();
+        await openCorrectionThread(response.data.threadId);
+        showToast('Mensaje enviado al colaborador.', '#10b981');
+    } catch (error) { showToast(getFirebaseErrorMessage(error, 'No se pudo enviar el mensaje.'), '#ef4444'); }
+    finally { button.disabled = false; }
+}
+
+
 function renderTombDetail() {
     const tomb = currentDetailTomb;
     if (!tomb) return;
@@ -7157,11 +7262,13 @@ function renderTombDetail() {
                     <button type="button" class="btn btn-outline-primary" onclick="openTombAction('edit')">Editar datos</button>
                     <button type="button" class="btn btn-outline-primary" onclick="openTombAction('location')">Añadir ubicación</button>
                 </nav>
+                <section class="border rounded p-3 mt-3" aria-labelledby="tomb-history-title"><h6 id="tomb-history-title">Historial de cambios</h6><p class="small text-muted">Qué cambió, cuándo y quién lo hizo. Los cambios nuevos pueden tardar unos segundos en aparecer.</p><div id="tomb-history-list" aria-live="polite"></div><div id="tomb-history-more"></div></section>
                 ${adminRecordActionsHtml('tomb', tomb.id)}
             </div>
         </div>`;
     document.querySelector('.record-detail-dialog').scrollTop = 0;
     loadTombCommunityMedia(tomb.id);
+    loadTombHistory();
 }
 
 function backRecordDetail() {
@@ -7482,7 +7589,7 @@ async function openCorrectionThread(requestId) {
         const messages = currentCorrectionRequest.messages || [];
         const isOwner = currentCorrectionRequest.tombOwnerId === user.uid;
         document.getElementById('record-detail-title').textContent =
-            `${currentCorrectionRequest.recordType === 'cemetery' ? 'Mensaje' : 'Corrección'}: ${currentCorrectionRequest.tombName}`;
+            `${currentCorrectionRequest.kind === 'contact' || currentCorrectionRequest.recordType === 'cemetery' ? 'Mensaje' : 'Corrección'}: ${currentCorrectionRequest.tombName}`;
         document.getElementById('record-detail-content').innerHTML = `
             <div class="mb-3">
                 <button class="btn btn-outline-primary btn-sm" onclick="${currentCorrectionRequest.recordType === 'cemetery'

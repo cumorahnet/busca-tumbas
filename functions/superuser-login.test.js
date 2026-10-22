@@ -16,8 +16,8 @@ function harness(record, count=0, eligible=true, patch={}) {
     if (patch.missing) throw Object.assign(Error(),{code:"auth/user-not-found"});
     return {uid:"same-user",disabled:false,emailVerified:true,customClaims:{platform_admin:eligible},...patch};
   },createCustomToken:async(uid,claims)=>{issued.push({uid,claims});return "custom-token";}};
-  const modules={"firebase-functions/v2/https":{onCall:(_options,fn)=>fn,HttpsError},"firebase-functions/params":{defineSecret:()=>({})},"firebase-functions/v2":{setGlobalOptions:()=>{}},"firebase-admin/app":{initializeApp:()=>{}},"firebase-admin/firestore":{getFirestore:()=>db,FieldValue:{}},"firebase-admin/storage":{},"firebase-admin/auth":{getAuth:()=>auth},"./superuser-password":require("./superuser-password")};
-  const context={exports:{},require:name=>modules[name] || (["./record-writes", "./duplicates"].includes(name) ? require(name) : undefined)};vm.createContext(context);
+  const modules={"firebase-functions/v2/firestore":{onDocumentWrittenWithAuthContext:(_options,handler)=>handler},"firebase-functions/v2/https":{onRequest:handler=>handler,onCall:(_options,fn)=>fn,HttpsError},"firebase-functions/params":{defineSecret:()=>({})},"firebase-functions/v2":{setGlobalOptions:()=>{}},"firebase-admin/app":{initializeApp:()=>{}},"firebase-admin/firestore":{getFirestore:()=>db,FieldValue:{}},"firebase-admin/storage":{getStorage:()=>({bucket:()=>({})})},"firebase-admin/auth":{getAuth:()=>auth},"./superuser-password":require("./superuser-password")};
+  const context={exports:{},require:name=>modules[name] || (["./record-writes", "./duplicates", "./tomb-history", "./photo-download", "./public-catalog"].includes(name) ? require(name) : undefined)};vm.createContext(context);
   vm.runInContext(fs.readFileSync(__dirname+"/index.js","utf8"),context);
   return {login:context.exports.autorizarSuperusuario,issued};
 }

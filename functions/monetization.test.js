@@ -12,11 +12,13 @@ function setup() {
   const db = {collection: name => ({where() { return this; }, get: async () => ({docs: name === "tumbas" ? Array.from({length:20}, (_,i)=>({id:String(i)})) : [], size:0}), doc: () => ({})}),
     runTransaction: async fn => fn({get: async () => ({exists: true, data:()=>stored}), set: (_ref, data) => {stored={...stored,...data};}})};
   const modules = {
+    "./tomb-history":require("./tomb-history"), "./photo-download":require("./photo-download"), "./public-catalog":require("./public-catalog"),
     "./record-writes": () => ({}), "./superuser-password": {elevated: token => token.platform_admin === true}, "./monetization-config.json": policy,
-    "firebase-functions/v2/https": {onCall: (_options, handler) => handler, HttpsError},
+    "firebase-functions/v2/firestore": {onDocumentWrittenWithAuthContext: (_options, handler) => handler},
+    "firebase-functions/v2/https": {onRequest: handler => handler, onCall: (_options, handler) => handler, HttpsError},
     "firebase-functions/params": {defineSecret: () => ({})}, "firebase-functions/v2": {setGlobalOptions() {}},
     "firebase-admin/app": {initializeApp() {}}, "firebase-admin/firestore": {getFirestore:()=>db,FieldValue:{serverTimestamp:()=>new Date(now)}},
-    "firebase-admin/storage": {}, "firebase-admin/auth": {getAuth:()=>({getUser:async()=>({})})}
+    "firebase-admin/storage": {getStorage:()=>({bucket:()=>({})})}, "firebase-admin/auth": {getAuth:()=>({getUser:async()=>({})})}
   };
   const ctx={exports:{},require:name=>{if(!(name in modules))throw Error(name);return modules[name];},Date:class extends Date {static now(){return now;}}};
   vm.createContext(ctx);vm.runInContext(fs.readFileSync(__dirname+"/index.js","utf8"),ctx);

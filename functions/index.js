@@ -1,6 +1,7 @@
 "use strict";
 
-const {onCall, HttpsError} = require("firebase-functions/v2/https");
+const {onCall, onRequest, HttpsError} = require("firebase-functions/v2/https");
+const {onDocumentWrittenWithAuthContext} = require("firebase-functions/v2/firestore");
 const {defineSecret} = require("firebase-functions/params");
 const {setGlobalOptions} = require("firebase-functions/v2");
 const {initializeApp} = require("firebase-admin/app");
@@ -18,6 +19,14 @@ setGlobalOptions({
 });
 
 const db = getFirestore();
+const tombHistory = require("./tomb-history")({db, FieldValue, HttpsError, requireUser, enforceRateLimit,
+  getUser:uid => getAuth().getUser(uid)});
+exports.registrarHistorialTumba = onDocumentWrittenWithAuthContext({document:"tumbas/{recordId}", retry:true}, tombHistory.auditTomb);
+exports.registrarHistorialFotografia = onDocumentWrittenWithAuthContext({document:"tumbas/{recordId}/photos/{photoId}", retry:true}, tombHistory.auditPhoto);
+exports.obtenerHistorialTumba = onCall({enforceAppCheck:false}, tombHistory.list);
+exports.contactarColaboradorTumba = onCall({enforceAppCheck:false}, tombHistory.contact);
+exports.descargarFotografiaTumba = onRequest(require("./photo-download")({db, bucket:getStorage().bucket(),
+  verifyIdToken:(token, revoked) => getAuth().verifyIdToken(token, revoked)}));
 exports.consultarCatalogoPublico = onCall({enforceAppCheck: false}, require('./public-catalog')({
   db, HttpsError,
   photoUrl: storagePath => require('firebase-admin/storage').getDownloadURL(getStorage().bucket().file(storagePath)),

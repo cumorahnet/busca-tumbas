@@ -359,3 +359,33 @@ no se necesitan cambios de reglas ni migraciones. Para Android, generar
 y sincronizar los recursos antes de crear una nueva distribución.
 Validación: `npm run test:public`, `npm run test:public:ui`,
 `npm run test:security:client`, `npm run test:android`.
+
+## Descarga e historial de lápidas
+
+La preparación para FamilySearch descarga por `/api/tomb-photo` desde el
+mismo origen de la app. La función `descargarFotografiaTumba` comprueba el
+token Firebase y el correo verificado antes de recuperar el archivo original
+del bucket del proyecto. No acepta direcciones externas del navegador.
+
+Los disparadores `registrarHistorialTumba` y `registrarHistorialFotografia`
+registran los cambios de datos, fotografías y ubicación en la subcolección
+privada `tumbas/{id}/history`, con identificadores de evento estables, fecha
+de Firestore, valores anteriores/nuevos y el autor conocido. Las operaciones
+de mantenimiento sin usuario identificable se marcan como sistema. La lectura
+pasa por `obtenerHistorialTumba`, que no publica identificadores de cuenta ni
+correos. Los registros anteriores muestran su aportación y la última edición
+conocidas; no se inventan cambios anteriores a la activación del historial.
+
+Desde el historial, una cuenta verificada puede enviar un agradecimiento,
+consulta o controversia mediante `contactarColaboradorTumba`. El destinatario
+se resuelve en el servidor desde la entrada seleccionada y la conversación
+continúa en Mensajes, sin revelar el correo de ninguna de las partes.
+
+Publicar primero las cinco funciones nuevas y `resolverDisputaDuplicado`
+(actualiza la atribución de las sustituciones), y después Hosting con su
+reescritura de descarga. Las reglas existentes ya bloquean el acceso directo
+a la subcolección de historial.
+Pruebas: `npm run test:history`, `npm run test:public:ui` y la suite de funciones.
+`npm run verify:history` crea una cuenta y una lápida privadas temporales,
+comprueba los disparadores y la descarga real y elimina los datos de prueba.
+No envía mensajes a usuarios.

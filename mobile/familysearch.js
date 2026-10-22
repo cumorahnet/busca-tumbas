@@ -39,7 +39,7 @@
             .replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '').slice(0, 100) || 'lapida';
         return {title, description, imageUrl, filename: `lapida-${filename.toLowerCase()}`};
     }
-    function createController({document, navigator, fetch, URL: urls, getCurrentUser,
+    function createController({document, navigator, fetch, URL: urls, getCurrentUser, fetchPhoto,
         setTimeout: later = globalThis.setTimeout, AbortController: Abort = globalThis.AbortController,
         nativeDownloads = root.Capacitor?.isNativePlatform() ? root.Capacitor.registerPlugin('PublicDownloads') : null,
         nativeHttp = root.Capacitor?.isNativePlatform() ? root.Capacitor.registerPlugin('CapacitorHttp') : null}) {
@@ -84,7 +84,9 @@
             const link = document.createElement('a');
             link.href = url;
             link.download = filename;
-            document.body.append(link);
+            // Keep the download link inside the active modal (outside it is inert).
+            if (dialog.append) dialog.append(link);
+            else document.body.append(link);
             link.click();
             link.remove();
             later(() => urls.revokeObjectURL(url), 1000);
@@ -107,13 +109,16 @@
                         const mime = Object.entries(result.headers || {}).find(([key]) => key.toLowerCase() === 'content-type')?.[1]?.split(';')[0]?.trim();
                         const bytes = Uint8Array.from(root.atob(result.data), character => character.charCodeAt(0));
                         response = {ok: result.status >= 200 && result.status < 300, blob: async () => new Blob([bytes], {type: mime || ''})};
+                    } else if (fetchPhoto) {
+                        response = await fetchPhoto({recordId:current.recordId, signal:current.abort.signal});
                     } else {
                         response = await fetch(current.draft.imageUrl, {credentials: 'omit', signal: current.abort.signal});
                     }
                     if (!response.ok) throw new Error('Foto no disponible');
                     const blob = await response.blob();
                     if (!valid(current)) return;
-                    const extension = {'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp'}[blob.type];
+                    const mime = blob.type.split(';')[0].trim().toLowerCase();
+                    const extension = {'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp'}[mime];
                     if (!extension || blob.size === 0 || blob.size > 8 * 1024 * 1024) throw new Error('Archivo no válido');
                     const saved = await save(blob, `${current.draft.filename}.${extension}`);
                     if (!valid(current)) return;
@@ -160,7 +165,7 @@
             const user = getCurrentUser();
             const draft = buildDraft(tomb, user);
             close();
-            state = {uid: user.uid, draft, abort: null, downloading: false};
+            state = {uid: user.uid, recordId:tomb.id, draft, abort: null, downloading: false};
             node('photo').src = draft.imageUrl;
             node('photo').alt = draft.title;
             node('original-photo').href = draft.imageUrl;

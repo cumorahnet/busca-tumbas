@@ -222,7 +222,7 @@ module.exports = function recordWrites({db, onCall, HttpsError, FieldValue, GeoP
         const candidate = {...dispute.candidate, resolvedDisputeId: caseId};
         if (candidate.location) candidate.location = new GeoPoint(candidate.location.latitude, candidate.location.longitude);
         if (cemetery) Object.assign(candidate, {createdAt: now, updatedAt: now});
-        else candidate.timestamp = now;
+        else Object.assign(candidate, {timestamp:now, last_updated:now, last_updated_by:request.auth.uid});
         if (decision === "replace") {
           // Keep the canonical ID so tomb/cemetery references remain valid.
           transaction.create(db.collection("_mergedRecords").doc(`dispute_${caseId}`), {

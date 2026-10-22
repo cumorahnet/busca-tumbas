@@ -5,7 +5,7 @@ import path from 'node:path';
 import {chromium, webkit} from 'playwright';
 const original = await fs.readFile('index.html', 'utf8');
 const source = (await fs.readFile('www/index.html', 'utf8')).replace(/<script\b[^>]*>[^]*?<\/script>/gi, '');
-const names = ['requireMember', 'continueBrowsing', 'showModeSelection', 'tombSummaryHtml', 'loadRecentTombs', 'displaySearchResults', 'scrollToSearchResultsStart', 'selectAddTombMode', 'renderTombDetail', 'recordDetailPhotoHtml', 'prepareForFamilySearch', 'openTombAction', 'renderTombActionCard', 'backRecordDetail', 'recordDetailMainMenu', 'enableTombDetailEditing', 'detailDataHtml', 'formatCoordinates', 'formatTimestamp', 'formatProperName', 'escapeHtml', 'inlineJsValue', 'tombOwnerId'];
+const names = ['requireMember', 'continueBrowsing', 'showModeSelection', 'isPublicTomb', 'tombSummaryHtml', 'loadRecentTombs', 'displaySearchResults', 'scrollToSearchResultsStart', 'selectAddTombMode', 'renderTombDetail', 'recordDetailPhotoHtml', 'prepareForFamilySearch', 'openTombAction', 'renderTombActionCard', 'backRecordDetail', 'recordDetailMainMenu', 'enableTombDetailEditing', 'detailDataHtml', 'historyEntryHtml', 'loadTombHistory', 'openHistoryContact', 'sendHistoryContact', 'formatCoordinates', 'formatTimestamp', 'formatProperName', 'escapeHtml', 'inlineJsValue', 'tombOwnerId'];
 const functions = names.map(name => {
     const match = original.match(new RegExp('(?:async )?function ' + name + '\\([^]*?\\n}'));
     assert.ok(match, name);
@@ -14,6 +14,12 @@ const functions = names.map(name => {
 const server = http.createServer(async (req, res) => {
     try {
         const url = new URL(req.url, 'http://localhost');
+        if(url.pathname === '/api/tomb-photo') {
+            assert.equal(req.headers.authorization,'Bearer test-token');
+            assert.equal(url.searchParams.get('recordId'),'example');
+            res.setHeader('Content-Type','image/png');
+            res.end(await fs.readFile('assets/brand/logo.png'));return;
+        }
         if (url.pathname === '/') { res.setHeader('Content-Type', 'text/html; charset=utf-8'); res.end(source); return; }
         const file = path.resolve('www', '.' + url.pathname);
         if (!file.startsWith(path.resolve('www') + path.sep)) { res.writeHead(403); res.end(); return; }
@@ -36,6 +42,8 @@ try {
             await page.evaluate(() => {
                 window.auth = {currentUser: null};
                 window.familySearchPreparation = null;
+                window.tombHistoryEntries=[];window.tombHistoryCursor=null;window.tombHistoryBusy=false;
+                window.functionsApi={httpsCallable:name=>async()=>({data:name==='obtenerHistorialTumba'?{entries:[{id:'entry1',action:'edited',actorName:'Editora',changedAt:'2026-10-21T20:00:00Z',changes:[{field:'apellido_paterno',before:'Hernandes',after:'Hernández'}],canContact:true}],initial:{id:'original',action:'original',actorName:'Aportador',changedAt:null,changes:[],canContact:true},after:null,more:false}:{}})};
                 window.pendingMemberAction = null;
                 window.resetTombPhotoBatch = window.clearFormFields = window.setAuthMode = () => {};
                 window.closeRecordDetail = () => { document.getElementById('record-detail-modal').style.display = 'none'; };
@@ -47,7 +55,7 @@ try {
                 window.detailDataHtml = () => '<p>Datos de la lápida</p>';
                 window.adminRecordActionsHtml = () => '';
                 window.tombHasLocation = () => false;
-                window.loadTombCommunityMedia = () => {};
+                window.loadTombCommunityMedia = window.loadTombHistory = () => {};
                 document.getElementById('splash-screen').style.display = 'none';
             });
             await page.addScriptTag({content: functions});
@@ -90,7 +98,7 @@ try {
             assert.match(await page.locator('#auth-action-reason').textContent(), /descargar/);
             await page.getByRole('button', {name: 'Seguir explorando sin cuenta'}).click();
             await page.evaluate(() => {
-                auth.currentUser={uid:'owner',emailVerified:true};
+                auth.currentUser={uid:'owner',emailVerified:true,getIdToken:async()=> 'test-token'};
                 window.loadBenefitStatus=()=>{};
                 renderTombDetail();document.getElementById('record-detail-modal').style.display='flex';
             });
@@ -99,6 +107,18 @@ try {
             assert.equal(await page.locator('[data-tomb-edit]').count(),0);
             await page.getByRole('button',{name:'Volver',exact:true}).click();
             assert.equal(await page.locator('.tomb-detail-actions button').count(),4);
+            await page.addScriptTag({url:'http://127.0.0.1:'+server.address().port+'/mobile/familysearch.js'});
+            await page.route('https://example.test/**',async route=>route.fulfill({contentType:'image/png',body:await fs.readFile('assets/brand/logo.png')}));
+            await page.evaluate(()=>{
+                currentDetailTomb.imageUrl='https://example.test/original.png';
+                Object.defineProperty(navigator,'canShare',{value:undefined,configurable:true});
+            });
+            await page.getByRole('button',{name:'Preparar para FamilySearch',exact:true}).click();
+            const downloadPromise=page.waitForEvent('download');
+            await page.locator('#familysearch-download-photo').click();
+            const download=await downloadPromise;
+            assert.deepEqual(await fs.readFile(await download.path()),await fs.readFile('assets/brand/logo.png'));
+            await page.locator('#familysearch-dismiss').click();
             await page.getByRole('button',{name:'Editar datos',exact:true}).click();
             assert.equal(await page.locator('[data-tomb-edit]').count(),10);
             await page.getByRole('button',{name:'Volver',exact:true}).click();
@@ -111,6 +131,12 @@ try {
             await page.getByRole('button',{name:'Editar datos',exact:true}).click();
             assert.equal(await page.locator('#correction-description').isVisible(),true);
             assert.equal(await page.locator('[data-tomb-edit]').count(),0);
+            await page.getByRole('button',{name:'Volver',exact:true}).click();
+            await page.locator('#tomb-history-list').getByText('Editora',{exact:false}).waitFor();
+            await page.locator('#tomb-history-list').getByRole('button',{name:'Contactar al colaborador'}).first().click();
+            assert.equal(await page.locator('#history-contact-message').isVisible(),true);
+            assert.equal(await page.locator('#history-contact-purpose').inputValue(),'thanks');
+            await page.getByRole('button',{name:'Volver',exact:true}).click();
             await page.getByRole('button',{name:'Menú principal',exact:true}).click();
             assert.equal(await page.locator('#record-detail-modal').isVisible(),false);
             console.log(engine + ': two home actions, recent records, guest detail, contribution/download gates and cancellation verified');

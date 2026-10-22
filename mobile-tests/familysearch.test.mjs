@@ -26,7 +26,7 @@ function setup(options = {}) {
         fetch: async (url, args) => { requests.push({url, args}); return options.fetch ? options.fetch(url, args) :
             {ok: true, blob: async () => new Blob(['original-bytes'], {type: 'image/jpeg'})}; },
         URL: {createObjectURL: blob => { blobs.push(blob); return 'blob:local'; }, revokeObjectURL: url => revoked.push(url)},
-        nativeDownloads: options.nativeDownloads, nativeHttp: options.nativeHttp, getCurrentUser: () => user, setTimeout: (fn, ms) => { if (ms === 1000) fn(); }});
+        nativeDownloads: options.nativeDownloads, nativeHttp: options.nativeHttp, fetchPhoto: options.fetchPhoto, getCurrentUser: () => user, setTimeout: (fn, ms) => { if (ms === 1000) fn(); }});
     return {api, node, downloads, blobs, revoked, copied, requests, changeUser: next => { user = next; }};
 }
 test('draft includes attribution and estimated dates without exposing email, GPS or image tokens', () => {
@@ -70,6 +70,16 @@ test('photo download preserves the original bytes and omits cookies', async () =
     assert.ok(s.requests[0].args.signal);
     assert.deepEqual(s.revoked, ['blob:local']);
     assert.equal(s.node('download-photo').disabled, false);
+});
+
+test('web downloads use the authenticated app endpoint instead of fetching a cross-origin storage URL',async()=>{
+    let received;
+    const s=setup({fetchPhoto:async args=>{received=args;return {ok:true,blob:async()=>new Blob(['secure-original-bytes'],{type:'image/jpeg; charset=binary'})};}});
+    s.api.open(tomb);await s.node('download-photo').events.click();
+    assert.equal(received.recordId,tomb.id);assert.ok(received.signal);
+    assert.equal(s.requests.length,0);assert.equal(s.downloads.length,1);
+    assert.equal(await s.blobs[0].text(),'secure-original-bytes');
+    assert.match(s.downloads[0].filename,/\.jpg$/);
 });
 test('unavailable or non-image downloads show a usable original-photo fallback', async () => {
     for (const response of [{ok: false}, {ok: true, blob: async () => new Blob(['<html>error</html>'], {type: 'text/html'})}]) {
@@ -129,7 +139,7 @@ test('record actions stay separate and other contributors can propose correction
         let edited=false;
         const ctx={document:{getElementById:node,querySelector:()=>({scrollTop:0})},currentDetailTomb:{...tomb,imageUrl},auth:{currentUser:{uid,emailVerified:true}},tombExtraCameraCapture:null,recordDetailZoomLevel:1,
             tombOwnerId:t=>t.contributorId||t.userId,recordDetailPhotoHtml:()=>'',escapeHtml:String,detailDataHtml:()=>'',isSuperuserActive:()=>false,
-            inlineJsValue:JSON.stringify,adminRecordActionsHtml:()=>'',tombHasLocation:()=>false,loadTombCommunityMedia:()=>{},requireMember:()=>true,enableTombDetailEditing:()=>{edited=true;}};
+            inlineJsValue:JSON.stringify,adminRecordActionsHtml:()=>'',tombHasLocation:()=>false,loadTombCommunityMedia:()=>{},loadTombHistory:()=>{},requireMember:()=>true,enableTombDetailEditing:()=>{edited=true;}};
         vm.createContext(ctx);vm.runInContext(source,ctx);ctx.renderTombDetail();
         const rendered=node('record-detail-content').innerHTML;
         assert.ok(rendered.includes("openTombAction('familysearch')"));

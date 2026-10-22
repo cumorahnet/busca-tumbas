@@ -16,15 +16,16 @@ function setup(ownerClaims = {}, candidates = []) {
       set: (ref, data) => writes.push([ref.path, data]), update: (ref, data) => writes.push([ref.path, data])})};
   const modules = {
     "./superuser-password": require("./superuser-password"),
-    "firebase-functions/v2/https": {onCall: (_opts, callback) => callback, HttpsError},
+    "firebase-functions/v2/firestore": {onDocumentWrittenWithAuthContext: (_options, handler) => handler},
+    "firebase-functions/v2/https": {onRequest: handler => handler, onCall: (_opts, callback) => callback, HttpsError},
     "firebase-functions/params": {defineSecret: () => ({})},
     "firebase-functions/v2": {setGlobalOptions: () => {}},
     "firebase-admin/app": {initializeApp: () => {}},
     "firebase-admin/firestore": {getFirestore: () => db, FieldValue: {serverTimestamp: () => "timestamp"}},
-    "firebase-admin/storage": {},
+    "firebase-admin/storage": {getStorage:()=>({bucket:()=>({})})},
     "firebase-admin/auth": {getAuth: () => ({getUser: async () => ({customClaims: ownerClaims})})},
   };
-  const ctx = {exports: {}, require: (name) => modules[name] || (["./record-writes", "./duplicates", "./similarity"].includes(name) ? require(name) : undefined)};
+  const ctx = {exports: {}, require: (name) => modules[name] || (["./record-writes", "./duplicates", "./similarity", "./tomb-history", "./photo-download", "./public-catalog"].includes(name) ? require(name) : undefined)};
   vm.createContext(ctx);
   vm.runInContext(fs.readFileSync(__dirname + "/index.js", "utf8"), ctx);
   const auth = {uid: "admin", token: {email_verified: true, platform_admin: true,
