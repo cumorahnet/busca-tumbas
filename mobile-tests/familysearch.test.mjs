@@ -120,20 +120,24 @@ test('a collaborator can open another contribution and copy its attributed detai
     assert.equal(JSON.stringify(original),before);
 });
 
-test('search details show FamilySearch for other contributors without granting editing',()=>{
+test('record actions stay separate and other contributors can propose corrections without direct editing',()=>{
     const html=fs.readFileSync('index.html','utf8');
     const source='function renderTombDetail'+html.split('function renderTombDetail')[1].split('function enableTombDetailEditing')[0];
     for(const [uid,imageUrl,expected]of [['viewer',tomb.imageUrl,true],['owner',tomb.imageUrl,true],['viewer','',false]]){
         const nodes=new Map();
-        const node=id=>{if(!nodes.has(id))nodes.set(id,{});return nodes.get(id)};
-        const ctx={document:{getElementById:node},currentDetailTomb:{...tomb,imageUrl},auth:{currentUser:{uid,emailVerified:true}},tombExtraCameraCapture:null,recordDetailZoomLevel:1,
+        const node=id=>{if(!nodes.has(id))nodes.set(id,{style:{}});return nodes.get(id)};
+        let edited=false;
+        const ctx={document:{getElementById:node,querySelector:()=>({scrollTop:0})},currentDetailTomb:{...tomb,imageUrl},auth:{currentUser:{uid,emailVerified:true}},tombExtraCameraCapture:null,recordDetailZoomLevel:1,
             tombOwnerId:t=>t.contributorId||t.userId,recordDetailPhotoHtml:()=>'',escapeHtml:String,detailDataHtml:()=>'',isSuperuserActive:()=>false,
-            inlineJsValue:JSON.stringify,adminRecordActionsHtml:()=>'',tombHasLocation:()=>false,loadTombCommunityMedia:()=>{}};
+            inlineJsValue:JSON.stringify,adminRecordActionsHtml:()=>'',tombHasLocation:()=>false,loadTombCommunityMedia:()=>{},requireMember:()=>true,enableTombDetailEditing:()=>{edited=true;}};
         vm.createContext(ctx);vm.runInContext(source,ctx);ctx.renderTombDetail();
         const rendered=node('record-detail-content').innerHTML;
-        assert.equal(rendered.includes('prepareForFamilySearch('),expected);
-        assert.equal(rendered.includes('enableTombDetailEditing()'),uid==='owner');
-        assert.equal(rendered.includes('deleteMyContribution('),uid==='owner');
+        assert.ok(rendered.includes("openTombAction('familysearch')"));
+        assert.equal(rendered.includes("openTombAction('familysearch')\" disabled"),!expected);
+        assert.equal(rendered.includes('tomb-extra-photo-file'),false);
+        ctx.openTombAction('edit');
+        assert.equal(edited,uid==='owner');
+        if(uid!=='owner') assert.ok(node('record-detail-content').innerHTML.includes('correction-description'));
     }
 });
 

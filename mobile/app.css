@@ -146,3 +146,8 @@ body { padding-bottom: calc(76px + var(--app-safe-bottom)); }
 #main-app .header-tagline,#main-app .app-header .badge { display:none !important; }
 #main-app .app-header > div:first-child { margin-bottom:0 !important; }
 @media(max-width:768px) { .app-brand-header img { width:40px; height:40px; } .app-header .version-pill { display:none; } .home-actions .menu-action { padding:1rem; } }
+.tomb-detail-actions { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:.75rem; }
+.tomb-detail-actions .btn { min-height:48px; white-space:normal; }
+.tomb-action-card { max-width:42rem; margin-inline:auto; }
+#record-detail-modal .record-detail-dialog > div:first-child { position:sticky; top:0; z-index:3; background:white; }
+@media(max-width:480px) { .tomb-detail-actions { grid-template-columns:1fr; } }

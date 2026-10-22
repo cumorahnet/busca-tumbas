@@ -5,7 +5,7 @@ import path from 'node:path';
 import {chromium, webkit} from 'playwright';
 const original = await fs.readFile('index.html', 'utf8');
 const source = (await fs.readFile('www/index.html', 'utf8')).replace(/<script\b[^>]*>[^]*?<\/script>/gi, '');
-const names = ['requireMember', 'continueBrowsing', 'showModeSelection', 'tombSummaryHtml', 'loadRecentTombs', 'displaySearchResults', 'scrollToSearchResultsStart', 'selectAddTombMode', 'renderTombDetail', 'prepareForFamilySearch', 'requestTombChanges', 'escapeHtml', 'inlineJsValue', 'tombOwnerId'];
+const names = ['requireMember', 'continueBrowsing', 'showModeSelection', 'tombSummaryHtml', 'loadRecentTombs', 'displaySearchResults', 'scrollToSearchResultsStart', 'selectAddTombMode', 'renderTombDetail', 'recordDetailPhotoHtml', 'prepareForFamilySearch', 'openTombAction', 'renderTombActionCard', 'backRecordDetail', 'recordDetailMainMenu', 'enableTombDetailEditing', 'detailDataHtml', 'formatCoordinates', 'formatTimestamp', 'formatProperName', 'escapeHtml', 'inlineJsValue', 'tombOwnerId'];
 const functions = names.map(name => {
     const match = original.match(new RegExp('(?:async )?function ' + name + '\\([^]*?\\n}'));
     assert.ok(match, name);
@@ -35,6 +35,7 @@ try {
             }
             await page.evaluate(() => {
                 window.auth = {currentUser: null};
+                window.familySearchPreparation = null;
                 window.pendingMemberAction = null;
                 window.resetTombPhotoBatch = window.clearFormFields = window.setAuthMode = () => {};
                 window.closeRecordDetail = () => { document.getElementById('record-detail-modal').style.display = 'none'; };
@@ -77,15 +78,41 @@ try {
             await page.getByRole('button', {name: 'Seguir explorando sin cuenta'}).click();
             assert.equal(await page.locator('#auth-screen').isVisible(), false);
             await page.evaluate(() => {
-                window.currentDetailTomb = {id: 'example', nombre_finado: 'María', imageUrl: 'assets/brand/logo.png'};
+                window.currentDetailTomb = {id: 'example', userId: 'owner', nombre_finado: 'María', nombres:'María', apellido_paterno:'Hernández', fecha_nacimiento:'1920', fecha_defuncion:'2000', edad_defuncion:80, nombre_panteon:'Panteón de la comunidad', pais_panteon:'México', estado_panteon:'Jalisco', municipio_panteon:'Guadalajara', colonia_panteon:'Centro', imageUrl: 'assets/brand/logo.png'};
                 renderTombDetail();
                 document.getElementById('record-detail-modal').style.display = 'flex';
             });
             assert.equal(await page.locator('#tomb-extra-photo-file').count(), 0);
-            assert.equal(await page.getByRole('button', {name: 'Modificar o aportar a esta tumba'}).isVisible(), true);
+            assert.equal(await page.locator('.tomb-detail-actions button').count(), 4);
+            for(const label of ['Nacimiento','Defunción','Edad al fallecer','País','Estado','Municipio','Colonia / poblado','Ubicación de la tumba','Ubicación del panteón','Fecha de aportación']) assert.ok((await page.locator('#record-detail-content').textContent()).includes(label),label);
             await page.getByRole('button', {name: 'Preparar para FamilySearch'}).click();
             assert.equal(await page.locator('#auth-screen').isVisible(), true);
             assert.match(await page.locator('#auth-action-reason').textContent(), /descargar/);
+            await page.getByRole('button', {name: 'Seguir explorando sin cuenta'}).click();
+            await page.evaluate(() => {
+                auth.currentUser={uid:'owner',emailVerified:true};
+                window.loadBenefitStatus=()=>{};
+                renderTombDetail();document.getElementById('record-detail-modal').style.display='flex';
+            });
+            await page.getByRole('button',{name:'Añadir fotografía',exact:true}).click();
+            assert.equal(await page.locator('#tomb-extra-photo-file').isVisible(),true);
+            assert.equal(await page.locator('[data-tomb-edit]').count(),0);
+            await page.getByRole('button',{name:'Volver',exact:true}).click();
+            assert.equal(await page.locator('.tomb-detail-actions button').count(),4);
+            await page.getByRole('button',{name:'Editar datos',exact:true}).click();
+            assert.equal(await page.locator('[data-tomb-edit]').count(),10);
+            await page.getByRole('button',{name:'Volver',exact:true}).click();
+            await page.getByRole('button',{name:'Añadir ubicación',exact:true}).click();
+            assert.equal(await page.locator('#tomb-add-location').isVisible(),true);
+            await page.getByRole('button',{name:'Volver',exact:true}).click();
+            await page.locator('.tomb-detail-actions').scrollIntoViewIfNeeded();
+            await page.screenshot({path:`.browser-check/record-full-${engine}.png`,fullPage:true});
+            await page.evaluate(()=>{auth.currentUser={uid:'viewer',emailVerified:true};});
+            await page.getByRole('button',{name:'Editar datos',exact:true}).click();
+            assert.equal(await page.locator('#correction-description').isVisible(),true);
+            assert.equal(await page.locator('[data-tomb-edit]').count(),0);
+            await page.getByRole('button',{name:'Menú principal',exact:true}).click();
+            assert.equal(await page.locator('#record-detail-modal').isVisible(),false);
             console.log(engine + ': two home actions, recent records, guest detail, contribution/download gates and cancellation verified');
         } finally { await browser.close(); }
     }

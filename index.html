@@ -1235,7 +1235,7 @@
         }
     </style>
     <meta name="theme-color" content="#0f172a">
-    <link rel="stylesheet" href="mobile/app.css?v=11">
+    <link rel="stylesheet" href="mobile/app.css?v=12">
     <script src="mobile/app.js?v=4" defer></script>
     <script src="mobile/catalog.js?v=1" defer></script>
     <script src="mobile/viewport.js?v=1" defer></script>
@@ -1272,8 +1272,9 @@
 <dialog id="familysearch-preparation-dialog" aria-labelledby="familysearch-dialog-title" aria-describedby="familysearch-dialog-description">
     <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
         <div><span class="menu-eyebrow">COMPARTIR LA MEMORIA</span><h2 id="familysearch-dialog-title" class="h5 fw-bold mt-2 mb-0">Preparar para FamilySearch</h2></div>
-        <button type="button" id="familysearch-dismiss" class="btn btn-outline-secondary btn-sm" aria-label="Cerrar preparación para FamilySearch"><i class="fas fa-times" aria-hidden="true"></i></button>
+        <button type="button" id="familysearch-dismiss" class="btn btn-outline-secondary btn-sm" aria-label="Volver a la ficha">Volver</button>
     </div>
+    <button type="button" class="btn btn-outline-primary btn-sm mb-3" onclick="recordDetailMainMenu()">Menú principal</button>
     <p id="familysearch-dialog-description" class="small text-muted">Descarga tu foto y revisa los datos. Después podrás subirla como recuerdo desde tu cuenta de FamilySearch.</p>
     <div class="familysearch-preparation-grid">
         <div>
@@ -1414,11 +1415,12 @@
 <!-- DETALLE Y CORRECCIONES -->
 <div id="record-detail-modal" role="dialog" aria-modal="true" aria-label="Detalle del registro">
     <div class="record-detail-dialog">
-        <div class="d-flex justify-content-between align-items-center p-3 border-bottom">
+        <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center p-3 border-bottom">
             <h5 class="fw-bold mb-0" id="record-detail-title">Detalle del registro</h5>
-            <button class="btn btn-sm btn-outline-secondary" onclick="closeRecordDetail()">
-                <i class="fas fa-times"></i>
-            </button>
+            <nav class="d-flex flex-wrap gap-2" aria-label="Volver desde la ficha">
+                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="backRecordDetail()">Volver</button>
+                <button type="button" class="btn btn-sm btn-outline-primary" onclick="recordDetailMainMenu()">Menú principal</button>
+            </nav>
         </div>
         <div class="p-3" id="record-detail-content"></div>
     </div>
@@ -2173,6 +2175,7 @@ let searchStateChoices = null; // for Search Tomb section
 let searchMunicipalityChoices = null; // for Search Tomb section
 let correctionListenerUnsubscribe = null;
 let currentDetailTomb = null;
+let currentTombAction = null;
 let currentCorrectionRequest = null;
 let currentSearchResults = [];
 let benefitStatus = null;
@@ -6943,6 +6946,7 @@ function displaySearchResults(results) {
 
 
 function closeRecordDetail() {
+    currentTombAction = null;
     document.getElementById('record-detail-modal').style.display = 'none';
     document.getElementById('record-detail-content').innerHTML = '';
     currentDetailTomb = null;
@@ -6987,7 +6991,10 @@ function detailDataHtml(tomb) {
         ['País', tomb.pais_panteon || 'México'],
         ['Estado', tomb.estado_panteon],
         ['Municipio', tomb.municipio_panteon],
-        ['Colonia / poblado', formatProperName(tomb.colonia_panteon)]
+        ['Colonia / poblado', formatProperName(tomb.colonia_panteon)],
+        ['Ubicación de la tumba', formatCoordinates(tomb.geolocation)],
+        ['Ubicación del panteón', formatCoordinates(tomb.panteon_geolocation)],
+        ['Fecha de aportación', formatTimestamp(tomb.timestamp)]
     ];
     return fields.map(([label, value]) => `
         <div class="record-data-item"><small>${escapeHtml(label)}</small>
@@ -7129,71 +7136,105 @@ async function addLocationToExistingTomb() {
 
 function renderTombDetail() {
     const tomb = currentDetailTomb;
-    const user = auth.currentUser;
     if (!tomb) return;
+    currentTombAction = null;
     tombExtraCameraCapture = null;
-    const isOwner = !!user && tombOwnerId(tomb) === user.uid;
-    document.getElementById('record-detail-title').textContent =
-        tomb.nombre_finado || 'Detalle del registro';
     recordDetailZoomLevel = 1;
+    document.getElementById('record-detail-title').textContent = tomb.nombre_finado || 'Detalle del registro';
     document.getElementById('record-detail-content').innerHTML = `
         <div class="record-detail-grid">
-            <div>
-                ${recordDetailPhotoHtml(tomb.imageUrl, 'Fotografía del registro')}
-                <div class="contributor-summary">
-                    <i class="fas fa-user-circle me-1"></i>
-                    Aportado por <strong>${escapeHtml(tomb.contributor_name || 'Colaborador')}</strong>
-                </div>
+            <div>${recordDetailPhotoHtml(tomb.imageUrl, 'Fotografía del registro')}
+                <div class="contributor-summary">Aportado por <strong>${escapeHtml(tomb.contributor_name || 'Colaborador')}</strong></div>
+                <section class="border rounded p-3 mt-3"><h6>Fotografías de esta tumba</h6>
+                    <div id="tomb-extra-gallery" aria-live="polite">Cargando fotografías…</div>
+                </section>
             </div>
             <div>
                 <div class="record-data-list">${detailDataHtml(tomb)}</div>
-                ${tomb.imageUrl ? `<button type="button" class="btn btn-outline-secondary w-100 mt-2" onclick="prepareForFamilySearch(${inlineJsValue(tomb.id)})"><i class="fas fa-share-alt me-1" aria-hidden="true"></i>Preparar para FamilySearch</button>` : ''}
-                ${!user?.emailVerified ? `<button type="button" class="btn btn-primary w-100 mt-3" onclick="requestTombChanges(${inlineJsValue(tomb.id)})">Modificar o aportar a esta tumba</button>` : isOwner || isSuperuserActive() ? `
-                    <div class="alert alert-info mt-3 mb-2">
-                        Puedes corregir los datos de este registro sin reemplazar la fotografía.
-                    </div>
-                    <button class="btn btn-primary w-100" onclick="enableTombDetailEditing()">
-                        <i class="fas fa-pen me-1"></i>EDITAR DATOS
-                    </button>
-                    <button type="button" class="btn btn-outline-danger w-100 mt-2" onclick="deleteMyContribution('tomb', ${inlineJsValue(tomb.id)})"><i class="fas fa-trash-alt me-1"></i>ELIMINAR APORTACIÓN</button>` : `
-                    <div class="mt-3">
-                        <label class="field-label" for="correction-description">Describe qué dato debe revisarse</label>
-                        <textarea id="correction-description" class="form-control" rows="4"
-                            maxlength="1500" placeholder="Ejemplo: el segundo apellido parece ser Hernández, no Fernández."></textarea>
-                        <div class="small text-muted mt-2">Con tres notas de usuarios distintos sobre esta entrada, el administrador recibirá el caso para verificarlo.</div>
-                        <button class="btn btn-warning w-100 mt-2" onclick="submitCorrectionProposal()">
-                            <i class="fas fa-comment-medical me-1"></i>ENVIAR PROPUESTA AL APORTADOR
-                        </button>
-                    </div>`}${adminRecordActionsHtml('tomb', tomb.id)}
-                <section class="border rounded p-3 mt-3"><h6>Fotografías de esta tumba</h6>
-                    <div id="tomb-extra-gallery" class="mb-3" aria-live="polite">Cargando fotografías…</div>
-                    ${user?.emailVerified ? `<label class="btn btn-outline-primary mb-2" for="tomb-extra-camera-file"><i class="fas fa-camera me-1"></i>Tomar foto aquí con GPS</label>
-                    <input type="file" id="tomb-extra-camera-file" class="visually-hidden" accept="image/*" capture="environment" onchange="prepareTombExtraCameraPhoto(this)">
-                    <p id="tomb-extra-camera-status" class="small" aria-live="polite">La opción de cámara obtiene el GPS del celular al tomar la foto. Permite el acceso a la ubicación y permanece frente a la tumba.</p>
-                    <label class="form-label" for="tomb-extra-photo-file">O elegir una fotografía guardada</label>
-                    <input type="file" id="tomb-extra-photo-file" class="form-control mb-2" accept="image/*" onchange="selectTombExtraGalleryPhoto()">
-                    <button type="button" id="tomb-extra-photo-save" class="btn btn-outline-primary" onclick="addPhotoToExistingTomb()">Añadir fotografía</button>
-                    <p class="small text-muted mt-2 mb-0">Se añade a este registro. La fotografía original y los datos de la persona se conservan.</p>` : ''}
-                </section>
-                <section class="border rounded p-3 mt-3"><h6>Ubicación de la tumba</h6>
-                    ${tombHasLocation(tomb) ? `<p class="mb-0">${escapeHtml(formatCoordinates(tomb.geolocation))}</p>` : '<p class="small">Aún no tiene ubicación. Puedes añadirla con el GPS si estás frente a la tumba.</p><button type="button" id="tomb-add-location" class="btn btn-outline-primary" onclick="requestTombLocation()">Añadir ubicación actual</button>'}
-                </section>
+                <nav class="tomb-detail-actions mt-3" aria-label="Acciones de esta tumba">
+                    <button type="button" class="btn btn-outline-primary" onclick="openTombAction('familysearch')" ${!tomb.imageUrl ? 'disabled' : ''}>Preparar para FamilySearch</button>
+                    <button type="button" class="btn btn-outline-primary" onclick="openTombAction('photo')">Añadir fotografía</button>
+                    <button type="button" class="btn btn-outline-primary" onclick="openTombAction('edit')">Editar datos</button>
+                    <button type="button" class="btn btn-outline-primary" onclick="openTombAction('location')">Añadir ubicación</button>
+                </nav>
+                ${adminRecordActionsHtml('tomb', tomb.id)}
             </div>
         </div>`;
+    document.querySelector('.record-detail-dialog').scrollTop = 0;
     loadTombCommunityMedia(tomb.id);
 }
 
-function requestTombChanges(tombId) {
-    if (!requireMember(() => openTombDetail(tombId), 'Inicia sesión o regístrate para modificar o aportar a una tumba.')) return;
-    openTombDetail(tombId);
-}
-function requestTombLocation() {
-    const id = currentDetailTomb?.id;
-    if (!requireMember(() => openTombDetail(id).then(() => addLocationToExistingTomb()), 'Inicia sesión o regístrate para añadir una ubicación.')) return;
-    addLocationToExistingTomb();
+function backRecordDetail() {
+    if (currentDetailTomb && currentTombAction) renderTombDetail();
+    else closeRecordDetail();
 }
 
+function recordDetailMainMenu() {
+    familySearchPreparation?.close();
+    const preparation = document.getElementById('familysearch-preparation-dialog');
+    if (preparation.open) preparation.close();
+    closeRecordDetail();
+    showModeSelection();
+}
+
+function renderTombActionCard(title, content) {
+    document.getElementById('record-detail-title').textContent = title;
+    document.getElementById('record-detail-content').innerHTML = `<section class="tomb-action-card">
+        <p class="small text-muted">${escapeHtml(currentDetailTomb.nombre_finado || 'Registro de tumba')}</p>
+        ${content}
+    </section>`;
+    document.querySelector('.record-detail-dialog').scrollTop = 0;
+}
+
+function openTombAction(action) {
+    const tomb = currentDetailTomb;
+    if (!tomb || !['familysearch', 'photo', 'edit', 'location'].includes(action)) return;
+    const fromSearch = document.getElementById('search-tomb-section').style.display === 'block';
+    const reasons = {familysearch: 'descargar fotografías', photo: 'añadir fotografías', edit: 'editar o proponer correcciones', location: 'añadir una ubicación'};
+    if (!requireMember(async () => {
+        if (fromSearch) {
+            document.getElementById('mode-selection-card').style.display = 'none';
+            document.getElementById('search-tomb-section').style.display = 'block';
+            document.getElementById('back-to-mode-selection').style.display = 'block';
+        }
+        await openTombDetail(tomb.id);
+        if (currentDetailTomb?.id === tomb.id) openTombAction(action);
+    }, `Inicia sesión o regístrate para ${reasons[action]}.`)) return;
+    if (action === 'familysearch') return prepareForFamilySearch(tomb.id);
+    currentTombAction = action;
+    if (action === 'edit') {
+        if (tombOwnerId(tomb) === auth.currentUser.uid || isSuperuserActive()) {
+            enableTombDetailEditing();
+            document.getElementById('record-detail-title').textContent = 'Editar datos';
+            document.querySelector('.record-detail-dialog').scrollTop = 0;
+            return;
+        }
+        renderTombActionCard('Editar datos', `
+            <p>Este registro pertenece a otro colaborador. Describe la corrección para que pueda revisarla.</p>
+            <label class="form-label" for="correction-description">Datos que deben corregirse</label>
+            <textarea id="correction-description" class="form-control mb-3" rows="5" maxlength="1500" placeholder="Indica el dato actual y cómo debe quedar."></textarea>
+            <button type="button" class="btn btn-primary" onclick="submitCorrectionProposal()">Enviar propuesta de corrección</button>`);
+        return;
+    }
+    if (action === 'location') {
+        renderTombActionCard('Añadir ubicación', tombHasLocation(tomb)
+            ? `<p>Esta tumba ya tiene una ubicación registrada.</p><p>${escapeHtml(formatCoordinates(tomb.geolocation))}</p><p class="small">Si es incorrecta, utiliza Editar datos para solicitar su revisión.</p>`
+            : `<p>Estando frente a esta tumba, permite el acceso al GPS. Revisarás las coordenadas antes de guardarlas.</p><button type="button" id="tomb-add-location" class="btn btn-primary" onclick="addLocationToExistingTomb()">Obtener y guardar mi ubicación actual</button>`);
+        return;
+    }
+    renderTombActionCard('Añadir fotografía', `
+        <p>Añade una foto a esta tumba. La fotografía original se conserva.</p>
+        <label class="btn btn-outline-primary mb-2" for="tomb-extra-camera-file">Tomar foto aquí con GPS</label>
+        <input type="file" id="tomb-extra-camera-file" class="visually-hidden" accept="image/*" capture="environment" onchange="prepareTombExtraCameraPhoto(this)">
+        <p id="tomb-extra-camera-status" class="small" aria-live="polite">Al tomar la foto, permite el acceso al GPS y permanece frente a la tumba. Si no está disponible, puedes guardar la foto sin ubicación.</p>
+        <label class="form-label" for="tomb-extra-photo-file">O elegir una fotografía guardada</label>
+        <input type="file" id="tomb-extra-photo-file" class="form-control mb-3" accept="image/*" onchange="selectTombExtraGalleryPhoto()">
+        <button type="button" id="tomb-extra-photo-save" class="btn btn-primary" onclick="addPhotoToExistingTomb()">Guardar fotografía</button>`);
+}
+
+
 function enableTombDetailEditing() {
+    currentTombAction = 'edit';
     const tomb = currentDetailTomb;
     if (!tomb || tombOwnerId(tomb) !== auth.currentUser?.uid && !isSuperuserActive()) return;
     const editable = [
@@ -7577,7 +7618,7 @@ window.onload = () => {
             closeImageZoom();
         } else if (event.key === 'Escape' &&
             document.getElementById('record-detail-modal').style.display === 'flex') {
-            closeRecordDetail();
+            backRecordDetail();
         }
     });
     document.getElementById('splash-screen').style.display = 'flex';
