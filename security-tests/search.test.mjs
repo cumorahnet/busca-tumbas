@@ -10,7 +10,7 @@ function setup(records=[]) {
  const where=[];let results=null;const notices=[];
  const query={where(field,operator,value){where.push([field,operator,value]);return this;},orderBy(){return this;},async get(){return {forEach(callback){records.filter(record=>where.every(([field,operator,value])=>operator==='==' ? record[field]===value : true)).forEach((record,index)=>callback({id:String(index),data:()=>record}));}};}};
  const catalog=[{state:'Jalisco',stateCode:'14',municipality:'Guadalajara'},{state:'Jalisco',stateCode:'14',municipality:'Zapopan'},{state:'Puebla',stateCode:'21',municipality:'Puebla'}];
- const ctx={document:{getElementById:id=>id.endsWith('-mode')&&!['search-nombres-mode','search-apellido-paterno-mode','search-apellido-materno-mode'].includes(id)?null:get(id)},Option:function(text,value){return {text,value,dataset:{}};},searchStateChoices:null,searchMunicipalityChoices:null,loadCemeteryCatalog:async()=>catalog,createSearchableLocationSelect:()=>({enable(){},disable(){},destroy(){}}),normalizeSearchText:value=>String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim(),normalizeWildcardSearchPattern:value=>value.trim(),hasSearchWildcards:()=>false,getWildcardLiteralPrefix:value=>value,db:{collection:()=>query},auth:{currentUser:{uid:'test'}},showToast:message=>notices.push(message),getFirebaseErrorMessage:err=>err.message,displaySearchResults:value=>{results=value;},console};
+ const ctx={document:{getElementById:id=>id.endsWith('-mode')&&!['search-nombres-mode','search-apellido-paterno-mode','search-apellido-materno-mode'].includes(id)?null:get(id)},Option:function(text,value){return {text,value,dataset:{}};},searchStateChoices:null,searchMunicipalityChoices:null,loadCemeteryCatalog:async()=>catalog,createSearchableLocationSelect:()=>({enable(){},disable(){},destroy(){}}),normalizeSearchText:value=>String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim(),normalizeWildcardSearchPattern:value=>value.trim(),hasSearchWildcards:()=>false,getWildcardLiteralPrefix:value=>value,catalogCollection:()=>query,db:{collection:()=>query},auth:{currentUser:{uid:'test'}},showToast:message=>notices.push(message),getFirebaseErrorMessage:err=>err.message,displaySearchResults:value=>{results=value;},console};
  vm.createContext(ctx);
  vm.runInContext(source.slice(source.indexOf('function searchCriterionFields()'),source.indexOf('function selectSearchTombMode()')),ctx);
  vm.runInContext(source.slice(source.indexOf('async function performSearch()'),source.indexOf('function displaySearchResults(')),ctx);
@@ -38,6 +38,12 @@ test('date range stays active while either bound has a value',()=>{
  to.value='';to.oninput();assert.equal(s.get('enable-birth-date-search').checked,false);
 });
 const records=[{nombre_finado:'One',estado_panteon:'Jalisco',municipio_panteon:'Guadalajara'},{nombre_finado:'Two',estado_panteon:'Jalisco',municipio_panteon:'Zapopan',pais_panteon:'Mexico'},{nombre_finado:'Three',estado_panteon:'Puebla',municipio_panteon:'Puebla',pais_panteon:'Mexico'},{nombre_finado:'Four',estado_panteon:'Texas',municipio_panteon:'Austin',pais_panteon:'Estados Unidos'}];
+
+test('guests can search without a Firebase account',async()=>{
+ const s=setup(records);s.ctx.auth.currentUser=null;
+ s.get('search-estado-panteon').value='Jalisco';await s.get('search-estado-panteon').onchange();
+ await s.ctx.performSearch();assert.equal(s.results().length,2);
+});
 test('state-only search needs neither country, municipality nor names',async()=>{
  const s=setup(records);s.get('search-estado-panteon').value='Jalisco';await s.get('search-estado-panteon').onchange();
  await s.ctx.performSearch();assert.deepEqual(Array.from(s.results(),row=>row.nombre_finado),['One','Two']);

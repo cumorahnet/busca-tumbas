@@ -20,6 +20,7 @@ function setup() {
     const notices = [];
     const records = new Map();
     const ctx = {
+        requireMember: () => true,
         document: {getElementById: get, querySelector: () => get('save-button')},
         Option: function(textContent, value) { return {textContent, value}; },
         activeTombCemetery: null, selectedInegiCemetery: null, inegiCemeteryResults: [],

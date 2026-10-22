@@ -276,6 +276,22 @@ subida de imágenes, guardado, búsqueda combinada y cierre de sesión.
 
 ## Android y Google Play
 
+### Distribución por liga (web/PWA)
+
+La app pública está en https://buscatumbas.cumorahnet.com/. Puede compartirse desde
+el botón **Compartir app**, disponible antes y después de iniciar sesión. Comparte
+solo la dirección pública, sin datos de la cuenta ni parámetros de la página.
+Si el navegador no ofrece compartir, se muestra la liga con opción de copiarla.
+
+En Android, abre la liga en Chrome y toca **Instalar app**. En iPhone, ábrela en
+Safari y utiliza **Compartir → Agregar a pantalla de inicio**. Si la liga se abre
+dentro de otra aplicación, usa la opción de abrirla en el navegador del teléfono.
+La app necesita conexión a internet. Las actualizaciones web se publican en
+Firebase Hosting; no requieren AAB ni firma Android. Este uso no cuenta como
+inscripción en las pruebas cerradas de Google Play.
+
+El proceso de Play Store queda en pausa mientras se distribuye la web/PWA.
+
 Consulta [ANDROID.md](ANDROID.md) para abrir el proyecto en Android Studio, generar APK/AAB y preparar la publicación. Ejecuta `npm run android:open` para sincronizar y abrir Android.
 
 ### Mismo correo, contraseñas distintas
@@ -320,3 +336,26 @@ Functions y reglas.
 ## iPhone
 
 La web se puede usar en Safari y agregar a la pantalla de inicio. El proyecto nativo iOS, las pruebas de compatibilidad y los pasos pendientes para App Store están documentados en [IOS.md](IOS.md). La compilación iOS requiere un Mac con Xcode; preparar el proyecto en Windows no equivale a una validación en iPhone.
+
+## Consulta sin cuenta e inicio simplificado
+
+El inicio ofrece Buscar tumbas y Aportar, seguido de las lápidas recientes.
+La navegación inferior contiene Inicio, Tumbas y Mensajes. Las herramientas
+de cuenta y registro de lugares están en el desplegable de cuenta.
+Los visitantes pueden buscar y abrir fichas sin registrarse. Aportar,
+modificar registros, consultar mensajes y preparar descargas requiere una
+cuenta verificada; el acceso retoma la acción pendiente y permite cancelar
+para seguir explorando. Las modificaciones conservan los permisos existentes
+del propietario o administrador y el flujo de propuestas de corrección.
+
+La función `consultarCatalogoPublico` publica una proyección de campos del
+catálogo, sin correos ni identificadores de cuenta. Firestore y Storage
+conservan sus reglas privadas. Como las fotografías se muestran al visitante,
+la exigencia de cuenta controla la descarga ofrecida por la app y no impide
+que el navegador guarde una imagen visible.
+
+Publicar primero `functions:consultarCatalogoPublico` y después Hosting;
+no se necesitan cambios de reglas ni migraciones. Para Android, generar
+y sincronizar los recursos antes de crear una nueva distribución.
+Validación: `npm run test:public`, `npm run test:public:ui`,
+`npm run test:security:client`, `npm run test:android`.

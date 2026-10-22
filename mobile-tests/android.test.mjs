@@ -18,12 +18,17 @@ function setup(native = true) {
                 click: () => { if(id==='familysearch-dismiss'){calls.push('familysearch');visible.delete('familysearch-preparation-dialog');} } }) },
         closeImageZoom: () => calls.push('zoom'), closeScanner: () => calls.push('camera'),
         closeRecordDetail: () => calls.push('detail'), showModeSelection: () => calls.push('menu'),
-        setAuthMode: () => calls.push('login')
+        setAuthMode: () => calls.push('login'), continueBrowsing: () => calls.push('browse')
     };
     vm.runInNewContext(source,context);
     return {handlers,events,calls,visible,context};
 }
 test('web does not register native events',()=>assert.deepEqual(Object.keys(setup(false).handlers),[]));
+
+test('Back dismisses a requested login and returns to public browsing',async()=>{
+    const s=setup();s.visible.add('auth-screen');
+    await s.handlers.backButton();assert.deepEqual(s.calls,['browse']);
+});
 test('Back closes the topmost overlay before navigating',async()=>{
     const s=setup(); s.visible.add('image-zoom-modal'); s.visible.add('record-detail-modal');
     await s.handlers.backButton(); assert.deepEqual(s.calls,['zoom']);

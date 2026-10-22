@@ -33,6 +33,11 @@
         return element && element.getClientRects().length > 0;
     };
     app.addListener('backButton', async () => {
+        if (visible('auth-screen')) {
+            if (visible('auth-name-wrapper')) setAuthMode('login');
+            else continueBrowsing();
+            return;
+        }
         if (document.getElementById('familysearch-preparation-dialog')?.open) {
             document.getElementById('familysearch-dismiss').click();
             return;

@@ -12,9 +12,13 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="Busca Tumbas">
     <meta property="og:title" content="Busca Tumbas">
-    <meta property="og:image" content="https://buscatumbas-2e7cc.web.app/assets/brand/icon-512.png?v=3">
+    <meta name="description" content="Conserva historias y conecta generaciones. Consulta y comparte fotografías de lápidas en el catálogo colaborativo de Busca Tumbas.">
+    <meta property="og:description" content="Consulta y comparte fotografías de lápidas. Abre Busca Tumbas desde esta liga y agrégala a la pantalla de inicio de tu teléfono.">
+    <link rel="canonical" href="https://buscatumbas.cumorahnet.com/">
+    <meta property="og:url" content="https://buscatumbas.cumorahnet.com/">
+    <meta property="og:image" content="https://buscatumbas.cumorahnet.com/assets/brand/icon-512.png?v=3">
     <meta property="og:image:alt" content="Logotipo de Busca Tumbas: lápida con lupa">
-    <title>Busca Tumbas — VERSION 2.29.0</title>
+    <title>Busca Tumbas — VERSION 2.30.0</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
@@ -409,7 +413,6 @@
         /* ============================================================
            DISEÑO DE EXTRACCIÓN DE DATOS - SIN TEXTO COMPLETO
            ============================================================ */
-        
         .scan-container {
             display: none;
             gap: 1.5rem;
@@ -1306,10 +1309,12 @@
         }
     </style>
     <meta name="theme-color" content="#0f172a">
-    <link rel="stylesheet" href="mobile/app.css?v=9">
-    <script src="mobile/app.js?v=3" defer></script>
+    <link rel="stylesheet" href="mobile/app.css?v=11">
+    <script src="mobile/app.js?v=4" defer></script>
+    <script src="mobile/catalog.js?v=1" defer></script>
     <script src="mobile/viewport.js?v=1" defer></script>
     <script src="mobile/install.js?v=3" defer></script>
+    <script src="mobile/share.js?v=2" defer></script>
     <script src="mobile/familysearch.js?v=5" defer></script>
 </head>
 <body>
@@ -1319,12 +1324,23 @@
 <dialog id="pwa-install-dialog" aria-labelledby="pwa-install-title" aria-describedby="pwa-install-description">
     <img src="assets/brand/logo.png" width="80" height="80" alt="" class="app-brand-logo mx-auto mb-3">
     <h2 id="pwa-install-title" class="h5 fw-bold">Lleva Busca Tumbas en tu teléfono</h2>
-    <p id="pwa-install-description">Agrega la app a tu pantalla de inicio para abrirla con un toque. Esta opción está disponible mientras preparamos su llegada a Play Store. Necesita conexión a internet.</p>
+    <p id="pwa-install-description">Usa Busca Tumbas desde esta liga y agrégala a tu pantalla de inicio para abrirla con un toque. No necesitas descargarla de una tienda. Necesita conexión a internet.</p>
     <p id="pwa-install-instructions" class="small"></p>
     <p id="pwa-install-status" role="status" aria-live="polite" class="small"></p>
     <div class="d-flex flex-wrap gap-2">
         <button type="button" id="pwa-install-confirm" class="btn btn-primary" hidden>Instalar app</button>
         <button type="button" id="pwa-install-dismiss" class="btn btn-outline-secondary">Ahora no</button>
+    </div>
+</dialog>
+<dialog id="app-share-dialog" aria-labelledby="app-share-title" aria-describedby="app-share-description">
+    <h2 id="app-share-title" class="h5 fw-bold">Comparte Busca Tumbas</h2>
+    <p id="app-share-description">Envía esta liga por WhatsApp, correo o mensaje. Quien la reciba podrá abrir la app en su navegador y agregarla a su pantalla de inicio.</p>
+    <label for="app-share-url" class="form-label">Liga de la app</label>
+    <input id="app-share-url" class="form-control mb-3" type="url" value="https://buscatumbas.cumorahnet.com/" readonly>
+    <p id="app-share-status" class="small" role="status" aria-live="polite"></p>
+    <div class="d-flex flex-wrap gap-2">
+        <button type="button" id="app-share-copy" class="btn btn-primary">Copiar liga</button>
+        <button type="button" id="app-share-dismiss" class="btn btn-outline-secondary">Cerrar</button>
     </div>
 </dialog>
 <dialog id="familysearch-preparation-dialog" aria-labelledby="familysearch-dialog-title" aria-describedby="familysearch-dialog-description">
@@ -1391,12 +1407,15 @@
         </div>
     </form>
 </dialog>
-<div id="auth-screen">
+<div id="auth-screen" style="display:none;">
     <div class="card-custom">
         <img class="app-brand-logo app-brand-auth" src="assets/brand/logo.png" width="88" height="88" alt="Logotipo de Busca Tumbas">
         <h5 class="fw-bold mb-4">Bienvenido a Busca Tumbas</h5>
+        <p id="auth-action-reason" class="small">Inicia sesión o crea una cuenta para aportar.</p>
+        <button type="button" class="btn btn-outline-secondary mb-3" onclick="continueBrowsing()">Seguir explorando sin cuenta</button>
         <button type="button" class="version-pill border-0" id="auth-version"></button>
         <div class="text-center mb-2"><button type="button" class="btn btn-outline-primary btn-sm" data-pwa-install-action hidden><i class="fas fa-download me-2" aria-hidden="true"></i><span data-pwa-install-label>Instalar app</span></button></div>
+        <div class="text-center mb-3"><button type="button" class="btn btn-outline-secondary btn-sm" data-app-share hidden><i class="fas fa-share-nodes me-2" aria-hidden="true"></i>Compartir app</button></div>
         <div class="app-legal-links"><a href="terms.html">Términos y condiciones</a><a href="privacy.html">Privacidad</a><a href="delete-account.html">Eliminar mi cuenta</a></div>
         <div id="auth-verification-status" class="alert alert-info py-2" style="display:none; font-size:0.8rem;"
             role="status" aria-live="polite"></div>
@@ -1498,20 +1517,9 @@
     <header class="app-header card-custom">
         <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
             <div class="app-brand-header"><img class="app-brand-logo" src="assets/brand/logo.png" width="56" height="56" alt=""><div><h4 class="fw-bold mb-0">Busca Tumbas</h4><p class="header-tagline">Conservamos historias. Conectamos generaciones.</p></div></div>
-            <div class="d-flex flex-wrap align-items-center gap-2 mt-2 mt-md-0">
-                <button type="button" class="btn btn-outline-primary btn-sm" data-pwa-install-action hidden><i class="fas fa-download me-2" aria-hidden="true"></i><span data-pwa-install-label>Instalar app</span></button>
-                <button type="button" class="version-pill border-0" id="app-header-version"></button>
-                <span class="badge text-bg-success">Catálogo colaborativo</span>
-                <span id="superuser-badge" class="badge rounded-pill text-bg-warning" style="display:none;" role="status"><i class="fas fa-user-shield me-1"></i>Superusuario</span>
-                <span id="suspension-badge" class="badge text-bg-danger" style="display:none;" role="status"></span>
-                <button id="duplicate-dispute-alert" class="btn btn-warning btn-sm" hidden
-                    onclick="isSuperuserActive() ? showAdminPanel() : showMyContributions('disputes')" aria-live="polite"></button>
-                <span class="badge rounded-pill text-bg-primary" id="verified-account-badge" style="display:none;">
-                    <i class="fas fa-circle-check me-1"></i>Correo verificado
-                </span>
-            </div>
+
         </div>
-        <nav class="primary-navigation" aria-label="Navegación de Busca Tumbas">
+        <nav class="primary-navigation" hidden aria-label="Navegación de Busca Tumbas">
             <button type="button" onclick="showModeSelection()"><i class="fas fa-home" aria-hidden="true"></i><span>Inicio</span></button>
             <button type="button" onclick="selectSearchTombMode()"><i class="fas fa-search" aria-hidden="true"></i><span>Buscar tumbas</span></button>
             <details class="primary-navigation-group">
@@ -1530,66 +1538,35 @@
                 </div>
             </details>
         </nav>
-        <button type="button" class="btn btn-outline-danger w-100" onclick="logout()" id="logout-btn" style="display:none;">
-            <i class="fas fa-sign-out-alt me-2" aria-hidden="true"></i>Salir
-        </button>
+
         <button class="btn btn-outline-secondary w-100" id="back-to-mode-selection" style="display:none;" onclick="showModeSelection()">
             <i class="fas fa-arrow-left me-2"></i>Volver al Menú Principal
         </button>
     </header>
 
-    <section class="card-custom benefits-card" id="benefits-card" aria-live="polite">
-        <div class="d-flex flex-wrap justify-content-between align-items-start gap-2">
-            <div>
-                <div class="d-flex align-items-center gap-2 mb-1">
-                    <strong id="benefits-title">Comprobando beneficios…</strong>
-                    <span class="badge text-bg-secondary" id="benefits-badge">Cuenta</span>
-                </div>
-                <div class="small text-muted" id="benefits-description">
-                    Cada 10 aportaciones válidas obtienes 30 días sin anuncios.
-                </div>
-            </div>
-            <button type="button" class="btn btn-sm btn-primary" id="request-plus-btn"
-                onclick="requestPlusPurchase()" hidden>Obtener Plus</button>
-        </div>
-        <div class="benefits-progress mt-3" role="progressbar" aria-label="Progreso para obtener un mes sin anuncios"
-            aria-valuemin="0" aria-valuemax="10" aria-valuenow="0" id="benefits-progress">
-            <div class="benefits-progress-bar" id="benefits-progress-bar" style="width:0%"></div>
-        </div>
-        <div class="small text-muted mt-1" id="benefits-progress-text">Cargando aportaciones…</div>
-    </section>
-
-    <aside class="card-custom ad-slot text-center py-3" data-ad-slot="menu" aria-label="Publicidad">
-        <div class="ad-label">Publicidad</div>
-        <strong>Espacio para patrocinadores de la comunidad</strong>
-        <div class="small mt-1">Tu apoyo ayuda a mantener Busca Tumbas disponible.</div>
-    </aside>
-
     <!-- Mode Selection Card -->
     <div class="card-custom" id="mode-selection-card">
-        <div class="menu-intro"><span class="menu-eyebrow">CATÁLOGO COLABORATIVO</span><h2>Encuentra una historia.<br>Ayuda a conservarla.</h2><p>Consulta registros de sepulturas o comparte información para que otras familias puedan encontrarlos.</p></div>
-        <nav class="action-stack menu-sections" aria-label="Menú principal">
-            <section class="menu-group menu-group-search" aria-labelledby="menu-search-title">
-            <h3 id="menu-search-title" class="menu-group-title">Explorar el catálogo</h3>
-            <button type="button" class="btn menu-action menu-action-featured" onclick="selectSearchTombMode()">
-                <span class="menu-action-icon"><i class="fas fa-search" aria-hidden="true"></i></span>
-                <span class="menu-action-copy"><strong>Buscar una tumba</strong><small>Encuentra personas por nombre y lugar de sepultura.</small></span>
-                <i class="fas fa-arrow-right menu-action-arrow" aria-hidden="true"></i>
-            </button>
-            </section>
-            <section class="menu-group" aria-labelledby="menu-contribute-title">
-            <h3 id="menu-contribute-title" class="menu-group-title">Contribuir a la memoria</h3>
-            <button type="button" class="btn menu-action" onclick="selectAddTombMode()">
-                <span class="menu-action-icon"><i class="fas fa-camera" aria-hidden="true"></i></span>
-                <span class="menu-action-copy"><strong>Agregar lápidas y fotografías</strong><small>Elige un panteón y documenta sus sepulturas.</small></span>
-                <i class="fas fa-chevron-right menu-action-arrow" aria-hidden="true"></i>
-            </button>
-            <button type="button" class="btn menu-action" onclick="selectAddCemeteryMode()">
-                <span class="menu-action-icon"><i class="fas fa-landmark" aria-hidden="true"></i></span>
-                <span class="menu-action-copy"><strong>Registrar un lugar</strong><small>Agrega un panteón, iglesia u otro lugar de sepultura.</small></span>
-                <i class="fas fa-chevron-right menu-action-arrow" aria-hidden="true"></i>
-            </button>
-            </section>
+
+        <nav class="home-actions" aria-label="Menú principal">
+            <button type="button" class="btn menu-action menu-action-featured" onclick="selectSearchTombMode()"><span class="menu-action-icon"><i class="fas fa-search" aria-hidden="true"></i></span><span class="menu-action-copy"><strong>Buscar tumbas</strong><small>Encuentra una historia.</small></span></button>
+            <button type="button" class="btn menu-action" onclick="selectAddTombMode()"><span class="menu-action-icon"><i class="fas fa-camera" aria-hidden="true"></i></span><span class="menu-action-copy"><strong>Aportar</strong><small>Añade tumbas y fotografías.</small></span></button>
+        </nav>
+        <section class="recent-tombs" aria-labelledby="recent-tombs-title"><h3 id="recent-tombs-title" class="h5 fw-bold">Lápidas recientes</h3><div id="recent-tombs-list" aria-live="polite"></div></section>
+        <details id="account-menu"><summary>Mi cuenta y mis aportaciones</summary>
+<div class="d-flex flex-wrap align-items-center gap-2 mt-2 mt-md-0">
+                <button type="button" class="btn btn-outline-primary btn-sm" data-pwa-install-action hidden><i class="fas fa-download me-2" aria-hidden="true"></i><span data-pwa-install-label>Instalar app</span></button>
+                <button type="button" class="btn btn-outline-secondary btn-sm" data-app-share hidden><i class="fas fa-share-nodes me-2" aria-hidden="true"></i>Compartir app</button>
+                <button type="button" class="version-pill border-0" id="app-header-version"></button>
+                <span class="badge text-bg-success">Catálogo colaborativo</span>
+                <span id="superuser-badge" class="badge rounded-pill text-bg-warning" style="display:none;" role="status"><i class="fas fa-user-shield me-1"></i>Superusuario</span>
+                <span id="suspension-badge" class="badge text-bg-danger" style="display:none;" role="status"></span>
+                <button id="duplicate-dispute-alert" class="btn btn-warning btn-sm" hidden
+                    onclick="isSuperuserActive() ? showAdminPanel() : showMyContributions('disputes')" aria-live="polite"></button>
+                <span class="badge rounded-pill text-bg-primary" id="verified-account-badge" style="display:none;">
+                    <i class="fas fa-circle-check me-1"></i>Correo verificado
+                </span>
+            </div>
+            <button type="button" class="btn btn-outline-primary my-2" onclick="selectAddCemeteryMode()">Registrar un lugar</button>
             <section class="menu-group" aria-labelledby="menu-activity-title">
             <h3 id="menu-activity-title" class="menu-group-title">Mi actividad</h3>
             <button type="button" class="btn menu-action" onclick="showCorrectionsInbox()">
@@ -1621,8 +1598,34 @@
             <button class="btn btn-dark w-100 py-3" id="admin-panel-btn" style="display:none;"
                 onclick="showAdminPanel()">
                 <i class="fas fa-chart-line me-2"></i>Panel administrativo
-            </button>
-        </nav>
+            </button>        <section class="card-custom benefits-card" id="benefits-card" aria-live="polite">
+        <div class="d-flex flex-wrap justify-content-between align-items-start gap-2">
+            <div>
+                <div class="d-flex align-items-center gap-2 mb-1">
+                    <strong id="benefits-title">Comprobando beneficios…</strong>
+                    <span class="badge text-bg-secondary" id="benefits-badge">Cuenta</span>
+                </div>
+                <div class="small text-muted" id="benefits-description">
+                    Cada 10 aportaciones válidas obtienes 30 días sin anuncios.
+                </div>
+            </div>
+            <button type="button" class="btn btn-sm btn-primary" id="request-plus-btn"
+                onclick="requestPlusPurchase()" hidden>Obtener Plus</button>
+        </div>
+        <div class="benefits-progress mt-3" role="progressbar" aria-label="Progreso para obtener un mes sin anuncios"
+            aria-valuemin="0" aria-valuemax="10" aria-valuenow="0" id="benefits-progress">
+            <div class="benefits-progress-bar" id="benefits-progress-bar" style="width:0%"></div>
+        </div>
+        <div class="small text-muted mt-1" id="benefits-progress-text">Cargando aportaciones…</div>
+    </section>
+
+    <aside class="card-custom ad-slot text-center py-3" data-ad-slot="menu" aria-label="Publicidad">
+        <div class="ad-label">Publicidad</div>
+        <strong>Espacio para patrocinadores de la comunidad</strong>
+        <div class="small mt-1">Tu apoyo ayuda a mantener Busca Tumbas disponible.</div>
+    </aside>
+            <button type="button" class="btn btn-outline-danger w-100" onclick="logout()" id="logout-btn" style="display:none;">Salir</button>
+        </details>
     </div>
 
     <div class="card-custom" id="add-cemetery-section">
@@ -2000,7 +2003,7 @@
         <div class="card-custom">
             <h5 class="fw-bold mb-3 text-center" style="color:var(--primary);">Buscar Tumbas</h5>
             <p class="section-subtitle text-center mb-4">Escribe o selecciona un dato para activar su criterio. Puedes buscar solo por estado o agregar un municipio. Todos los criterios activos deben coincidir.</p>
-            
+
             <div class="fields-grid mb-3">
                 <div class="field-group search-fields-group">
                     <div class="form-check">
@@ -2124,7 +2127,7 @@
                 <strong>Espacio publicitario</strong>
                 <div class="small mt-1">Los miembros Plus navegan sin anuncios.</div>
             </aside>
-            
+
             <div id="search-results-container" class="mt-4">
                 <div class="alert alert-info text-center" role="alert" id="no-search-results-message">
                     Ingresa tus criterios de búsqueda para encontrar tumbas.
@@ -2140,13 +2143,13 @@
 /* ══════════════════════════════════════════════════════════════════
    CONFIGURACIÓN DE LA APLICACIÓN
 ══════════════════════════════════════════════════════════════════ */
-const APP_VERSION = "v2.29.0";
+const APP_VERSION = "v2.30.0";
 const MAX_IMAGE_FILE_SIZE = 15 * 1024 * 1024;
 const MAX_IMAGE_DIMENSION = 1920;
 
 /* ══════════════════════════════════════════════════════════════════
    CONFIGURACIÓN FIREBASE
-   
+
    IMPORTANTE: Las consultas en Firestore con múltiples condiciones (ej.
    WHERE + WHERE, o WHERE + ORDER BY en diferentes campos) a menudo
    requieren la creación de "índices compuestos". Si recibes un error
@@ -2154,13 +2157,13 @@ const MAX_IMAGE_DIMENSION = 1920;
    enlace en la consola del navegador para crear el índice necesario
    automáticamente. Asegúrate de visitar ese enlace para que tus
    búsquedas funcionen.
-   
+
    Ejemplos de índices compuestos que podrías necesitar:
    - userId ASC, nombre_finado_lower ASC, timestamp DESC
    - userId ASC, nombre_panteon_lower ASC, timestamp DESC
    - userId ASC, fecha_nacimiento_iso ASC, timestamp DESC
    - userId ASC, fecha_defuncion_iso ASC, timestamp DESC
-   
+
    El error que recibiste te pedía este índice:
    userId ASC, nombre_finado_lower ASC, timestamp DESC
    Ahora que lo has creado, otras combinaciones de búsqueda podrían
@@ -3164,7 +3167,7 @@ async function loadCemeterySearchSuggestions() {
     if (!cemeterySearchSuggestionsPromise) {
         cemeterySearchSuggestionsPromise = Promise.all([
             loadCemeteryCatalog(),
-            db.collection('cemeteries').get().catch(error => {
+            catalogCollection('cemeteries').get().catch(error => {
                 console.warn('No se pudieron añadir los panteones comunitarios al autocompletado:', error);
                 return null;
             })
@@ -3925,7 +3928,7 @@ function formatDateToSpanish(dateStr) {
 
     let date = null;
     let year, month, day;
-    
+
     const isoMatch = dateStr.match(/^(\d{4})-(\d{2})-(\d{2})$/);
     if (isoMatch) {
         year = parseInt(isoMatch[1]);
@@ -3941,9 +3944,9 @@ function formatDateToSpanish(dateStr) {
         month = date.getMonth();
         day = date.getDate();
     }
-    
+
     if (isNaN(date.getTime())) return dateStr;
-    
+
     return `${day} de ${mesesES[month]} de ${year}`;
 }
 
@@ -4068,7 +4071,7 @@ function populateExtractedDataForm(data, geolocation) {
     calculateEstimatedBirthYear();
     // OCR describes the person; the confirmed place belongs to the whole batch.
     if (!activeTombCemetery) document.getElementById('display-nombre-panteon').value = formatProperName(data.nombre_panteon);
-    
+
     const formattedGeolocation = formatCoordinates(geolocation);
     document.getElementById('display-geolocation').value =
         formattedGeolocation === 'N/A' ? 'No disponible' : formattedGeolocation;
@@ -4833,6 +4836,7 @@ function resetCemeteryMatchConfirmation() {
 }
 
 async function selectAddCemeteryMode() {
+    if (!requireMember(() => selectAddCemeteryMode(), 'Inicia sesión o regístrate para registrar un lugar.')) return;
     ['mode-selection-card', 'add-tomb-section', 'search-tomb-section',
         'admin-section', 'corrections-section', 'my-contributions-section', 'my-disputes-section']
         .forEach(id => document.getElementById(id).style.display = 'none');
@@ -5568,6 +5572,49 @@ async function saveMyCemeteryEdits() {
     }
 }
 
+function catalogCollection(name) {
+    return auth.currentUser?.emailVerified ? db.collection(name) :
+        window.createPublicCatalogQuery(functionsApi.httpsCallable('consultarCatalogoPublico'), name);
+}
+
+let pendingMemberAction = null;
+function requireMember(action, reason) {
+    if (auth.currentUser?.emailVerified) return true;
+    pendingMemberAction = action;
+    document.getElementById('auth-action-reason').textContent = reason;
+    closeRecordDetail();
+    document.getElementById('auth-screen').style.display = 'flex';
+    setAuthMode('login');
+    document.getElementById('auth-email').focus();
+    return false;
+}
+
+function continueBrowsing() {
+    pendingMemberAction = null;
+    document.getElementById('auth-screen').style.display = 'none';
+    document.getElementById('main-app').style.display = 'flex';
+}
+
+async function loadRecentTombs() {
+    const list = document.getElementById('recent-tombs-list');
+    if (list.dataset.loaded === 'true') return;
+    list.textContent = 'Cargando lápidas recientes…';
+    try {
+        const snapshot = await catalogCollection('tumbas').orderBy('timestamp', 'desc').limit(12).get();
+        list.innerHTML = snapshot.docs.length ? snapshot.docs.map(doc => {
+            const tomb = doc.data();
+            const year = value => String(value || '').match(/(?:^|\D)(\d{4})(?:\D|$)/)?.[1] || '—';
+            const ageValue = Number.isInteger(tomb.edad_defuncion) ? tomb.edad_defuncion : calculateAgeFromDates(tomb.fecha_nacimiento, tomb.fecha_defuncion);
+            const age = ageValue !== null ? ` (${ageValue} años)` : '';
+            const location = [tomb.municipio_panteon, tomb.estado_panteon, tomb.pais_panteon].filter(Boolean).join(', ');
+            return `<button type="button" class="recent-tomb" onclick="openTombDetail(${inlineJsValue(doc.id)})"><img src="${escapeHtml(safeImageUrl(tomb.imageUrl))}" alt="Fotografía de la lápida" loading="lazy"><span><strong>${escapeHtml(tomb.nombre_finado || 'Nombre sin registrar')}</strong><span>${escapeHtml(year(tomb.fecha_nacimiento) + ' – ' + year(tomb.fecha_defuncion) + age)}</span><span>${escapeHtml(tomb.nombre_panteon || 'Lugar sin registrar')}</span><small>${escapeHtml(location)}</small></span></button>`;
+        }).join('') : '<p class="text-muted">Todavía no hay lápidas publicadas.</p>';
+        list.dataset.loaded = 'true';
+    } catch (error) {
+        list.innerHTML = '<p>No se pudieron cargar las lápidas recientes.</p><button type="button" class="btn btn-outline-primary" onclick="loadRecentTombs()">Reintentar</button>';
+    }
+}
+
 function showModeSelection() {
     resetTombPhotoBatch();
     document.getElementById('add-tomb-section').style.display = 'none';
@@ -5582,7 +5629,7 @@ function showModeSelection() {
     document.getElementById('upload-capture-card').style.display = 'none';
     document.getElementById('mode-selection-card').style.display = 'flex';
     document.getElementById('back-to-mode-selection').style.display = 'none';
-    document.getElementById('logout-btn').style.display = 'block';
+    document.getElementById('logout-btn').style.display = auth.currentUser ? 'block' : 'none';
     document.getElementById('uploaded-image-preview').src = '#';
     document.getElementById('uploaded-image-preview').alt = "Vista previa de imagen";
     pendingCanvas = null;
@@ -5591,7 +5638,8 @@ function showModeSelection() {
     imageSourceType = null;
     clearFormFields();
     document.getElementById('image-upload-input').value = '';
-    loadBenefitStatus();
+    if (auth.currentUser?.emailVerified) loadBenefitStatus();
+    loadRecentTombs();
 }
 
 function returnToContributionsMenu() {
@@ -5609,6 +5657,7 @@ function toggleMyContributionsMenu(button) {
 }
 
 async function showMyContributions(view = 'contributions') {
+    if (!requireMember(() => showMyContributions(view), 'Inicia sesión para consultar tus aportaciones.')) return;
     const disputes = view === 'disputes';
     ['mode-selection-card', 'add-tomb-section', 'add-cemetery-section',
         'search-tomb-section', 'admin-section', 'corrections-section']
@@ -6048,7 +6097,9 @@ async function loadAdminStats() {
             <thead><tr><th>#</th><th>Usuario</th><th>Correo</th><th>Aportes</th><th>Último aporte</th><th>Plus</th></tr></thead>
             <tbody>${contributorRows || '<tr><td colspan="6">Sin aportes.</td></tr>'}</tbody></table></div>
             <div id="admin-contributor-contributions"></div>
-            </details>
+
+
+        </details>
             <section class="border rounded p-3 mb-3"><h6 class="fw-bold">Buscar duplicados ya publicados</h6>
                 <p class="small text-muted">Revisa el catálogo existente para encontrar coincidencias que hayan pasado antes. Presenta un par a la vez para verificarlo.</p>
                 <div id="admin-existing-duplicates"><button class="btn btn-outline-primary" onclick="auditExistingDuplicatesAdmin()">Buscar posibles duplicados</button></div>
@@ -6474,6 +6525,7 @@ async function resetAllAdminData() {
 }
 
 function selectAddTombMode() {
+    if (!requireMember(() => selectAddTombMode(), 'Inicia sesión o regístrate para aportar tumbas y fotografías.')) return;
     document.getElementById('mode-selection-card').style.display = 'none';
     document.getElementById('search-tomb-section').style.display = 'none';
     document.getElementById('admin-section').style.display = 'none';
@@ -6651,7 +6703,7 @@ function selectSearchTombMode() {
     document.getElementById('my-disputes-section').style.display = 'none';
     document.getElementById('search-tomb-section').style.display = 'block';
     document.getElementById('back-to-mode-selection').style.display = 'block';
-    document.getElementById('logout-btn').style.display = 'block';
+    document.getElementById('logout-btn').style.display = auth.currentUser ? 'block' : 'none';
     loadCemeterySearchSuggestions();
 
 
@@ -6669,24 +6721,24 @@ function selectSearchTombMode() {
 
 /* ══════════════════════════════════════════════════════════════════
    SEARCH FUNCTIONALITY
-   
+
    IMPORTANTE: Firestore solo permite UN filtro de rango (comparaciones
    como '>=', '<=', '>', '<') por consulta.
    Los tres componentes del nombre se filtran localmente para permitir modos
    exacto y fonético, incluso en registros antiguos con nombre completo.
    El nombre de panteón y las fechas pueden usar filtros de rango en Firestore.
-   
+
    La lógica de abajo prioriza los filtros de rango en el siguiente orden si
    están activados por las casillas de verificación:
    1. Nombre del panteón (si está activado y tiene término)
    2. Rango de fecha de nacimiento (si está activado y tiene al menos "desde" o "hasta")
    3. Rango de fecha de defunción (si está activado y tiene al menos "desde" o "hasta")
-   
+
    Si se seleccionan múltiples filtros de rango, solo se aplicará el de mayor
    prioridad en la consulta de Firestore y se avisará al usuario. Los filtros
    de rango "ignorados" por Firestore se aplicarán mediante filtrado del lado
    del cliente (JavaScript) para cumplir con todos los criterios seleccionados.
-   
+
    Adicionalmente, si se utiliza un filtro de rango, la cláusula `orderBy`
    DEBE coincidir con el campo de ese filtro de rango para una consulta válida.
    Si no hay filtros de rango, se ordena por `timestamp`.
@@ -6771,12 +6823,8 @@ async function performSearch() {
     showToast('Buscando tumbas...', 'rgba(59,130,246,0.9)');
 
     try {
-        if (!auth.currentUser) {
-            showToast('❌ Debes iniciar sesión para buscar tumbas.', '#ef4444');
-            return;
-        }
 
-        let query = db.collection('tumbas');
+        let query = catalogCollection('tumbas');
         let activeRangeFilterField = null; // To track the single allowed range filter in Firestore
         let appliedFiltersInFirestore = []; // What actually goes into the Firestore query
         let ignoredFilters = []; // What was selected but couldn't be a primary range filter
@@ -6825,7 +6873,7 @@ async function performSearch() {
         if ((deathDateDesde || deathDateHasta) && activeRangeFilterField !== 'fecha_defuncion_iso') {
             ignoredFilters.push('Rango de Fecha de Defunción');
         }
-        
+
         if (ignoredFilters.length > 0) {
             let warningMsg = `⚠ Algunos filtros se aplicarán localmente: ${ignoredFilters.join(', ')}.`;
             if (appliedFiltersInFirestore.length > 0) {
@@ -7032,6 +7080,7 @@ function tombOwnerId(tomb) {
 
 let familySearchPreparation = null;
 function prepareForFamilySearch(tombId) {
+    if (!requireMember(() => openTombDetail(tombId).then(() => prepareForFamilySearch(tombId)), 'Inicia sesión o regístrate para descargar fotografías.')) return;
     const tomb = currentDetailTomb?.id === tombId ? currentDetailTomb :
         myContributions.find(item => item.id === tombId && item.type === 'tomb');
     try {
@@ -7074,7 +7123,7 @@ async function openTombDetail(tombId) {
     modal.style.display = 'flex';
     content.innerHTML = '<div class="text-center py-5"><span class="spinner-border"></span></div>';
     try {
-        const snapshot = await db.collection('tumbas').doc(tombId).get();
+        const snapshot = await catalogCollection('tumbas').doc(tombId).get();
         if (!snapshot.exists) throw new Error('El registro ya no existe.');
         currentDetailTomb = { id: snapshot.id, ...snapshot.data() };
         renderTombDetail();
@@ -7126,10 +7175,10 @@ async function loadTombCommunityMedia(recordId) {
     const gallery = document.getElementById('tomb-extra-gallery');
     if (!gallery) return;
     try {
-        const snapshot = await db.collection('tumbas').doc(recordId).collection('photos').orderBy('createdAt','desc').get();
+        const snapshot = await catalogCollection('tumbas').doc(recordId).collection('photos').orderBy('createdAt','desc').get();
         const photos = await Promise.all(snapshot.docs.map(async doc => {
             const photo = doc.data();
-            try { return {...photo,url:await storage.ref(photo.storagePath).getDownloadURL()}; }
+            try { return {...photo,url:photo.url || await storage.ref(photo.storagePath).getDownloadURL()}; }
             catch { return {...photo,url:null}; }
         }));
         if (!gallery.isConnected || currentDetailTomb?.id !== recordId) return;
@@ -7204,9 +7253,9 @@ async function addLocationToExistingTomb() {
 function renderTombDetail() {
     const tomb = currentDetailTomb;
     const user = auth.currentUser;
-    if (!tomb || !user) return;
+    if (!tomb) return;
     tombExtraCameraCapture = null;
-    const isOwner = tombOwnerId(tomb) === user.uid;
+    const isOwner = !!user && tombOwnerId(tomb) === user.uid;
     document.getElementById('record-detail-title').textContent =
         tomb.nombre_finado || 'Detalle del registro';
     recordDetailZoomLevel = 1;
@@ -7221,8 +7270,8 @@ function renderTombDetail() {
             </div>
             <div>
                 <div class="record-data-list">${detailDataHtml(tomb)}</div>
-                ${tomb.imageUrl && user.emailVerified ? `<button type="button" class="btn btn-outline-secondary w-100 mt-2" onclick="prepareForFamilySearch(${inlineJsValue(tomb.id)})"><i class="fas fa-share-alt me-1" aria-hidden="true"></i>Preparar para FamilySearch</button>` : ''}
-                ${isOwner || isSuperuserActive() ? `
+                ${tomb.imageUrl ? `<button type="button" class="btn btn-outline-secondary w-100 mt-2" onclick="prepareForFamilySearch(${inlineJsValue(tomb.id)})"><i class="fas fa-share-alt me-1" aria-hidden="true"></i>Preparar para FamilySearch</button>` : ''}
+                ${!user?.emailVerified ? `<button type="button" class="btn btn-primary w-100 mt-3" onclick="requestTombChanges(${inlineJsValue(tomb.id)})">Modificar o aportar a esta tumba</button>` : isOwner || isSuperuserActive() ? `
                     <div class="alert alert-info mt-3 mb-2">
                         Puedes corregir los datos de este registro sin reemplazar la fotografía.
                     </div>
@@ -7241,20 +7290,30 @@ function renderTombDetail() {
                     </div>`}${adminRecordActionsHtml('tomb', tomb.id)}
                 <section class="border rounded p-3 mt-3"><h6>Fotografías de esta tumba</h6>
                     <div id="tomb-extra-gallery" class="mb-3" aria-live="polite">Cargando fotografías…</div>
-                    <label class="btn btn-outline-primary mb-2" for="tomb-extra-camera-file"><i class="fas fa-camera me-1"></i>Tomar foto aquí con GPS</label>
+                    ${user?.emailVerified ? `<label class="btn btn-outline-primary mb-2" for="tomb-extra-camera-file"><i class="fas fa-camera me-1"></i>Tomar foto aquí con GPS</label>
                     <input type="file" id="tomb-extra-camera-file" class="visually-hidden" accept="image/*" capture="environment" onchange="prepareTombExtraCameraPhoto(this)">
                     <p id="tomb-extra-camera-status" class="small" aria-live="polite">La opción de cámara obtiene el GPS del celular al tomar la foto. Permite el acceso a la ubicación y permanece frente a la tumba.</p>
                     <label class="form-label" for="tomb-extra-photo-file">O elegir una fotografía guardada</label>
                     <input type="file" id="tomb-extra-photo-file" class="form-control mb-2" accept="image/*" onchange="selectTombExtraGalleryPhoto()">
                     <button type="button" id="tomb-extra-photo-save" class="btn btn-outline-primary" onclick="addPhotoToExistingTomb()">Añadir fotografía</button>
-                    <p class="small text-muted mt-2 mb-0">Se añade a este registro. La fotografía original y los datos de la persona se conservan.</p>
+                    <p class="small text-muted mt-2 mb-0">Se añade a este registro. La fotografía original y los datos de la persona se conservan.</p>` : ''}
                 </section>
                 <section class="border rounded p-3 mt-3"><h6>Ubicación de la tumba</h6>
-                    ${tombHasLocation(tomb) ? `<p class="mb-0">${escapeHtml(formatCoordinates(tomb.geolocation))}</p>` : '<p class="small">Aún no tiene ubicación. Puedes añadirla con el GPS si estás frente a la tumba.</p><button type="button" id="tomb-add-location" class="btn btn-outline-primary" onclick="addLocationToExistingTomb()">Añadir ubicación actual</button>'}
+                    ${tombHasLocation(tomb) ? `<p class="mb-0">${escapeHtml(formatCoordinates(tomb.geolocation))}</p>` : '<p class="small">Aún no tiene ubicación. Puedes añadirla con el GPS si estás frente a la tumba.</p><button type="button" id="tomb-add-location" class="btn btn-outline-primary" onclick="requestTombLocation()">Añadir ubicación actual</button>'}
                 </section>
             </div>
         </div>`;
     loadTombCommunityMedia(tomb.id);
+}
+
+function requestTombChanges(tombId) {
+    if (!requireMember(() => openTombDetail(tombId), 'Inicia sesión o regístrate para modificar o aportar a una tumba.')) return;
+    openTombDetail(tombId);
+}
+function requestTombLocation() {
+    const id = currentDetailTomb?.id;
+    if (!requireMember(() => openTombDetail(id).then(() => addLocationToExistingTomb()), 'Inicia sesión o regístrate para añadir una ubicación.')) return;
+    addLocationToExistingTomb();
 }
 
 function enableTombDetailEditing() {
@@ -7454,6 +7513,7 @@ function startCorrectionNotifications() {
 }
 
 async function showCorrectionsInbox() {
+    if (!requireMember(() => showCorrectionsInbox(), 'Inicia sesión para consultar tus mensajes.')) return;
     const user = auth.currentUser;
     if (!user) return;
     ['mode-selection-card', 'add-tomb-section', 'add-cemetery-section',
@@ -7649,9 +7709,7 @@ window.onload = () => {
         setTimeout(() => {
             document.getElementById('splash-screen').style.display = 'none';
             window.dispatchEvent(new Event('buscatumbas:ready'));
-            if (!auth.currentUser) {
-                document.getElementById('auth-screen').style.display = 'flex'; 
-            }
+
         }, 500);
     }, 2500);
 
@@ -7676,7 +7734,7 @@ window.onload = () => {
             }
             document.getElementById('auth-screen').style.display = 'none';
             document.getElementById('main-app').style.display = 'flex';
-            document.getElementById('logout-btn').style.display = 'block';
+            document.getElementById('logout-btn').style.display = auth.currentUser ? 'block' : 'none';
             const verifiedBadge = document.getElementById('verified-account-badge');
             verifiedBadge.innerHTML = `<i class="fas fa-circle-check me-1"></i>
                 ${escapeHtml(user.displayName || user.email || 'Correo verificado')}`;
@@ -7692,7 +7750,10 @@ window.onload = () => {
                 badge.textContent = until > Date.now() ? `Aportaciones suspendidas hasta ${new Date(until).toLocaleString('es-MX')}` : '';
                 badge.style.display = until > Date.now() ? 'inline-block' : 'none';
             }, error => console.warn('No se pudo consultar el estado de moderación.', error.code));
-            showModeSelection(); // Llama a la función para establecer la vista inicial
+            showModeSelection();
+            const resumeAction = pendingMemberAction;
+            pendingMemberAction = null;
+            if (resumeAction) await resumeAction();
             try {
                 const token = await user.getIdTokenResult();
                 if (auth.currentUser?.uid !== user.uid) return;
@@ -7713,7 +7774,7 @@ window.onload = () => {
                 correctionListenerUnsubscribe();
                 correctionListenerUnsubscribe = null;
             }
-            document.getElementById('main-app').style.display = 'none';
+            document.getElementById('main-app').style.display = 'flex';
             document.getElementById('mode-selection-card').style.display = 'none';
             document.getElementById('add-tomb-section').style.display = 'none';
             document.getElementById('add-cemetery-section').style.display = 'none';
@@ -7725,7 +7786,7 @@ window.onload = () => {
             document.getElementById('my-disputes-section').style.display = 'none';
             document.getElementById('admin-panel-btn').style.display = 'none';
             document.getElementById('back-to-mode-selection').style.display = 'none';
-            document.getElementById('auth-screen').style.display = 'flex';
+            document.getElementById('auth-screen').style.display = 'none';
             setAuthMode('login');
             document.getElementById('logout-btn').style.display = 'none';
             document.getElementById('verified-account-badge').style.display = 'none';
@@ -7747,10 +7808,18 @@ window.onload = () => {
             pendingTombRecordId = null;
             currentGeolocation = null;
             imageSourceType = null;
+            closeRecordDetail();
+            closeImageZoom();
+            showModeSelection();
         }
     });
 };
 </script>
+<nav id="bottom-navigation" aria-label="Navegación principal">
+    <button type="button" onclick="continueBrowsing();showModeSelection()"><i class="fas fa-home" aria-hidden="true"></i><span>Inicio</span></button>
+    <button type="button" onclick="continueBrowsing();selectSearchTombMode()"><i class="fas fa-search" aria-hidden="true"></i><span>Tumbas</span></button>
+    <button type="button" onclick="showCorrectionsInbox()"><i class="fas fa-comments" aria-hidden="true"></i><span>Mensajes</span></button>
+</nav>
 <footer class="app-legal-links">
     <a href="terms.html">Términos y condiciones</a><a href="privacy.html">Privacidad</a>
     <a href="delete-account.html">Solicitar eliminación de cuenta</a>

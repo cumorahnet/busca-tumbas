@@ -18,6 +18,10 @@ setGlobalOptions({
 });
 
 const db = getFirestore();
+exports.consultarCatalogoPublico = onCall({enforceAppCheck: false}, require('./public-catalog')({
+  db, HttpsError,
+  photoUrl: storagePath => require('firebase-admin/storage').getDownloadURL(getStorage().bucket().file(storagePath)),
+}));
 exports.aportarFotoOUbicacionTumba = onCall({enforceAppCheck:false}, async request => {
   requireUser(request);
   return require("./tomb-media")({db, bucket:getStorage().bucket(), FieldValue, HttpsError, requireUser})(request);

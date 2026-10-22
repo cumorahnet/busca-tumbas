@@ -60,7 +60,7 @@ try{
             node('ia-modal').style.display='none';
             node('toast-msg').textContent='Mensaje de prueba suficientemente largo para comprobar el espacio disponible.';
             node('toast-msg').style.display='block';within(node('toast-msg'),'toast');node('toast-msg').style.display='none';
-            for(const id of ['familysearch-preparation-dialog','pwa-install-dialog','superuser-dialog']){
+            for(const id of ['familysearch-preparation-dialog','pwa-install-dialog','app-share-dialog','superuser-dialog']){
                 const dialog=node(id);dialog.showModal();within(dialog,id);dialog.close();
             }
             node('record-detail-modal').style.display='flex';node('record-detail-content').innerHTML='<div style="height:1600px">Datos largos</div>';
