@@ -28,7 +28,7 @@ function setup(ownerClaims = {}, candidates = []) {
   };
   const ctx = {exports: {}, require: (name) => modules[name] || (["./record-writes", "./duplicates", "./similarity", "./tomb-history", "./photo-download", "./public-catalog"].includes(name) ? require(name) : undefined)};
   vm.createContext(ctx);
-  vm.runInContext(fs.readFileSync(__dirname + "/index.js", "utf8"), ctx);
+  vm.runInContext(fs.readFileSync(__dirname + "/handlers.js", "utf8"), ctx);
   const auth = {uid: "admin", token: {email_verified: true, profile_complete:true, platform_admin: true,
     superuser_session: true, superuser_until: Date.now() / 1000 + 60}};
   return {writes, record, editTomb: changes => ctx.exports.actualizarAportacionTumba({auth:{uid:"owner",token:{email_verified:true,profile_complete:true}},data:{recordId:"record",changes}}), run: (data, session = auth) => ctx.exports.gestionarAporteAdmin({auth: session,

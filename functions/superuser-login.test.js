@@ -18,7 +18,7 @@ function harness(record, count=0, eligible=true, patch={}) {
   },createCustomToken:async(uid,claims)=>{issued.push({uid,claims});return "custom-token";}};
   const modules={"firebase-functions/v2/firestore":{onDocumentWrittenWithAuthContext:(_options,handler)=>handler},"firebase-functions/v2/https":{onRequest:handler=>handler,onCall:(_options,fn)=>fn,HttpsError},"firebase-functions/params":{defineSecret:()=>({})},"firebase-functions/v2":{setGlobalOptions:()=>{}},"firebase-admin/app":{initializeApp:()=>{}},"firebase-admin/firestore":{getFirestore:()=>db,FieldValue:{}},"firebase-admin/storage":{getStorage:()=>({bucket:()=>({})})},"firebase-admin/auth":{getAuth:()=>auth},"./superuser-password":require("./superuser-password")};
   const context={exports:{},require:name=>modules[name] || (["./account-profile", "./user-audit", "./record-writes", "./duplicates", "./tomb-history", "./photo-download", "./public-catalog"].includes(name) ? require(name) : undefined)};vm.createContext(context);
-  vm.runInContext(fs.readFileSync(__dirname+"/index.js","utf8"),context);
+  vm.runInContext(fs.readFileSync(__dirname+"/handlers.js","utf8"),context);
   return {login:context.exports.autorizarSuperusuario,issued};
 }
 const request=password=>({data:{email:"buscatumbas@cumorahnet.com",password},rawRequest:{ip:"127.0.0.1"}});

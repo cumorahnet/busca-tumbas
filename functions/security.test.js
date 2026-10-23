@@ -27,7 +27,7 @@ const context = {exports: {}, require: (name) => {
   return modules[name];
 }};
 vm.createContext(context);
-vm.runInContext(fs.readFileSync(__dirname + "/index.js", "utf8"), context);
+vm.runInContext(fs.readFileSync(__dirname + "/handlers.js", "utf8"), context);
 for (const [name, handler] of Object.entries(context.exports)) {
   if (["registrarActividadBase", "registrarActividadDetalle", "autorizarSuperusuario", "consultarCatalogoPublico", "obtenerHistorialTumba", "registrarHistorialTumba", "registrarHistorialFotografia", "descargarFotografiaTumba"].includes(name)) continue;
   test(name + " rejects anonymous and unverified users, including admin email", async () => {

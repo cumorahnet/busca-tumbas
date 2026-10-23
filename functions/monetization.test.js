@@ -22,7 +22,7 @@ function setup() {
     "firebase-admin/storage": {getStorage:()=>({bucket:()=>({})})}, "firebase-admin/auth": {getAuth:()=>({getUser:async()=>({})})}
   };
   const ctx={exports:{},require:name=>{if(!(name in modules))throw Error(name);return modules[name];},Date:class extends Date {static now(){return now;}}};
-  vm.createContext(ctx);vm.runInContext(fs.readFileSync(__dirname+"/index.js","utf8"),ctx);
+  vm.createContext(ctx);vm.runInContext(fs.readFileSync(__dirname+"/handlers.js","utf8"),ctx);
   const request={auth:{uid:"a".repeat(28),token:{email_verified:true,profile_complete:true}},data:{uid:"b".repeat(28),days:30}};
   return {ctx,request,policy,setNow:value=>{now=Date.parse(value);},stored:()=>stored};
 }

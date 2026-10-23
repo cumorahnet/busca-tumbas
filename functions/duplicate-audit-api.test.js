@@ -9,7 +9,7 @@ test("audit endpoint returns pair evidence and prior administrative authorizatio
   const db = {collection:name=>({get:async()=>({docs:name==="tumbas"?docs:[]}),
     doc:()=>({get:async()=>({data:()=>({decision:"distinct",status:"approved",resolution:"son personas distintas"})})})})};
   const context = {exports:{},db,requireAdmin:()=>{},onCall:(_options,fn)=>fn,require};
-  const source = fs.readFileSync(__dirname+"/index.js","utf8");
+  const source = fs.readFileSync(__dirname+"/handlers.js","utf8");
   const endpoint = source.slice(source.indexOf("exports.auditarDuplicadosAdmin ="),source.indexOf("exports.obtenerEstadisticasAdmin ="));
   vm.runInNewContext(endpoint,context);
   const report = await context.exports.auditarDuplicadosAdmin({});
