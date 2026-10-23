@@ -1,3 +1,6 @@
 {
-    "git.ignoreLimitWarning": true
+    "git.ignoreLimitWarning": true,
+    "liveServer.settings.root": "/",
+    "liveServer.settings.host": "localhost",
+    "liveServer.settings.port": 5500
 }

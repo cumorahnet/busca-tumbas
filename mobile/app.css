@@ -153,8 +153,8 @@ body { padding-top: calc(100px + var(--app-safe-top)); }
 .app-header .header-tagline { display:none; }
 .app-header .app-brand-logo { width:40px; height:40px; }
 #main-app > .app-header #back-to-mode-selection { min-height:30px; margin: .2rem 0 0; padding:.1rem .6rem; }
-#account-dialog, #user-history-dialog { width:min(700px,calc(100% - 1.5rem)); max-height:calc(100dvh - 130px - var(--app-safe-top) - var(--app-safe-bottom)); margin:auto; overflow:auto; overflow-wrap:anywhere; border:1px solid #e4deef; border-radius:1rem; padding:1.25rem; }
-#account-dialog::backdrop { background:#0f172a99; }
+#account-dialog, #user-history-dialog, #member-access-dialog { width:min(700px,calc(100% - 1.5rem)); max-height:calc(100dvh - 130px - var(--app-safe-top) - var(--app-safe-bottom)); margin:auto; overflow:auto; overflow-wrap:anywhere; border:1px solid #e4deef; border-radius:1rem; padding:1.25rem; }
+#account-dialog::backdrop, #member-access-dialog::backdrop { background:#0f172a99; }
 #user-history-dialog::backdrop { background:#0f172a99; }
 #record-detail-modal { padding-top:calc(110px + var(--app-safe-top)); }
 #record-detail-modal .record-detail-dialog { max-height:calc(100dvh - 140px - var(--app-safe-top) - var(--app-safe-bottom)); }
@@ -176,3 +176,11 @@ body { padding-top: calc(100px + var(--app-safe-top)); }
 .tomb-action-card { max-width:42rem; margin-inline:auto; }
 #record-detail-modal .record-detail-dialog > div:first-child { position:sticky; top:0; z-index:3; background:white; }
 @media(max-width:480px) { .tomb-detail-actions { grid-template-columns:1fr; } }
+
+.brand-title-row { display:flex; align-items:center; gap:.4rem; white-space:nowrap; }
+#tomb-share-dialog { width:min(700px,calc(100% - 1.5rem)); max-height:calc(100dvh - 140px - var(--app-safe-top) - var(--app-safe-bottom)); overflow:auto; border:1px solid #e4deef; border-radius:1rem; padding:1.25rem; overflow-wrap:anywhere; }
+#tomb-share-dialog::backdrop { background:#0f172a99; }
+.app-header .app-brand-header { min-width:0; }
+#account-section { width:100%; align-self:stretch; min-height:calc(100dvh - 190px - var(--app-safe-top) - var(--app-safe-bottom)); padding:1rem; overflow-wrap:anywhere; }
+#account-section #account-menu { margin-top:1rem; }
+@media(max-width:480px) { #header-account-user { max-width:17vw; } .brand-title-row { gap:.2rem; } }

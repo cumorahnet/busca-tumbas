@@ -33,7 +33,7 @@ Resultado: `android/app/build/outputs/bundle/release/app-release.aab`, firmado c
 
 La compilación release se detiene si faltan datos de firma o el archivo de clave; no sustituye la clave existente ni utiliza la de depuración. Guarda una copia de seguridad de la clave y sus credenciales fuera del repositorio. La clave de carga debe coincidir con la registrada en Play Console. Play App Signing utiliza su certificado de firma de aplicaciones para la distribución; ese certificado es el que debes registrar también en Firebase para el acceso con Google.
 
-La configuración apunta a API 36, Android mínimo 7 (API 24), versionCode 2 y versionName 2.14.1. Incrementa versionCode para cada carga nueva y actualiza versionName al publicar una versión distinta.
+La configuración apunta a API 36, Android mínimo 7 (API 24), versionCode 3 y versionName 2.30.0. Incrementa versionCode para cada carga nueva y actualiza versionName al publicar una versión distinta.
 
 ## Integraciones y permisos
 

@@ -19,6 +19,24 @@ async function main(){
         if(!r.ok)throw Error(r.status===404?'Habilita Google en Firebase Authentication > Sign-in method.':('Error de configuración HTTP '+r.status));
         return data;
     }
+    const html=await readFile(path.join(root,'index.html'),'utf8');
+    const canonical=html.match(/<link\s+rel="canonical"\s+href="([^"]+)"/);
+    if(!canonical)throw Error('Falta la URL publica de la aplicacion.');
+    const domain=new URL(canonical[1]).hostname;
+    const authConfigUrl='https://identitytoolkit.googleapis.com/admin/v2/projects/'+project+'/config';
+    let authConfig=await get(authConfigUrl);
+    if(!authConfig.authorizedDomains?.includes(domain)){
+        if(mode==='--check')throw Error('Dominio no autorizado para Google: '+domain+'. Ejecuta npm run google:sync.');
+        const response=await fetch(authConfigUrl+'?updateMask=authorizedDomains',{
+            method:'PATCH',headers:{Authorization:'Bearer '+token.access_token,'Content-Type':'application/json'},
+            body:JSON.stringify({authorizedDomains:[...new Set([...(authConfig.authorizedDomains||[]),domain])]}),
+            signal:AbortSignal.timeout(30000)
+        });
+        if(!response.ok)throw Error('No se pudo autorizar el dominio: HTTP '+response.status);
+        authConfig=await get(authConfigUrl);
+        if(!authConfig.authorizedDomains?.includes(domain))throw Error('No se pudo confirmar el dominio autorizado.');
+    }
+    console.log('Dominio autorizado para Google: '+domain);
     const provider=await get('https://identitytoolkit.googleapis.com/admin/v2/projects/'+project+'/defaultSupportedIdpConfigs/google.com');
     if(!provider.enabled||!provider.clientId)throw Error('Habilita y guarda el proveedor Google en Firebase Authentication.');
     const config=JSON.parse(await readFile(path.join(root,'capacitor.config.json'),'utf8'));

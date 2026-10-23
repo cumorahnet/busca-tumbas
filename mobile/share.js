@@ -20,7 +20,7 @@
         if (typeof navigator.share !== 'function') { offerCopy(); return; }
         sharing = true;
         try {
-            await navigator.share({title: 'Busca Tumbas', text: 'Conserva historias y conecta generaciones. Abre Busca Tumbas y agrégala a tu pantalla de inicio.', url});
+            await navigator.share({title: 'Busca Tumbas', text: 'Descubre y comparte historias en Busca Tumbas. Visita la p\u00e1gina y consulta el cat\u00e1logo sin crear una cuenta.', url});
         } catch (error) {
             if (error.name !== 'AbortError') offerCopy();
         } finally { sharing = false; }
@@ -33,11 +33,11 @@
         copy.disabled = true;
         try {
             await navigator.clipboard.writeText(url);
-            status.textContent = 'Liga copiada. Ya puedes pegarla en un mensaje.';
+            status.textContent = 'Liga copiada. Ya puedes pegarla en tus redes sociales o mensajes.';
         } catch {
             input.focus();
             input.select();
-            status.textContent = 'Selecciona y copia la liga para pegarla en un mensaje.';
+            status.textContent = 'Selecciona y copia la liga para pegarla en tus redes sociales o mensajes.';
         } finally { copy.disabled = false; }
     });
     document.getElementById('app-share-dismiss').addEventListener('click', () => dialog.close());

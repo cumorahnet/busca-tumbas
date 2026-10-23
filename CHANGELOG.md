@@ -1,5 +1,101 @@
 # CHANGELOG
 
+## Ajustes web verificados - 2026-10-22
+
+- Cuenta integrada en la pagina con edicion explicita, aportaciones personales e historial de actividad unificado.
+- Encabezado, navegacion inferior y mensajes pendientes corregidos.
+- Explicacion previa al acceso de invitados y verificacion del dominio de Google.
+- Compartir la pagina y compartir fotografias con descripcion desde la ficha.
+- Live Server configurado en localhost:5500.
+- APK y Play Store pausados; la distribucion actual es por la pagina web.
+- Validacion: 55 pruebas automatizadas y comprobaciones en navegador de los flujos modificados.
+
+<!-- cdc-session:session-20261022192453-e6f2ef -->
+## Sesión 22/10/2026, 09:18 p.m.
+
+### Resumen
+
+La sesión se enfocó en: Revisar y resolver los riesgos detectados en este cierre.. Se detectaron 64 cambio(s): 36 creado(s), 28 modificado(s) y 0 eliminado(s).
+
+### Cambios
+
+- .browser-check/account-mobile.png
+- .browser-check/cloud-functions-probe/app/account-profile.js
+- .browser-check/cloud-functions-probe/app/duplicate-audit.js
+- .browser-check/cloud-functions-probe/app/duplicates.js
+- .browser-check/cloud-functions-probe/app/error-notes.js
+- .browser-check/cloud-functions-probe/app/index.js
+- .browser-check/cloud-functions-probe/app/monetization-config.json
+- .browser-check/cloud-functions-probe/app/photo-download.js
+- .browser-check/cloud-functions-probe/app/public-catalog.js
+- .browser-check/cloud-functions-probe/app/record-writes.js
+- .browser-check/cloud-functions-probe/app/similarity.js
+- .browser-check/cloud-functions-probe/app/superuser-password.js
+- .browser-check/cloud-functions-probe/app/tomb-history.js
+- .browser-check/cloud-functions-probe/app/tomb-media.js
+- .browser-check/cloud-functions-probe/app/user-audit.js
+- .browser-check/cloud-functions-probe/firebase.json
+- .browser-check/cloud-functions-probe/index.js
+- .browser-check/cloud-functions-probe/package.json
+- .browser-check/function-health.json
+- .browser-check/local-comparison.html
+- .browser-check/local-updated.png
+- .browser-check/navigation-1280.png
+- .browser-check/navigation-390.png
+- .browser-check/public-comparison.html
+- .browser-check/public-home-chromium.png
+- .browser-check/public-home-webkit.png
+- .browser-check/record-full-chromium.png
+- .browser-check/record-full-webkit.png
+- .browser-check/registration-published.png
+- .browser-check/restored-home.png
+- .browser-check/runtime-event-check.json
+- .browser-check/search-summary-chromium.png
+- .browser-check/search-summary-webkit.png
+- .firebase/hosting..cache
+- apply-history-card.mjs
+- firestore-debug.log
+- firestore.rules
+- functions/account-profile.js
+- functions/account-profile.test.js
+- functions/duplicate-audit-api.test.js
+- functions/handlers.js
+- functions/index.js
+- functions/moderation.test.js
+- functions/monetization.test.js
+- functions/photo-download.js
+- functions/photo-download.test.js
+- functions/record-writes.js
+- functions/runtime-loader.test.js
+- functions/security.test.js
+- functions/superuser-login.test.js
+- functions/tomb-history.js
+- functions/tomb-history.test.js
+- functions/user-audit.js
+- functions/user-audit.test.js
+- index.html
+- mobile/app.css
+- scripts/verify-account-navigation.mjs
+- scripts/verify-public-home.mjs
+- security-tests/account-access.test.mjs
+- security-tests/delete-contribution.test.mjs
+- security-tests/dispute-notifications.test.mjs
+- security-tests/rules.test.mjs
+- www/index.html
+- www/mobile/app.css
+
+### Riesgos
+
+- Se modificaron archivos de configuración o infraestructura (.browser-check/cloud-functions-probe/package.json). Valida compatibilidad y despliegue.
+- La sesión contiene 64 cambios. Considera dividir la revisión o el commit para reducir el riesgo de integración.
+- El análisis incluye archivos que ya tenían cambios al iniciar la sesión.
+
+### Próximo paso
+
+- Revisar y resolver los riesgos detectados en este cierre.
+- Ejecutar las pruebas automatizadas y validar el comportamiento afectado.
+- Revisar el diff y preparar un commit descriptivo.
+
 <!-- cdc-session:session-20261022021238-6dfc3b -->
 ## Sesión 21/10/2026, 10:02 p.m.
 

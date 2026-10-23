@@ -1235,12 +1235,13 @@
         }
     </style>
     <meta name="theme-color" content="#0f172a">
-    <link rel="stylesheet" href="mobile/app.css?v=12">
+    <link rel="stylesheet" href="mobile/app.css?v=16">
     <script src="mobile/app.js?v=4" defer></script>
     <script src="mobile/catalog.js?v=1" defer></script>
     <script src="mobile/viewport.js?v=1" defer></script>
     <script src="mobile/install.js?v=3" defer></script>
-    <script src="mobile/share.js?v=2" defer></script>
+    <script src="mobile/share.js?v=3" defer></script>
+    <script src="mobile/tomb-share.js?v=1" defer></script>
     <script src="mobile/familysearch.js?v=6" defer></script>
 </head>
 <body>
@@ -1260,13 +1261,27 @@
 </dialog>
 <dialog id="app-share-dialog" aria-labelledby="app-share-title" aria-describedby="app-share-description">
     <h2 id="app-share-title" class="h5 fw-bold">Comparte Busca Tumbas</h2>
-    <p id="app-share-description">Envía esta liga por WhatsApp, correo o mensaje. Quien la reciba podrá abrir la app en su navegador y agregarla a su pantalla de inicio.</p>
-    <label for="app-share-url" class="form-label">Liga de la app</label>
+    <p id="app-share-description">Comparte esta liga en tus redes sociales o por mensaje. Cualquier persona puede visitar la página sin crear una cuenta.</p>
+    <label for="app-share-url" class="form-label">Liga de la página</label>
     <input id="app-share-url" class="form-control mb-3" type="url" value="https://buscatumbas.cumorahnet.com/" readonly>
     <p id="app-share-status" class="small" role="status" aria-live="polite"></p>
     <div class="d-flex flex-wrap gap-2">
         <button type="button" id="app-share-copy" class="btn btn-primary">Copiar liga</button>
         <button type="button" id="app-share-dismiss" class="btn btn-outline-secondary">Cerrar</button>
+    </div>
+</dialog>
+<dialog id="tomb-share-dialog" aria-labelledby="tomb-share-title">
+    <h2 id="tomb-share-title" class="h5">Compartir en redes</h2>
+    <p class="small">Comparte la fotografía y los datos de esta ficha. Revisa la descripción antes de publicarla.</p>
+    <img id="tomb-share-photo" alt="Fotografía de la lápida" class="img-fluid rounded mb-3" style="max-height:240px;display:block;margin:auto;">
+    <label for="tomb-share-description" class="form-label">Descripción para compartir</label>
+    <textarea id="tomb-share-description" class="form-control mb-3" rows="6"></textarea>
+    <p id="tomb-share-status" class="small" role="status" aria-live="polite"></p>
+    <div class="d-flex flex-wrap gap-2">
+        <button type="button" id="tomb-share-send" class="btn btn-primary" disabled>Compartir foto y descripción</button>
+        <button type="button" id="tomb-share-copy" class="btn btn-outline-primary">Copiar descripción</button>
+        <button type="button" id="tomb-share-download" class="btn btn-outline-primary" disabled>Descargar foto</button>
+        <button type="button" id="tomb-share-dismiss" class="btn btn-outline-secondary">Cerrar</button>
     </div>
 </dialog>
 <dialog id="familysearch-preparation-dialog" aria-labelledby="familysearch-dialog-title" aria-describedby="familysearch-dialog-description">
@@ -1333,6 +1348,16 @@
             <button id="superuser-cancel" type="button" class="btn btn-outline-secondary" onclick="closeSuperuserLogin()">Cancelar</button>
         </div>
     </form>
+</dialog>
+<dialog id="member-access-dialog" aria-labelledby="member-access-title" aria-describedby="member-access-explanation" oncancel="pendingMemberAction = null">
+    <h2 id="member-access-title" class="h5">¿Por qué necesitas una cuenta?</h2>
+    <p id="member-access-explanation">Por la seguridad de todos, necesitamos una cuenta para identificar quién aporta o modifica la información. Tu cuenta permite conservar el historial de tus aportaciones y avisarte si alguien solicita una aclaración.</p>
+    <p id="member-access-reason" class="small text-muted"></p>
+    <p>Puedes seguir consultando el catálogo sin registrarte. Si ya tienes cuenta, solo necesitas iniciar sesión.</p>
+    <div class="d-flex flex-wrap gap-2">
+        <button type="button" class="btn btn-primary" onclick="continueMemberAccess()">Continuar</button>
+        <button type="button" class="btn btn-outline-secondary" onclick="cancelMemberAccess()">Seguir explorando</button>
+    </div>
 </dialog>
 <div id="auth-screen" style="display:none;">
     <div class="card-custom">
@@ -1448,8 +1473,8 @@
     <!-- App Header -->
     <header class="app-header card-custom">
         <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
-            <div class="app-brand-header"><img class="app-brand-logo" src="assets/brand/logo.png" width="56" height="56" alt="Logo de Busca Tumbas"><div><h4 class="fw-bold mb-0">Busca Tumbas</h4><p class="header-tagline">Conservamos historias. Conectamos generaciones.</p></div></div>
-            <div class="header-account-actions"><button type="button" class="version-pill border-0" id="app-header-version"></button><button type="button" id="header-account-user" class="btn btn-outline-primary btn-sm" onclick="showAccount()">Iniciar sesión</button><button type="button" id="header-logout" class="btn btn-outline-danger btn-sm" onclick="logout()" hidden>Salir</button></div>
+            <div class="app-brand-header"><img class="app-brand-logo" src="assets/brand/logo.png" width="56" height="56" alt="Logo de Busca Tumbas"><div><div class="brand-title-row"><h4 class="fw-bold mb-0">Busca Tumbas</h4><button type="button" class="version-pill border-0" id="app-header-version"></button></div><p class="header-tagline">Conservamos historias. Conectamos generaciones.</p></div></div>
+            <div class="header-account-actions"><button type="button" id="header-account-user" class="btn btn-outline-primary btn-sm" onclick="showAccount()">Iniciar sesión</button><button type="button" id="header-logout" class="btn btn-outline-danger btn-sm" onclick="logout()" hidden>Salir</button></div>
 
         </div>
         <nav class="primary-navigation" hidden aria-label="Navegación de Busca Tumbas">
@@ -1477,15 +1502,7 @@
         </button>
     </header>
 
-    <!-- Mode Selection Card -->
-    <div class="card-custom" id="mode-selection-card">
-
-        <nav class="home-actions" aria-label="Menú principal">
-            <button type="button" class="btn menu-action menu-action-featured" onclick="selectSearchTombMode()"><span class="menu-action-icon"><i class="fas fa-search" aria-hidden="true"></i></span><span class="menu-action-copy"><strong>Buscar tumbas</strong><small>Encuentra una historia.</small></span></button>
-            <button type="button" class="btn menu-action" onclick="selectAddTombMode()"><span class="menu-action-icon"><i class="fas fa-camera" aria-hidden="true"></i></span><span class="menu-action-copy"><strong>Aportar</strong><small>Añade tumbas y fotografías.</small></span></button>
-        </nav>
-        <section class="recent-tombs" aria-labelledby="recent-tombs-title"><h3 id="recent-tombs-title" class="h5 fw-bold">Lápidas recientes</h3><div id="recent-tombs-list" aria-live="polite"></div></section>
-        <details id="account-menu"><summary>Mi cuenta y mis aportaciones</summary>
+<section id="account-section" class="account-page" style="display:none;" aria-label="Cuenta"><div id="account-view"></div>        <details id="account-menu"><summary>Más opciones de la cuenta</summary>
 <div class="d-flex flex-wrap align-items-center gap-2 mt-2 mt-md-0">
                 <button type="button" class="btn btn-outline-primary btn-sm" data-pwa-install-action hidden><i class="fas fa-download me-2" aria-hidden="true"></i><span data-pwa-install-label>Instalar app</span></button>
                 <button type="button" class="btn btn-outline-secondary btn-sm" data-app-share hidden><i class="fas fa-share-nodes me-2" aria-hidden="true"></i>Compartir app</button>
@@ -1556,8 +1573,17 @@
         <strong>Espacio para patrocinadores de la comunidad</strong>
         <div class="small mt-1">Tu apoyo ayuda a mantener Busca Tumbas disponible.</div>
     </aside>
-            <button type="button" class="btn btn-outline-danger w-100" onclick="logout()" id="logout-btn" style="display:none;">Salir</button>
-        </details>
+            <div hidden><button id="logout-btn" type="button" onclick="logout()">Salir</button></div>
+        </details></section>
+    <!-- Mode Selection Card -->
+    <div class="card-custom" id="mode-selection-card">
+
+        <nav class="home-actions" aria-label="Menú principal">
+            <button type="button" class="btn menu-action menu-action-featured" onclick="selectSearchTombMode()"><span class="menu-action-icon"><i class="fas fa-search" aria-hidden="true"></i></span><span class="menu-action-copy"><strong>Buscar tumbas</strong><small>Encuentra una historia.</small></span></button>
+            <button type="button" class="btn menu-action" onclick="selectAddTombMode()"><span class="menu-action-icon"><i class="fas fa-camera" aria-hidden="true"></i></span><span class="menu-action-copy"><strong>Aportar</strong><small>Añade tumbas y fotografías.</small></span></button>
+        </nav>
+        <section class="recent-tombs" aria-labelledby="recent-tombs-title"><h3 id="recent-tombs-title" class="h5 fw-bold">Lápidas recientes</h3><div id="recent-tombs-list" aria-live="polite"></div></section>
+
     </div>
 
     <div class="card-custom" id="add-cemetery-section">
@@ -4772,7 +4798,7 @@ async function logout() {
         await auth.signOut();
         pendingMemberAction = null;
         window.accountProfileComplete = false;
-        document.getElementById('account-dialog')?.close();
+        document.getElementById('account-section').style.display = 'none';
         document.getElementById('user-history-dialog')?.close();
         document.getElementById('auth-email').value = '';
         document.getElementById('auth-password').value = '';
@@ -4805,7 +4831,7 @@ function resetCemeteryMatchConfirmation() {
 
 async function selectAddCemeteryMode() {
     if (!requireMember(() => selectAddCemeteryMode(), 'Inicia sesión o regístrate para registrar un lugar.')) return;
-    ['mode-selection-card', 'add-tomb-section', 'search-tomb-section',
+    ['account-section', 'mode-selection-card', 'add-tomb-section', 'search-tomb-section',
         'admin-section', 'corrections-section', 'my-contributions-section', 'my-disputes-section']
         .forEach(id => document.getElementById(id).style.display = 'none');
     document.getElementById('add-cemetery-section').style.display = 'block';
@@ -5549,16 +5575,28 @@ function requireMember(action, reason, allowIncomplete = false) {
     if (auth.currentUser?.emailVerified) {
         if (allowIncomplete || window.accountProfileComplete !== false) return true;
         pendingMemberAction = action;
-        showAccount();
+        showToast('Para continuar, completa tus datos desde el bot\u00f3n Cuenta.', '#f59e0b', 7000);
         return false;
     }
     pendingMemberAction = action;
     document.getElementById('auth-action-reason').textContent = reason;
+    document.getElementById('member-access-reason').textContent = reason;
+    const dialog = document.getElementById('member-access-dialog');
+    if (!dialog.open) dialog.showModal();
+    return false;
+}
+
+function cancelMemberAccess() {
+    document.getElementById('member-access-dialog').close();
+    pendingMemberAction = null;
+}
+
+function continueMemberAccess() {
+    document.getElementById('member-access-dialog').close();
     closeRecordDetail();
     document.getElementById('auth-screen').style.display = 'flex';
     setAuthMode('login');
     document.getElementById('auth-email').focus();
-    return false;
 }
 
 function continueBrowsing() {
@@ -5620,19 +5658,16 @@ async function refreshAccountIdentity() {
 
 async function showAccount() {
     if (!requireMember(() => showAccount(), 'Inicia sesión para consultar y actualizar tu cuenta.', true)) return;
-    let dialog = document.getElementById('account-dialog');
-    if (!dialog) {
-        dialog = document.createElement('dialog');
-        dialog.id = 'account-dialog';
-        dialog.setAttribute('aria-label', 'Cuenta de usuario');
-        document.body.append(dialog);
-    }
-    dialog.innerHTML = '<button type="button" class="btn btn-outline-secondary float-end" onclick="this.closest(\'dialog\').close()">Cerrar</button><h2 class="h5">Cuenta</h2><div id="account-content" aria-live="polite">Cargando cuenta…</div>';
-    if (!dialog.open) dialog.showModal();
+    const dialog = document.getElementById('account-section');
+    ['mode-selection-card','add-tomb-section','add-cemetery-section','search-tomb-section','admin-section','corrections-section','my-contributions-section','my-disputes-section'].forEach(id => document.getElementById(id).style.display = 'none');
+    closeRecordDetail();
+    dialog.style.display = 'block';
+    document.getElementById('back-to-mode-selection').style.display = 'block';
+    document.getElementById('account-view').innerHTML = '<h2 class="h4">Cuenta</h2><div id="account-content" aria-live="polite">Cargando cuenta...</div>';
     const uid = auth.currentUser.uid;
     try {
         const result = await functionsApi.httpsCallable('obtenerMiCuenta')({});
-        if (auth.currentUser?.uid !== uid || !dialog.open) return;
+        if (auth.currentUser?.uid !== uid || dialog.style.display !== 'block') return;
         accountProfile = result.data.profile;
         window.accountProfileComplete = result.data.complete === true;
         if (!result.data.complete) {
@@ -5644,19 +5679,40 @@ async function showAccount() {
         accountUserId = uid;
         document.getElementById('header-account-user').textContent = accountProfile.displayName || accountProfile.email;
         const content = document.getElementById('account-content');
-        content.innerHTML = `<form id="account-form" onsubmit="saveAccount(event)">
+        content.innerHTML = `<section id="account-summary" ${!result.data.complete ? 'hidden' : ''}>
+            <dl class="row g-2 mb-3">${[['email','Correo'], ...Object.entries(accountFieldLabels)].map(([key,label]) => `<div class="col-6"><dt class="small text-muted">${label}</dt><dd class="mb-0">${escapeHtml(accountProfile[key] || 'Sin registrar')}</dd></div>`).join('')}</dl>
+            <button type="button" id="account-edit" class="btn btn-outline-primary">Editar datos</button>
+        </section>
+        <form id="account-form" onsubmit="saveAccount(event)" ${result.data.complete ? 'hidden' : ''}>
             <label class="d-block my-2">Correo verificado<input class="form-control" type="email" value="${escapeHtml(accountProfile.email)}" readonly></label>
             ${!result.data.complete ? '<p class="alert alert-info">Completa todos tus datos para activar tu cuenta. Mientras tanto puedes explorar el catálogo.</p>' : ''}
             ${Object.entries(accountFieldLabels).map(([key,label]) => `<label class="d-block my-2">${label}<input class="form-control" name="${key}" required maxlength="${key === 'displayName' ? 200 : key === 'phone' ? 40 : key === 'country' ? 100 : 150}" ${key === 'displayName' ? 'autocomplete="name"' : key === 'phone' ? 'type="tel" autocomplete="tel"' : ''} value="${escapeHtml(accountProfile[key] || '')}"></label>`).join('')}
             <label class="d-block my-2"><input type="checkbox" name="termsAccepted" required ${accountProfile.termsAcceptedAt ? 'checked' : ''}> Acepto los <a href="terms.html" target="_blank" rel="noopener">términos y condiciones</a> y el <a href="privacy.html" target="_blank" rel="noopener">aviso de privacidad</a>.</label>
-            <p class="small text-muted">Cada modificación se guarda con la fecha, el usuario y los valores anteriores. El correo corresponde a tu identidad verificada de acceso.</p>
-            <button type="submit" class="btn btn-primary">Guardar cambios</button><p id="account-status" role="status"></p>
-        </form><details class="mt-3"><summary>Historial de la cuenta</summary><p class="small text-muted">Últimos 100 cambios. El historial completo se conserva.</p>${result.data.history.map(entry => `<article class="border rounded p-2 my-2"><strong>${escapeHtml(entry.actorName)}</strong><small class="d-block">${entry.createdAt ? escapeHtml(new Date(entry.createdAt).toLocaleString('es-MX')) : 'Fecha pendiente'}</small>${entry.changes.map(change => `<p class="small mb-1">${escapeHtml(accountFieldLabels[change.field] || change.field)}: ${escapeHtml(change.before || 'Sin dato')} → ${escapeHtml(change.after || 'Sin dato')}</p>`).join('')}</article>`).join('') || '<p>No hay cambios registrados.</p>'}</details>
+            <p class="small text-muted">Revisa tus datos antes de actualizarlos. Puedes consultar los cambios en Historial de mi actividad.</p>
+            <button type="submit" class="btn btn-primary" hidden>Actualizar datos</button> <button type="button" id="account-cancel" class="btn btn-outline-secondary" ${!result.data.complete ? 'hidden' : ''}>Cancelar</button>
+        </form><p id="account-status" role="status" class="small mt-2 mb-0"></p>
+        <button type="button" class="btn btn-outline-primary mt-3 me-2" onclick="showMyContributions()">Mis aportaciones</button>
         <button type="button" class="btn btn-outline-primary mt-3" onclick="showUserHistory()">Historial de mi actividad</button>
         ${isSuperuserActive() ? '<button type="button" class="btn btn-outline-secondary mt-3" onclick="lookupUserHistory()">Consultar historial de un usuario</button>' : ''}
-        <button type="button" class="btn btn-outline-danger mt-3" onclick="this.closest('dialog').close();logout()">Salir de la aplicación</button>`;
+        `;
+        const form = document.getElementById('account-form');
+        const summary = document.getElementById('account-summary');
+        const edit = document.getElementById('account-edit');
+        edit.addEventListener('click', () => {
+            summary.hidden = true; form.hidden = false;
+            form.querySelector('input[name]').focus();
+        });
+        document.getElementById('account-cancel').addEventListener('click', () => {
+            form.reset(); updateSaveVisibility(); form.hidden = true; summary.hidden = false; edit.focus();
+        });
+        const updateSaveVisibility = () => {
+            form.querySelector('[type="submit"]').hidden = ![...form.querySelectorAll('input[name]')].some(input =>
+                input.type === 'checkbox' ? input.checked !== input.defaultChecked : input.value !== input.defaultValue);
+        };
+        form.addEventListener('input', updateSaveVisibility);
+        form.addEventListener('change', updateSaveVisibility);
     } catch (error) {
-        if (auth.currentUser?.uid !== uid || !dialog.open) return;
+        if (auth.currentUser?.uid !== uid || dialog.style.display !== 'block') return;
         document.getElementById('account-content').innerHTML = `<p role="alert">${escapeHtml(getFirebaseErrorMessage(error, 'No se pudo cargar la cuenta.'))}</p><button class="btn btn-outline-primary" onclick="showAccount()">Reintentar</button>`;
     }
 }
@@ -5666,6 +5722,7 @@ async function saveAccount(event) {
     const form = event.target;
     const button = form.querySelector('[type="submit"]');
     const status = document.getElementById('account-status');
+    if (button.hidden) return;
     if (accountUserId !== auth.currentUser?.uid) return;
     const uid = accountUserId;
     const wasIncomplete = window.accountProfileComplete !== true;
@@ -5684,11 +5741,11 @@ async function saveAccount(event) {
         catch (error) { console.warn('No se pudo sincronizar el nombre de acceso.', error.code); }
         document.getElementById('header-account-user').textContent = accountProfile.displayName;
         await showAccount();
-        document.getElementById('account-status').textContent = result.data.saved ? 'Cambios guardados en el historial.' : 'No hay cambios para guardar.';
+        document.getElementById('account-status').textContent = result.data.saved ? 'Datos actualizados. Puedes ver los cambios en Historial de mi actividad.' : 'No hay cambios para guardar.';
         if (wasIncomplete && window.resumeCompletedAccount) await window.resumeCompletedAccount();
         const resume = pendingMemberAction;
         pendingMemberAction = null;
-        if (resume) { document.getElementById('account-dialog').close(); await resume(); }
+        if (resume) { document.getElementById('account-section').style.display = 'none'; await resume(); }
     } catch (error) { status.textContent = getFirebaseErrorMessage(error, 'No se guardaron los cambios.'); }
     finally { button.disabled = false; }
 }
@@ -5711,18 +5768,20 @@ async function showUserHistory(uid = auth.currentUser?.uid, name = 'Mi actividad
         dialog.setAttribute('aria-label', 'Historial privado de usuario'); document.body.append(dialog);
     }
     if (!after) {
-        dialog.innerHTML = `<button class="btn btn-outline-secondary float-end" onclick="this.closest('dialog').close()">Cerrar</button><h2 class="h5">Historial: ${escapeHtml(name)}</h2><p class="small">Solo el titular y el administrador pueden consultar este historial. Registra cambios a partir de su activación.</p><div id="user-history-entries" aria-live="polite"></div><div id="user-history-more"></div>`;
+        dialog.innerHTML = `<button class="btn btn-outline-secondary float-end" onclick="this.closest('dialog').close()">Cerrar</button><h2 class="h5">Historial: ${escapeHtml(name)}</h2><p class="small">Aquí puedes consultar los cambios de tus datos y tu actividad en la app. Solo tú y el administrador pueden verlos. Los movimientos nuevos pueden tardar unos segundos en aparecer.</p><div id="user-history-entries" aria-live="polite"></div><div id="user-history-more"></div>`;
     }
     if (!dialog.open) dialog.showModal();
     const caller = auth.currentUser.uid;
     const more = document.getElementById('user-history-more');
     more.textContent = 'Cargando historial…';
-    const print = value => typeof value === 'object' && value !== null ? JSON.stringify(value) : String(value ?? 'Sin dato');
+    const print = value => value === true ? 'Aceptado' : value === false ? 'No aceptado' : value == null || value === '' ? 'Sin dato' : typeof value === 'object' ? JSON.stringify(value) : String(value);
     try {
         const response = await functionsApi.httpsCallable('obtenerHistorialUsuario')({uid, ...(after ? {after} : {})});
         if (auth.currentUser?.uid !== caller || !dialog.open || !more.isConnected) return;
-        const labels = {created:'Creación',updated:'Modificación',deleted:'Eliminación',account_updated:'Actualización de cuenta',completed:'Completada',started:'Iniciada',failed:'Fallida'};
-        const markup = response.data.entries.map(entry => `<article class="border rounded p-3 my-2"><strong>${escapeHtml(labels[entry.action] || entry.action)}</strong><div class="small">${escapeHtml(entry.createdAt ? new Date(entry.createdAt).toLocaleString('es-MX') : 'Fecha pendiente')} · ${escapeHtml(entry.actorName || entry.actorId || 'Sistema')}${entry.actorId ? ` (${escapeHtml(entry.actorId)})` : ''}</div><div class="small">${escapeHtml(entry.target || '')} ${entry.status ? '· ' + escapeHtml(labels[entry.status] || entry.status) : ''}</div>${(entry.changes || []).map(change => `<details class="mt-2"><summary>${escapeHtml(accountFieldLabels[change.field] || change.field)}</summary><p class="small">Anterior: ${escapeHtml(print(change.before))}</p><p class="small">Nuevo: ${escapeHtml(print(change.after))}</p></details>`).join('')}</article>`).join('');
+        const labels = {created:'Registro creado',updated:'Registro actualizado',deleted:'Registro eliminado',account_updated:'Datos de la cuenta actualizados',completed:'Completada',started:'En proceso',failed:'No se pudo completar',contactarColaboradorTumba:'Mensaje a un colaborador',aportarFotoOUbicacionTumba:'Aportación de foto o ubicación',activarPlusAdmin:'Activación de Plus',enviarNotaError:'Reporte de un problema',resolverNotasErrorAdmin:'Resolución de reportes',auditarDuplicadosAdmin:'Revisión de duplicados',eliminarRegistroAdmin:'Eliminación de un registro',eliminarMiAportacion:'Eliminación de una aportación',actualizarAportacionTumba:'Actualización de una tumba',gestionarAporteAdmin:'Revisión de una aportación',vaciarBaseAdmin:'Eliminación de registros'};
+        const fieldLabels = {...accountFieldLabels,termsAccepted:'Aceptación de términos',termsAcceptedAt:'Fecha de aceptación',updatedAt:'Fecha de actualización',createdAt:'Fecha de creación',nombres:'Nombres',apellidos:'Apellidos',nombre:'Nombre',status:'Estado del registro',imageUrl:'Fotografía',geolocation:'Ubicación',messages:'Mensajes'};
+        const targetLabel = target => ({_accountProfiles:'Cuenta',tumbas:'Tumba',cementerios:'Cementerio',correction_requests:'Solicitud de corrección',_moderation:'Estado de moderación',_entitlements:'Beneficios de la cuenta'}[String(target || '').split('/')[0]] || (target ? 'Registro relacionado' : 'Actividad de la cuenta'));
+        const markup = response.data.entries.map(entry => `<article class="border rounded p-3 my-2"><strong>${escapeHtml(labels[entry.action] || 'Actividad registrada')}</strong><div class="small">${escapeHtml(entry.createdAt ? new Date(entry.createdAt).toLocaleString('es-MX') : 'Fecha pendiente')} · ${escapeHtml(entry.actorName?.startsWith('Sistema') ? 'Sistema' : entry.actorName || 'Usuario')}</div><div class="small">${escapeHtml(targetLabel(entry.target))} ${entry.status ? '· ' + escapeHtml(labels[entry.status] || entry.status) : ''}</div>${(entry.changes || []).map(change => `<details class="mt-2"><summary>${escapeHtml(fieldLabels[change.field] || change.field.replace(/([a-z])([A-Z])/g, '$1 $2').replaceAll('_', ' '))}</summary><p class="small">Anterior: ${escapeHtml(print(change.before))}</p><p class="small">Nuevo: ${escapeHtml(print(change.after))}</p></details>`).join('')}</article>`).join('');
         document.getElementById('user-history-entries').insertAdjacentHTML('beforeend', markup || (!after ? '<p>No hay cambios registrados.</p>' : ''));
         more.innerHTML = response.data.after ? `<button class="btn btn-outline-primary" onclick="showUserHistory(${inlineJsValue(uid)}, ${inlineJsValue(name)}, ${inlineJsValue(response.data.after)})">Ver cambios anteriores</button>` : '';
     } catch (error) {
@@ -5731,6 +5790,7 @@ async function showUserHistory(uid = auth.currentUser?.uid, name = 'Mi actividad
 }
 
 function showModeSelection() {
+    document.getElementById('account-section').style.display = 'none';
     resetTombPhotoBatch();
     document.getElementById('add-tomb-section').style.display = 'none';
     document.getElementById('add-cemetery-section').style.display = 'none';
@@ -5758,11 +5818,7 @@ function showModeSelection() {
 }
 
 function returnToContributionsMenu() {
-    showModeSelection();
-    document.getElementById('my-contributions-submenu').hidden = false;
-    const button = document.querySelector('[aria-controls="my-contributions-submenu"]');
-    button.setAttribute('aria-expanded', 'true');
-    button.focus();
+    showAccount();
 }
 
 function toggleMyContributionsMenu(button) {
@@ -5775,7 +5831,7 @@ async function showMyContributions(view = 'contributions') {
     if (view === 'disputes') return showCorrectionsInbox();
     if (!requireMember(() => showMyContributions(view), 'Inicia sesión para consultar tus aportaciones.')) return;
     const disputes = view === 'disputes';
-    ['mode-selection-card', 'add-tomb-section', 'add-cemetery-section',
+    ['account-section', 'mode-selection-card', 'add-tomb-section', 'add-cemetery-section',
         'search-tomb-section', 'admin-section', 'corrections-section']
         .forEach(id => document.getElementById(id).style.display = 'none');
     document.getElementById('my-contributions-section').style.display = disputes ? 'none' : 'block';
@@ -5791,6 +5847,7 @@ async function showAdminPanel() {
         showToast('❌ No tienes permisos de administrador.', '#ef4444');
         return;
     }
+    document.getElementById('account-section').style.display = 'none';
     document.getElementById('mode-selection-card').style.display = 'none';
     document.getElementById('add-tomb-section').style.display = 'none';
     document.getElementById('add-cemetery-section').style.display = 'none';
@@ -6649,6 +6706,7 @@ async function resetAllAdminData() {
 
 function selectAddTombMode() {
     if (!requireMember(() => selectAddTombMode(), 'Inicia sesión o regístrate para aportar tumbas y fotografías.')) return;
+    document.getElementById('account-section').style.display = 'none';
     document.getElementById('mode-selection-card').style.display = 'none';
     document.getElementById('search-tomb-section').style.display = 'none';
     document.getElementById('admin-section').style.display = 'none';
@@ -6816,6 +6874,7 @@ async function loadSearchMunicipalities() {
 }
 
 function selectSearchTombMode() {
+    document.getElementById('account-section').style.display = 'none';
     document.getElementById('mode-selection-card').style.display = 'none';
     document.getElementById('add-tomb-section').style.display = 'none';
     document.getElementById('add-cemetery-section').style.display = 'none';
@@ -7143,6 +7202,20 @@ function tombOwnerId(tomb) {
     return tomb.contributorId || tomb.userId || '';
 }
 
+let tombSocialShare = null;
+function prepareTombSocialShare(tomb) {
+    if (!tombSocialShare) tombSocialShare = window.BuscaTumbasSocialShare.createController({
+        document, navigator, getCurrentUser: () => auth.currentUser,
+        fetchPhoto: async ({recordId,signal}) => {
+            const user=auth.currentUser;
+            if(!user?.emailVerified) throw Error('Inicia sesión para compartir la foto.');
+            const token=await user.getIdToken();
+            return fetch('/api/tomb-photo?recordId='+encodeURIComponent(recordId), {headers:{Authorization:'Bearer '+token},credentials:'omit',cache:'no-store',signal});
+        }
+    });
+    tombSocialShare.open(tomb).catch(error=>showToast(error.message,'#ef4444'));
+}
+
 let familySearchPreparation = null;
 function prepareForFamilySearch(tombId) {
     if (!requireMember(() => openTombDetail(tombId).then(() => prepareForFamilySearch(tombId)), 'Inicia sesión o regístrate para descargar fotografías.')) return;
@@ -7382,7 +7455,8 @@ function openHistoryContact(entryId, actorName = '', key = '') {
     const fromSearch = document.getElementById('search-tomb-section').style.display === 'block';
     if (!requireMember(async () => {
         if (fromSearch) {
-            document.getElementById('mode-selection-card').style.display = 'none';
+            document.getElementById('account-section').style.display = 'none';
+    document.getElementById('mode-selection-card').style.display = 'none';
             document.getElementById('search-tomb-section').style.display = 'block';
             document.getElementById('back-to-mode-selection').style.display = 'block';
         }
@@ -7437,6 +7511,7 @@ function renderTombDetail() {
                 <div class="record-data-list">${detailDataHtml(tomb)}</div>
                 <nav class="tomb-detail-actions mt-3" aria-label="Acciones de esta tumba">
                     <button type="button" class="btn btn-outline-primary" onclick="openTombAction('familysearch')" ${!tomb.imageUrl ? 'disabled' : ''}>Preparar para FamilySearch</button>
+                    <button type="button" class="btn btn-outline-primary" onclick="openTombAction('share')" ${!tomb.imageUrl ? 'disabled' : ''}>Compartir en redes</button>
                     <button type="button" class="btn btn-outline-primary" onclick="openTombAction('photo')">Añadir fotografía</button>
                     <button type="button" class="btn btn-outline-primary" onclick="openTombAction('edit')">Editar datos</button>
                     <button type="button" class="btn btn-outline-primary" onclick="openTombAction('location')">Añadir ubicación</button>
@@ -7483,12 +7558,13 @@ function renderTombActionCard(title, content) {
 
 function openTombAction(action) {
     const tomb = currentDetailTomb;
-    if (!tomb || !['familysearch', 'photo', 'edit', 'location', 'history'].includes(action)) return;
+    if (!tomb || !['familysearch', 'photo', 'edit', 'location', 'history', 'share'].includes(action)) return;
     const fromSearch = document.getElementById('search-tomb-section').style.display === 'block';
-    const reasons = {familysearch: 'descargar fotografías', photo: 'añadir fotografías', edit: 'editar o proponer correcciones', location: 'añadir una ubicación', history: 'consultar el historial'};
+    const reasons = {share:'compartir la fotografía y la descripción', familysearch: 'descargar fotografías', photo: 'añadir fotografías', edit: 'editar o proponer correcciones', location: 'añadir una ubicación', history: 'consultar el historial'};
     if (!requireMember(async () => {
         if (fromSearch) {
-            document.getElementById('mode-selection-card').style.display = 'none';
+            document.getElementById('account-section').style.display = 'none';
+    document.getElementById('mode-selection-card').style.display = 'none';
             document.getElementById('search-tomb-section').style.display = 'block';
             document.getElementById('back-to-mode-selection').style.display = 'block';
         }
@@ -7496,6 +7572,7 @@ function openTombAction(action) {
         if (currentDetailTomb?.id === tomb.id) openTombAction(action);
     }, `Inicia sesión o regístrate para ${reasons[action]}.`)) return;
     if (action === 'familysearch') return prepareForFamilySearch(tomb.id);
+    if (action === 'share') return prepareTombSocialShare(tomb);
     currentTombAction = action;
     if (action === 'edit') {
         if (tombOwnerId(tomb) === auth.currentUser.uid || isSuperuserActive()) {
@@ -7744,7 +7821,7 @@ async function showCorrectionsInbox() {
     if (!requireMember(() => showCorrectionsInbox(), 'Inicia sesión para consultar tus mensajes.')) return;
     const user = auth.currentUser;
     if (!user) return;
-    ['mode-selection-card', 'add-tomb-section', 'add-cemetery-section',
+    ['account-section', 'mode-selection-card', 'add-tomb-section', 'add-cemetery-section',
         'search-tomb-section', 'admin-section', 'my-contributions-section', 'my-disputes-section']
         .forEach(id => document.getElementById(id).style.display = 'none');
     document.getElementById('corrections-section').style.display = 'block';
@@ -7767,14 +7844,16 @@ async function showCorrectionsInbox() {
 let correctionInboxItems = [];
 
 function updateMessagesCount() {
-    const disputes = new Set(myDuplicateDisputes.map(item => item.id));
-    if (isSuperuserActive()) adminDuplicateDisputes.forEach(item => disputes.add(item.id));
-    const count = auth.currentUser?.emailVerified ? correctionInboxItems.length + disputes.size : 0;
+    const user = auth.currentUser;
+    const disputes = new Set(myDuplicateDisputes.filter(item => item.status === 'pending').map(item => item.id));
+    if (isSuperuserActive()) adminDuplicateDisputes.filter(item => item.status === 'pending').forEach(item => disputes.add(item.id));
+    const unread = correctionInboxItems.filter(item => item.status === 'open' && !(item.readBy || []).includes(user?.uid)).length;
+    const count = user?.emailVerified ? unread + disputes.size : 0;
     const badge = document.getElementById('messages-total-count');
     if (badge) {
         badge.textContent = String(count);
         badge.hidden = count === 0;
-        badge.setAttribute('aria-label', `${count} conversaciones y disputas`);
+        badge.setAttribute('aria-label', `${count} mensajes y disputas pendientes`);
     }
 }
 
@@ -7785,12 +7864,12 @@ function renderCorrectionInbox() {
     const requests = [...correctionInboxItems]
             .sort((a, b) => (b.updatedAt?.toMillis?.() || 0) - (a.updatedAt?.toMillis?.() || 0));
         list.innerHTML = requests.length ? requests.map(request => `
-            <div class="correction-card ${(request.readBy || []).includes(user.uid) ? '' : 'unread'}"
+            <div class="correction-card ${request.status === 'open' && !(request.readBy || []).includes(user.uid) ? 'unread' : ''}"
                 onclick="openCorrectionThread(${inlineJsValue(request.id)})">
                 <div class="d-flex justify-content-between gap-2">
-                    <strong>${escapeHtml(request.tombName)}</strong>
+                    <strong>${request.status === 'open' && !(request.readBy || []).includes(user.uid) ? '<span class="badge text-bg-primary me-2">Sin leer</span>' : ''}${escapeHtml(request.tombName)}</strong>
                     <span class="badge ${request.status === 'open' ? 'text-bg-warning' : 'text-bg-success'}">
-                        ${request.status === 'open' ? 'Pendiente' : 'Resuelta'}
+                        ${request.status === 'open' ? 'Por atender' : 'Resuelta'}
                     </span>
                 </div>
                 <div class="small text-muted mt-1">${escapeHtml(request.description)}</div>
@@ -7969,13 +8048,14 @@ window.onload = () => {
     window.resumeCompletedAccount = () => handleAuthenticatedState(auth.currentUser);
     auth.onAuthStateChanged(handleAuthenticatedState);
     async function handleAuthenticatedState(user) {
-        document.getElementById('account-dialog')?.close();
+        document.getElementById('account-section').style.display = 'none';
         document.getElementById('user-history-dialog')?.close();
         await refreshAccountIdentity();
         if (auth.currentUser?.uid !== user?.uid) return;
         correctionInboxItems = [];
         updateMessagesCount();
         familySearchPreparation?.close();
+        tombSocialShare?.close();
         platformAdminUid = null;
         updateSuperuserIndicator();
         moderationUnsubscribe?.();
@@ -7996,11 +8076,6 @@ window.onload = () => {
             }
             document.getElementById('auth-screen').style.display = 'none';
             document.getElementById('main-app').style.display = 'flex';
-            if (!window.accountProfileComplete) {
-                showModeSelection();
-                await showAccount();
-                return;
-            }
             document.getElementById('logout-btn').style.display = auth.currentUser ? 'block' : 'none';
             const verifiedBadge = document.getElementById('verified-account-badge');
             verifiedBadge.innerHTML = `<i class="fas fa-circle-check me-1"></i>
@@ -8042,7 +8117,8 @@ window.onload = () => {
                 correctionListenerUnsubscribe = null;
             }
             document.getElementById('main-app').style.display = 'flex';
-            document.getElementById('mode-selection-card').style.display = 'none';
+            document.getElementById('account-section').style.display = 'none';
+    document.getElementById('mode-selection-card').style.display = 'none';
             document.getElementById('add-tomb-section').style.display = 'none';
             document.getElementById('add-cemetery-section').style.display = 'none';
             document.getElementById('search-tomb-section').style.display = 'none';
@@ -8085,6 +8161,8 @@ window.onload = () => {
 <nav id="bottom-navigation" aria-label="Navegación principal">
     <button type="button" onclick="continueBrowsing();showModeSelection()"><i class="fas fa-home" aria-hidden="true"></i><span>Inicio</span></button>
     <button type="button" onclick="showCorrectionsInbox()"><i class="fas fa-comments" aria-hidden="true"></i><span>Mensajes <span id="messages-total-count" class="badge text-bg-danger" hidden aria-live="polite">0</span></span></button>
+    <button type="button" onclick="showAccount()"><i class="fas fa-user-circle" aria-hidden="true"></i><span>Cuenta</span></button>
+    <button type="button" data-app-share hidden><i class="fas fa-share-nodes" aria-hidden="true"></i><span>Compartir</span></button>
 </nav>
 <footer class="app-legal-links">
     <a href="terms.html">Términos y condiciones</a><a href="privacy.html">Privacidad</a>

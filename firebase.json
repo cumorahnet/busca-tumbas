@@ -53,10 +53,29 @@
       "branding/**",
       "ios/**",
       "IOS.md",
-      "storage.cors.json"
+      "storage.cors.json",
+      "apply-history-card.mjs",
+      ".idea/**"
     ],
-    "rewrites": [{"source": "/api/tomb-photo", "function": {"functionId": "descargarFotografiaTumba", "region": "us-central1"}}],
+    "rewrites": [
+      {
+        "source": "/api/tomb-photo",
+        "function": {
+          "functionId": "descargarFotografiaTumba",
+          "region": "us-central1"
+        }
+      }
+    ],
     "headers": [
+      {
+        "source": "/mobile/**",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-cache, max-age=0, must-revalidate"
+          }
+        ]
+      },
       {
         "source": "/mobile/install.js",
         "headers": [

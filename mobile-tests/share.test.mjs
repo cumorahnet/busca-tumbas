@@ -14,7 +14,7 @@ function setup(navigator = {}) {
             focus() { this.focused = true; }, select() { this.selected = true; }});
         return nodes.get(id);
     };
-    const actions = [node('auth'), node('header')];
+    const actions = [node('auth'), node('header'), node('footer')];
     vm.runInNewContext(source, {navigator, document: {getElementById: node, querySelectorAll: () => actions},
         window: {location: {href: 'https://example.invalid/?token=private#account'}}});
     return {node, actions};
@@ -56,4 +56,13 @@ test('cancelled sharing closes quietly while unavailable sharing falls back to t
         await s.actions[0].events.click();
         assert.equal(s.node('app-share-dialog').open, name !== 'AbortError');
     }
+});
+
+test('footer share is available to guests without requiring a session',async()=>{
+    const html=fs.readFileSync('index.html','utf8');
+    const footer=html.match(/<nav id="bottom-navigation"[^]*?<\/nav>/)[0];
+    assert.match(footer, /data-app-share/);
+    const calls=[];const s=setup({share:async data=>calls.push(data)});
+    await s.actions[2].events.click();
+    assert.equal(calls[0].url,publicUrl);
 });

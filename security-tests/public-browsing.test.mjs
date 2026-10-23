@@ -6,10 +6,10 @@ const html = fs.readFileSync('index.html', 'utf8');
 function setup(user = null) {
     const nodes = new Map();
     const get = id => {
-        if (!nodes.has(id)) nodes.set(id, {style: {}, textContent: '', focus() { this.focused = true; }});
+        if (!nodes.has(id)) nodes.set(id, {style: {}, textContent: '', open:false, showModal() {this.open=true;}, close() {this.open=false;}, focus() { this.focused = true; }});
         return nodes.get(id);
     };
-    const ctx = {auth: {currentUser: user}, document: {getElementById: get}, closeRecordDetail() {}, setAuthMode() {}};
+    const ctx = {window:{accountProfileComplete:true}, auth: {currentUser: user}, document: {getElementById: get}, closeRecordDetail() {}, setAuthMode() {}};
     vm.createContext(ctx);
     vm.runInContext(html.slice(html.indexOf('let pendingMemberAction = null;'), html.indexOf('async function loadRecentTombs()')), ctx);
     return {ctx, get};
@@ -19,6 +19,10 @@ test('guest actions request a session and preserve the action; cancel discards i
     let resumed = false;
     ctx.action = () => { resumed = true; };
     assert.equal(ctx.requireMember(ctx.action, 'Para descargar'), false);
+    assert.equal(get('member-access-dialog').open, true);
+    assert.notEqual(get('auth-screen').style.display, 'flex');
+    ctx.continueMemberAccess();
+    assert.equal(get('member-access-dialog').open, false);
     assert.equal(get('auth-screen').style.display, 'flex');
     assert.equal(get('auth-action-reason').textContent, 'Para descargar');
     vm.runInContext('pendingMemberAction()', ctx);
@@ -27,6 +31,15 @@ test('guest actions request a session and preserve the action; cancel discards i
     assert.equal(get('auth-screen').style.display, 'none');
     assert.equal(vm.runInContext('pendingMemberAction', ctx), null);
 });
+test('declining registration keeps browsing and clears the pending action', () => {
+    const {ctx, get} = setup();
+    ctx.requireMember(() => {}, 'Para modificar');
+    ctx.cancelMemberAccess();
+    assert.equal(get('member-access-dialog').open, false);
+    assert.notEqual(get('auth-screen').style.display, 'flex');
+    assert.equal(vm.runInContext('pendingMemberAction', ctx), null);
+});
+
 test('only verified accounts pass the contribution/download gate', () => {
     assert.equal(setup({uid: 'a', emailVerified: false}).ctx.requireMember(() => {}, 'Verifica tu cuenta'), false);
     assert.equal(setup({uid: 'a', emailVerified: true}).ctx.requireMember(() => {}, ''), true);

@@ -14,5 +14,7 @@ www/
 *.keystore
 keystore.properties
 .record-audit/
+.idea/
+/apply-history-card.mjs
 
 ios/App/App/GoogleService-Info.plist

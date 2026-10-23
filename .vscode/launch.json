@@ -2,9 +2,9 @@
     "configurations": [
         {
             "type": "chrome",
-            "name": "http://127.0.0.1:3000/index.html",
+            "name": "Busca Tumbas - Go Live",
             "request": "launch",
-            "url": "http://127.0.0.1:3000/index.html"
+            "url": "http://localhost:5500/index.html"
         }
     ]
 }
