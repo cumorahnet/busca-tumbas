@@ -64,7 +64,7 @@ try {
             assert.equal(await page.locator('.home-actions button').count(), 2);
             assert.equal(await page.locator('.primary-navigation').isVisible(), false);
             assert.equal(await page.locator('#auth-screen').isVisible(), false);
-            assert.equal(await page.locator('#bottom-navigation button').count(), 4);
+            assert.deepEqual(await page.locator('#bottom-navigation button').allTextContents(), ['Inicio', 'Mensajes 0']);
             await page.screenshot({path: `.browser-check/public-home-${engine}.png`, fullPage: true});
             await page.evaluate(async () => {
                 const snapshot = await catalogCollection('tumbas').get();
