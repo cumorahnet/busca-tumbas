@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="es" data-temporary-install="on">
 <head>
+    <link rel="stylesheet" href="assets/admin-console.css">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="application-name" content="Busca Tumbas">
@@ -953,6 +954,11 @@
             font-size: 0.66rem;
             text-transform: uppercase;
         }
+        .tomb-data-summary { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:.35rem 1rem; margin:0; }
+        .tomb-data-summary .record-data-item { padding:0; border-radius:0; background:transparent; min-width:0; overflow-wrap:anywhere; line-height:1.35; }
+        .tomb-data-summary dt { color:#64748b; font-size:.75rem; font-weight:400; }
+        .tomb-data-summary dd { margin:0 0 .3rem; font-size:.9rem; }
+        @media(max-width:380px) { .tomb-data-summary { grid-template-columns:minmax(0,1fr); } }
         .correction-thread {
             max-height: 280px;
             overflow-y: auto;
@@ -1364,9 +1370,8 @@
         <img class="app-brand-logo app-brand-auth" src="assets/brand/logo.png" width="88" height="88" alt="Logotipo de Busca Tumbas">
         <h5 class="fw-bold mb-4">Bienvenido a Busca Tumbas</h5>
         <p id="auth-action-reason" class="small">Inicia sesión o crea una cuenta para aportar.</p>
-        <button type="button" class="btn btn-outline-secondary mb-3" onclick="continueBrowsing()">Seguir explorando sin cuenta</button>
+        <button type="button" id="auth-continue-browsing" class="btn btn-outline-primary w-100 py-2 mb-3" onclick="continueBrowsing();showModeSelection()">Seguir navegando sin cuenta</button>
         <button type="button" class="version-pill border-0" id="auth-version"></button>
-        <div class="text-center mb-2"><button type="button" class="btn btn-outline-primary btn-sm" data-pwa-install-action hidden><i class="fas fa-download me-2" aria-hidden="true"></i><span data-pwa-install-label>Instalar app</span></button></div>
         <div class="text-center mb-3"><button type="button" class="btn btn-outline-secondary btn-sm" data-app-share hidden><i class="fas fa-share-nodes me-2" aria-hidden="true"></i>Compartir app</button></div>
         <div class="app-legal-links"><a href="terms.html">Términos y condiciones</a><a href="privacy.html">Privacidad</a><a href="delete-account.html">Eliminar mi cuenta</a></div>
         <div id="auth-verification-status" class="alert alert-info py-2" style="display:none; font-size:0.8rem;"
@@ -1504,7 +1509,6 @@
 
 <section id="account-section" class="account-page" style="display:none;" aria-label="Cuenta"><div id="account-view"></div>        <details id="account-menu"><summary>Más opciones de la cuenta</summary>
 <div class="d-flex flex-wrap align-items-center gap-2 mt-2 mt-md-0">
-                <button type="button" class="btn btn-outline-primary btn-sm" data-pwa-install-action hidden><i class="fas fa-download me-2" aria-hidden="true"></i><span data-pwa-install-label>Instalar app</span></button>
                 <button type="button" class="btn btn-outline-secondary btn-sm" data-app-share hidden><i class="fas fa-share-nodes me-2" aria-hidden="true"></i>Compartir app</button>
                 <span class="badge text-bg-success">Catálogo colaborativo</span>
                 <span id="superuser-badge" class="badge rounded-pill text-bg-warning" style="display:none;" role="status"><i class="fas fa-user-shield me-1"></i>Superusuario</span>
@@ -1582,6 +1586,9 @@
             <button type="button" class="btn menu-action menu-action-featured" onclick="selectSearchTombMode()"><span class="menu-action-icon"><i class="fas fa-search" aria-hidden="true"></i></span><span class="menu-action-copy"><strong>Buscar tumbas</strong><small>Encuentra una historia.</small></span></button>
             <button type="button" class="btn menu-action" onclick="selectAddTombMode()"><span class="menu-action-icon"><i class="fas fa-camera" aria-hidden="true"></i></span><span class="menu-action-copy"><strong>Aportar</strong><small>Añade tumbas y fotografías.</small></span></button>
         </nav>
+        <div class="home-app-tools mt-3 mb-3">
+            <button type="button" id="home-install-app" class="btn btn-outline-primary" data-pwa-install-action hidden><i class="fas fa-download me-2" aria-hidden="true"></i><span data-pwa-install-label>Instalar app</span></button>
+        </div>
         <section class="recent-tombs" aria-labelledby="recent-tombs-title"><h3 id="recent-tombs-title" class="h5 fw-bold">Lápidas recientes</h3><div id="recent-tombs-list" aria-live="polite"></div></section>
 
     </div>
@@ -1711,7 +1718,7 @@
         <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
             <div>
                 <h5 class="fw-bold mb-1">Panel administrativo</h5>
-                <p class="section-subtitle">Estadísticas y mantenimiento de la base colaborativa.</p>
+                <p class="section-subtitle">Superusuario · Gestión de cuentas, lápidas y panteones.</p>
             </div>
             <button class="btn btn-outline-primary" onclick="loadAdminStats()">
                 <i class="fas fa-sync-alt me-1"></i>Actualizar
@@ -1720,6 +1727,7 @@
         <div id="admin-summary" class="row g-2 mb-3"></div>
         <div id="admin-duplicate-disputes" class="mb-3" aria-live="polite"></div>
         <div id="admin-content"></div>
+        <details class="admin-maintenance mt-4"><summary>Mantenimiento avanzado</summary>
         <hr class="my-4">
         <div class="alert alert-danger">
             <strong>Zona crítica:</strong> elimina todos los registros y fotografías de prueba.
@@ -1727,6 +1735,7 @@
         <button class="btn btn-danger" onclick="resetAllAdminData()">
             <i class="fas fa-trash-alt me-1"></i>Vaciar toda la base
         </button>
+        </details>
     </div>
 
     <!-- Add Tomb Section -->
@@ -6228,6 +6237,8 @@ async function openAdminDocumentDispute(caseId) {
 }
 
 async function loadAdminStats() {
+    const disputesPanel = document.getElementById('admin-duplicate-disputes');
+    if (disputesPanel) document.getElementById('admin-section').append(disputesPanel);
     renderDuplicateDisputes();
     const summary = document.getElementById('admin-summary');
     const content = document.getElementById('admin-content');
@@ -6326,6 +6337,7 @@ async function loadAdminStats() {
         renderAdminCatalog();
         await loadErrorReviewsAdmin(content, errorCases);
         await loadPendingCemeteriesAdmin(content);
+        mountAdminConsole();
     } catch (error) {
         content.innerHTML = `<div class="alert alert-danger">${escapeHtml(getFirebaseErrorMessage(error, 'Ocurrió un error al cargar las estadísticas administrativas.'))}</div>`;
     }
@@ -7262,8 +7274,8 @@ function detailDataHtml(tomb) {
         ['Fecha de aportación', formatTimestamp(tomb.timestamp)]
     ];
     return fields.map(([label, value]) => `
-        <div class="record-data-item"><small>${escapeHtml(label)}</small>
-        <span>${escapeHtml(value) || 'No disponible'}</span></div>`).join('');
+        <div class="record-data-item"><dt>${escapeHtml(label)}</dt>
+        <dd>${escapeHtml(value) || 'No disponible'}</dd></div>`).join('');
 }
 
 async function openTombDetail(tombId) {
@@ -7503,12 +7515,14 @@ function renderTombDetail() {
         <div class="record-detail-grid">
             <div>${recordDetailPhotoHtml(tomb.imageUrl, 'Fotografía del registro')}
                 <div class="contributor-summary">Aportado por <strong>${escapeHtml(tomb.contributor_name || 'Colaborador')}</strong></div>
-                <section class="border rounded p-3 mt-3"><h6>Fotografías de esta tumba</h6>
-                    <div id="tomb-extra-gallery" aria-live="polite">Cargando fotografías…</div>
-                </section>
+                <div class="mt-2">
+<button type="button" class="btn btn-outline-primary" aria-expanded="false" aria-controls="tomb-extra-photos" onclick="const panel = document.getElementById('tomb-extra-photos'); panel.hidden = !panel.hidden; this.setAttribute('aria-expanded', String(!panel.hidden)); this.textContent = panel.hidden ? 'Ver fotos extras' : 'Ocultar fotos extras';">Ver fotos extras</button>
+<section id="tomb-extra-photos" class="mt-2" aria-label="Fotos extras" hidden>
+<div id="tomb-extra-gallery" aria-live="polite">Cargando fotos...</div>
+</section></div>
             </div>
             <div>
-                <div class="record-data-list">${detailDataHtml(tomb)}</div>
+                <dl class="tomb-data-summary">${detailDataHtml(tomb)}</dl>
                 <nav class="tomb-detail-actions mt-3" aria-label="Acciones de esta tumba">
                     <button type="button" class="btn btn-outline-primary" onclick="openTombAction('familysearch')" ${!tomb.imageUrl ? 'disabled' : ''}>Preparar para FamilySearch</button>
                     <button type="button" class="btn btn-outline-primary" onclick="openTombAction('share')" ${!tomb.imageUrl ? 'disabled' : ''}>Compartir en redes</button>
@@ -8168,5 +8182,6 @@ window.onload = () => {
     <a href="terms.html">Términos y condiciones</a><a href="privacy.html">Privacidad</a>
     <a href="delete-account.html">Solicitar eliminación de cuenta</a>
 </footer>
+<script src="assets/admin-console.js"></script>
 </body>
 </html>

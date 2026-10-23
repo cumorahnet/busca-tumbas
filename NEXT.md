@@ -1,8 +1,6 @@
 # Próximas tareas
 
-Estado actual: distribucion por la pagina web. APK y Play Store permanecen pausados por indicacion del usuario.
-
-> Generado por CDC a partir de la sesión `session-20261022192453-e6f2ef`.
+> Generado por CDC a partir de la sesión `session-20261023032511-a6faba`.
 
 ## Pendientes
 
@@ -16,6 +14,6 @@ Estado actual: distribucion por la pagina web. APK y Play Store permanecen pausa
 
 ## Riesgos que deben revisarse
 
-- Se modificaron archivos de configuración o infraestructura (.browser-check/cloud-functions-probe/package.json). Valida compatibilidad y despliegue.
-- La sesión contiene 64 cambios. Considera dividir la revisión o el commit para reducir el riesgo de integración.
+- Se modificaron archivos de configuración o infraestructura (android/.gradle/8.14.3/checksums/checksums.lock, android/.gradle/8.14.3/executionHistory/executionHistory.bin, android/.gradle/8.14.3/executionHistory/executionHistory.lock, android/.gradle/8.14.3/fileChanges/last-build.bin, android/.gradle/8.14.3/fileHashes/fileHashes.bin). Valida compatibilidad y despliegue.
+- La sesión contiene 57 cambios. Considera dividir la revisión o el commit para reducir el riesgo de integración.
 - El análisis incluye archivos que ya tenían cambios al iniciar la sesión.

@@ -5,8 +5,8 @@ import {spawn} from 'node:child_process';
 const source=await fs.readFile('www/index.html','utf8');
 const head=source.match(/<head>([^]*?)<\/head>/)[1].replace(/<script\b[^>]*>[^]*?<\/script>/gi,'');
 const dialog=source.match(/<dialog id="pwa-install-dialog"[^]*?<\/dialog>/)[0];
-const auth=source.slice(source.indexOf('<div id="auth-screen">'),source.indexOf('<!-- VISOR DE IMAGEN -->'));
-const fixture=`<!doctype html><html lang="es" data-temporary-install="on"><head>${head}<style>#auth-screen{display:flex!important}</style></head><body>${dialog}${auth}<script src="/mobile/install.js?v=1"></script><script>
+const home=source.slice(source.indexOf('<!-- Mode Selection Card -->'),source.indexOf('<div class="card-custom" id="add-cemetery-section">'));
+const fixture=`<!doctype html><html lang="es" data-temporary-install="on"><head>${head}<style>#mode-selection-card{display:flex!important}</style></head><body>${dialog}${home}<script src="/mobile/install.js?v=1"></script><script>
 (async()=>{
  await navigator.serviceWorker.ready;
  if(!navigator.serviceWorker.controller)await new Promise(resolve=>navigator.serviceWorker.addEventListener('controllerchange',resolve,{once:true}));

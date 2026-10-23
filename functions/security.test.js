@@ -8,6 +8,7 @@ class HttpsError extends Error {
 }
 const context = {exports: {}, require: (name) => {
   const modules = {
+    "./admin-console":require("./admin-console"),
     "./account-profile":require("./account-profile"), "./user-audit": deps => ({...require("./user-audit")(deps),run:async (_operation, request, handler) => {deps.requireUser(request);return handler(request);}}),
     "./tomb-history":require("./tomb-history"), "./photo-download":require("./photo-download"), "./public-catalog":require("./public-catalog"),
     "./record-writes": require("./record-writes"),
@@ -37,7 +38,7 @@ for (const [name, handler] of Object.entries(context.exports)) {
     }
   });
 }
-for (const name of ["auditarDuplicadosAdmin", "activarPlusAdmin", "obtenerEstadisticasAdmin", "eliminarRegistroAdmin", "vaciarBaseAdmin", "obtenerNotasErrorAdmin", "resolverNotasErrorAdmin", "obtenerComparacionDisputa", "resolverDisputaDuplicado"]) {
+for (const name of ["listarUsuariosAdmin", "gestionarUsuarioAdmin", "obtenerHistorialRegistroAdmin", "auditarDuplicadosAdmin", "activarPlusAdmin", "obtenerEstadisticasAdmin", "eliminarRegistroAdmin", "vaciarBaseAdmin", "obtenerNotasErrorAdmin", "resolverNotasErrorAdmin", "obtenerComparacionDisputa", "resolverDisputaDuplicado"]) {
   test(name + " rejects a verified non-admin", async () => {
     await assert.rejects(context.exports[name]({auth: {uid: "user", token: {email: "user@example.com", email_verified: true, profile_complete:true}}}), {code: "permission-denied"});
   });

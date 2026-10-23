@@ -15,6 +15,7 @@ function setup(ownerClaims = {}, candidates = []) {
     runTransaction: async (callback) => callback({get: async (ref) => ref.path.includes("/") ? snapshot : {docs: candidates},
       set: (ref, data) => writes.push([ref.path, data]), update: (ref, data) => writes.push([ref.path, data])})};
   const modules = {
+    "./admin-console":require("./admin-console"),
     "./account-profile":require("./account-profile"), "./user-audit":()=>({run:(_operation,request,handler)=>handler(request)}),
     "./superuser-password": require("./superuser-password"),
     "firebase-functions/v2/firestore": {onDocumentWrittenWithAuthContext: (_options, handler) => handler},

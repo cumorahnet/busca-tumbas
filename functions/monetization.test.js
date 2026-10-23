@@ -12,6 +12,7 @@ function setup() {
   const db = {collection: name => ({where() { return this; }, get: async () => ({docs: name === "tumbas" ? Array.from({length:20}, (_,i)=>({id:String(i)})) : [], size:0}), doc: () => ({})}),
     runTransaction: async fn => fn({get: async () => ({exists: true, data:()=>stored}), set: (_ref, data) => {stored={...stored,...data};}})};
   const modules = {
+    "./admin-console":require("./admin-console"),
     "./account-profile":require("./account-profile"), "./user-audit":()=>({run:(_operation,request,handler)=>handler(request)}),
     "./tomb-history":require("./tomb-history"), "./photo-download":require("./photo-download"), "./public-catalog":require("./public-catalog"),
     "./record-writes": () => ({}), "./superuser-password": {elevated: token => token.platform_admin === true}, "./monetization-config.json": policy,

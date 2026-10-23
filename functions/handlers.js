@@ -21,6 +21,14 @@ setGlobalOptions({
 
 const db = getFirestore();
 const userAudit = require("./user-audit")({db, FieldValue, HttpsError, requireUser, requireAdmin});
+const adminConsole = require("./admin-console")({db, auth:{
+  listUsers:(...args) => getAuth().listUsers(...args), getUser:uid => getAuth().getUser(uid),
+  updateUser:(...args) => getAuth().updateUser(...args), deleteUser:uid => getAuth().deleteUser(uid),
+  revokeRefreshTokens:uid => getAuth().revokeRefreshTokens(uid),
+}, FieldValue, HttpsError, requireAdmin});
+exports.listarUsuariosAdmin = onCall({enforceAppCheck:false}, adminConsole.users);
+exports.gestionarUsuarioAdmin = onCall({auditOperation:"gestionarUsuarioAdmin", enforceAppCheck:false}, adminConsole.manageUser);
+exports.obtenerHistorialRegistroAdmin = onCall({enforceAppCheck:false}, adminConsole.history);
 function onCall(options, handler) {
   const {auditOperation, ...settings} = options;
   return firebaseOnCall(settings, auditOperation ? request => userAudit.run(auditOperation, request, handler) : handler);
@@ -366,6 +374,10 @@ exports.obtenerEstadisticasAdmin = onCall(
           contributorId,
           type: "tomb",
           person: data.nombre_finado || "Sin nombre",
+          birth: data.fecha_nacimiento || "",
+          death: data.fecha_defuncion || "",
+          locality: data.colonia_panteon || "",
+          cemeteryId: data.cemetery_id || "",
           cemetery: data.nombre_panteon || "Sin panteón",
           state: data.estado_panteon || "",
           municipality: data.municipio_panteon || "",
@@ -393,6 +405,7 @@ exports.obtenerEstadisticasAdmin = onCall(
           contributorId,
           type: "cemetery",
           person: "Aporte de panteón",
+          locality: data.locality || "",
           cemetery: data.name || "Sin nombre",
           state: data.state || "",
           municipality: data.municipality || "",
@@ -468,7 +481,10 @@ exports.eliminarMiAportacion = onCall({auditOperation:"eliminarMiAportacion", en
   const snapshot = await reference.get();
   if (!snapshot.exists) throw new HttpsError("not-found", "La aportación ya no existe.");
   const record = snapshot.data();
-  await userAudit.remove(reference, request);
+  await userAudit.remove(reference, request, recordType === "cemetery" ? async transaction => {
+    const linked = await transaction.get(db.collection("tumbas").where("cemetery_id", "==", recordId).limit(1));
+    if (!linked.empty) throw new HttpsError("failed-precondition", "Este panteón tiene tumbas vinculadas. Reasígnalas antes de eliminarlo.");
+  } : null);
   if (recordType === "tomb") {
     const owner = record.userId || record.contributorId;
     if (owner) await getStorage().bucket()

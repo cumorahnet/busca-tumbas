@@ -11,6 +11,7 @@ const functions = names.map(name => {
     assert.ok(match, name);
     return match[0];
 }).join('\n');
+const memberDialogFunctions = ['continueMemberAccess', 'cancelMemberAccess'].map(name => original.match(new RegExp('function ' + name + '\\([^]*?\\n}'))[0]).join('\n');
 const server = http.createServer(async (req, res) => {
     try {
         const url = new URL(req.url, 'http://localhost');
@@ -59,12 +60,18 @@ try {
                 document.getElementById('splash-screen').style.display = 'none';
             });
             await page.addScriptTag({content: functions});
-            await page.evaluate(() => {continueBrowsing(); showModeSelection();});
+            await page.addScriptTag({content: memberDialogFunctions});
+            await page.evaluate(() => { document.getElementById('auth-screen').style.display = 'flex'; });
+            assert.equal(await page.locator('#auth-continue-browsing').isVisible(), true);
+            assert.equal(await page.locator('#auth-screen [data-pwa-install-action]').count(), 0);
+            assert.equal(await page.locator('#mode-selection-card [data-pwa-install-action]').count(), 1);
+            await page.screenshot({path: `.browser-check/welcome-guest-${engine}.png`, fullPage: true});
+            await page.getByRole('button', {name: 'Seguir navegando sin cuenta'}).click();
             await page.getByRole('button', {name: /María Hernández/}).waitFor();
             assert.equal(await page.locator('.home-actions button').count(), 2);
             assert.equal(await page.locator('.primary-navigation').isVisible(), false);
             assert.equal(await page.locator('#auth-screen').isVisible(), false);
-            assert.deepEqual(await page.locator('#bottom-navigation button').allTextContents(), ['Inicio', 'Mensajes 0']);
+            assert.deepEqual(await page.locator('#bottom-navigation button').allTextContents(), ['Inicio', 'Mensajes 0', 'Cuenta', 'Compartir']);
             await page.screenshot({path: `.browser-check/public-home-${engine}.png`, fullPage: true});
             await page.evaluate(async () => {
                 const snapshot = await catalogCollection('tumbas').get();
@@ -82,8 +89,10 @@ try {
             await page.screenshot({path: `.browser-check/search-summary-${engine}.png`, fullPage: true});
             await page.evaluate(() => showModeSelection());
             await page.getByRole('button', {name: /^Aportar/}).click();
+            assert.equal(await page.locator('#member-access-dialog').isVisible(), true);
+            await page.locator('#member-access-dialog').getByRole('button', {name:'Continuar', exact:true}).click();
             assert.equal(await page.locator('#auth-screen').isVisible(), true);
-            await page.getByRole('button', {name: 'Seguir explorando sin cuenta'}).click();
+            await page.getByRole('button', {name: 'Seguir navegando sin cuenta'}).click();
             assert.equal(await page.locator('#auth-screen').isVisible(), false);
             await page.evaluate(() => {
                 window.currentDetailTomb = {id: 'example', userId: 'owner', nombre_finado: 'María', nombres:'María', apellido_paterno:'Hernández', fecha_nacimiento:'1920', fecha_defuncion:'2000', edad_defuncion:80, nombre_panteon:'Panteón de la comunidad', pais_panteon:'México', estado_panteon:'Jalisco', municipio_panteon:'Guadalajara', colonia_panteon:'Centro', imageUrl: 'assets/brand/logo.png'};
@@ -91,12 +100,13 @@ try {
                 document.getElementById('record-detail-modal').style.display = 'flex';
             });
             assert.equal(await page.locator('#tomb-extra-photo-file').count(), 0);
-            assert.equal(await page.locator('.tomb-detail-actions button').count(), 4);
+            assert.equal(await page.locator('.tomb-detail-actions button').count(), 5);
             for(const label of ['Nacimiento','Defunción','Edad al fallecer','País','Estado','Municipio','Colonia / poblado','Ubicación de la tumba','Ubicación del panteón','Fecha de aportación']) assert.ok((await page.locator('#record-detail-content').textContent()).includes(label),label);
             await page.getByRole('button', {name: 'Preparar para FamilySearch'}).click();
+            await page.locator('#member-access-dialog').getByRole('button', {name:'Continuar', exact:true}).click();
             assert.equal(await page.locator('#auth-screen').isVisible(), true);
             assert.match(await page.locator('#auth-action-reason').textContent(), /descargar/);
-            await page.getByRole('button', {name: 'Seguir explorando sin cuenta'}).click();
+            await page.getByRole('button', {name: 'Seguir navegando sin cuenta'}).click();
             await page.evaluate(() => {
                 auth.currentUser={uid:'owner',emailVerified:true,getIdToken:async()=> 'test-token'};
                 window.loadBenefitStatus=()=>{};
@@ -106,7 +116,7 @@ try {
             assert.equal(await page.locator('#tomb-extra-photo-file').isVisible(),true);
             assert.equal(await page.locator('[data-tomb-edit]').count(),0);
             await page.getByRole('button',{name:'Volver',exact:true}).click();
-            assert.equal(await page.locator('.tomb-detail-actions button').count(),5);
+            assert.equal(await page.locator('.tomb-detail-actions button').count(),6);
             await page.addScriptTag({url:'http://127.0.0.1:'+server.address().port+'/mobile/familysearch.js'});
             await page.route('https://example.test/**',async route=>route.fulfill({contentType:'image/png',body:await fs.readFile('assets/brand/logo.png')}));
             await page.evaluate(()=>{

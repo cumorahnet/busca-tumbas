@@ -1,5 +1,92 @@
 # CHANGELOG
 
+## 23/10/2026 · Panel administrativo y acceso público
+
+- Panel de superusuario con usuarios, lápidas, panteones y pendientes separados; búsquedas, paginación, edición e historiales.
+- Publicación de las funciones administrativas y limpieza respaldada de mensajes, disputas y reportes de prueba.
+- Ficha de difuntos compacta y fotos extras desplegables.
+- Acceso visible desde la bienvenida para seguir navegando sin cuenta y botón de instalación en la página principal.
+- Pruebas de permisos, mantenimiento y vistas de escritorio y móvil.
+
+<!-- cdc-session:session-20261023032511-a6faba -->
+## Sesión 22/10/2026, 11:01 p.m.
+
+### Resumen
+
+La sesión se enfocó en: Revisar y resolver los riesgos detectados en este cierre.. Se detectaron 57 cambio(s): 13 creado(s), 44 modificado(s) y 0 eliminado(s).
+
+### Cambios
+
+- .browser-check/account-change-check.mjs
+- .browser-check/account-mobile.png
+- .browser-check/current-public-header.png
+- .browser-check/footer-public-current.png
+- .browser-check/guest-explanation.png
+- .browser-check/header-session-1280.png
+- .browser-check/header-session-390.png
+- .browser-check/tomb-social-share-false.png
+- .browser-check/tomb-social-share-true.png
+- .firebase/hosting..cache
+- .gitignore
+- ANDROID.md
+- CHANGELOG.md
+- NEXT.md
+- android/.gradle/8.14.3/checksums/checksums.lock
+- android/.gradle/8.14.3/executionHistory/executionHistory.bin
+- android/.gradle/8.14.3/executionHistory/executionHistory.lock
+- android/.gradle/8.14.3/fileChanges/last-build.bin
+- android/.gradle/8.14.3/fileHashes/fileHashes.bin
+- android/.gradle/8.14.3/fileHashes/fileHashes.lock
+- android/.gradle/8.14.3/gc.properties
+- android/.gradle/buildOutputCleanup/buildOutputCleanup.lock
+- android/.gradle/buildOutputCleanup/outputFiles.bin
+- android/.gradle/file-system.probe
+- android/.gradle/vcs-1/gc.properties
+- android/app/build.gradle
+- android/app/capacitor.build.gradle
+- android/app/src/main/assets/capacitor.config.json
+- android/app/src/main/assets/capacitor.plugins.json
+- android/app/src/main/assets/public/cordova.js
+- android/app/src/main/assets/public/cordova_plugins.js
+- android/app/src/main/assets/public/index.html
+- android/app/src/main/assets/public/mobile/app.css
+- android/app/src/main/assets/public/mobile/app.js
+- android/app/src/main/assets/public/mobile/catalog.js
+- android/app/src/main/assets/public/mobile/familysearch.js
+- android/app/src/main/assets/public/mobile/share.js
+- android/app/src/main/assets/public/version.json
+- android/app/src/main/res/xml/config.xml
+- android/capacitor-cordova-android-plugins/build.gradle
+- android/capacitor-cordova-android-plugins/cordova.variables.gradle
+- android/capacitor-cordova-android-plugins/src/main/AndroidManifest.xml
+- android/capacitor.settings.gradle
+- firebase.json
+- index.html
+- mobile-tests/share.test.mjs
+- mobile-tests/tomb-share.test.mjs
+- mobile/app.css
+- mobile/share.js
+- mobile/tomb-share.js
+- scripts/google-auth-config.mjs
+- scripts/verify-account-navigation.mjs
+- security-tests/account-access.test.mjs
+- security-tests/message-count.test.mjs
+- security-tests/public-browsing.test.mjs
+- www/index.html
+- www/mobile/app.css
+
+### Riesgos
+
+- Se modificaron archivos de configuración o infraestructura (android/.gradle/8.14.3/checksums/checksums.lock, android/.gradle/8.14.3/executionHistory/executionHistory.bin, android/.gradle/8.14.3/executionHistory/executionHistory.lock, android/.gradle/8.14.3/fileChanges/last-build.bin, android/.gradle/8.14.3/fileHashes/fileHashes.bin). Valida compatibilidad y despliegue.
+- La sesión contiene 57 cambios. Considera dividir la revisión o el commit para reducir el riesgo de integración.
+- El análisis incluye archivos que ya tenían cambios al iniciar la sesión.
+
+### Próximo paso
+
+- Revisar y resolver los riesgos detectados en este cierre.
+- Ejecutar las pruebas automatizadas y validar el comportamiento afectado.
+- Revisar el diff y preparar un commit descriptivo.
+
 ## Ajustes web verificados - 2026-10-22
 
 - Cuenta integrada en la pagina con edicion explicita, aportaciones personales e historial de actividad unificado.

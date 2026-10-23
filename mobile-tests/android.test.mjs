@@ -56,6 +56,7 @@ test('Background releases camera and reconnect clears offline notice',()=>{
 test('Android packages scripts, CSS, legal pages and fonts locally',()=>{
     const html=fs.readFileSync('www/index.html','utf8');
     for(const match of html.matchAll(/<(?:script|link)\b[^>]*(?:src|href)="([^"]+)"/g)){
+        if(/^<link\b(?=[^>]*\brel="canonical")/i.test(match[0]))continue;
         assert.ok(!match[1].startsWith('https://'), match[1]);
         assert.ok(fs.existsSync(path.join('www',match[1].split(/[?#]/)[0])),match[1]);
     }

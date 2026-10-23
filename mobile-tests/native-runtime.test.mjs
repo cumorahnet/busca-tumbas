@@ -3,6 +3,16 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
 
+test('the Android build preserves public URLs while bundling remote dependencies', () => {
+    const html=fs.readFileSync('www/index.html','utf8');
+    const publicUrl='https://buscatumbas.cumorahnet.com/';
+    assert.ok(html.includes(`<link rel="canonical" href="${publicUrl}">`));
+    assert.ok(html.includes(`<meta property="og:url" content="${publicUrl}">`));
+    assert.ok(html.includes(`<meta property="og:image" content="${publicUrl}assets/brand/icon-512.png?v=3">`));
+    assert.ok(html.includes(`id="app-share-url" class="form-control mb-3" type="url" value="${publicUrl}" readonly`));
+    assert.match(html, /<script src="vendor\/[a-f0-9]{20}\.js"><\/script>/);
+});
+
 test('the packaged runtime initializes Google plugin proxies from the native bridge',async()=>{
     const html=fs.readFileSync('www/index.html','utf8');
     const runtimeTag='<script src="vendor/capacitor.js"></script>';

@@ -99,10 +99,11 @@ module.exports = ({db, FieldValue, HttpsError, requireUser, requireAdmin}) => {
     [...users].filter(validUid).forEach(owner => writer.set(events(owner).doc(audit.id),entry));
     writer.delete(snapshot.ref);
   }
-  async function remove(ref, request) {
+  async function remove(ref, request, beforeDelete) {
     await db.runTransaction(async transaction => {
       const snapshot = await transaction.get(ref);
       if (!snapshot.exists) throw new HttpsError("not-found","El registro ya no existe.");
+      if (beforeDelete) await beforeDelete(transaction, snapshot);
       addDeletion(transaction,snapshot,request);
     });
   }

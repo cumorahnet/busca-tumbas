@@ -9,6 +9,8 @@
     "xcode": "^3.0.1"
   },
   "scripts": {
+    "test:admin": "node --test functions/admin-console.test.js functions/security.test.js functions/moderation.test.js",
+    "test:admin:ui": "npm run build:android && node scripts/verify-admin-console.mjs",
     "audit:duplicates": "node scripts/check-existing-duplicates.mjs",
     "storage:permissions:check": "node scripts/storage-cross-service.mjs --check",
     "storage:permissions:fix": "node scripts/storage-cross-service.mjs --apply",
