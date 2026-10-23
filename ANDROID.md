@@ -6,6 +6,8 @@ Proyecto Capacitor 8 que empaqueta la interfaz web localmente. Android Studio ab
 
 Requiere Node 22 o superior, Android Studio 2025.2.1 o superior, Java 21 y Android SDK 36. El script detecta el JDK incluido en Android Studio y el SDK estándar en Windows. También respeta JAVA_HOME y ANDROID_HOME.
 
+Si Android Studio incluye Java 25, el script busca un JDK 21 en la caché `~/.gradle/jdks`. Si no lo encuentra, configura JAVA_HOME con la instalación de Java 21.
+
 ```powershell
 npm ci
 npm run android:open
@@ -27,9 +29,11 @@ Resultado: `android/app/build/outputs/apk/debug/app-debug.apk`. Es de prueba y u
 npm run android:bundle
 ```
 
-Resultado: `android/app/build/outputs/bundle/release/app-release.aab`. Este comando genera un AAB **sin firma de publicación**. Para publicar, en Android Studio elige **Build > Generate Signed App Bundle / APK > Android App Bundle**, selecciona el módulo app y crea o elige tu clave de carga. Guarda la clave y contraseñas fuera del repositorio. No se crea una clave de publicación automáticamente.
+Resultado: `android/app/build/outputs/bundle/release/app-release.aab`, firmado con la clave de carga configurada. Copia `android/keystore.properties.example` a `android/keystore.properties` y configura la ruta de tu clave existente, su alias y sus contraseñas localmente. El archivo de contraseñas y los archivos .jks/.keystore están ignorados por Git. También se admiten las variables ANDROID_KEYSTORE_FILE, ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS y ANDROID_KEY_PASSWORD, con prioridad sobre el archivo. Las rutas relativas parten de android/; en Windows utiliza / en las rutas del archivo properties.
 
-La configuración apunta a API 36, Android mínimo 7 (API 24), versionCode 1 y versionName 2.14.0. Incrementa versionCode para cada carga nueva y actualiza versionName al publicar una versión distinta.
+La compilación release se detiene si faltan datos de firma o el archivo de clave; no sustituye la clave existente ni utiliza la de depuración. Guarda una copia de seguridad de la clave y sus credenciales fuera del repositorio. La clave de carga debe coincidir con la registrada en Play Console. Play App Signing utiliza su certificado de firma de aplicaciones para la distribución; ese certificado es el que debes registrar también en Firebase para el acceso con Google.
+
+La configuración apunta a API 36, Android mínimo 7 (API 24), versionCode 2 y versionName 2.14.1. Incrementa versionCode para cada carga nueva y actualiza versionName al publicar una versión distinta.
 
 ## Integraciones y permisos
 
@@ -61,6 +65,7 @@ Fuentes:
 
 ## Verificación realizada
 
+- 21/10/2026: `npm run android:bundle` completado con clave de carga existente (alias buscatumbas-upload). AAB 2.14.1 (2) firmado en android/app/build/outputs/bundle/release/app-release.aab y comprobado con jarsigner (`jar verified`). SHA-256 del archivo: 0C5BA5E627110C62F116593C5729FCE9704F00689B912930591B4DF0303CEA5D. La aceptación de la clave registrada y del paquete debe comprobarse al cargarlo a Play Console.
 - APK debug y AAB release compilados correctamente.
 - Seis pruebas automáticas de navegación y empaquetado aprobadas con `npm run test:android`.
 - Android Lint del módulo app: 0 errores y 19 advertencias; incluye recursos de la plantilla sin utilizar. Capacitor utiliza además su baseline de lint.

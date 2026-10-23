@@ -1,5 +1,236 @@
 # CHANGELOG
 
+<!-- cdc-session:session-20261022021238-6dfc3b -->
+## Sesión 21/10/2026, 10:02 p.m.
+
+### Resumen
+
+La sesión se enfocó en: Revisar y resolver los riesgos detectados en este cierre.. Se detectaron 46 cambio(s): 13 creado(s), 33 modificado(s) y 0 eliminado(s).
+
+### Cambios
+
+- .browser-check/history-ui.txt
+- .browser-check/live-public-home.mjs
+- .browser-check/live-public-home.png
+- .browser-check/live-wildcards.png
+- .browser-check/public-home-chromium.png
+- .browser-check/public-home-webkit.png
+- .browser-check/record-full-chromium.png
+- .browser-check/record-full-webkit.png
+- .browser-check/safe-chromium-android-buttons.png
+- .browser-check/safe-chromium-iphone-keyboard.png
+- .browser-check/safe-chromium-iphone-landscape.png
+- .browser-check/safe-chromium-iphone-portrait.png
+- .browser-check/safe-chromium-small-phone.png
+- .browser-check/safe-webkit-android-buttons.png
+- .browser-check/safe-webkit-iphone-keyboard.png
+- .browser-check/safe-webkit-iphone-landscape.png
+- .browser-check/safe-webkit-iphone-portrait.png
+- .browser-check/safe-webkit-small-phone.png
+- .browser-check/search-summary-chromium.png
+- .browser-check/search-summary-webkit.png
+- .browser-check/tomb-detail-flow.txt
+- .firebase/hosting..cache
+- NEXT.md
+- README.md
+- firebase.json
+- functions/index.js
+- functions/moderation.test.js
+- functions/monetization.test.js
+- functions/photo-download.js
+- functions/photo-download.test.js
+- functions/record-writes.js
+- functions/security.test.js
+- functions/superuser-login.test.js
+- functions/tomb-history.js
+- functions/tomb-history.test.js
+- index.html
+- mobile-tests/familysearch.test.mjs
+- mobile/app.css
+- mobile/familysearch.js
+- package.json
+- scripts/verify-public-home.mjs
+- scripts/verify-tomb-history-download.mjs
+- security-tests/search.test.mjs
+- www/index.html
+- www/mobile/app.css
+- www/mobile/familysearch.js
+
+### Riesgos
+
+- Se modificaron archivos de configuración o infraestructura (package.json). Valida compatibilidad y despliegue.
+- La sesión contiene 46 cambios. Considera dividir la revisión o el commit para reducir el riesgo de integración.
+- El análisis incluye archivos que ya tenían cambios al iniciar la sesión.
+- Cambió la definición de dependencias; valida instalación y seguridad.
+
+### Próximo paso
+
+- Revisar y resolver los riesgos detectados en este cierre.
+- Ejecutar las pruebas automatizadas y validar el comportamiento afectado.
+- Revisar el diff y preparar un commit descriptivo.
+
+<!-- cdc-session:session-20261021203928-3985ef -->
+## Sesión 21/10/2026, 04:50 p.m.
+
+### Resumen
+
+La sesión se enfocó en: Revisar y resolver los riesgos detectados en este cierre.. Se detectaron 55 cambio(s): 9 creado(s), 46 modificado(s) y 0 eliminado(s).
+
+### Cambios
+
+- .browser-check/compare-domains.mjs
+- .browser-check/public-pwa-share-chromium.png
+- .browser-check/public-pwa-share-webkit.png
+- .browser-check/safe-chromium-android-buttons.png
+- .browser-check/safe-chromium-iphone-keyboard.png
+- .browser-check/safe-chromium-iphone-landscape.png
+- .browser-check/safe-chromium-iphone-portrait.png
+- .browser-check/safe-chromium-small-phone.png
+- .browser-check/safe-webkit-android-buttons.png
+- .browser-check/safe-webkit-iphone-keyboard.png
+- .browser-check/safe-webkit-iphone-landscape.png
+- .browser-check/safe-webkit-iphone-portrait.png
+- .browser-check/safe-webkit-small-phone.png
+- .browser-check/verify-public-pwa.mjs
+- .firebase/hosting..cache
+- ANDROID.md
+- CHANGELOG.md
+- NEXT.md
+- README.md
+- android/.gradle/8.14.3/checksums/checksums.lock
+- android/.gradle/8.14.3/executionHistory/executionHistory.bin
+- android/.gradle/8.14.3/executionHistory/executionHistory.lock
+- android/.gradle/8.14.3/fileChanges/last-build.bin
+- android/.gradle/8.14.3/fileHashes/fileHashes.bin
+- android/.gradle/8.14.3/fileHashes/fileHashes.lock
+- android/.gradle/buildOutputCleanup/buildOutputCleanup.lock
+- android/.gradle/buildOutputCleanup/outputFiles.bin
+- android/.gradle/file-system.probe
+- android/app/build.gradle
+- android/app/capacitor.build.gradle
+- android/app/src/main/assets/capacitor.config.json
+- android/app/src/main/assets/capacitor.plugins.json
+- android/app/src/main/assets/public/cordova.js
+- android/app/src/main/assets/public/cordova_plugins.js
+- android/app/src/main/assets/public/index.html
+- android/app/src/main/res/xml/config.xml
+- android/capacitor-cordova-android-plugins/build.gradle
+- android/capacitor-cordova-android-plugins/cordova.variables.gradle
+- android/capacitor-cordova-android-plugins/src/main/AndroidManifest.xml
+- android/capacitor.settings.gradle
+- android/keystore.properties
+- android/keystore.properties.example
+- firestore-debug.log
+- index.html
+- mobile-tests/share.test.mjs
+- mobile/app.css
+- mobile/share.js
+- scripts/build-android.mjs
+- scripts/gradle-android.mjs
+- scripts/verify-mobile-safe-areas.mjs
+- version.json
+- www/index.html
+- www/mobile/app.css
+- www/mobile/share.js
+- www/version.json
+
+### Riesgos
+
+- Se modificaron archivos de configuración o infraestructura (android/.gradle/8.14.3/checksums/checksums.lock, android/.gradle/8.14.3/executionHistory/executionHistory.bin, android/.gradle/8.14.3/executionHistory/executionHistory.lock, android/.gradle/8.14.3/fileChanges/last-build.bin, android/.gradle/8.14.3/fileHashes/fileHashes.bin). Valida compatibilidad y despliegue.
+- La sesión contiene 55 cambios. Considera dividir la revisión o el commit para reducir el riesgo de integración.
+- El análisis incluye archivos que ya tenían cambios al iniciar la sesión.
+
+### Próximo paso
+
+- Revisar y resolver los riesgos detectados en este cierre.
+- Ejecutar las pruebas automatizadas y validar el comportamiento afectado.
+- Revisar el diff y preparar un commit descriptivo.
+
+## v2.30.0 — Distribución web por liga
+
+- Corregida la liga de compartir y los metadatos para conservar el dominio existente https://buscatumbas.cumorahnet.com/; comprobado que este dominio y el de Firebase sirven el mismo contenido. La PWA ya estaba publicada e instalable antes de esta actualización.
+- Añadido Compartir app en acceso y cabecera, con diálogo nativo del navegador y alternativa de copiar la liga pública.
+- Mensaje de instalación actualizado para distribuir la web/PWA sin depender del lanzamiento en Play Store; añadida descripción para compartir.
+- Play Store queda en pausa; se conserva la configuración de firma existente.
+- Publicada en https://buscatumbas-2e7cc.web.app/. Validación HTTPS de los archivos publicados y pruebas en Chromium/WebKit de instalación web, service worker y compartir/copiar. Comprobados diez escenarios de áreas seguras y pruebas locales móviles/cliente sin fallos.
+
+## 21/10/2026 — Firma de carga Google Play
+
+- Añadida firma release desde android/keystore.properties o variables de entorno; se impide generar release sin configuración completa o con alias de depuración.
+- Plantilla sin secretos y documentación de firma actualizadas. La clave existente se conserva fuera del repositorio.
+- El script Gradle detecta Java 21 en Android Studio o en la caché de JDK de Gradle, conservando la prioridad de JAVA_HOME explícito.
+- Validada la detección de credenciales incompletas; tras completarlas localmente, `npm run android:bundle` finalizó correctamente y produjo el AAB 2.14.1 (2) firmado con la clave existente. `jarsigner -verify` confirmó la firma. No se ha cargado a Play Console.
+
+## 21/10/2026 — Validación de pendientes
+
+- Revisados los cambios de versión Android 2.14.1 (2) y separados de los ajustes locales del IDE para preparar el commit.
+- Preparación web y compilación nativa de depuración completadas correctamente.
+- Pruebas locales de cliente, móvil, búsqueda, administración, superusuario, permisos de Storage y Functions sin fallos.
+- Diez escenarios visuales móviles validados en Chromium/WebKit; interacción colaborativa de FamilySearch comprobada en WebKit.
+- NEXT.md actualizado con evidencia de validación y alcance del commit propuesto.
+- Nueve pruebas de reglas e integración Firestore/Storage aprobadas con emuladores; Java de Android Studio configurado solo para el proceso de prueba.
+
+<!-- cdc-session:session-20261021171322-755bf9 -->
+## Sesión 21/10/2026, 02:24 p.m.
+
+### Resumen
+
+La sesión se enfocó en: Revisar el diff y preparar un commit descriptivo.. Se detectaron 38 cambio(s): 0 creado(s), 38 modificado(s) y 0 eliminado(s).
+
+### Cambios
+
+- .browser-check/safe-chromium-android-buttons.png
+- .browser-check/safe-chromium-iphone-keyboard.png
+- .browser-check/safe-chromium-iphone-landscape.png
+- .browser-check/safe-chromium-iphone-portrait.png
+- .browser-check/safe-chromium-small-phone.png
+- .browser-check/safe-webkit-android-buttons.png
+- .browser-check/safe-webkit-iphone-keyboard.png
+- .browser-check/safe-webkit-iphone-landscape.png
+- .browser-check/safe-webkit-iphone-portrait.png
+- .browser-check/safe-webkit-small-phone.png
+- .firebase/hosting..cache
+- NEXT.md
+- android/.gradle/8.14.3/checksums/checksums.lock
+- android/.gradle/8.14.3/executionHistory/executionHistory.bin
+- android/.gradle/8.14.3/executionHistory/executionHistory.lock
+- android/.gradle/8.14.3/fileChanges/last-build.bin
+- android/.gradle/8.14.3/fileHashes/fileHashes.bin
+- android/.gradle/8.14.3/fileHashes/fileHashes.lock
+- android/.gradle/8.14.3/fileHashes/resourceHashesCache.bin
+- android/.gradle/8.14.3/gc.properties
+- android/.gradle/buildOutputCleanup/buildOutputCleanup.lock
+- android/.gradle/buildOutputCleanup/outputFiles.bin
+- android/.gradle/file-system.probe
+- android/.gradle/vcs-1/gc.properties
+- android/app/build.gradle
+- android/app/capacitor.build.gradle
+- android/app/src/main/assets/capacitor.config.json
+- android/app/src/main/assets/capacitor.plugins.json
+- android/app/src/main/assets/public/cordova.js
+- android/app/src/main/assets/public/cordova_plugins.js
+- android/app/src/main/assets/public/index.html
+- android/app/src/main/res/xml/config.xml
+- android/capacitor-cordova-android-plugins/build.gradle
+- android/capacitor-cordova-android-plugins/cordova.variables.gradle
+- android/capacitor-cordova-android-plugins/src/main/AndroidManifest.xml
+- android/capacitor.settings.gradle
+- scripts/verify-mobile-safe-areas.mjs
+- www/index.html
+
+### Riesgos
+
+- Se modificaron archivos de configuración o infraestructura (android/.gradle/8.14.3/checksums/checksums.lock, android/.gradle/8.14.3/executionHistory/executionHistory.bin, android/.gradle/8.14.3/executionHistory/executionHistory.lock, android/.gradle/8.14.3/fileChanges/last-build.bin, android/.gradle/8.14.3/fileHashes/fileHashes.bin). Valida compatibilidad y despliegue.
+- Se modificó código fuente sin cambios detectados en archivos de prueba. Verifica la cobertura antes de cerrar el trabajo.
+- La sesión contiene 38 cambios. Considera dividir la revisión o el commit para reducir el riesgo de integración.
+- El análisis incluye archivos que ya tenían cambios al iniciar la sesión.
+
+### Próximo paso
+
+- Revisar y resolver los riesgos detectados en este cierre.
+- Ejecutar las pruebas automatizadas y validar el comportamiento afectado.
+- Revisar el diff y preparar un commit descriptivo.
+
 <!-- cdc-session:session-20261020174929-050531 -->
 ## Sesión 20/10/2026, 01:40 p.m.
 

@@ -7440,9 +7440,8 @@ function renderTombDetail() {
                     <button type="button" class="btn btn-outline-primary" onclick="openTombAction('photo')">Añadir fotografía</button>
                     <button type="button" class="btn btn-outline-primary" onclick="openTombAction('edit')">Editar datos</button>
                     <button type="button" class="btn btn-outline-primary" onclick="openTombAction('location')">Añadir ubicación</button>
+                    ${auth.currentUser?.emailVerified && (tombOwnerId(tomb) === auth.currentUser.uid || isSuperuserActive()) ? '<button type="button" class="btn btn-outline-primary" onclick="openTombAction(\'history\')">Historial</button>' : ''}
                 </nav>
-                ${auth.currentUser?.emailVerified && (tombOwnerId(tomb) === auth.currentUser.uid || isSuperuserActive()) ? '<button type="button" class="btn btn-outline-secondary mt-3" onclick="toggleTombHistory(this)" aria-expanded="false" aria-controls="tomb-history-panel">Historial</button>' : ''}
-                <section id="tomb-history-panel" class="border rounded p-3 mt-3" aria-labelledby="tomb-history-title" hidden><h6 id="tomb-history-title">Historial de cambios</h6><p class="small text-muted">Qué cambió, cuándo y quién lo hizo. Los cambios nuevos pueden tardar unos segundos en aparecer.</p><div id="tomb-history-list" aria-live="polite"></div><div id="tomb-history-more"></div></section>
                 ${adminRecordActionsHtml('tomb', tomb.id)}
             </div>
         </div>`;
@@ -7484,9 +7483,9 @@ function renderTombActionCard(title, content) {
 
 function openTombAction(action) {
     const tomb = currentDetailTomb;
-    if (!tomb || !['familysearch', 'photo', 'edit', 'location'].includes(action)) return;
+    if (!tomb || !['familysearch', 'photo', 'edit', 'location', 'history'].includes(action)) return;
     const fromSearch = document.getElementById('search-tomb-section').style.display === 'block';
-    const reasons = {familysearch: 'descargar fotografías', photo: 'añadir fotografías', edit: 'editar o proponer correcciones', location: 'añadir una ubicación'};
+    const reasons = {familysearch: 'descargar fotografías', photo: 'añadir fotografías', edit: 'editar o proponer correcciones', location: 'añadir una ubicación', history: 'consultar el historial'};
     if (!requireMember(async () => {
         if (fromSearch) {
             document.getElementById('mode-selection-card').style.display = 'none';
@@ -7510,6 +7509,14 @@ function openTombAction(action) {
             <label class="form-label" for="correction-description">Datos que deben corregirse</label>
             <textarea id="correction-description" class="form-control mb-3" rows="5" maxlength="1500" placeholder="Indica el dato actual y cómo debe quedar."></textarea>
             <button type="button" class="btn btn-primary" onclick="submitCorrectionProposal()">Enviar propuesta de corrección</button>`);
+        return;
+    }
+    if (action === 'history') {
+        renderTombActionCard('Historial de cambios', `
+            <p class="small text-muted">Qué cambió, cuándo y quién lo hizo. Los cambios nuevos pueden tardar unos segundos en aparecer.</p>
+            <div id="tomb-history-list" aria-live="polite"></div>
+            <div id="tomb-history-more"></div>`);
+        loadTombHistory();
         return;
     }
     if (action === 'location') {

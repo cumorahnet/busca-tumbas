@@ -106,7 +106,7 @@ try {
             assert.equal(await page.locator('#tomb-extra-photo-file').isVisible(),true);
             assert.equal(await page.locator('[data-tomb-edit]').count(),0);
             await page.getByRole('button',{name:'Volver',exact:true}).click();
-            assert.equal(await page.locator('.tomb-detail-actions button').count(),4);
+            assert.equal(await page.locator('.tomb-detail-actions button').count(),5);
             await page.addScriptTag({url:'http://127.0.0.1:'+server.address().port+'/mobile/familysearch.js'});
             await page.route('https://example.test/**',async route=>route.fulfill({contentType:'image/png',body:await fs.readFile('assets/brand/logo.png')}));
             await page.evaluate(()=>{

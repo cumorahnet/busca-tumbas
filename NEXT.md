@@ -1,11 +1,10 @@
 # Próximas tareas
 
-> Generado por CDC a partir de la sesión `session-20261021203928-3985ef`.
+> Generado por CDC a partir de la sesión `session-20261022021238-6dfc3b`.
 
 ## Pendientes
 
-- Prioridad: pulir y validar la app web/PWA en Firebase antes de preparar nuevas distribuciones.
-- APK y pruebas de Play Store en pausa por indicación del usuario.
+- No se registraron pendientes explícitos.
 
 ## Próximos pasos
 
@@ -15,6 +14,7 @@
 
 ## Riesgos que deben revisarse
 
-- Se modificaron archivos de configuración o infraestructura (android/.gradle/8.14.3/checksums/checksums.lock, android/.gradle/8.14.3/executionHistory/executionHistory.bin, android/.gradle/8.14.3/executionHistory/executionHistory.lock, android/.gradle/8.14.3/fileChanges/last-build.bin, android/.gradle/8.14.3/fileHashes/fileHashes.bin). Valida compatibilidad y despliegue.
-- La sesión contiene 55 cambios. Considera dividir la revisión o el commit para reducir el riesgo de integración.
+- Se modificaron archivos de configuración o infraestructura (package.json). Valida compatibilidad y despliegue.
+- La sesión contiene 46 cambios. Considera dividir la revisión o el commit para reducir el riesgo de integración.
 - El análisis incluye archivos que ya tenían cambios al iniciar la sesión.
+- Cambió la definición de dependencias; valida instalación y seguridad.
