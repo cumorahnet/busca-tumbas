@@ -1,5 +1,42 @@
 # CHANGELOG
 
+<!-- cdc-session:session-20261024045806-b5e329 -->
+## Sesión 23/10/2026, 11:03 p.m.
+
+### Resumen
+
+La sesión se enfocó en: Revisar y resolver los riesgos detectados en este cierre.. Se detectaron 17 cambio(s): 0 creado(s), 17 modificado(s) y 0 eliminado(s).
+
+### Cambios
+
+- .browser-check/public-home-chromium.png
+- .browser-check/public-home-webkit.png
+- .browser-check/record-full-chromium.png
+- .browser-check/record-full-webkit.png
+- .browser-check/search-summary-chromium.png
+- .browser-check/search-summary-webkit.png
+- .browser-check/welcome-guest-chromium.png
+- .browser-check/welcome-guest-webkit.png
+- .firebase/hosting..cache
+- CHANGELOG.md
+- android/app/build.gradle
+- index.html
+- ios/App/App.xcodeproj/project.pbxproj
+- scripts/verify-public-home.mjs
+- version.json
+- www/index.html
+- www/version.json
+
+### Riesgos
+
+- Se modificaron archivos de configuración o infraestructura (android/app/build.gradle, ios/App/App.xcodeproj/project.pbxproj). Valida compatibilidad y despliegue.
+- El análisis incluye archivos que ya tenían cambios al iniciar la sesión.
+
+### Próximo paso
+
+- Revisar y resolver los riesgos detectados en este cierre.
+- Revisar el diff y preparar un commit descriptivo.
+
 <!-- cdc-session:session-20261024043814-c4f9f2 -->
 ## Sesión 23/10/2026, 10:40 p.m.
 
@@ -6115,3 +6152,10 @@ Se cerró una sesión de trabajo del proyecto buscatumbas. Se detectaron 18 camb
 - Conserva cinco intentos por cuenta y agrega veinte por dirección IP cada quince minutos. Cuentas inexistentes, inhabilitadas y sin rol reciben el mismo rechazo.
 - Publicadas la función autorizarSuperusuario y Hosting. Verificación HTTPS: el sitio coincide con el código v2.16 y el endpoint procesa el acceso sin sesión previa y rechaza credenciales inválidas.
 - 54 pruebas aprobadas, lint y paquete Android preparado. No se cambiaron contraseñas ni reglas.
+
+## v2.34.0 · 24/10/2026 · Registro de iglesias y otros lugares
+
+- El selector muestra una indicación explícita para elegir el tipo de lugar, con flecha desplegable y ejemplos de nombre según el tipo.
+- La comparación de iglesias, hospitales, conventos y otros lugares consulta los aportes comunitarios sin depender de la carga del catálogo de panteones INEGI.
+- Verificación: cinco pruebas de selección y comparación aprobadas, incluida la caída del catálogo INEGI; recursos web preparados en www/ y versiones sincronizadas de web, Android e iOS.
+- Firebase Hosting publicado y verificado por HTTPS en buscatumbas.lat y buscatumbas-2e7cc.web.app: ambos sirven la versión 2.34.0 y el formulario corregido. 17 pruebas aprobadas antes de publicar. Sin instalación ni generación de APK.
