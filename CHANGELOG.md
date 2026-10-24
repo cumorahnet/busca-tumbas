@@ -1,5 +1,115 @@
 # CHANGELOG
 
+<!-- cdc-session:session-20261024043814-c4f9f2 -->
+## Sesión 23/10/2026, 10:40 p.m.
+
+### Resumen
+
+La sesión se enfocó en: Revisar y resolver los riesgos detectados en este cierre.. Se detectaron 0 cambio(s): 0 creado(s), 0 modificado(s) y 0 eliminado(s).
+
+### Cambios
+
+- No se detectaron archivos modificados.
+
+### Riesgos
+
+- No se detectaron archivos modificados. Confirma que el trabajo se haya guardado dentro del proyecto y fuera de carpetas ignoradas.
+- El análisis incluye archivos que ya tenían cambios al iniciar la sesión.
+
+### Próximo paso
+
+- Revisar y resolver los riesgos detectados en este cierre.
+- Definir el siguiente objetivo de trabajo del proyecto.
+
+<!-- cdc-session:session-20261024015545-23eb9a -->
+## Sesión 23/10/2026, 09:07 p.m.
+
+### Resumen
+
+La sesión se enfocó en: Revisar y resolver los riesgos detectados en este cierre.. Se detectaron 25 cambio(s): 4 creado(s), 21 modificado(s) y 0 eliminado(s).
+
+### Cambios
+
+- .firebase/hosting..cache
+- .record-audit/domain-buscatumbas-lat.json
+- .record-audit/domain-storage-cors-before.json
+- AGENTS.md
+- ANDROID.md
+- CHANGELOG.md
+- DOMAIN-MIGRATION.md
+- README.md
+- android/app/build.gradle
+- firebase.json
+- index.html
+- ios/App/App.xcodeproj/project.pbxproj
+- mobile-tests/native-runtime.test.mjs
+- mobile-tests/share.test.mjs
+- mobile/app.css
+- mobile/share.js
+- mobile/tomb-share.js
+- scripts/verify-tomb-history-download.mjs
+- storage.cors.json
+- version.json
+- www/index.html
+- www/mobile/app.css
+- www/mobile/share.js
+- www/mobile/tomb-share.js
+- www/version.json
+
+### Riesgos
+
+- Se modificaron archivos de configuración o infraestructura (DOMAIN-MIGRATION.md, android/app/build.gradle, ios/App/App.xcodeproj/project.pbxproj). Valida compatibilidad y despliegue.
+- El análisis incluye archivos que ya tenían cambios al iniciar la sesión.
+
+### Próximo paso
+
+- Revisar y resolver los riesgos detectados en este cierre.
+- Ejecutar las pruebas automatizadas y validar el comportamiento afectado.
+- Revisar el diff y preparar un commit descriptivo.
+
+## v2.32.0 · 23/10/2026 · Recuperación del desplazamiento
+
+- Se limitó la protección contra la recarga por gesto al scroll raíz y se cambió a `overscroll-behavior-y: contain`, conservando el scroll táctil y con rueda.
+- Se añadió una comprobación de scroll con rueda y gesto táctil; la validación de áreas seguras ahora evalúa el contenido visible del encabezado fijo. Versiones web, Android e iOS sincronizadas; Android: código 5; iOS: compilación 3.
+- Comprobaciones aprobadas: `npm run test:mobile:layout` (Chromium y WebKit) y `npm run test:android` (47 pruebas). Firebase Hosting desplegado y verificado en `buscatumbas.lat` y `buscatumbas-2e7cc.web.app`; ambos sirven la versión 2.32.0 y la protección de scroll. No se generó un APK.
+
+## v2.31.0 · 23/10/2026 · Preparación de buscatumbas.lat
+
+- Dominio público actualizado en metadatos, enlaces para compartir la app y fotografías, documentación y comprobaciones.
+- Dominio registrado en Firebase Hosting y autorizado en Authentication. CORS del almacenamiento ampliado conservando los orígenes anteriores.
+- Versiones web, Android e iOS sincronizadas. Android: código 4; iOS: compilación 2.
+- Incluye el bloqueo del gesto de recarga y el mensaje motivador aprobados previamente.
+- Recursos web generados con `npm run build:android`; 20 pruebas de enlaces compartidos, runtime nativo y autenticación Google aprobadas.
+- Hosting publicado por solicitud del usuario. Comprobados HTTP 200 por HTTPS, versión 2.31.0, mensaje motivador y bloqueo del gesto de recarga en ambos dominios personalizados y `web.app`.
+- DNS y propiedad confirmados. El certificado sigue administrativamente en `CERT_PROPAGATING`; pendiente confirmar `CERT_ACTIVE` para redirigir el dominio antiguo. No se generó un APK nuevo.
+- Pasos y valores DNS documentados en `DOMAIN-MIGRATION.md`.
+
+## 23/10/2026 · Regla permanente de versionado
+
+- Se añadió `AGENTS.md` con la instrucción de aumentar y sincronizar la versión en cada tarea que modifique la app, registrar los cambios y comunicar el estado real de compilación y publicación.
+- Se dejó constancia de los cambios pendientes de entrega y de la diferencia de versión de iOS.
+- Esta entrada documenta la regla; no representa una nueva versión compilada ni publicada.
+
+<!-- cdc-session:session-20261023164110-e58298 -->
+## Sesión 23/10/2026, 10:41 a.m.
+
+### Resumen
+
+La sesión se enfocó en: Revisar y resolver los riesgos detectados en este cierre.. Se detectaron 0 cambio(s): 0 creado(s), 0 modificado(s) y 0 eliminado(s).
+
+### Cambios
+
+- No se detectaron archivos modificados.
+
+### Riesgos
+
+- No se detectaron archivos modificados. Confirma que el trabajo se haya guardado dentro del proyecto y fuera de carpetas ignoradas.
+
+### Próximo paso
+
+- Revisar y resolver los riesgos detectados en este cierre.
+- Definir el siguiente objetivo de trabajo del proyecto.
+
 ## 23/10/2026 · Panel administrativo y acceso público
 
 - Panel de superusuario con usuarios, lápidas, panteones y pendientes separados; búsquedas, paginación, edición e historiales.

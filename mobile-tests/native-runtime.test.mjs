@@ -5,7 +5,7 @@ import vm from 'node:vm';
 
 test('the Android build preserves public URLs while bundling remote dependencies', () => {
     const html=fs.readFileSync('www/index.html','utf8');
-    const publicUrl='https://buscatumbas.cumorahnet.com/';
+    const publicUrl='https://buscatumbas.lat/';
     assert.ok(html.includes(`<link rel="canonical" href="${publicUrl}">`));
     assert.ok(html.includes(`<meta property="og:url" content="${publicUrl}">`));
     assert.ok(html.includes(`<meta property="og:image" content="${publicUrl}assets/brand/icon-512.png?v=3">`));

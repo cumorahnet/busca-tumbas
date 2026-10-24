@@ -48,7 +48,8 @@ try{
             const main=node('main-app');
             const footer=document.querySelector('footer.app-legal-links');
             const first=main.querySelector('.app-header');
-            if(first.getBoundingClientRect().top<s.top-.6)throw Error('home header starts under status bar');
+            if(s.engine==='chromium'&&getComputedStyle(root).overscrollBehaviorY!=='contain')throw Error('root boundary refresh protection is missing');
+            if(first.querySelector('.app-brand-header').getBoundingClientRect().top<s.top-.6)throw Error('home header content starts under status bar');
             if(footer.getBoundingClientRect().top<main.getBoundingClientRect().bottom-.6)throw Error('footer overlaps home content');
             const last=footer.querySelector('a:last-child');
             window.scrollTo({top:document.documentElement.scrollHeight,behavior:'instant'});
@@ -74,11 +75,41 @@ try{
             node('auth-screen').scrollTop=node('auth-screen').scrollHeight;
             within(node('cancel-register-btn'),'last registration action');
             return {safe:true,registrationScroll:node('auth-screen').scrollHeight>node('auth-screen').clientHeight};
-        },scenario);
+        },{...scenario,engine});
         assert.equal(result.safe,true);
         await page.screenshot({path:'.browser-check/safe-'+engine+'-'+scenario.name+'.png'});
         console.log(engine+' '+scenario.name+': camera, dialogs, registration and feedback inside safe area');
         await page.close();
+      }
+      const wheelPage=await browser.newPage({viewport:{width:1280,height:800}});
+      await wheelPage.goto(origin,{waitUntil:'networkidle'});
+      await wheelPage.evaluate(()=>{
+        document.getElementById('splash-screen').style.display='none';
+        document.getElementById('auth-screen').style.display='none';
+        document.getElementById('main-app').style.display='flex';
+        document.getElementById('mode-selection-card').style.display='flex';
+      });
+      await wheelPage.mouse.move(640,400);
+      await wheelPage.mouse.wheel(0,300);
+      await wheelPage.waitForTimeout(300);
+      assert.ok(await wheelPage.evaluate(()=>window.scrollY)>0,engine+': mouse wheel must scroll the document');
+      await wheelPage.close();
+      if(engine==='chromium'){
+        const touchPage=await browser.newPage({viewport:{width:412,height:915},isMobile:true,hasTouch:true});
+        await touchPage.goto(origin,{waitUntil:'networkidle'});
+        await touchPage.evaluate(()=>{
+          document.getElementById('splash-screen').style.display='none';
+          document.getElementById('auth-screen').style.display='none';
+          document.getElementById('main-app').style.display='flex';
+          document.getElementById('mode-selection-card').style.display='flex';
+        });
+        const touch=await touchPage.context().newCDPSession(touchPage);
+        await touch.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:200,y:700}]});
+        await touch.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:200,y:300}]});
+        await touch.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
+        await touchPage.waitForTimeout(300);
+        assert.ok(await touchPage.evaluate(()=>window.scrollY)>0,'touch swipe must scroll the document');
+        await touchPage.close();
       }
       if(engine==='webkit'){
         const page=await browser.newPage({viewport:{width:390,height:844},isMobile:true,hasTouch:true});

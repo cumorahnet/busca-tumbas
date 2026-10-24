@@ -278,7 +278,7 @@ subida de imágenes, guardado, búsqueda combinada y cierre de sesión.
 
 ### Distribución por liga (web/PWA)
 
-La app pública está en https://buscatumbas.cumorahnet.com/. Puede compartirse desde
+La app pública está en https://buscatumbas.lat/. Puede compartirse desde
 el botón **Compartir app**, disponible antes y después de iniciar sesión. Comparte
 solo la dirección pública, sin datos de la cuenta ni parámetros de la página.
 Si el navegador no ofrece compartir, se muestra la liga con opción de copiarla.

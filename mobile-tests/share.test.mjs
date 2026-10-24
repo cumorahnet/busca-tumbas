@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import vm from 'node:vm';
 
 const source = fs.readFileSync('mobile/share.js', 'utf8');
-const publicUrl = 'https://buscatumbas.cumorahnet.com/';
+const publicUrl = 'https://buscatumbas.lat/';
 function setup(navigator = {}) {
     const nodes = new Map();
     const node = id => {

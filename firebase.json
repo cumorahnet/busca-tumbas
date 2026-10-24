@@ -55,7 +55,9 @@
       "IOS.md",
       "storage.cors.json",
       "apply-history-card.mjs",
-      ".idea/**"
+      ".idea/**",
+      "AGENTS.md",
+      "DOMAIN-MIGRATION.md"
     ],
     "rewrites": [
       {

@@ -31,7 +31,7 @@ const password=randomBytes(24).toString('hex');
 const storagePath=`tumbas_images/${uid}/check.png`;
 const objectUrl=`https://storage.googleapis.com/storage/v1/b/${bucket}/o/${encodeURIComponent(storagePath)}`;
 const firestore=`https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents`;
-const origin='https://buscatumbas.cumorahnet.com';
+const origin='https://buscatumbas.lat';
 const bytes=await readFile('assets/brand/logo.png');
 let browser;
 let token;

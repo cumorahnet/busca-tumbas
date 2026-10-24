@@ -8,7 +8,7 @@
         const name = tomb.nombre_finado || [tomb.nombres,tomb.apellido_paterno,tomb.apellido_materno].filter(Boolean).join(' ') || 'Nombre sin registrar';
         const location = [tomb.colonia_panteon,tomb.municipio_panteon,tomb.estado_panteon,tomb.pais_panteon].filter(Boolean).join(', ');
         const fields = [[tomb.fecha_nacimiento_estimada ? 'Nacimiento estimado' : 'Nacimiento',tomb.fecha_nacimiento],['Defunción',tomb.fecha_defuncion],['Lugar de sepultura',tomb.nombre_panteon],['Localidad',location]];
-        return {title:name, text:[name,...fields.filter(([,v])=>v).map(([k,v])=>k+': '+v),'Compartido desde Busca Tumbas: https://buscatumbas.cumorahnet.com/'].join('\n'),filename:'lapida-'+String(tomb.id).replace(/[^a-z0-9_-]/gi,'').slice(0,128)};
+        return {title:name, text:[name,...fields.filter(([,v])=>v).map(([k,v])=>k+': '+v),'Compartido desde Busca Tumbas: https://buscatumbas.lat/'].join('\n'),filename:'lapida-'+String(tomb.id).replace(/[^a-z0-9_-]/gi,'').slice(0,128)};
     }
     function createController({document,navigator,fetchPhoto,getCurrentUser,URL:urls=root.URL,File:FileType=root.File}) {
         const node = id => document.getElementById('tomb-share-'+id);

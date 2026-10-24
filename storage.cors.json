@@ -4,7 +4,9 @@
       "https://buscatumbas-2e7cc.web.app",
       "https://buscatumbas-2e7cc.firebaseapp.com",
       "https://localhost",
-      "capacitor://localhost"
+      "capacitor://localhost",
+      "https://buscatumbas.lat",
+      "https://buscatumbas.cumorahnet.com"
     ],
     "method": [
       "GET",

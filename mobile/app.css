@@ -6,6 +6,8 @@
     --app-safe-left: max(env(safe-area-inset-left, 0px), var(--safe-area-inset-left, 0px));
 }
 [hidden] { display: none !important; }
+/* Prevent boundary refresh without disabling normal document scrolling. */
+html { overscroll-behavior-y: contain; }
 html { scroll-padding-block: calc(1rem + var(--app-safe-top)) calc(1rem + var(--app-safe-bottom)); }
 /* Keep one document scroll: centering a viewport-height flex child plus the
    footer clips the top and makes the footer cover the scrolling content. */
@@ -133,6 +135,9 @@ body { display: block; height: auto; min-height: 100dvh; }
 /* Public home and persistent navigation. */
 body { padding-bottom: calc(76px + var(--app-safe-bottom)); }
 .home-actions { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+.home-contribution-message { margin-top:1rem; padding:1rem; border-left:3px solid #5c4e99; border-radius:.5rem; background:#f5f2fa; color:#3e3157; }
+.home-contribution-message h2 { margin:0 0 .5rem; font-size:1.05rem; font-weight:600; line-height:1.5; }
+.home-contribution-message p { margin:0; font-size:.9rem; line-height:1.7; }
 .home-actions .menu-action { min-height:110px; flex-wrap:wrap; }
 .recent-tombs { margin-top:1.5rem; width:100%; }
 .recent-tomb { display:flex; gap:1rem; width:100%; padding:.8rem 0; border:0; border-bottom:1px solid #e2e8f0; background:transparent; text-align:left; color:inherit; }

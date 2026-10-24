@@ -1,7 +1,7 @@
 /* Share only the public entry point, never the current URL or account data. */
 (() => {
     'use strict';
-    const url = 'https://buscatumbas.cumorahnet.com/';
+    const url = 'https://buscatumbas.lat/';
     const dialog = document.getElementById('app-share-dialog');
     if (!dialog) return;
     const input = document.getElementById('app-share-url');
