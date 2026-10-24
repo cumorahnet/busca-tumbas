@@ -76,6 +76,7 @@ function setup() {
         assert.ok(match, name);
         vm.runInContext(match[0], ctx);
     }
+    get('tomb-place-type').value = 'cemetery';
     get('display-pais').value = 'México';
     get('display-estado').options = [{value: '14', textContent: 'Jalisco'}];
     get('display-estado').value = '14';
@@ -256,4 +257,35 @@ test('a failed save does not advance or discard the queued photos', async () => 
     assert.equal(s.ctx.tombPhotoBatchIndex, 1);
     assert.equal(s.ctx.pendingTombPhotos[0].name, 'Luis');
     assert.equal(s.get('display-nombres').value, 'Ana');
+});
+
+for (const type of ['church', 'hospital', 'convent', 'other']) {
+    test(type + ' uses manual details without loading INEGI or retaining its reference', async () => {
+        const s = setup();
+        s.ctx.tombCemeteryCatalogProviders.get('mexico').load = async () => { throw Error('INEGI must not load'); };
+        s.get('tomb-place-type').value = type;
+        await s.ctx.changeTombCountry();
+        assert.equal(s.get('tomb-place-details').hidden, false);
+        assert.equal(s.get('tomb-catalog-location-fields').hidden, true);
+        assert.equal(s.get('tomb-manual-location-fields').hidden, false);
+        assert.equal(s.ctx.selectedInegiCemetery, null);
+        s.get('display-estado-manual').value = 'Jalisco';
+        s.get('display-municipio-manual').value = 'Guadalajara';
+        s.get('display-nombre-panteon').value = 'San Jose';
+        s.ctx.confirmTombCemetery();
+        assert.equal(s.ctx.activeTombCemetery.placeType, type);
+        assert.equal(s.ctx.activeTombCemetery.catalogEntry, null);
+    });
+}
+test('type selection precedes details and only cemetery enables the Mexican catalogue', async () => {
+    const s = setup();
+    s.get('tomb-place-type').value = '';
+    await s.ctx.changeTombCountry();
+    assert.equal(s.get('tomb-place-details').hidden, true);
+    s.ctx.confirmTombCemetery();
+    assert.equal(s.ctx.activeTombCemetery, null);
+    s.get('tomb-place-type').value = 'cemetery';
+    await s.ctx.changeTombCountry();
+    assert.equal(s.get('tomb-catalog-location-fields').hidden, false);
+    assert.equal(s.get('tomb-manual-location-fields').hidden, true);
 });

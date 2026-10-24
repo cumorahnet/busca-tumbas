@@ -6159,3 +6159,11 @@ Se cerró una sesión de trabajo del proyecto buscatumbas. Se detectaron 18 camb
 - La comparación de iglesias, hospitales, conventos y otros lugares consulta los aportes comunitarios sin depender de la carga del catálogo de panteones INEGI.
 - Verificación: cinco pruebas de selección y comparación aprobadas, incluida la caída del catálogo INEGI; recursos web preparados en www/ y versiones sincronizadas de web, Android e iOS.
 - Firebase Hosting publicado y verificado por HTTPS en buscatumbas.lat y buscatumbas-2e7cc.web.app: ambos sirven la versión 2.34.0 y el formulario corregido. 17 pruebas aprobadas antes de publicar. Sin instalación ni generación de APK.
+
+## v2.35.0 · 24/10/2026 · Tipo de lugar antes del catálogo
+
+- El detalle del lugar para agregar lápidas solicita primero Panteón, Iglesia, Hospital, Convento u Otro lugar; después muestra los campos correspondientes.
+- INEGI se carga únicamente para panteones de México. Los demás tipos permiten introducir nombre y ubicación manualmente, sin conservar referencias de un panteón seleccionado antes.
+- Verificación: 22 pruebas aprobadas; recursos www/ generados y versiones sincronizadas en web, Android e iOS. Android versionCode 8; iOS CURRENT_PROJECT_VERSION 6.
+- Sin generación de APK ni instalación.
+- Firebase Hosting publicado y comprobado por HTTPS en buscatumbas.lat y buscatumbas-2e7cc.web.app: ambos sirven 2.35.0 con la selección inicial del tipo de lugar.
