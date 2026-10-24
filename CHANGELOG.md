@@ -67,6 +67,12 @@ La sesión se enfocó en: Revisar y resolver los riesgos detectados en este cier
 - Ejecutar las pruebas automatizadas y validar el comportamiento afectado.
 - Revisar el diff y preparar un commit descriptivo.
 
+## v2.33.0 · 23/10/2026 · Carga rápida de lápidas recientes
+
+- La portada solicita como máximo las cinco lápidas más recientes y ordenadas, reduciendo las lecturas y el contenido que carga inicialmente.
+- Se añadió una comprobación de interfaz para verificar el límite de cinco. Versiones sincronizadas: Android código 6; iOS compilación 4.
+- Comprobación aprobada: `npm run test:public:ui` en Chromium y WebKit. Firebase Hosting desplegado y confirmado en `buscatumbas.lat` y `buscatumbas-2e7cc.web.app`, ambos en 2.33.0 con la consulta limitada a cinco.
+
 ## v2.32.0 · 23/10/2026 · Recuperación del desplazamiento
 
 - Se limitó la protección contra la recarga por gesto al scroll raíz y se cambió a `overscroll-behavior-y: contain`, conservando el scroll táctil y con rueda.

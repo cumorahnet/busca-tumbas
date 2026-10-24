@@ -50,7 +50,7 @@ try {
                 window.closeRecordDetail = () => { document.getElementById('record-detail-modal').style.display = 'none'; };
                 window.loadBenefitStatus = () => { throw Error('Guests must not request account benefits'); };
                 window.safeImageUrl = value => value;
-                window.catalogCollection = () => ({orderBy() {return this;}, limit() {return this;}, async get() {return {docs: [{id: 'example', data: () => ({nombre_finado: 'María Hernández', fecha_nacimiento: '1920-02-03', fecha_defuncion: '2000-03-04', edad_defuncion: 80, nombre_panteon: 'Panteón de la comunidad', municipio_panteon: 'Guadalajara', estado_panteon: 'Jalisco', imageUrl: 'assets/brand/logo.png'})}]};}});
+                window.catalogCollection = () => ({orderBy() {return this;}, limit(count) {window.recentTombLimit=count;return this;}, async get() {return {docs: [{id: 'example', data: () => ({nombre_finado: 'María Hernández', fecha_nacimiento: '1920-02-03', fecha_defuncion: '2000-03-04', edad_defuncion: 80, nombre_panteon: 'Panteón de la comunidad', municipio_panteon: 'Guadalajara', estado_panteon: 'Jalisco', imageUrl: 'assets/brand/logo.png'})}]};}});
                 window.isSuperuserActive = () => false;
                 window.recordDetailPhotoHtml = url => `<img src="${url}" alt="Fotografía">`;
                 window.detailDataHtml = () => '<p>Datos de la lápida</p>';
@@ -68,6 +68,8 @@ try {
             await page.screenshot({path: `.browser-check/welcome-guest-${engine}.png`, fullPage: true});
             await page.getByRole('button', {name: 'Seguir navegando sin cuenta'}).click();
             await page.getByRole('button', {name: /María Hernández/}).waitFor();
+            assert.equal(await page.evaluate(() => window.recentTombLimit), 5);
+            assert.ok(await page.locator('#recent-tombs-list .recent-tomb').count() <= 5);
             assert.equal(await page.locator('.home-actions button').count(), 2);
             assert.equal(await page.locator('.primary-navigation').isVisible(), false);
             assert.equal(await page.locator('#auth-screen').isVisible(), false);
