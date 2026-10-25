@@ -570,7 +570,7 @@ exports.gestionarAporteAdmin = onCall({auditOperation:"gestionarAporteAdmin", en
     throw new HttpsError("invalid-argument", "Selecciona 1, 7 o 30 días.");
   }
   const allowed = recordType === "cemetery" ?
-    ["name", "normalizedName", "aliases", "locality", "address", "notes"] :
+    ["name", "normalizedName", "aliases", "locality", "address", "notes", "location"] :
     ["nombre_finado", "nombre_finado_lower", "nombres", "nombres_lower",
       "apellido_paterno", "apellido_paterno_lower", "apellido_materno", "apellido_materno_lower",
       "fecha_nacimiento", "fecha_nacimiento_iso", "fecha_nacimiento_estimada",
@@ -583,7 +583,8 @@ exports.gestionarAporteAdmin = onCall({auditOperation:"gestionarAporteAdmin", en
       throw new HttpsError("invalid-argument", "Campos de edición no válidos.");
     }
     for (const [key, value] of Object.entries(changes)) {
-      const valid = key === "aliases" ? Array.isArray(value) && value.length <= 10 &&
+      const valid = key === "location" ? value && Number.isFinite(value.latitude) && Number.isFinite(value.longitude) &&
+          Math.abs(value.latitude) <= 90 && Math.abs(value.longitude) <= 180 : key === "aliases" ? Array.isArray(value) && value.length <= 10 &&
           value.every((item) => typeof item === "string" && item.length <= 150) :
         key === "edad_defuncion" ? value === null || Number.isInteger(value) && value >= 0 && value <= 130 :
         key === "fecha_nacimiento_estimada" ? typeof value === "boolean" :

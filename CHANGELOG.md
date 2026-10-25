@@ -6210,3 +6210,12 @@ Se cerró una sesión de trabajo del proyecto buscatumbas. Se detectaron 18 camb
 - Verificación: diez pruebas aprobadas; selección real del filtro, contador, estado vacío y limpieza del detalle comprobados en Chromium y WebKit. Recursos www/ y versiones sincronizados en 2.40.0, Android versionCode 13 e iOS CURRENT_PROJECT_VERSION 11.
 - Sin cambios de datos guardados o backend; sin APK ni instalación.
 - Firebase Hosting publicado y verificado en ambos dominios por HTTPS: versión 2.40.0 con selector de tipo y contador de resultados.
+
+## v2.41.0 · 24/10/2026 · Duplicados y GPS en fichas de lugares
+
+- Reforzada la validación transaccional de duplicados para Iglesia, Panteón, Hospital, Convento y Otro: la misma identidad se bloquea aunque cambie la foto o varíe ligeramente el GPS. Las propuestas pendientes también se comparan por identidad.
+- Ubicación GPS visible en la ficha personal, el resumen de detalle y las fichas compartidas; los registros sin coordenadas lo indican expresamente. Los controles de GPS/manual del formulario de aportación quedan abiertos.
+- Edición de GPS mediante ubicación actual o coordenadas manuales para aportaciones pendientes del propietario y para administradores. Backend valida rangos y permisos, conservando foto y autoría; la edición también comprueba duplicados.
+- Verificación: 36 pruebas aprobadas, lint Functions aprobado y edición/visualización GPS comprobadas en Chromium y WebKit. Pruebas de duplicados en los cinco tipos, GPS inválido y permisos. Recursos www/ y versiones sincronizados: 2.41.0, Android versionCode 14 e iOS CURRENT_PROJECT_VERSION 12.
+- Sin modificar registros existentes automáticamente, sin APK ni instalación.
+- Publicados crearAportacionPanteon, actualizarAportacionPanteon, gestionarAporteAdmin y Firebase Hosting. Ambos dominios verificados por HTTPS con versión 2.41.0 y GPS en fichas. Endpoints de creación y edición responden y rechazan escrituras anónimas con 401; sin crear o editar registros reales durante la comprobación.

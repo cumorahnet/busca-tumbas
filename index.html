@@ -19,7 +19,7 @@
     <meta property="og:url" content="https://buscatumbas.lat/">
     <meta property="og:image" content="https://buscatumbas.lat/assets/brand/icon-512.png?v=3">
     <meta property="og:image:alt" content="Logotipo de Busca Tumbas: lápida con lupa">
-    <title>Busca Tumbas — VERSION 2.40.0</title>
+    <title>Busca Tumbas — VERSION 2.41.0</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
@@ -1628,7 +1628,7 @@
                         <i class="fas fa-file-arrow-up me-1"></i>Subir archivo
                     </button>
                 </div>
-<details class="mt-3"><summary>Ubicación GPS o manual de la fotografía</summary>
+<details class="mt-3" open><summary>Ubicación GPS o manual de la fotografía</summary>
  <p class="small">Al tomar una foto se solicita GPS. Para una imagen de archivo, indica las coordenadas del lugar fotografiado.</p>
  <button type="button" class="btn btn-outline-primary my-2" onclick="captureCemeteryLocation()">Usar mi ubicación actual</button>
  <label for="place-photo-latitude">Latitud</label><input id="place-photo-latitude" class="form-control" type="number" min="-90" max="90" step="any">
@@ -2181,7 +2181,7 @@
 /* ══════════════════════════════════════════════════════════════════
    CONFIGURACIÓN DE LA APLICACIÓN
 ══════════════════════════════════════════════════════════════════ */
-const APP_VERSION = "v2.40.0";
+const APP_VERSION = "v2.41.0";
 const MAX_IMAGE_FILE_SIZE = 15 * 1024 * 1024;
 const MAX_IMAGE_DIMENSION = 1920;
 
@@ -5631,6 +5631,7 @@ function showMyContributionDetail(contributionId, selectedButton = null) {
     const fields = isCemetery
         ? [
             ['Nombre comunitario', contribution.name],
+            ['Ubicación GPS', contribution.location ? formatCoordinates(contribution.location) : 'Sin coordenadas GPS'],
             ['Nombre en INEGI', contribution.inegiName],
             ['Estado', contribution.state],
             ['Municipio', contribution.municipality],
@@ -5734,6 +5735,7 @@ async function openMyCemeteryContribution(cemeteryId) {
             <div class="record-data-item"><small>Tipo de lugar</small><span>${escapeHtml(communityPlaceTypeLabel(cemetery))}</span></div>
             <div class="record-data-item"><small>Nombre comunitario</small><span>${escapeHtml(cemetery.name)}</span></div>
             ${cemetery.inegiName ? `<div class="record-data-item"><small>Nombre original de INEGI</small><span>${escapeHtml(cemetery.inegiName)}</span></div>` : ''}
+            <div class="record-data-item"><small>Ubicación GPS</small><span>${escapeHtml(cemetery.location ? formatCoordinates(cemetery.location) : 'Sin coordenadas GPS')}</span></div>
             <div class="record-data-item"><small>Estado</small><span>${escapeHtml(cemetery.state)}</span></div>
             <div class="record-data-item"><small>Municipio</small><span>${escapeHtml(cemetery.municipality)}</span></div>
             <div class="record-data-item"><small>Localidad</small><span>${escapeHtml(cemetery.locality)}</span></div>
@@ -5758,7 +5760,21 @@ function enableMyCemeteryEditing() {
     const inegiReference = cemetery.inegiName
         ? `<div class="alert alert-info py-2"><small>Nombre original de INEGI</small><br><strong>${escapeHtml(cemetery.inegiName)}</strong></div>`
         : '';
-    document.getElementById('record-detail-content').innerHTML = `<div class="record-detail-grid">${recordDetailPhotoHtml(cemetery.photoUrl, 'Fotografía del lugar')}<div>${inegiReference}${form}<button class="btn btn-success w-100 mt-2" onclick="saveMyCemeteryEdits()">GUARDAR CAMBIOS</button></div></div>`;
+    document.getElementById('record-detail-content').innerHTML = `<div class="record-detail-grid">${recordDetailPhotoHtml(cemetery.photoUrl, 'Fotografía del lugar')}<div>${inegiReference}${form}<fieldset class="border rounded p-2 mt-2"><legend class="h6">Ubicación GPS del lugar</legend>
+        <button type="button" class="btn btn-outline-primary mb-2" onclick="fillCemeteryEditGps()">Obtener GPS actual</button>
+        <label for="edit-place-latitude">Latitud</label><input id="edit-place-latitude" class="form-control" type="number" min="-90" max="90" step="any" value="${escapeHtml(cemetery.location?.latitude ?? '')}">
+        <label for="edit-place-longitude">Longitud</label><input id="edit-place-longitude" class="form-control" type="number" min="-180" max="180" step="any" value="${escapeHtml(cemetery.location?.longitude ?? '')}">
+        <small>Usa GPS cuando estés en el lugar o escribe sus coordenadas manualmente.</small></fieldset><button class="btn btn-success w-100 mt-2" onclick="saveMyCemeteryEdits()">GUARDAR CAMBIOS</button></div></div>`;
+}
+
+async function fillCemeteryEditGps() {
+    const place = currentCemeteryContribution;
+    const lat = document.getElementById('edit-place-latitude');
+    const lon = document.getElementById('edit-place-longitude');
+    const point = await getGeolocation();
+    if (!point || currentCemeteryContribution !== place || !lat?.isConnected || !lon?.isConnected) return;
+    lat.value = point.latitude;
+    lon.value = point.longitude;
 }
 
 async function saveMyCemeteryEdits() {
@@ -5767,6 +5783,10 @@ async function saveMyCemeteryEdits() {
     const values = Object.fromEntries([...document.querySelectorAll('[data-cemetery-edit]')]
         .map(input => [input.dataset.cemeteryEdit, input.value.trim()]));
     const name = formatProperName(values.name);
+    const latitudeText = document.getElementById('edit-place-latitude').value.trim();
+    const longitudeText = document.getElementById('edit-place-longitude').value.trim();
+    const location = readPhotoCoordinates('edit-place');
+    if ((latitudeText || longitudeText) && !location) return showToast('Indica latitud y longitud válidas.', '#f59e0b');
     if (name.length < 3 || !values.locality) {
         showToast('⚠ Escribe al menos el nombre y la localidad.', '#f59e0b');
         return;
@@ -5778,7 +5798,8 @@ async function saveMyCemeteryEdits() {
             aliases: [...new Set([name, cemetery.inegiName].filter(Boolean))],
             locality: formatProperName(values.locality),
             address: values.address || null,
-            notes: values.notes || null
+            notes: values.notes || null,
+            ...(location ? {location} : {})
         };
         if (isSuperuserActive()) {
             const note = prompt('Motivo de la corrección (se notificará al aportador):');
@@ -6707,7 +6728,7 @@ function communityCemeteryDataHtml(cemetery) {
         ['Colonia / localidad', cemetery.locality],
         ['Dirección o referencias', cemetery.address],
         ['Observaciones', cemetery.notes],
-        ['Ubicación', formatCoordinates(cemetery.location)],
+        ['Ubicación GPS', cemetery.location ? formatCoordinates(cemetery.location) : 'Sin coordenadas GPS'],
         ['Aportador', cemetery.contributorName || cemetery.contributorEmail],
         ['Fecha de aportación', formatTimestamp(cemetery.createdAt)]
     ];

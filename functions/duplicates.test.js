@@ -184,3 +184,23 @@ test('place photos preserve country and cannot link a foreign place to INEGI', a
   assert.equal(result.saved,true);
   await assert.rejects(api.crearAportacionPanteon(request('invalid-link',{...place,placeType:'cemetery',inegiCemeteryId:'mexican-catalogue'})),{code:'invalid-argument'});
 });
+
+for (const placeType of ['cemetery','church','hospital','convent','other']) {
+  test(placeType+' creation blocks the same place despite a different photo and GPS jitter',async()=>{
+    const {api,request}=harness();
+    const place={name:'San Jose',country:'Mexico',stateCode:'14',municipalityCode:'039',locality:'Centro',photoUrl:'photo',placeType,otherPlaceType:placeType==='other'?'Capilla':'',location:{latitude:20,longitude:-103}};
+    await api.crearAportacionPanteon(request('original',place));
+    await assert.rejects(api.crearAportacionPanteon(request('duplicate',{...place,photoUrl:'different-photo',location:{latitude:20.0001,longitude:-103}})),{code:'already-exists'});
+  });
+}
+test('owners can complete pending place GPS; invalid coordinates and foreign ownership are rejected',async()=>{
+  const {api,rows,request}=harness();
+  const place={name:'Hospital Central',stateCode:'14',municipalityCode:'039',locality:'Centro',photoUrl:'photo',placeType:'hospital'};
+  await api.crearAportacionPanteon(request('original',place));
+  const edit={name:place.name,locality:place.locality,location:{latitude:20,longitude:-103}};
+  await api.actualizarAportacionPanteon(request('original',edit));
+  assert.equal(rows.get('cemeteries/original').location.latitude,20);
+  assert.equal(rows.get('cemeteries/original').photoUrl,'photo');
+  await assert.rejects(api.actualizarAportacionPanteon(request('original',{...edit,location:{latitude:91,longitude:0}})),{code:'invalid-argument'});
+  await assert.rejects(api.actualizarAportacionPanteon(request('original',edit,'intruder')),{code:'permission-denied'});
+});

@@ -51,7 +51,7 @@ module.exports = function recordWrites({db, onCall, HttpsError, FieldValue, GeoP
     if (typeof recordId !== "string" || !/^[A-Za-z0-9_-]{1,128}$/.test(recordId)) {
       throw new HttpsError("invalid-argument", "Identificador no válido.");
     }
-    const fields = writable(data, edit ? ["name", "normalizedName", "aliases", "locality", "address", "notes"] :
+    const fields = writable(data, edit ? ["name", "normalizedName", "aliases", "locality", "address", "notes", "location"] :
       cemetery ? cemeteryFields : tombFields);
     if (cemetery ? typeof fields.name !== "string" || fields.name.trim().length < 3 ||
         fields.name.length > 150 || !fields.locality : !normalize(fields.nombre_finado)) {
@@ -97,14 +97,16 @@ module.exports = function recordWrites({db, onCall, HttpsError, FieldValue, GeoP
       const pending = !edit ? await transaction.get(db.collection("_duplicateDisputes").where("status", "==", "pending")) : null;
       const comparisons = records.docs.filter(doc => !edit || doc.id !== recordId)
           .map(doc => ({recordId: doc.id, photoUrl: doc.data().photoUrl || doc.data().imageUrl || null,
+            identityDuplicate: cemetery && cemeteryDuplicate(candidate, doc.data()),
             ...assessSimilarity(candidate, doc.data(), cemetery)}));
-      const duplicate = comparisons.find(item => item.exact);
+      const duplicate = comparisons.find(item => item.exact || item.identityDuplicate);
       if (duplicate) throw new HttpsError("already-exists", cemetery ?
         "Coincidencia del 100 %: este panteón o lugar ya está registrado." :
         "Coincidencia del 100 %: esta persona o tumba ya está registrada.", {recordId: duplicate.recordId, similarity: 100});
       if (pending) {
         const samePending = pending.docs.find(doc => doc.data().recordType === (cemetery ? "cemetery" : "tomb") &&
-          assessSimilarity(candidate, doc.data().candidate, cemetery).exact);
+          (assessSimilarity(candidate, doc.data().candidate, cemetery).exact ||
+          cemetery && cemeteryDuplicate(candidate, doc.data().candidate)));
         if (samePending) {
           if (samePending.id === disputeId && samePending.data().contributorId === uid) {
             return {disputed: true, disputeId, similarity: samePending.data().similarity, status: "pending"};

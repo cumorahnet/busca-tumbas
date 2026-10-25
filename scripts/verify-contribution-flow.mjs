@@ -5,7 +5,7 @@ import path from 'node:path';
 import {chromium, webkit} from 'playwright';
 const original = await fs.readFile('index.html','utf8');
 const source = (await fs.readFile('www/index.html','utf8')).replace(/<script\b[^>]*>[^]*?<\/script>/gi,'');
-const names = ['filterMyContributions','renderMyContributions','loadMyContributions','communityPlaceTypeLabel','inlineJsValue','showContributionOptions','selectAddCemeteryMode','resetCemeteryForm','updateCommunityCountry','communityRegion','loadCommunityPlaceCatalog','chooseCommunityCatalogPlace','updateCommunityPlaceType','resetCemeteryMatchConfirmation','loadCommunityMunicipalities','useInegiCemeteryMatch','currentCemeteryComparisonKey','formatProperName','normalizeSearchText','formatCoordinates','escapeHtml','previewCemeteryPhoto','captureCemeteryLocation','getGeolocationErrorMessage','readPhotoCoordinates','applyPhotoCoordinates','captureTombPhotoLocation','saveCommunityCemetery','checkCemeteryMatches','cemeteryNameSimilarity','cemeteryComparisonName','distanceInMeters'];
+const names = ['openMyCemeteryContribution','enableMyCemeteryEditing','saveMyCemeteryEdits','fillCemeteryEditGps','filterMyContributions','renderMyContributions','loadMyContributions','communityPlaceTypeLabel','inlineJsValue','showContributionOptions','selectAddCemeteryMode','resetCemeteryForm','updateCommunityCountry','communityRegion','loadCommunityPlaceCatalog','chooseCommunityCatalogPlace','updateCommunityPlaceType','resetCemeteryMatchConfirmation','loadCommunityMunicipalities','useInegiCemeteryMatch','currentCemeteryComparisonKey','formatProperName','normalizeSearchText','formatCoordinates','escapeHtml','previewCemeteryPhoto','captureCemeteryLocation','getGeolocationErrorMessage','readPhotoCoordinates','applyPhotoCoordinates','captureTombPhotoLocation','saveCommunityCemetery','checkCemeteryMatches','cemeteryNameSimilarity','cemeteryComparisonName','distanceInMeters'];
 const functions = names.map(name => {const m=original.match(new RegExp('(?:async )?function '+name+'\\([^]*?\\n}'));assert.ok(m,name);return m[0];}).join('\n');
 const server=http.createServer(async(req,res)=>{try{const url=new URL(req.url,'http://localhost');if(url.pathname==='/'){res.setHeader('Content-Type','text/html; charset=utf-8');res.end(source);return;}const file=path.resolve('www','.'+url.pathname);if(!file.startsWith(path.resolve('www')+path.sep)){res.writeHead(403);res.end();return;}res.setHeader('Content-Type',file.endsWith('.css')?'text/css':file.endsWith('.js')?'text/javascript':'application/octet-stream');res.end(await fs.readFile(file));}catch{res.writeHead(404);res.end();}});
 await new Promise(r=>server.listen(0,'127.0.0.1',r));
@@ -57,7 +57,7 @@ for(const [engine,type] of Object.entries({chromium,webkit})) {
  await page.fill('#cemetery-state-manual','Guatemala');await page.fill('#cemetery-municipality-manual','Antigua');
  await page.fill('#cemetery-name','Iglesia San Jose');await page.fill('#cemetery-locality','Centro');
  await page.setInputFiles('#cemetery-photo-input',{name:'photo.png',mimeType:'image/png',buffer:await fs.readFile('assets/brand/logo.png')});
- await page.locator('#add-cemetery-section details summary').click();
+ await page.locator('#add-cemetery-section details').evaluate(el=>el.open=true);
  await page.fill('#place-photo-latitude','14.56');await page.fill('#place-photo-longitude','-90.73');
  await page.locator('#add-cemetery-section').getByRole('button',{name:'Usar estas coordenadas'}).click();
  await page.locator('#save-cemetery-btn').click();
@@ -99,6 +99,28 @@ for(const [engine,type] of Object.entries({chromium,webkit})) {
  assert.ok(!(await page.locator('#my-contribution-detail').textContent()).includes('Old church detail'));
  await page.selectOption('#my-contribution-type-filter','all');
  assert.equal(await page.locator('#my-contributions-list button').count(),3);
+ // A place detail displays GPS and lets its owner complete it manually or using GPS.
+ await page.evaluate(() => {
+   for(const id of ['record-detail-modal','record-detail-content','record-detail-title']) {const el=document.createElement('div');el.id=id;document.body.append(el);}
+   document.getElementById('record-detail-modal').append(document.getElementById('record-detail-title'),document.getElementById('record-detail-content'));
+   window.existingPlace={...savedRequest.data,contributorId:'test',status:'pending',location:{latitude:14.56,longitude:-90.73}};
+   window.currentCemeteryContribution=null;window.recordDetailZoomLevel=1;
+   window.isSuperuserActive=()=>false;window.adminRecordActionsHtml=()=>'';
+   window.recordDetailPhotoHtml=()=>'<img alt="Place photo">';
+   window.getGeolocation=async()=>({latitude:20,longitude:-103});
+   db={collection:()=>({doc:id=>({get:async()=>({id,exists:true,data:()=>existingPlace})}),where:()=>({get:async()=>({docs:[]})})})};
+   functionsApi={httpsCallable:()=>async request=>{existingPlace={...existingPlace,...request.data};window.savedEdit=request;return {data:{saved:true}};}};
+ });
+ await page.evaluate(()=>openMyCemeteryContribution('existing-place'));
+ assert.ok((await page.locator('#record-detail-content').textContent()).includes('14.56'));
+ await page.locator('[onclick="enableMyCemeteryEditing()"]').click();
+ await page.getByRole('button',{name:'Obtener GPS actual',exact:true}).click();
+ await page.waitForFunction(()=>document.getElementById('edit-place-latitude').value==='20');
+ await page.fill('#edit-place-latitude','14.57');await page.fill('#edit-place-longitude','-90.74');
+ await page.getByRole('button',{name:'GUARDAR CAMBIOS',exact:true}).click();
+ await page.waitForFunction(()=>window.savedEdit);
+ assert.equal(await page.evaluate(()=>savedEdit.data.location.latitude),14.57);
+ await page.waitForFunction(()=>document.getElementById('record-detail-content').textContent.includes('14.57'));
  // A live camera image requests GPS; a later manual edit wins over an old callback.
  await page.evaluate(() => {
    window.gpsSuccess = null;
