@@ -71,7 +71,12 @@ for(const [engine,type] of Object.entries({chromium,webkit})) {
    db={collection:name=>({where:()=>({get:async()=>({docs:name==='cemeteries'?[existing]:[]})})})};
  });
  await page.evaluate(()=>loadMyContributions());
- assert.ok((await page.locator('#my-contributions-list').textContent()).includes('Iglesia: San Jose'));
+ assert.equal(await page.locator('#my-contributions-list strong').textContent(),'San Jose');
+ assert.equal(await page.locator('#my-contributions-list .contribution-type-badge').textContent(),'Iglesia');
+ assert.equal(await page.locator('#my-contributions-list .contribution-type-badge').isVisible(),true);
+ assert.equal(await page.locator('#my-contributions-list .contribution-status .badge').isVisible(),true);
+ assert.ok((await page.locator('#my-contributions-list .contribution-status').textContent()).includes('PENDIENTE'));
+ await page.locator('#my-contributions-list').screenshot({path:'.browser-check/contribution-type-'+engine+'.png'});
  assert.ok(!(await page.locator('#my-contributions-list').textContent()).includes('Panteon: San Jose'));
  // A live camera image requests GPS; a later manual edit wins over an old callback.
  await page.evaluate(() => {

@@ -6194,3 +6194,11 @@ Se cerró una sesión de trabajo del proyecto buscatumbas. Se detectaron 18 camb
 - Verificación: 22 pruebas aprobadas, incluidos seis casos de resumen con tipos guardados y registros antiguos; lint Functions aprobado. Chromium y WebKit verifican la etiqueta Iglesia de una foto guardada y los flujos de aportación. Recursos www/ y versiones sincronizados: 2.38.0, Android versionCode 11 e iOS CURRENT_PROJECT_VERSION 9.
 - Sin modificación de registros existentes, generación de APK ni instalación.
 - Publicados obtenerEstadisticasAdmin y Firebase Hosting; verificados ambos dominios por HTTPS con 2.38.0 y el resumen basado en el tipo de lugar guardado.
+
+## v2.39.0 · 24/10/2026 · Formato uniforme de la lista de aportaciones
+
+- Todas las tarjetas muestran solo el nombre como título y una etiqueta separada para Tumba, Iglesia, Panteón u otro tipo de lugar.
+- El estado del lugar, como Pendiente, aparece en otra línea; ya no reemplaza la etiqueta del tipo. Las etiquetas permanecen visibles también en móvil.
+- Verificación: nueve pruebas aprobadas de tipos, formato, compatibilidad y seguridad; comprobación de visibilidad de tipo y estado y revisión de captura móvil en Chromium, además de verificación del flujo en Chromium y WebKit. Recursos www/ y versiones sincronizados en 2.39.0, Android versionCode 12 e iOS CURRENT_PROJECT_VERSION 10.
+- Sin cambios en datos guardados ni backend; sin generación de APK ni instalación.
+- Firebase Hosting publicado y verificado por HTTPS en ambos dominios: 2.39.0 con nombre, tipo y estado separados en la lista de aportaciones.
