@@ -5,7 +5,7 @@ import path from 'node:path';
 import {chromium, webkit} from 'playwright';
 const original = await fs.readFile('index.html','utf8');
 const source = (await fs.readFile('www/index.html','utf8')).replace(/<script\b[^>]*>[^]*?<\/script>/gi,'');
-const names = ['showContributionOptions','selectAddCemeteryMode','resetCemeteryForm','updateCommunityCountry','communityRegion','loadCommunityPlaceCatalog','chooseCommunityCatalogPlace','updateCommunityPlaceType','resetCemeteryMatchConfirmation','loadCommunityMunicipalities','useInegiCemeteryMatch','currentCemeteryComparisonKey','formatProperName','normalizeSearchText','formatCoordinates','escapeHtml','previewCemeteryPhoto','captureCemeteryLocation','getGeolocationErrorMessage','readPhotoCoordinates','applyPhotoCoordinates','captureTombPhotoLocation','saveCommunityCemetery','checkCemeteryMatches','cemeteryNameSimilarity','cemeteryComparisonName','distanceInMeters'];
+const names = ['loadMyContributions','communityPlaceTypeLabel','inlineJsValue','showContributionOptions','selectAddCemeteryMode','resetCemeteryForm','updateCommunityCountry','communityRegion','loadCommunityPlaceCatalog','chooseCommunityCatalogPlace','updateCommunityPlaceType','resetCemeteryMatchConfirmation','loadCommunityMunicipalities','useInegiCemeteryMatch','currentCemeteryComparisonKey','formatProperName','normalizeSearchText','formatCoordinates','escapeHtml','previewCemeteryPhoto','captureCemeteryLocation','getGeolocationErrorMessage','readPhotoCoordinates','applyPhotoCoordinates','captureTombPhotoLocation','saveCommunityCemetery','checkCemeteryMatches','cemeteryNameSimilarity','cemeteryComparisonName','distanceInMeters'];
 const functions = names.map(name => {const m=original.match(new RegExp('(?:async )?function '+name+'\\([^]*?\\n}'));assert.ok(m,name);return m[0];}).join('\n');
 const server=http.createServer(async(req,res)=>{try{const url=new URL(req.url,'http://localhost');if(url.pathname==='/'){res.setHeader('Content-Type','text/html; charset=utf-8');res.end(source);return;}const file=path.resolve('www','.'+url.pathname);if(!file.startsWith(path.resolve('www')+path.sep)){res.writeHead(403);res.end();return;}res.setHeader('Content-Type',file.endsWith('.css')?'text/css':file.endsWith('.js')?'text/javascript':'application/octet-stream');res.end(await fs.readFile(file));}catch{res.writeHead(404);res.end();}});
 await new Promise(r=>server.listen(0,'127.0.0.1',r));
@@ -63,6 +63,16 @@ for(const [engine,type] of Object.entries({chromium,webkit})) {
  await page.waitForFunction(()=>window.savedRequest);
  const saved=await page.evaluate(()=>window.savedRequest.data);
  assert.equal(saved.country,'Guatemala');assert.equal(saved.placeType,'church');assert.equal(saved.state,'Guatemala');assert.equal(saved.municipality,'Antigua');assert.equal(saved.location.latitude,14.56);assert.equal(saved.inegiCemeteryId,undefined);
+ // An existing church photo must be labelled by its saved type in the contribution list.
+ await page.evaluate(() => {
+   for (const id of ['my-contributions-list','my-contribution-detail']) {const el=document.createElement('div');el.id=id;document.body.append(el);}
+   window.myContributions=[];
+   const existing={id:'church-photo',data:()=>({...savedRequest.data,name:'San Jose'})};
+   db={collection:name=>({where:()=>({get:async()=>({docs:name==='cemeteries'?[existing]:[]})})})};
+ });
+ await page.evaluate(()=>loadMyContributions());
+ assert.ok((await page.locator('#my-contributions-list').textContent()).includes('Iglesia: San Jose'));
+ assert.ok(!(await page.locator('#my-contributions-list').textContent()).includes('Panteon: San Jose'));
  // A live camera image requests GPS; a later manual edit wins over an old callback.
  await page.evaluate(() => {
    window.gpsSuccess = null;

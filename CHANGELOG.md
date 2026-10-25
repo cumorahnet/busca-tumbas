@@ -6186,3 +6186,11 @@ Se cerró una sesión de trabajo del proyecto buscatumbas. Se detectaron 18 camb
 - Verificación: 40 pruebas automatizadas aprobadas, lint de Functions y verificaciones de inicio y aportaciones en Chromium y WebKit. Guardado simulado de foto, país y coordenadas; prueba de GPS y cambio manual. Recursos www/ generados y versiones sincronizadas: 2.37.0, Android versionCode 10 e iOS CURRENT_PROJECT_VERSION 8.
 - Sin generación de APK ni instalación.
 - Publicadas seis funciones de registro y revisión de lugares y Firebase Hosting. Verificado por HTTPS en buscatumbas.lat y buscatumbas-2e7cc.web.app: versión 2.37.0, menú Aportar y controles de ubicación. El endpoint de registro responde y rechaza escrituras anónimas con 401; sin crear registros de prueba en producción.
+
+## v2.38.0 · 24/10/2026 · Tipo de lugar en el resumen de aportaciones
+
+- Mis aportaciones muestra el tipo guardado: Iglesia, Hospital, Convento, Otro o Panteón. Las aportaciones ya guardadas se presentan correctamente sin volver a subir su foto.
+- El resumen administrativo recibe el tipo real del lugar y lo usa en sus etiquetas y fotografías. Corregidas referencias genéricas de foto y eliminación que denominaban panteón a cualquier lugar.
+- Verificación: 22 pruebas aprobadas, incluidos seis casos de resumen con tipos guardados y registros antiguos; lint Functions aprobado. Chromium y WebKit verifican la etiqueta Iglesia de una foto guardada y los flujos de aportación. Recursos www/ y versiones sincronizados: 2.38.0, Android versionCode 11 e iOS CURRENT_PROJECT_VERSION 9.
+- Sin modificación de registros existentes, generación de APK ni instalación.
+- Publicados obtenerEstadisticasAdmin y Firebase Hosting; verificados ambos dominios por HTTPS con 2.38.0 y el resumen basado en el tipo de lugar guardado.
