@@ -19,7 +19,7 @@
     <meta property="og:url" content="https://buscatumbas.lat/">
     <meta property="og:image" content="https://buscatumbas.lat/assets/brand/icon-512.png?v=3">
     <meta property="og:image:alt" content="Logotipo de Busca Tumbas: lápida con lupa">
-    <title>Busca Tumbas — VERSION 2.35.0</title>
+    <title>Busca Tumbas — VERSION 2.36.0</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
@@ -1785,11 +1785,13 @@
                         <select id="display-municipio" class="form-control mb-2" onchange="updateInegiSearchState()" disabled>
                             <option value="">Selecciona un municipio</option>
                         </select>
+                        <div id="tomb-cemetery-catalog-fields" hidden>
                         <label class="field-label" for="inegi-cemetery-results">Panteón o lugar del catálogo</label>
                         <select id="inegi-cemetery-results" class="form-control" onchange="selectInegiCemetery(this.value)" disabled>
                             <option value="">Selecciona primero estado y municipio</option>
                         </select>
                         <div id="inegi-search-status" class="small text-secondary mt-2" aria-live="polite">Selecciona un estado y un municipio.</div>
+                        </div>
                     </div>
                     <div class="field-group full-width" id="tomb-manual-location-fields" hidden>
                         <label class="field-label" for="display-estado-manual">Estado, provincia o región</label>
@@ -2134,7 +2136,7 @@
 /* ══════════════════════════════════════════════════════════════════
    CONFIGURACIÓN DE LA APLICACIÓN
 ══════════════════════════════════════════════════════════════════ */
-const APP_VERSION = "v2.35.0";
+const APP_VERSION = "v2.36.0";
 const MAX_IMAGE_FILE_SIZE = 15 * 1024 * 1024;
 const MAX_IMAGE_DIMENSION = 1920;
 
@@ -3225,13 +3227,29 @@ function createSearchableLocationSelect(select, placeholder) {
     });
 }
 
+function getTombLocationProvider() {
+    return tombCemeteryCatalogProviders.get(normalizeSearchText(document.getElementById('display-pais').value)) || null;
+}
+
+async function loadTombLocationCatalog(provider, entityCode = '') {
+    if (document.getElementById('tomb-place-type').value === 'cemetery') return provider.load();
+    try {
+        const response = await listarUbicacionesINEGIFunction(entityCode ? {entityCode} : {});
+        return response.data.locations.map(item => entityCode
+            ? {stateCode: entityCode, municipalityCode: item.code, municipality: item.name}
+            : {stateCode: item.code, state: item.name});
+    } catch (error) {
+        return provider.load();
+    }
+}
+
 function getTombCatalogProvider() {
     if (document.getElementById('tomb-place-type').value !== 'cemetery') return null;
     return tombCemeteryCatalogProviders.get(normalizeSearchText(document.getElementById('display-pais').value)) || null;
 }
 
 function isManualTombLocation() {
-    return !getTombCatalogProvider() || document.getElementById('tomb-manual-location').checked;
+    return !getTombLocationProvider() || document.getElementById('tomb-manual-location').checked;
 }
 
 function clearSelectedTombCatalogEntry() {
@@ -3256,17 +3274,17 @@ async function changeTombCountry() {
     document.getElementById('display-municipio-manual').value = '';
     inegiCemeteryResults = [];
     clearSelectedTombCatalogEntry();
-    const provider = getTombCatalogProvider();
+    const provider = type ? getTombLocationProvider() : null;
     const checkbox = document.getElementById('tomb-manual-location');
     checkbox.checked = !provider;
     checkbox.disabled = !provider;
     document.getElementById('tomb-manual-location-option').hidden = !provider;
-    document.getElementById('tomb-catalog-coordinates').hidden = !provider;
-    document.getElementById('tomb-place-name-help').textContent = provider
+    document.getElementById('tomb-catalog-coordinates').hidden = !getTombCatalogProvider();
+    document.getElementById('tomb-place-name-help').textContent = getTombCatalogProvider()
         ? 'Si no aparece en el listado, elige No está en el listado y escribe su nombre.'
         : 'Escribe el nombre de la iglesia, hospital, convento u otro lugar.';
     document.getElementById('tomb-country-catalog-status').textContent = provider
-        ? `Catálogo ${provider.label} disponible para este país.`
+        ? `Estados y municipios disponibles para este país.`
         : type === 'cemetery' ? 'Este país aún no tiene catálogo. Introduce los datos del lugar manualmente.'
         : 'Introduce el nombre y la ubicación del lugar.';
     toggleManualTombLocation();
@@ -3275,6 +3293,7 @@ async function changeTombCountry() {
 
 function toggleManualTombLocation() {
     const manual = isManualTombLocation();
+    document.getElementById('tomb-cemetery-catalog-fields').hidden = manual || !getTombCatalogProvider();
     cemeterySearchSequence++;
     document.getElementById('tomb-catalog-location-fields').hidden = manual;
     document.getElementById('tomb-manual-location-fields').hidden = !manual;
@@ -3348,14 +3367,14 @@ function changeTombCemetery() {
 }
 
 async function loadInegiStates(sequence = tombCountrySequence) {
-    const provider = getTombCatalogProvider();
+    const provider = getTombLocationProvider();
     if (!provider) return;
     const stateSelect = document.getElementById('display-estado');
     if (stateChoices) return; // Already initialized
     stateSelect.disabled = true;
     stateSelect.replaceChildren(new Option('Cargando catálogo de panteones...', ''));
     try {
-        const catalog = await provider.load();
+        const catalog = await loadTombLocationCatalog(provider);
         if (sequence !== tombCountrySequence) return;
         const states = new Map();
         catalog.forEach(item => states.set(item.stateCode, item.state));
@@ -3378,7 +3397,7 @@ async function loadInegiStates(sequence = tombCountrySequence) {
 }
 
 async function loadInegiMunicipalities() {
-    const provider = getTombCatalogProvider();
+    const provider = getTombLocationProvider();
     if (!provider || isManualTombLocation()) return;
     const countrySequence = tombCountrySequence;
     const stateSelect = document.getElementById('display-estado');
@@ -3401,7 +3420,7 @@ async function loadInegiMunicipalities() {
 
     municipalitySelect.replaceChildren(new Option('Cargando municipios...', ''));
     try {
-        const catalog = await provider.load();
+        const catalog = await loadTombLocationCatalog(provider, entityCode);
         if (countrySequence !== tombCountrySequence || stateSelect.value !== entityCode) return;
         const municipalities = new Map();
         catalog.filter(item => item.stateCode === entityCode)
@@ -3423,6 +3442,7 @@ async function loadInegiMunicipalities() {
 }
 
 async function updateInegiSearchState() {
+    if (!getTombCatalogProvider() || isManualTombLocation()) return;
     const hasMunicipality = !!document.getElementById('display-municipio').value;
     const cemeterySelect = document.getElementById('inegi-cemetery-results');
     cemeterySelect.replaceChildren(new Option('3. Selecciona un panteón', ''));

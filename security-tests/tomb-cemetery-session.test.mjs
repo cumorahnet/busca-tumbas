@@ -66,7 +66,7 @@ function setup() {
     }};
     vm.createContext(ctx);
     for (const name of ['normalizeSearchText', 'formatProperName', 'escapeHtml', 'getTombCatalogProvider',
-        'isManualTombLocation', 'clearSelectedTombCatalogEntry', 'changeTombCountry', 'toggleManualTombLocation',
+        'getTombLocationProvider', 'loadTombLocationCatalog', 'loadInegiMunicipalities', 'updateInegiSearchState', 'isManualTombLocation', 'clearSelectedTombCatalogEntry', 'changeTombCountry', 'toggleManualTombLocation',
         'getTombCemeteryDraft', 'renderActiveTombCemetery', 'confirmTombCemetery', 'ensureActiveTombCemetery',
         'changeTombCemetery', 'loadInegiStates', 'clearFormFields', 'clearDisplayedData', 'retryImageCapture',
         'populateExtractedDataForm', 'saveCurrentFormDataToHistory', 'buildTombIdentity', 'buildPersonIdentity',
@@ -260,20 +260,27 @@ test('a failed save does not advance or discard the queued photos', async () => 
 });
 
 for (const type of ['church', 'hospital', 'convent', 'other']) {
-    test(type + ' uses manual details without loading INEGI or retaining its reference', async () => {
+    test(type + ' keeps geographic selectors without loading the cemetery catalogue or retaining its reference', async () => {
         const s = setup();
-        s.ctx.tombCemeteryCatalogProviders.get('mexico').load = async () => { throw Error('INEGI must not load'); };
+        s.ctx.tombCemeteryCatalogProviders.get('mexico').load = async () => { throw Error('Cemetery catalogue must not load'); };
+        s.ctx.listarUbicacionesINEGIFunction = async ({entityCode}) => ({data: {locations: entityCode
+            ? [{code: '039', name: 'Guadalajara'}] : [{code: '14', name: 'Jalisco'}]}});
         s.get('tomb-place-type').value = type;
         await s.ctx.changeTombCountry();
         assert.equal(s.get('tomb-place-details').hidden, false);
-        assert.equal(s.get('tomb-catalog-location-fields').hidden, true);
-        assert.equal(s.get('tomb-manual-location-fields').hidden, false);
+        assert.equal(s.get('tomb-catalog-location-fields').hidden, false);
+        assert.equal(s.get('tomb-manual-location-fields').hidden, true);
+        assert.equal(s.get('tomb-cemetery-catalog-fields').hidden, true);
         assert.equal(s.ctx.selectedInegiCemetery, null);
-        s.get('display-estado-manual').value = 'Jalisco';
-        s.get('display-municipio-manual').value = 'Guadalajara';
+        s.get('display-estado').value = '14';
+        await s.ctx.loadInegiMunicipalities();
+        assert.equal(s.get('display-municipio').disabled, false);
+        s.get('display-municipio').value = '039';
+        await s.ctx.updateInegiSearchState();
         s.get('display-nombre-panteon').value = 'San Jose';
         s.ctx.confirmTombCemetery();
         assert.equal(s.ctx.activeTombCemetery.placeType, type);
+        assert.equal(s.ctx.activeTombCemetery.municipality, 'Guadalajara');
         assert.equal(s.ctx.activeTombCemetery.catalogEntry, null);
     });
 }

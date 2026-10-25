@@ -6167,3 +6167,12 @@ Se cerró una sesión de trabajo del proyecto buscatumbas. Se detectaron 18 camb
 - Verificación: 22 pruebas aprobadas; recursos www/ generados y versiones sincronizadas en web, Android e iOS. Android versionCode 8; iOS CURRENT_PROJECT_VERSION 6.
 - Sin generación de APK ni instalación.
 - Firebase Hosting publicado y comprobado por HTTPS en buscatumbas.lat y buscatumbas-2e7cc.web.app: ambos sirven 2.35.0 con la selección inicial del tipo de lugar.
+
+## v2.36.0 · 24/10/2026 · Municipios para iglesias y otros lugares
+
+- Separada la selección geográfica de la lista de panteones: Iglesia, Hospital, Convento y Otro conservan Estado y Municipio para México.
+- Los tipos distintos de Panteón consultan el catálogo geográfico de estados y municipios; la lista local queda como respaldo. Solo Panteón muestra y consulta lugares de INEGI.
+- Otros países conservan la captura manual. Al cambiar de tipo se eliminan las referencias del panteón anterior.
+- Verificación: 22 pruebas aprobadas, incluida selección y confirmación del municipio para cada tipo; recursos www/ generados. Versiones sincronizadas: 2.36.0, Android versionCode 9 e iOS CURRENT_PROJECT_VERSION 7.
+- Sin generación de APK ni instalación.
+- Firebase Hosting publicado y verificado por HTTPS en buscatumbas.lat y buscatumbas-2e7cc.web.app: ambos sirven la versión 2.36.0 con la corrección.
