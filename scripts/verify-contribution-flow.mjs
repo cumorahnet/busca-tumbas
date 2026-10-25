@@ -5,7 +5,7 @@ import path from 'node:path';
 import {chromium, webkit} from 'playwright';
 const original = await fs.readFile('index.html','utf8');
 const source = (await fs.readFile('www/index.html','utf8')).replace(/<script\b[^>]*>[^]*?<\/script>/gi,'');
-const names = ['openMyCemeteryContribution','enableMyCemeteryEditing','saveMyCemeteryEdits','fillCemeteryEditGps','filterMyContributions','renderMyContributions','loadMyContributions','communityPlaceTypeLabel','inlineJsValue','showContributionOptions','selectAddCemeteryMode','resetCemeteryForm','updateCommunityCountry','communityRegion','loadCommunityPlaceCatalog','chooseCommunityCatalogPlace','updateCommunityPlaceType','resetCemeteryMatchConfirmation','loadCommunityMunicipalities','useInegiCemeteryMatch','currentCemeteryComparisonKey','formatProperName','normalizeSearchText','formatCoordinates','escapeHtml','previewCemeteryPhoto','captureCemeteryLocation','getGeolocationErrorMessage','readPhotoCoordinates','applyPhotoCoordinates','captureTombPhotoLocation','saveCommunityCemetery','checkCemeteryMatches','cemeteryNameSimilarity','cemeteryComparisonName','distanceInMeters'];
+const names = ['mergeApprovedCemeteryCatalog','loadApprovedCommunityCatalog','openMyCemeteryContribution','enableMyCemeteryEditing','saveMyCemeteryEdits','fillCemeteryEditGps','filterMyContributions','renderMyContributions','loadMyContributions','communityPlaceTypeLabel','inlineJsValue','showContributionOptions','selectAddCemeteryMode','resetCemeteryForm','updateCommunityCountry','communityRegion','loadCommunityPlaceCatalog','chooseCommunityCatalogPlace','updateCommunityPlaceType','resetCemeteryMatchConfirmation','loadCommunityMunicipalities','useInegiCemeteryMatch','currentCemeteryComparisonKey','formatProperName','normalizeSearchText','formatCoordinates','escapeHtml','previewCemeteryPhoto','captureCemeteryLocation','getGeolocationErrorMessage','readPhotoCoordinates','applyPhotoCoordinates','captureTombPhotoLocation','saveCommunityCemetery','checkCemeteryMatches','cemeteryNameSimilarity','cemeteryComparisonName','distanceInMeters'];
 const functions = names.map(name => {const m=original.match(new RegExp('(?:async )?function '+name+'\\([^]*?\\n}'));assert.ok(m,name);return m[0];}).join('\n');
 const server=http.createServer(async(req,res)=>{try{const url=new URL(req.url,'http://localhost');if(url.pathname==='/'){res.setHeader('Content-Type','text/html; charset=utf-8');res.end(source);return;}const file=path.resolve('www','.'+url.pathname);if(!file.startsWith(path.resolve('www')+path.sep)){res.writeHead(403);res.end();return;}res.setHeader('Content-Type',file.endsWith('.css')?'text/css':file.endsWith('.js')?'text/javascript':'application/octet-stream');res.end(await fs.readFile(file));}catch{res.writeHead(404);res.end();}});
 await new Promise(r=>server.listen(0,'127.0.0.1',r));
@@ -50,6 +50,19 @@ for(const [engine,type] of Object.entries({chromium,webkit})) {
  await page.selectOption('#community-catalog-select','catalog-1');
  await page.waitForFunction(()=>document.getElementById('cemetery-name').value==='Panteon Municipal');
  assert.equal(await page.locator('#community-catalog-field').isVisible(),true);
+ await page.evaluate(async()=>{
+   const approved={id:'approved-place',data:()=>({name:'Panteon Corregido',inegiCemeteryId:'catalog-1',inegiName:'Panteon Municipal',stateCode:'14',municipalityCode:'039',state:'Jalisco',municipality:'Guadalajara',locality:'Centro Nuevo',address:'Calle de la Comunidad 45',location:{latitude:20.5,longitude:-103.5},status:'approved',placeType:'cemetery'})};
+   const pending={id:'pending-place',data:()=>({...approved.data(),name:'Panteon Pendiente',status:'pending'})};
+   db={collection:()=>({where:()=>({get:async()=>({docs:[approved,pending]})})})};
+   await loadCommunityPlaceCatalog();
+ });
+ assert.equal(await page.locator('#community-catalog-select option[value="catalog-1"]').count(),0);
+ assert.equal(await page.locator('#community-catalog-select option[value="pending-place"]').count(),0);
+ await page.selectOption('#community-catalog-select','approved-place');
+ await page.waitForFunction(()=>document.getElementById('cemetery-name').value==='Panteon Corregido');
+ assert.equal(await page.locator('#cemetery-address').inputValue(),'Calle de la Comunidad 45');
+ assert.equal(await page.evaluate(()=>communityCemeteryLocation.latitude),20.5);
+ assert.ok((await page.locator('#community-catalog-select').textContent()).includes('Comunidad aprobada'));
  await page.selectOption('#cemetery-place-type','church');
  assert.equal(await page.locator('#community-catalog-field').isVisible(),false);
  await page.fill('#cemetery-country','Guatemala');await page.locator('#cemetery-country').dispatchEvent('change');

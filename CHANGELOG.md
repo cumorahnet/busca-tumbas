@@ -6227,3 +6227,13 @@ Se cerró una sesión de trabajo del proyecto buscatumbas. Se detectaron 18 camb
 - Verificación: diez pruebas aprobadas; Chromium y WebKit comprueban la dirección desde el registro hasta la ficha. Recursos www/ generados y versiones sincronizados: 2.42.0, Android versionCode 15 e iOS CURRENT_PROJECT_VERSION 13.
 - Sin cambios de backend, APK ni instalación.
 - Firebase Hosting publicado y verificado por HTTPS en ambos dominios con 2.42.0 y la dirección en las fichas.
+
+## v2.43.0 · 24/10/2026 · Reutilizar panteones comunitarios aprobados
+
+- Unificada la combinación de INEGI y aportes comunitarios aprobados en los selectores de panteones para tumbas y registro de lugares.
+- Las correcciones aprobadas sustituyen la opción INEGI original sin duplicarla; muestran el nombre corregido y conservan localidad, dirección, coordenadas y referencia original. Los datos oficiales sirven de respaldo cuando la corrección no aporta algún dato.
+- Solo panteones aprobados del país, estado y municipio seleccionados se incorporan. Se excluyen pendientes, rechazados y otros tipos; las referencias históricas de tumbas no reintroducen esas propuestas como opciones manuales.
+- Las tumbas nuevas guardan el ID comunitario aprobado y la referencia INEGI original. Las opciones comunitarias se identifican como aprobadas y no requieren volver a registrar el mismo lugar.
+- Verificación: 19 pruebas aprobadas, incluida selección y guardado de una tumba con ambos IDs y respaldo GPS; selectores y datos corregidos comprobados en Chromium y WebKit. Recursos www/ y versiones sincronizados en 2.43.0, Android versionCode 16 e iOS CURRENT_PROJECT_VERSION 14.
+- Sin modificación de registros existentes, cambios de backend, APK ni instalación.
+- Firebase Hosting publicado y verificado por HTTPS en ambos dominios con versión 2.43.0 y catálogo combinado de correcciones aprobadas.

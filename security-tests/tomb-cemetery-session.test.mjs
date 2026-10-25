@@ -66,7 +66,7 @@ function setup() {
     }};
     vm.createContext(ctx);
     for (const name of ['normalizeSearchText', 'formatProperName', 'escapeHtml', 'getTombCatalogProvider',
-        'getTombLocationProvider', 'loadTombLocationCatalog', 'loadInegiMunicipalities', 'updateInegiSearchState', 'isManualTombLocation', 'clearSelectedTombCatalogEntry', 'changeTombCountry', 'toggleManualTombLocation',
+        'getTombLocationProvider', 'loadTombLocationCatalog', 'loadInegiMunicipalities', 'updateInegiSearchState', 'mergeApprovedCemeteryCatalog', 'isManualTombLocation', 'clearSelectedTombCatalogEntry', 'changeTombCountry', 'toggleManualTombLocation',
         'getTombCemeteryDraft', 'renderActiveTombCemetery', 'confirmTombCemetery', 'ensureActiveTombCemetery',
         'changeTombCemetery', 'loadInegiStates', 'clearFormFields', 'clearDisplayedData', 'retryImageCapture',
         'populateExtractedDataForm', 'saveCurrentFormDataToHistory', 'buildTombIdentity', 'buildPersonIdentity',
@@ -295,4 +295,38 @@ test('type selection precedes details and only cemetery enables the Mexican cata
     await s.ctx.changeTombCountry();
     assert.equal(s.get('tomb-catalog-location-fields').hidden, false);
     assert.equal(s.get('tomb-manual-location-fields').hidden, true);
+});
+
+test('approved INEGI corrections replace the original once and retain both IDs in new tombs',async()=>{
+ const s=setup();
+ const original={id:'inegi-123',name:'Panteon Municipal',stateCode:'14',municipalityCode:'039',state:'Jalisco',municipality:'Guadalajara',colony:'',latitude:20,longitude:-103};
+ const correction={id:'community-approved',name:'Panteon San Jose',placeType:'cemetery',status:'approved',country:'México',stateCode:'14',municipalityCode:'039',state:'Jalisco',municipality:'Guadalajara',locality:'Centro Nuevo',address:'Calle Nueva 123',location:{latitude:20.6,longitude:-103.6},inegiCemeteryId:'inegi-123',inegiName:original.name};
+ s.ctx.tombCemeteryCatalogProviders.get('mexico').load=async()=>[original];
+ const originalCollection=s.ctx.db.collection;
+ s.ctx.db.collection=name=>name==='cemeteries'?{where(){return this;},get:async()=>({docs:[correction,{...correction,id:'pending',name:'Pendiente',status:'pending'},{...correction,id:'rejected',status:'rejected'},{...correction,id:'church',placeType:'church'}].map(item=>({id:item.id,data:()=>item}))})}:originalCollection(name);
+ s.records.set('old-reference',{nombre_panteon:original.name,estado_panteon:'Jalisco',municipio_panteon:'Guadalajara',cemetery_source:'community',cemetery_id:'pending'});
+ await s.ctx.searchNearbyCemeteries();
+ assert.equal(s.ctx.inegiCemeteryResults.length,1);
+ assert.equal(s.ctx.selectedInegiCemetery.id,'community-approved');
+ assert.equal(s.get('display-nombre-panteon').value,'Panteon San Jose');
+ assert.equal(s.get('display-colonia').value,'Centro Nuevo');
+ s.ctx.confirmTombCemetery();s.photo('Persona Nueva','new-photo');
+ await s.ctx.saveCurrentFormDataToHistory();
+ const saved=[...s.records.values()].find(item=>item.nombres==='Persona Nueva');
+ assert.ok(saved,s.notices.join('\n'));
+ assert.equal(saved.cemetery_id,'community-approved');
+ assert.equal(saved.inegi_denue_id,'inegi-123');
+ assert.equal(saved.panteon_geolocation.latitude,20.6);
+ assert.equal(saved.colonia_panteon,'Centro Nuevo');
+});
+
+test('pending corrections keep INEGI available; approved records inherit missing official GPS',()=>{
+ const s=setup();const original={id:'original',name:'Original',stateCode:'14',municipalityCode:'039',latitude:20,longitude:-103};
+ const proposal={id:'community',name:'Corrected',stateCode:'14',municipalityCode:'039',placeType:'cemetery',inegiCemeteryId:'original',status:'pending'};
+ let merged=s.ctx.mergeApprovedCemeteryCatalog([original],[proposal],'14','039');
+ assert.equal(merged.length,1);assert.equal(merged[0].id,'original');
+ merged=s.ctx.mergeApprovedCemeteryCatalog([original],[{...proposal,status:'approved'}],'14','039');
+ assert.equal(merged.length,1);assert.equal(merged[0].id,'community');assert.equal(merged[0].latitude,20);assert.equal(merged[0].inegiName,'Original');
+ merged=s.ctx.mergeApprovedCemeteryCatalog([],[{...proposal,status:'approved',inegiCemeteryId:null}],'14','039');
+ assert.equal(merged[0].latitude,undefined);
 });
