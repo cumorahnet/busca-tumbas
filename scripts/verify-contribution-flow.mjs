@@ -55,6 +55,7 @@ for(const [engine,type] of Object.entries({chromium,webkit})) {
  await page.fill('#cemetery-country','Guatemala');await page.locator('#cemetery-country').dispatchEvent('change');
  assert.equal(await page.locator('#community-manual-region').isVisible(),true);
  await page.fill('#cemetery-state-manual','Guatemala');await page.fill('#cemetery-municipality-manual','Antigua');
+ await page.fill('#cemetery-address','Calle Central 123, frente al parque');
  await page.fill('#cemetery-name','Iglesia San Jose');await page.fill('#cemetery-locality','Centro');
  await page.setInputFiles('#cemetery-photo-input',{name:'photo.png',mimeType:'image/png',buffer:await fs.readFile('assets/brand/logo.png')});
  await page.locator('#add-cemetery-section details').evaluate(el=>el.open=true);
@@ -63,6 +64,7 @@ for(const [engine,type] of Object.entries({chromium,webkit})) {
  await page.locator('#save-cemetery-btn').click();
  await page.waitForFunction(()=>window.savedRequest);
  const saved=await page.evaluate(()=>window.savedRequest.data);
+ assert.equal(saved.address,'Calle Central 123, frente al parque');
  assert.equal(saved.country,'Guatemala');assert.equal(saved.placeType,'church');assert.equal(saved.state,'Guatemala');assert.equal(saved.municipality,'Antigua');assert.equal(saved.location.latitude,14.56);assert.equal(saved.inegiCemeteryId,undefined);
  // An existing church photo must be labelled by its saved type in the contribution list.
  await page.evaluate(() => {
@@ -113,6 +115,7 @@ for(const [engine,type] of Object.entries({chromium,webkit})) {
  });
  await page.evaluate(()=>openMyCemeteryContribution('existing-place'));
  assert.ok((await page.locator('#record-detail-content').textContent()).includes('14.56'));
+ assert.ok((await page.locator('#record-detail-content').textContent()).includes('Calle Central 123, frente al parque'));
  await page.locator('[onclick="enableMyCemeteryEditing()"]').click();
  await page.getByRole('button',{name:'Obtener GPS actual',exact:true}).click();
  await page.waitForFunction(()=>document.getElementById('edit-place-latitude').value==='20');

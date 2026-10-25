@@ -6219,3 +6219,11 @@ Se cerró una sesión de trabajo del proyecto buscatumbas. Se detectaron 18 camb
 - Verificación: 36 pruebas aprobadas, lint Functions aprobado y edición/visualización GPS comprobadas en Chromium y WebKit. Pruebas de duplicados en los cinco tipos, GPS inválido y permisos. Recursos www/ y versiones sincronizados: 2.41.0, Android versionCode 14 e iOS CURRENT_PROJECT_VERSION 12.
 - Sin modificar registros existentes automáticamente, sin APK ni instalación.
 - Publicados crearAportacionPanteon, actualizarAportacionPanteon, gestionarAporteAdmin y Firebase Hosting. Ambos dominios verificados por HTTPS con versión 2.41.0 y GPS en fichas. Endpoints de creación y edición responden y rechazan escrituras anónimas con 401; sin crear o editar registros reales durante la comprobación.
+
+## v2.42.0 · 24/10/2026 · Dirección en las fichas de lugares
+
+- La ficha personal de panteones, iglesias, hospitales y demás lugares muestra Dirección o referencias; también aparece en el detalle de Mis aportaciones.
+- Los lugares sin dirección guardada muestran Sin dirección registrada. Se utiliza el dato existente, sin modificar registros.
+- Verificación: diez pruebas aprobadas; Chromium y WebKit comprueban la dirección desde el registro hasta la ficha. Recursos www/ generados y versiones sincronizados: 2.42.0, Android versionCode 15 e iOS CURRENT_PROJECT_VERSION 13.
+- Sin cambios de backend, APK ni instalación.
+- Firebase Hosting publicado y verificado por HTTPS en ambos dominios con 2.42.0 y la dirección en las fichas.
