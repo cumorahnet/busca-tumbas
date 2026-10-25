@@ -164,15 +164,24 @@ for(const [engine,type] of Object.entries({chromium,webkit})) {
    window.accountFieldLabels={};
    functionsApi={httpsCallable:()=>async()=>({data:{entries:[
      {id:'activity1',summary:'Se aporto la tumba de Pedro <img src=x>',action:'created',createdAt:Date.now(),actorName:'Usuario',changes:[{field:'nombre_finado',before:null,after:'Pedro'}]},
-     {id:'activity2',summary:'Se sugirio corregir la direccion de la iglesia Catedral',action:'created',createdAt:Date.now(),actorName:'Usuario',changes:[{field:'description',before:null,after:'Calle Central 123'}]}
+     {id:'activity2',summary:'Se sugirio corregir la direccion de la iglesia Catedral',action:'created',createdAt:Date.now(),actorName:'Usuario',changes:[{field:'description',before:null,after:'Calle Central 123'}]},
+     {id:'activity3',summary:'No se pudo registrar una tumba',action:'crearAportacionTumba',status:'failed',createdAt:Date.now(),actorName:'Usuario',changes:[]}
    ],after:null}})};
    await showUserHistory();
  });
- assert.equal(await page.locator('#user-history-dialog article').count(),2);
+ assert.equal(await page.locator('#user-history-dialog article').count(),3);
  assert.ok((await page.locator('#user-history-dialog').textContent()).includes('Se aporto la tumba de Pedro <img src=x>'));
  assert.ok((await page.locator('#user-history-dialog').textContent()).includes('Se sugirio corregir la direccion'));
  assert.equal(await page.locator('#user-history-dialog img').count(),0);
  assert.ok(!(await page.locator('#user-history-dialog').textContent()).includes('Registro actualizado'));
+ assert.equal(await page.locator('#user-history-dialog article details:not([open])').count(),2);
+ assert.equal(await page.locator('#user-history-dialog article').nth(2).locator('details').count(),0);
+ assert.ok(!(await page.locator('#user-history-entries').innerText()).includes('Anterior:'));
+ await page.locator('#user-history-dialog article summary').first().click();
+ assert.equal(await page.locator('#user-history-dialog .activity-change-card').first().isVisible(),true);
+ assert.ok((await page.locator('#user-history-entries').innerText()).includes('Nuevo: Pedro'));
+ await page.locator('#user-history-dialog article summary').first().click();
+ assert.equal(await page.locator('#user-history-dialog .activity-change-card').first().isVisible(),false);
  await page.locator('#user-history-dialog').screenshot({path:'.browser-check/user-activity-'+engine+'.png'});
  await page.locator('#user-history-dialog').getByRole('button',{name:'Cerrar',exact:true}).click();
  console.log(engine+': menu, Mexico catalogue, church abroad, photo upload, manual coordinates and saved payload OK');

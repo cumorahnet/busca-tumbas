@@ -6246,3 +6246,11 @@ Se cerró una sesión de trabajo del proyecto buscatumbas. Se detectaron 18 camb
 - Verificación: 13 pruebas aprobadas sobre resúmenes, permisos, privacidad, fallos y paginación; lint Functions aprobado. Historial y contenido escapado comprobados en Chromium y WebKit; captura móvil revisada. Recursos www/ y versiones sincronizados en 2.44.0, Android versionCode 17 e iOS CURRENT_PROJECT_VERSION 15.
 - Sin eliminar ni modificar eventos históricos; sin APK ni instalación.
 - Publicados obtenerHistorialUsuario, registrarActividadBase, registrarActividadDetalle y Firebase Hosting. Ambos dominios verificados por HTTPS con 2.44.0; el endpoint privado responde y rechaza consultas sin sesión con 401. No se consultaron historiales reales durante la comprobación.
+
+## v2.45.0 · 24/10/2026 · Historial compacto con ficha desplegable
+
+- Cada actividad muestra únicamente su título. Si contiene cambios, el título despliega una sola ficha con fecha, autor y valores anterior/nuevo; queda cerrada al entrar.
+- Las actividades sin datos de cambio muestran solo el título y no ofrecen un desplegable vacío.
+- Verificación: dos pruebas de seguridad y sintaxis aprobadas; Chromium y WebKit comprueban apertura, cierre, contenido oculto inicialmente y ausencia de desplegables vacíos. Captura móvil revisada. Recursos www/ y versiones sincronizados en 2.45.0, Android versionCode 18 e iOS CURRENT_PROJECT_VERSION 16.
+- Sin cambios de backend, datos históricos, APK ni instalación.
+- Firebase Hosting publicado y verificado por HTTPS en ambos dominios con versión 2.45.0 y fichas de actividad desplegables.
