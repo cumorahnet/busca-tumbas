@@ -4,7 +4,7 @@ const {assessSimilarity, similarityReason, suggestsDuplicate} = require("./simil
 const {createHash} = require("node:crypto");
 
 module.exports = function recordWrites({db, onCall, HttpsError, FieldValue, GeoPoint, requireUser, requireAdmin}) {
-  const cemeteryFields = ["name", "normalizedName", "stateCode", "state", "municipalityCode",
+  const cemeteryFields = ["country", "name", "normalizedName", "stateCode", "state", "municipalityCode",
     "municipality", "locality", "address", "notes", "location", "photoUrl", "inegiCemeteryId",
     "inegiName", "normalizedInegiName", "aliases", "correctionType", "placeType", "otherPlaceType"];
   const tombFields = ["imageUrl", "geolocation", "panteon_geolocation", "nombre_finado", "nombres",
@@ -59,6 +59,11 @@ module.exports = function recordWrites({db, onCall, HttpsError, FieldValue, GeoP
     }
     if (!edit && !(cemetery ? fields.photoUrl : fields.imageUrl)) {
       throw new HttpsError("invalid-argument", "Falta la fotografía.");
+    }
+    if (cemetery && !edit && fields.country !== undefined &&
+        (typeof fields.country !== "string" || !fields.country.trim() || fields.country.length > 100 ||
+        fields.inegiCemeteryId && normalize(fields.country) !== "mexico")) {
+      throw new HttpsError("invalid-argument", "País no válido para el lugar.");
     }
     if (cemetery && !edit && (!fields.stateCode || !fields.municipalityCode ||
         !["cemetery", "church", "hospital", "convent", "other"].includes(fields.placeType) ||

@@ -14,8 +14,8 @@ for (const type of ['church', 'hospital', 'convent', 'other', 'cemetery']) {
     elements['cemetery-state'].value='15';
     elements['cemetery-municipality'].value='001';
     let catalogueLoads=0;
-    const context=vm.createContext({document:{getElementById:id=>elements[id]},auth:{currentUser:{uid:'test'}},
-      resetCemeteryMatchConfirmation(){},formatProperName:s=>s,currentCemeteryComparisonKey:()=>type,
+    const context=vm.createContext({communityCemeteryLocationSource:null,communityCemeteryLocation:null,document:{getElementById:id=>elements[id]},auth:{currentUser:{uid:'test'}},
+      loadCommunityPlaceCatalog(){},communityRegion:()=>({mexican:true,country:'Mexico',state:{value:'15'},municipality:{value:'001'}}),resetCemeteryMatchConfirmation(){},formatProperName:s=>s,currentCemeteryComparisonKey:()=>type,
       showToast(){},getFirebaseErrorMessage:()=> 'Error',escapeHtml:s=>s,
       loadCemeteryCatalog:async()=>{catalogueLoads++;throw Error('Catalogue unavailable');},
       db:{collection:()=>({where:()=>({get:async()=>({docs:[]})})})}});

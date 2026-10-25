@@ -33,6 +33,7 @@ function tombKeys(data) {
 }
 
 function cemeteryDuplicate(a, b) {
+  if (normalize(a.country || "M\u00e9xico") !== normalize(b.country || "M\u00e9xico")) return false;
   if (a.inegiCemeteryId && a.inegiCemeteryId === b.inegiCemeteryId) return true;
   const region = (data) => [data.stateCode || data.state, data.municipalityCode || data.municipality]
       .map(normalize).join("|");

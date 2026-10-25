@@ -5,7 +5,7 @@ import path from 'node:path';
 import {chromium, webkit} from 'playwright';
 const original = await fs.readFile('index.html', 'utf8');
 const source = (await fs.readFile('www/index.html', 'utf8')).replace(/<script\b[^>]*>[^]*?<\/script>/gi, '');
-const names = ['requireMember', 'continueBrowsing', 'showModeSelection', 'isPublicTomb', 'tombSummaryHtml', 'loadRecentTombs', 'displaySearchResults', 'scrollToSearchResultsStart', 'selectAddTombMode', 'renderTombDetail', 'recordDetailPhotoHtml', 'prepareForFamilySearch', 'openTombAction', 'renderTombActionCard', 'backRecordDetail', 'recordDetailMainMenu', 'enableTombDetailEditing', 'detailDataHtml', 'historyEntryHtml', 'toggleTombHistory', 'loadTombHistory', 'openHistoryContact', 'sendHistoryContact', 'formatCoordinates', 'formatTimestamp', 'formatProperName', 'escapeHtml', 'inlineJsValue', 'tombOwnerId'];
+const names = ['showContributionOptions', 'requireMember', 'continueBrowsing', 'showModeSelection', 'isPublicTomb', 'tombSummaryHtml', 'loadRecentTombs', 'displaySearchResults', 'scrollToSearchResultsStart', 'selectAddTombMode', 'renderTombDetail', 'recordDetailPhotoHtml', 'prepareForFamilySearch', 'openTombAction', 'renderTombActionCard', 'backRecordDetail', 'recordDetailMainMenu', 'enableTombDetailEditing', 'detailDataHtml', 'historyEntryHtml', 'toggleTombHistory', 'loadTombHistory', 'openHistoryContact', 'sendHistoryContact', 'formatCoordinates', 'formatTimestamp', 'formatProperName', 'escapeHtml', 'inlineJsValue', 'tombOwnerId'];
 const functions = names.map(name => {
     const match = original.match(new RegExp('(?:async )?function ' + name + '\\([^]*?\\n}'));
     assert.ok(match, name);
@@ -91,6 +91,8 @@ try {
             await page.screenshot({path: `.browser-check/search-summary-${engine}.png`, fullPage: true});
             await page.evaluate(() => showModeSelection());
             await page.getByRole('button', {name: /^Aportar/}).click();
+            assert.equal(await page.locator('#contribution-options').isVisible(), true);
+            await page.locator('#contribution-options').getByRole('button', {name:'Tumba', exact:true}).click();
             assert.equal(await page.locator('#member-access-dialog').isVisible(), true);
             await page.locator('#member-access-dialog').getByRole('button', {name:'Continuar', exact:true}).click();
             assert.equal(await page.locator('#auth-screen').isVisible(), true);

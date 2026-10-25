@@ -19,7 +19,7 @@
     <meta property="og:url" content="https://buscatumbas.lat/">
     <meta property="og:image" content="https://buscatumbas.lat/assets/brand/icon-512.png?v=3">
     <meta property="og:image:alt" content="Logotipo de Busca Tumbas: lápida con lupa">
-    <title>Busca Tumbas — VERSION 2.36.0</title>
+    <title>Busca Tumbas — VERSION 2.37.0</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
@@ -1582,10 +1582,18 @@
     <!-- Mode Selection Card -->
     <div class="card-custom" id="mode-selection-card">
 
-        <nav class="home-actions" aria-label="Menú principal">
+        <nav id="home-main-actions" class="home-actions" aria-label="Menú principal">
             <button type="button" class="btn menu-action menu-action-featured" onclick="selectSearchTombMode()"><span class="menu-action-icon"><i class="fas fa-search" aria-hidden="true"></i></span><span class="menu-action-copy"><strong>Buscar tumbas</strong><small>Encuentra una historia.</small></span></button>
-            <button type="button" class="btn menu-action" onclick="selectAddTombMode()"><span class="menu-action-icon"><i class="fas fa-camera" aria-hidden="true"></i></span><span class="menu-action-copy"><strong>Aportar</strong><small>Añade tumbas y fotografías.</small></span></button>
+            <button type="button" class="btn menu-action" onclick="showContributionOptions()"><span class="menu-action-icon"><i class="fas fa-camera" aria-hidden="true"></i></span><span class="menu-action-copy"><strong>Aportar</strong><small>Añade tumbas y fotografías.</small></span></button>
         </nav>
+        <section id="contribution-options" hidden aria-label="Qué deseas aportar">
+            <h2 class="h5">¿Qué deseas aportar?</h2>
+            <div class="d-grid gap-2">
+                <button type="button" class="btn btn-primary" onclick="selectAddCemeteryMode()">Panteón u otro lugar</button>
+                <button type="button" class="btn btn-primary" onclick="selectAddTombMode()">Tumba</button>
+                <button type="button" class="btn btn-outline-secondary" onclick="showModeSelection()">Volver al inicio</button>
+            </div>
+        </section>
         <section class="home-contribution-message" aria-labelledby="home-contribution-title">
             <h2 id="home-contribution-title">Hoy puedes ayudar a alguien a encontrar a quien busca.</h2>
             <p>Al añadir una tumba o un panteón, puedes acercar a una persona al lugar donde descansa un ser querido. Hoy tu aportación ayuda a otros; mañana, quizá la de alguien más nos ayude a nosotros.</p>
@@ -1619,6 +1627,13 @@
                         <i class="fas fa-file-arrow-up me-1"></i>Subir archivo
                     </button>
                 </div>
+<details class="mt-3"><summary>Ubicación GPS o manual de la fotografía</summary>
+ <p class="small">Al tomar una foto se solicita GPS. Para una imagen de archivo, indica las coordenadas del lugar fotografiado.</p>
+ <button type="button" class="btn btn-outline-primary my-2" onclick="captureCemeteryLocation()">Usar mi ubicación actual</button>
+ <label for="place-photo-latitude">Latitud</label><input id="place-photo-latitude" class="form-control" type="number" min="-90" max="90" step="any">
+ <label for="place-photo-longitude">Longitud</label><input id="place-photo-longitude" class="form-control" type="number" min="-180" max="180" step="any">
+ <button type="button" class="btn btn-outline-secondary my-2" onclick="applyPhotoCoordinates('place')">Usar estas coordenadas</button>
+ <div id="place-photo-status" class="small" aria-live="polite"></div></details>
                 <img id="cemetery-photo-preview" class="cemetery-photo-preview"
                     style="display:none;" src="#" alt="Vista previa del lugar">
                 <button type="button" class="btn btn-outline-primary w-100 mt-2" id="cemetery-location-btn"
@@ -1648,15 +1663,29 @@
                 <label class="field-label" for="cemetery-name">Nombre del lugar</label>
                 <input id="cemetery-name" class="form-control mb-2" maxlength="150"
                     placeholder="Ej. Panteón Municipal San José" oninput="resetCemeteryMatchConfirmation()">
+                <label class="field-label" for="cemetery-country">País</label>
+                <input id="cemetery-country" class="form-control mb-2" value="México" maxlength="100" onchange="updateCommunityCountry()">
+                <div id="community-mexico-region">
                 <label class="field-label" for="cemetery-state">Estado</label>
                 <select id="cemetery-state" class="form-control mb-2" onchange="loadCommunityMunicipalities()">
                     <option value="">Selecciona un estado</option>
                 </select>
                 <label class="field-label" for="cemetery-municipality">Municipio</label>
                 <select id="cemetery-municipality" class="form-control mb-2"
-                    onchange="resetCemeteryMatchConfirmation()" disabled>
+                    onchange="loadCommunityPlaceCatalog()" disabled>
                     <option value="">Selecciona un municipio</option>
                 </select>
+                </div>
+                <div id="community-manual-region" hidden>
+                    <label for="cemetery-state-manual">Estado, provincia o región</label>
+                    <input id="cemetery-state-manual" class="form-control mb-2" maxlength="150" oninput="resetCemeteryMatchConfirmation()">
+                    <label for="cemetery-municipality-manual">Municipio o ciudad</label>
+                    <input id="cemetery-municipality-manual" class="form-control mb-2" maxlength="150" oninput="resetCemeteryMatchConfirmation()">
+                </div>
+                <div id="community-catalog-field" hidden>
+                    <label for="community-catalog-select">Panteón del catálogo INEGI</label>
+                    <select id="community-catalog-select" class="form-select mb-2" onchange="chooseCommunityCatalogPlace(this.value)"></select>
+                </div>
                 <label class="field-label" for="cemetery-locality">Colonia, localidad o poblado</label>
                 <input id="cemetery-locality" class="form-control mb-2" maxlength="150"
                     placeholder="Ej. San José de Gracia">
@@ -1821,6 +1850,13 @@
                 </div>
             </div>
         </div>
+<details class="mt-3"><summary>Ubicación GPS o manual de la fotografía</summary>
+ <p class="small">Al tomar una foto se solicita GPS. Para una imagen de archivo, indica las coordenadas del lugar fotografiado.</p>
+ <button type="button" class="btn btn-outline-primary my-2" onclick="captureTombPhotoLocation()">Usar mi ubicación actual</button>
+ <label for="tomb-photo-latitude">Latitud</label><input id="tomb-photo-latitude" class="form-control" type="number" min="-90" max="90" step="any">
+ <label for="tomb-photo-longitude">Longitud</label><input id="tomb-photo-longitude" class="form-control" type="number" min="-180" max="180" step="any">
+ <button type="button" class="btn btn-outline-secondary my-2" onclick="applyPhotoCoordinates('tomb')">Usar estas coordenadas</button>
+ <div id="tomb-photo-status" class="small" aria-live="polite"></div></details>
         <!-- Card de captura/subida de imagen -->
         <div class="card-custom" id="upload-capture-card">
             <h5 class="fw-bold mb-1">2. Captura o sube las lápidas</h5>
@@ -2136,7 +2172,7 @@
 /* ══════════════════════════════════════════════════════════════════
    CONFIGURACIÓN DE LA APLICACIÓN
 ══════════════════════════════════════════════════════════════════ */
-const APP_VERSION = "v2.36.0";
+const APP_VERSION = "v2.37.0";
 const MAX_IMAGE_FILE_SIZE = 15 * 1024 * 1024;
 const MAX_IMAGE_DIMENSION = 1920;
 
@@ -4895,6 +4931,61 @@ async function selectAddCemeteryMode() {
     await loadCommunityStates();
 }
 
+function communityRegion() {
+    const country = formatProperName(document.getElementById('cemetery-country').value);
+    const mexican = normalizeSearchText(country) === 'mexico';
+    const option = id => { const el = document.getElementById(id); return {value: el.value,
+        selectedOptions: [{textContent: el.value ? el.selectedOptions[0]?.textContent || '' : ''}]}; };
+    const manual = id => { const value = document.getElementById(id).value.trim(); return {value, selectedOptions: [{textContent: value}]}; };
+    return {country: mexican ? 'México' : country, mexican,
+        state: mexican ? option('cemetery-state') : manual('cemetery-state-manual'),
+        municipality: mexican ? option('cemetery-municipality') : manual('cemetery-municipality-manual')};
+}
+
+function updateCommunityCountry() {
+    const mexican = communityRegion().mexican;
+    if (!mexican && communityCemeteryLocationSource === 'inegi') {communityCemeteryLocation = null; communityCemeteryLocationSource = null;}
+    document.getElementById('community-mexico-region').hidden = !mexican;
+    document.getElementById('community-manual-region').hidden = mexican;
+    resetCemeteryMatchConfirmation();
+    loadCommunityPlaceCatalog();
+}
+
+async function loadCommunityPlaceCatalog() {
+    resetCemeteryMatchConfirmation();
+    const region = communityRegion();
+    const field = document.getElementById('community-catalog-field');
+    const select = document.getElementById('community-catalog-select');
+    const enabled = region.mexican && document.getElementById('cemetery-place-type').value === 'cemetery';
+    field.hidden = !enabled;
+    select.replaceChildren(new Option('Selecciona estado y municipio', ''));
+    select.disabled = true;
+    if (!enabled || !region.state.value || !region.municipality.value) return;
+    try {
+        const catalog = await loadCemeteryCatalog();
+        if (document.getElementById('cemetery-place-type').value !== 'cemetery' ||
+            !communityRegion().mexican || communityRegion().state.value !== region.state.value ||
+            communityRegion().municipality.value !== region.municipality.value) return;
+        select.replaceChildren(new Option('Selecciona un panteón o escribe uno nuevo', ''));
+        catalog.filter(item => item.stateCode === region.state.value && item.municipalityCode === region.municipality.value)
+            .forEach(item => select.add(new Option(item.name, item.id)));
+        select.disabled = false;
+    } catch (error) {
+        select.replaceChildren(new Option('Catálogo no disponible: escribe el nombre del lugar', ''));
+    }
+}
+
+async function chooseCommunityCatalogPlace(id) {
+    resetCemeteryMatchConfirmation();
+    if (!id || !communityRegion().mexican || document.getElementById('cemetery-place-type').value !== 'cemetery') return;
+    const region = communityRegion();
+    const item = (await loadCemeteryCatalog()).find(item => item.id === id && item.stateCode === region.state.value && item.municipalityCode === region.municipality.value);
+    if (!item || document.getElementById('community-catalog-select').value !== id || !communityRegion().mexican || document.getElementById('cemetery-place-type').value !== 'cemetery') return;
+    document.getElementById('cemetery-name').value = formatProperName(item.name);
+    communityCemeteryMatches = [{id: item.id, name: item.name, locality: item.colony, source: 'INEGI', location: {latitude: item.latitude, longitude: item.longitude}}];
+    useInegiCemeteryMatch(0);
+}
+
 function communityPlaceTypeLabel(place) {
     const labels = {cemetery: 'Panteón', church: 'Iglesia', hospital: 'Hospital', convent: 'Convento'};
     return place.placeType === 'other' ? `Otro: ${place.otherPlaceType || 'Sin especificar'}`
@@ -4903,8 +4994,10 @@ function communityPlaceTypeLabel(place) {
 
 function updateCommunityPlaceType() {
     const type = document.getElementById('cemetery-place-type').value;
+    if (type !== 'cemetery' && communityCemeteryLocationSource === 'inegi') {communityCemeteryLocation = null; communityCemeteryLocationSource = null;}
     document.getElementById('cemetery-other-type-field').hidden = type !== 'other';
     document.getElementById('cemetery-other-type').required = type === 'other';
+    loadCommunityPlaceCatalog();
     const examples = {cemetery: 'Panteón Municipal San José', church: 'Iglesia de San José',
         hospital: 'Hospital San José', convent: 'Convento de San José', other: 'Memorial San José'};
     document.getElementById('cemetery-name').placeholder = examples[type]
@@ -4913,6 +5006,10 @@ function updateCommunityPlaceType() {
 }
 
 function resetCemeteryForm() {
+    document.getElementById('cemetery-country').value = 'México';
+    document.getElementById('cemetery-state-manual').value = '';
+    document.getElementById('cemetery-municipality-manual').value = '';
+    updateCommunityCountry();
     document.getElementById('cemetery-place-type').value = '';
     document.getElementById('cemetery-other-type').value = '';
     updateCommunityPlaceType();
@@ -4963,6 +5060,7 @@ async function loadCommunityStates() {
 
 async function loadCommunityMunicipalities() {
     const stateCode = document.getElementById('cemetery-state').value;
+    document.getElementById('community-catalog-field').hidden = true;
     const select = document.getElementById('cemetery-municipality');
     resetCemeteryMatchConfirmation();
     select.replaceChildren(new Option(
@@ -5032,14 +5130,54 @@ function previewCemeteryPhoto(event, source) {
     }
 }
 
+function readPhotoCoordinates(prefix) {
+    const latitudeText = document.getElementById(prefix + '-latitude').value.trim();
+    const longitudeText = document.getElementById(prefix + '-longitude').value.trim();
+    const latitude = Number(latitudeText), longitude = Number(longitudeText);
+    if (!latitudeText || !longitudeText || !Number.isFinite(latitude) || !Number.isFinite(longitude) ||
+        Math.abs(latitude) > 90 || Math.abs(longitude) > 180) return null;
+    return {latitude, longitude};
+}
+
+function applyPhotoCoordinates(kind) {
+    const prefix = kind === 'place' ? 'place-photo' : 'tomb-photo';
+    const point = readPhotoCoordinates(prefix);
+    if (!point) return showToast('Indica latitud y longitud válidas.', '#f59e0b');
+    if (kind === 'place') {
+        if (!communityCemeteryPhotoFile) return showToast('Primero agrega una fotografía.', '#f59e0b');
+        communityCemeteryLocation = point;
+        communityCemeteryLocationSource = 'manual';
+        resetCemeteryMatchConfirmation();
+        document.getElementById('cemetery-location-status').textContent = 'Ubicación manual: ' + formatCoordinates(point);
+    } else {
+        if (!pendingCanvas) return showToast('Primero agrega una fotografía de la tumba.', '#f59e0b');
+        currentGeolocation = point;
+        document.getElementById('display-geolocation').value = formatCoordinates(point);
+    }
+    document.getElementById(prefix + '-status').textContent = 'Coordenadas aplicadas: ' + formatCoordinates(point);
+}
+
+async function captureTombPhotoLocation() {
+    if (!pendingCanvas) return showToast('Primero agrega una fotografía de la tumba.', '#f59e0b');
+    const photo = pendingCanvas;
+    const point = await getGeolocation();
+    if (!point || photo !== pendingCanvas) return;
+    currentGeolocation = point;
+    document.getElementById('display-geolocation').value = formatCoordinates(point);
+    document.getElementById('tomb-photo-status').textContent = 'GPS aplicado: ' + formatCoordinates(point);
+}
+
 function captureCemeteryLocation() {
     const status = document.getElementById('cemetery-location-status');
     if (!navigator.geolocation) {
         showToast('❌ Este dispositivo no ofrece geolocalización.', '#ef4444');
         return;
     }
+    const photo = communityCemeteryPhotoFile;
+    const locationBefore = communityCemeteryLocation;
     status.textContent = 'Obteniendo ubicación…';
     navigator.geolocation.getCurrentPosition(position => {
+        if (photo !== communityCemeteryPhotoFile || communityCemeteryLocation !== locationBefore) return;
         communityCemeteryLocation = {
             latitude: position.coords.latitude,
             longitude: position.coords.longitude,
@@ -5050,7 +5188,8 @@ function captureCemeteryLocation() {
             `${formatCoordinates(communityCemeteryLocation)} · precisión aproximada ${Math.round(position.coords.accuracy)} m`;
         resetCemeteryMatchConfirmation();
     }, error => {
-        status.textContent = 'No se pudo obtener la ubicación.';
+        if (photo !== communityCemeteryPhotoFile || communityCemeteryLocation !== locationBefore) return;
+        status.textContent = 'No se pudo obtener la ubicación. Puedes indicar las coordenadas manualmente.';
         showToast(`❌ ${getGeolocationErrorMessage(error)}`, '#ef4444', 7000);
     }, {
         enableHighAccuracy: true,
@@ -5103,12 +5242,12 @@ function distanceInMeters(first, second) {
 }
 
 function currentCemeteryComparisonKey() {
-    return [
+    return [communityRegion().country,
         document.getElementById('cemetery-place-type').value,
         normalizeSearchText(document.getElementById('cemetery-other-type').value),
         normalizeSearchText(document.getElementById('cemetery-name').value),
-        document.getElementById('cemetery-state').value,
-        document.getElementById('cemetery-municipality').value,
+        communityRegion().state.value,
+        communityRegion().municipality.value,
         communityCemeteryLocation?.latitude?.toFixed(5) || '',
         communityCemeteryLocation?.longitude?.toFixed(5) || ''
     ].join('|');
@@ -5124,8 +5263,8 @@ async function checkCemeteryMatches() {
     }
 
     const name = formatProperName(document.getElementById('cemetery-name').value);
-    const stateCode = document.getElementById('cemetery-state').value;
-    const municipalityCode = document.getElementById('cemetery-municipality').value;
+    const stateCode = communityRegion().state.value;
+    const municipalityCode = communityRegion().municipality.value;
     const results = document.getElementById('cemetery-match-results');
     if (name.length < 3 || !stateCode || !municipalityCode) {
         showToast('⚠ Escribe el nombre y selecciona estado y municipio.', '#f59e0b', 6000);
@@ -5134,7 +5273,7 @@ async function checkCemeteryMatches() {
     results.innerHTML = '<div class="text-center py-2"><span class="spinner-border spinner-border-sm"></span> Comparando…</div>';
     try {
         const [catalog, communitySnapshot] = await Promise.all([
-            document.getElementById('cemetery-place-type').value === 'cemetery'
+            communityRegion().mexican && document.getElementById('cemetery-place-type').value === 'cemetery'
                 ? loadCemeteryCatalog() : Promise.resolve([]),
             db.collection('cemeteries').where('stateCode', '==', stateCode).get()
         ]);
@@ -5152,6 +5291,7 @@ async function checkCemeteryMatches() {
             ...communitySnapshot.docs
                 .map(document => ({ id: document.id, ...document.data() }))
                 .filter(item => item.municipalityCode === municipalityCode &&
+                    normalizeSearchText(item.country || 'México') === normalizeSearchText(communityRegion().country) &&
                     item.status !== 'rejected')
                 .map(item => ({
                     id: item.id,
@@ -5222,8 +5362,7 @@ function useInegiCemeteryMatch(index) {
     if (!document.getElementById('cemetery-locality').value.trim()) {
         document.getElementById('cemetery-locality').value = formatProperName(cemetery.locality || '');
     }
-    const keepDeviceLocation = communityCemeteryPhotoSource === 'camera' &&
-        communityCemeteryLocationSource === 'device';
+    const keepDeviceLocation = ['device', 'manual'].includes(communityCemeteryLocationSource);
     if (!keepDeviceLocation) {
         communityCemeteryLocation = {
             latitude: cemetery.location.latitude,
@@ -5271,21 +5410,21 @@ async function saveCommunityCemetery() {
     const user = auth.currentUser;
     const nameInput = document.getElementById('cemetery-name');
     const name = formatProperName(nameInput.value);
-    const stateSelect = document.getElementById('cemetery-state');
-    const municipalitySelect = document.getElementById('cemetery-municipality');
+    const stateSelect = communityRegion().state;
+    const municipalitySelect = communityRegion().municipality;
     const locality = formatProperName(document.getElementById('cemetery-locality').value);
     if (!user || !user.emailVerified) {
         showToast('❌ Debes iniciar sesión con un correo verificado.', '#ef4444');
         return;
     }
-    if (name.length < 3 || !stateSelect.value || !municipalitySelect.value ||
+    if (!communityRegion().country || name.length < 3 || !stateSelect.value || !municipalitySelect.value ||
         !locality || !communityCemeteryPhotoFile || !communityCemeteryPhotoSource) {
         showToast('⚠ Completa nombre, estado, municipio, localidad y agrega una imagen.', '#f59e0b', 7000);
         return;
     }
     if (communityCemeteryPhotoSource === 'camera' &&
-        communityCemeteryLocationSource !== 'device') {
-        showToast('⚠ Para guardar una fotografía tomada con la cámara debes permitir la ubicación actual.', '#f59e0b', 8000);
+        !communityCemeteryLocation) {
+        showToast('⚠ Para guardar una fotografía tomada con la cámara debes obtener el GPS o indicar las coordenadas manualmente.', '#f59e0b', 8000);
         return;
     }
     if (communityCemeteryComparisonKey !== currentCemeteryComparisonKey()) {
@@ -5306,6 +5445,7 @@ async function saveCommunityCemetery() {
     let cemeteryWriteStarted = false;
     try {
         const identity = [
+            communityRegion().country,
             normalizeSearchText(name),
             stateSelect.value,
             municipalitySelect.value,
@@ -5336,6 +5476,7 @@ async function saveCommunityCemetery() {
         cemeteryWriteStarted = true;
         const saveResponse = await functionsApi.httpsCallable('crearAportacionPanteon')({recordId: cemeteryId, data: {
             name,
+            country: communityRegion().country,
             placeType,
             otherPlaceType,
             normalizedName: normalizeSearchText(name),
@@ -5849,7 +5990,15 @@ async function showUserHistory(uid = auth.currentUser?.uid, name = 'Mi actividad
     }
 }
 
+function showContributionOptions() {
+    document.getElementById('home-main-actions').hidden = true;
+    document.getElementById('contribution-options').hidden = false;
+    document.getElementById('contribution-options').scrollIntoView({behavior: 'smooth', block: 'start'});
+}
+
 function showModeSelection() {
+    document.getElementById('home-main-actions').hidden = false;
+    document.getElementById('contribution-options').hidden = true;
     document.getElementById('account-section').style.display = 'none';
     resetTombPhotoBatch();
     document.getElementById('add-tomb-section').style.display = 'none';

@@ -25,6 +25,9 @@ function assessSimilarity(a, b, cemetery = false) {
   };
   const equal = (left, right) => normalize(left) === normalize(right) ? 1 : 0;
   if (cemetery) {
+    if (normalize(a.country || "M\u00e9xico") !== normalize(b.country || "M\u00e9xico")) {
+      return {score: 0, exact: false, fields, reason: "Pa\u00edses diferentes"};
+    }
     const names = (data) => [data.name, data.inegiName, ...(data.aliases || [])].filter(Boolean);
     const nameScore = Math.max(0, ...names(a).flatMap(left => names(b).map(right => textSimilarity(left, right))));
     add("Nombre del lugar", a.name, b.name, 40, () => nameScore);

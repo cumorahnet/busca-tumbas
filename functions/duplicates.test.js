@@ -52,7 +52,7 @@ function harness() {
     return result;
   };
   const api = factory({db, onCall: (_options, fn) => fn, HttpsError,
-    FieldValue: {serverTimestamp: () => 1}, GeoPoint: class {}, requireUser: (request) => request.auth.uid,
+    FieldValue: {serverTimestamp: () => 1}, GeoPoint: class {constructor(latitude, longitude) {this.latitude = latitude; this.longitude = longitude;}}, requireUser: (request) => request.auth.uid,
     requireAdmin: (request) => {if (request.auth.uid !== "admin") throw new HttpsError("permission-denied", "Admin only");}});
   const request = (recordId, data, uid = "owner") => ({auth: {uid, token: {}}, data: {recordId, data}});
   return {api, rows, request, revisions};
@@ -172,4 +172,15 @@ test("visual selection can replace the existing record with archive, stable ID a
   assert.equal(rows.get("_mergedRecords/dispute_" + disputed.disputeId).original.imageUrl, "original-photo");
   assert.equal(rows.get("_duplicateDisputes/" + disputed.disputeId).selectedPublication, "candidate");
   assert.equal([...rows.keys()].filter(path => path.startsWith("tumbas/")).length, 1);
+});
+
+test('place photos preserve country and cannot link a foreign place to INEGI', async () => {
+  const {api, rows, request} = harness();
+  const place = {name:'San Jose',stateCode:'Region',municipalityCode:'Centro',locality:'Centro',photoUrl:'photo',placeType:'church',country:'Guatemala',location:{latitude:14.56,longitude:-90.73}};
+  await api.crearAportacionPanteon(request('foreign',place));
+  assert.equal(rows.get('cemeteries/foreign').country,'Guatemala');
+  assert.equal(rows.get('cemeteries/foreign').location.latitude,14.56);
+  const result=await api.crearAportacionPanteon(request('other-country',{...place,country:'Mexico'}));
+  assert.equal(result.saved,true);
+  await assert.rejects(api.crearAportacionPanteon(request('invalid-link',{...place,placeType:'cemetery',inegiCemeteryId:'mexican-catalogue'})),{code:'invalid-argument'});
 });

@@ -6176,3 +6176,13 @@ Se cerró una sesión de trabajo del proyecto buscatumbas. Se detectaron 18 camb
 - Verificación: 22 pruebas aprobadas, incluida selección y confirmación del municipio para cada tipo; recursos www/ generados. Versiones sincronizadas: 2.36.0, Android versionCode 9 e iOS CURRENT_PROJECT_VERSION 7.
 - Sin generación de APK ni instalación.
 - Firebase Hosting publicado y verificado por HTTPS en buscatumbas.lat y buscatumbas-2e7cc.web.app: ambos sirven la versión 2.36.0 con la corrección.
+
+## v2.37.0 · 24/10/2026 · Menú Aportar y fotografías con ubicación
+
+- Aportar en el inicio abre Panteón u otro lugar y Tumba. Ambos flujos ofrecen tomar fotografías o subir archivos.
+- El registro de lugares incluye país: Panteón en México permite elegir del catálogo INEGI; otros tipos permiten introducir el nombre y los datos del lugar. Fuera de México se introducen estado y municipio manualmente.
+- Controles de ubicación de las fotos por GPS o coordenadas manuales en ambos flujos; la cámara solicita GPS automáticamente. Las coordenadas manuales no se sobrescriben por una respuesta GPS anterior.
+- Backend conserva el país y distingue lugares de países diferentes; rechaza referencias INEGI para países distintos de México.
+- Verificación: 40 pruebas automatizadas aprobadas, lint de Functions y verificaciones de inicio y aportaciones en Chromium y WebKit. Guardado simulado de foto, país y coordenadas; prueba de GPS y cambio manual. Recursos www/ generados y versiones sincronizadas: 2.37.0, Android versionCode 10 e iOS CURRENT_PROJECT_VERSION 8.
+- Sin generación de APK ni instalación.
+- Publicadas seis funciones de registro y revisión de lugares y Firebase Hosting. Verificado por HTTPS en buscatumbas.lat y buscatumbas-2e7cc.web.app: versión 2.37.0, menú Aportar y controles de ubicación. El endpoint de registro responde y rechaza escrituras anónimas con 401; sin crear registros de prueba en producción.
