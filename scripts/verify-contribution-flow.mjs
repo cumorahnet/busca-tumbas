@@ -5,7 +5,7 @@ import path from 'node:path';
 import {chromium, webkit} from 'playwright';
 const original = await fs.readFile('index.html','utf8');
 const source = (await fs.readFile('www/index.html','utf8')).replace(/<script\b[^>]*>[^]*?<\/script>/gi,'');
-const names = ['loadMyContributions','communityPlaceTypeLabel','inlineJsValue','showContributionOptions','selectAddCemeteryMode','resetCemeteryForm','updateCommunityCountry','communityRegion','loadCommunityPlaceCatalog','chooseCommunityCatalogPlace','updateCommunityPlaceType','resetCemeteryMatchConfirmation','loadCommunityMunicipalities','useInegiCemeteryMatch','currentCemeteryComparisonKey','formatProperName','normalizeSearchText','formatCoordinates','escapeHtml','previewCemeteryPhoto','captureCemeteryLocation','getGeolocationErrorMessage','readPhotoCoordinates','applyPhotoCoordinates','captureTombPhotoLocation','saveCommunityCemetery','checkCemeteryMatches','cemeteryNameSimilarity','cemeteryComparisonName','distanceInMeters'];
+const names = ['filterMyContributions','renderMyContributions','loadMyContributions','communityPlaceTypeLabel','inlineJsValue','showContributionOptions','selectAddCemeteryMode','resetCemeteryForm','updateCommunityCountry','communityRegion','loadCommunityPlaceCatalog','chooseCommunityCatalogPlace','updateCommunityPlaceType','resetCemeteryMatchConfirmation','loadCommunityMunicipalities','useInegiCemeteryMatch','currentCemeteryComparisonKey','formatProperName','normalizeSearchText','formatCoordinates','escapeHtml','previewCemeteryPhoto','captureCemeteryLocation','getGeolocationErrorMessage','readPhotoCoordinates','applyPhotoCoordinates','captureTombPhotoLocation','saveCommunityCemetery','checkCemeteryMatches','cemeteryNameSimilarity','cemeteryComparisonName','distanceInMeters'];
 const functions = names.map(name => {const m=original.match(new RegExp('(?:async )?function '+name+'\\([^]*?\\n}'));assert.ok(m,name);return m[0];}).join('\n');
 const server=http.createServer(async(req,res)=>{try{const url=new URL(req.url,'http://localhost');if(url.pathname==='/'){res.setHeader('Content-Type','text/html; charset=utf-8');res.end(source);return;}const file=path.resolve('www','.'+url.pathname);if(!file.startsWith(path.resolve('www')+path.sep)){res.writeHead(403);res.end();return;}res.setHeader('Content-Type',file.endsWith('.css')?'text/css':file.endsWith('.js')?'text/javascript':'application/octet-stream');res.end(await fs.readFile(file));}catch{res.writeHead(404);res.end();}});
 await new Promise(r=>server.listen(0,'127.0.0.1',r));
@@ -16,6 +16,7 @@ for(const [engine,type] of Object.entries({chromium,webkit})) {
  const page=await browser.newPage({viewport:{width:390,height:844}});
  await page.goto('http://127.0.0.1:'+server.address().port,{waitUntil:'networkidle'});
  await page.evaluate(()=>{
+   window.savedFilterMarkup=document.getElementById('my-contribution-type-filter').outerHTML;
    const ids=['mode-selection-card','add-cemetery-section','add-tomb-section'];
    const nodes=ids.map(id=>document.getElementById(id));document.body.replaceChildren(...nodes);
    nodes[0].style.display='block';nodes[1].style.display='none';nodes[2].style.display='none';
@@ -65,7 +66,7 @@ for(const [engine,type] of Object.entries({chromium,webkit})) {
  assert.equal(saved.country,'Guatemala');assert.equal(saved.placeType,'church');assert.equal(saved.state,'Guatemala');assert.equal(saved.municipality,'Antigua');assert.equal(saved.location.latitude,14.56);assert.equal(saved.inegiCemeteryId,undefined);
  // An existing church photo must be labelled by its saved type in the contribution list.
  await page.evaluate(() => {
-   for (const id of ['my-contributions-list','my-contribution-detail']) {const el=document.createElement('div');el.id=id;document.body.append(el);}
+   for (const id of ['my-contributions-list','my-contribution-detail','my-contribution-type-filter','my-contribution-filter-count']) {let el=document.createElement('div');if(id==='my-contribution-type-filter'){el.innerHTML=savedFilterMarkup;el=el.firstElementChild;}el.id=id;document.body.append(el);}
    window.myContributions=[];
    const existing={id:'church-photo',data:()=>({...savedRequest.data,name:'San Jose'})};
    db={collection:name=>({where:()=>({get:async()=>({docs:name==='cemeteries'?[existing]:[]})})})};
@@ -78,6 +79,26 @@ for(const [engine,type] of Object.entries({chromium,webkit})) {
  assert.ok((await page.locator('#my-contributions-list .contribution-status').textContent()).includes('PENDIENTE'));
  await page.locator('#my-contributions-list').screenshot({path:'.browser-check/contribution-type-'+engine+'.png'});
  assert.ok(!(await page.locator('#my-contributions-list').textContent()).includes('Panteon: San Jose'));
+ // Filter the actual list using its dropdown and check empty states and stale detail clearing.
+ await page.evaluate(() => {
+   myContributions=[{id:'t',type:'tomb',nombre_finado:'Tumba de Ana'},
+     {id:'p',type:'cemetery',name:'Panteon Municipal',placeType:'cemetery'},
+     {id:'i',type:'cemetery',name:'Iglesia San Jose',placeType:'church'}];
+   renderMyContributions();
+ });
+ assert.equal(await page.locator('#my-contributions-list button').count(),3);
+ for(const [type,id] of [['tomb','t'],['cemetery','p'],['church','i']]){
+   await page.selectOption('#my-contribution-type-filter',type);
+   assert.equal(await page.locator('#my-contributions-list button').count(),1);
+   assert.equal(await page.locator('#my-contributions-list button').getAttribute('data-contribution-id'),id);
+   assert.equal(await page.locator('#my-contribution-filter-count').textContent(),'1 de 3 aportaciones');
+ }
+ await page.evaluate(()=>{document.getElementById('my-contribution-detail').textContent='Old church detail';});
+ await page.selectOption('#my-contribution-type-filter','hospital');
+ assert.equal(await page.locator('#my-contributions-list button').count(),0);
+ assert.ok(!(await page.locator('#my-contribution-detail').textContent()).includes('Old church detail'));
+ await page.selectOption('#my-contribution-type-filter','all');
+ assert.equal(await page.locator('#my-contributions-list button').count(),3);
  // A live camera image requests GPS; a later manual edit wins over an old callback.
  await page.evaluate(() => {
    window.gpsSuccess = null;

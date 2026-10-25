@@ -6202,3 +6202,11 @@ Se cerró una sesión de trabajo del proyecto buscatumbas. Se detectaron 18 camb
 - Verificación: nueve pruebas aprobadas de tipos, formato, compatibilidad y seguridad; comprobación de visibilidad de tipo y estado y revisión de captura móvil en Chromium, además de verificación del flujo en Chromium y WebKit. Recursos www/ y versiones sincronizados en 2.39.0, Android versionCode 12 e iOS CURRENT_PROJECT_VERSION 10.
 - Sin cambios en datos guardados ni backend; sin generación de APK ni instalación.
 - Firebase Hosting publicado y verificado por HTTPS en ambos dominios: 2.39.0 con nombre, tipo y estado separados en la lista de aportaciones.
+
+## v2.40.0 · 24/10/2026 · Filtro por tipo en Mis aportaciones
+
+- Agregado selector Todas, Tumbas, Panteones, Iglesias, Hospitales, Conventos y Otros lugares en la misma lista de aportaciones.
+- El filtro usa los registros ya cargados, conserva su orden, muestra el número de resultados y limpia el detalle anterior. Incluye estado vacío y compatibilidad con panteones antiguos sin tipo explícito.
+- Verificación: diez pruebas aprobadas; selección real del filtro, contador, estado vacío y limpieza del detalle comprobados en Chromium y WebKit. Recursos www/ y versiones sincronizados en 2.40.0, Android versionCode 13 e iOS CURRENT_PROJECT_VERSION 11.
+- Sin cambios de datos guardados o backend; sin APK ni instalación.
+- Firebase Hosting publicado y verificado en ambos dominios por HTTPS: versión 2.40.0 con selector de tipo y contador de resultados.

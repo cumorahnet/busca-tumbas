@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
 const source=fs.readFileSync('index.html','utf8');
-const functions=['loadMyContributions','communityPlaceTypeLabel','escapeHtml','inlineJsValue'].map(name=>{
+const functions=['filterMyContributions','renderMyContributions','loadMyContributions','communityPlaceTypeLabel','escapeHtml','inlineJsValue'].map(name=>{
  const match=source.match(new RegExp('(?:async )?function '+name+'\\([^]*?\\n}'));assert.ok(match,name);return match[0];
 }).join('\n');
 for(const [placeType,label,otherPlaceType] of [['tomb','Tumba'],['church','Iglesia'],['hospital','Hospital'],['convent','Convento'],['other','Otro: Capilla','Capilla'],['cemetery','Panteón'],[undefined,'Panteón']]) {
@@ -25,3 +25,15 @@ for(const [placeType,label,otherPlaceType] of [['tomb','Tumba'],['church','Igles
   assert.equal(context.myContributions[0].placeType,placeType);
  });
 }
+
+test('filters each saved type, preserves legacy cemeteries and never mutates the full list',()=>{
+ const records=[{id:'t',type:'tomb',placeType:'church'},{id:'p',type:'cemetery',placeType:'cemetery'},
+ {id:'legacy',type:'cemetery'},{id:'i',type:'cemetery',placeType:'church'},
+ {id:'h',type:'cemetery',placeType:'hospital'},{id:'c',type:'cemetery',placeType:'convent'},
+ {id:'o',type:'cemetery',placeType:'other',otherPlaceType:'Capilla'}];
+ const ctx=vm.createContext({myContributions:records});vm.runInContext(functions,ctx);
+ for(const [type,ids] of [['all',['t','p','legacy','i','h','c','o']],['tomb',['t']],['cemetery',['p','legacy']],['church',['i']],['hospital',['h']],['convent',['c']],['other',['o']],['unknown',[]]]) {
+   assert.deepEqual(Array.from(ctx.filterMyContributions(type),item=>item.id),ids);
+ }
+ assert.equal(records.length,7);
+});
