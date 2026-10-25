@@ -1,5 +1,6 @@
 "use strict";
 const {createHash} = require("node:crypto");
+const {meaningfulChanges, isActivity, describeActivity} = require("./activity-summary");
 const validUid = uid => typeof uid === "string" && uid.length > 0 && uid.length <= 128 && !uid.includes("/") && !uid.includes("@");
 function safe(value, key = "") {
   if (/password|secret|token|credential|fingerprint|image_hash/i.test(key)) return "[dato protegido]";
@@ -66,6 +67,7 @@ module.exports = ({db, FieldValue, HttpsError, requireUser, requireAdmin}) => {
       actorId, actorName:actorId ? "Usuario" : "Sistema (consultar operación relacionada)",
       target:nested ? `${collection}/${event.params.documentId}/${event.params.subcollectionId}/${event.params.childId}` : `${collection}/${event.params.documentId}`,
       createdAt:new Date(event.time), changes, sourceEventId:event.id};
+    if (!nested) entry.summary = describeActivity(entry, after || before || {});
     const batch = db.batch();
     batch.set(db.collection("_databaseAudit").doc(id), entry);
     [...affected].filter(validUid).forEach(uid => batch.set(events(uid).doc(id), entry));
@@ -83,10 +85,42 @@ module.exports = ({db, FieldValue, HttpsError, requireUser, requireAdmin}) => {
       if (!cursor.exists) throw new HttpsError("invalid-argument", "Página no válida.");
       query = query.startAfter(cursor);
     }
-    const snapshot = await query.limit(50).get();
-    return {uid, entries:snapshot.docs.map(doc => ({id:doc.id,...doc.data(),createdAt:doc.data().createdAt?.toMillis?.() || null})),
-      after:snapshot.size === 50 ? snapshot.docs.at(-1).id : null};
+    const selected = [];
+    let last = null, more = false, scanned = 0;
+    while (selected.length < 50 && scanned < 500) {
+      const snapshot = await query.limit(100).get();
+      more = false;
+      for (let index = 0; index < snapshot.docs.length; index++) {
+        const doc = snapshot.docs[index];
+        last = doc;
+        scanned++;
+        const entry = {id:doc.id, ...doc.data()};
+        if (isActivity(entry)) selected.push(entry);
+        more = index < snapshot.docs.length - 1 || snapshot.docs.length === 100;
+        if (selected.length === 50 || scanned === 500) break;
+      }
+      if (!more || selected.length === 50 || scanned === 500) break;
+      query = query.startAfter(last);
+    }
+    const contexts = new Map();
+    const entries = await Promise.all(selected.map(async entry => {
+      let context = {};
+      if (!entry.summary && entry.source === "database") {
+        const parts = String(entry.target || "").split("/");
+        if (["tumbas", "cemeteries", "correction_requests", "_duplicateDisputes"].includes(parts[0]) &&
+            /^[A-Za-z0-9_-]{1,1500}$/.test(parts[1] || "")) {
+          const path = parts.slice(0,2).join("/");
+          if (!contexts.has(path)) contexts.set(path, db.collection(parts[0]).doc(parts[1]).get()
+              .then(doc => doc.exists ? doc.data() : {}).catch(() => ({})));
+          context = await contexts.get(path);
+        }
+      }
+      return {...entry, summary:entry.summary || describeActivity(entry, context), changes:meaningfulChanges(entry),
+        createdAt:entry.createdAt?.toMillis?.() || (entry.createdAt instanceof Date ? entry.createdAt.getTime() : null)};
+    }));
+    return {uid, entries, after:more && last ? last.id : null};
   }
+
   function addDeletion(writer, snapshot, request) {
     const uid = requireUser(request);
     const data = snapshot.data();

@@ -5,7 +5,7 @@ import path from 'node:path';
 import {chromium, webkit} from 'playwright';
 const original = await fs.readFile('index.html','utf8');
 const source = (await fs.readFile('www/index.html','utf8')).replace(/<script\b[^>]*>[^]*?<\/script>/gi,'');
-const names = ['mergeApprovedCemeteryCatalog','loadApprovedCommunityCatalog','openMyCemeteryContribution','enableMyCemeteryEditing','saveMyCemeteryEdits','fillCemeteryEditGps','filterMyContributions','renderMyContributions','loadMyContributions','communityPlaceTypeLabel','inlineJsValue','showContributionOptions','selectAddCemeteryMode','resetCemeteryForm','updateCommunityCountry','communityRegion','loadCommunityPlaceCatalog','chooseCommunityCatalogPlace','updateCommunityPlaceType','resetCemeteryMatchConfirmation','loadCommunityMunicipalities','useInegiCemeteryMatch','currentCemeteryComparisonKey','formatProperName','normalizeSearchText','formatCoordinates','escapeHtml','previewCemeteryPhoto','captureCemeteryLocation','getGeolocationErrorMessage','readPhotoCoordinates','applyPhotoCoordinates','captureTombPhotoLocation','saveCommunityCemetery','checkCemeteryMatches','cemeteryNameSimilarity','cemeteryComparisonName','distanceInMeters'];
+const names = ['showUserHistory','mergeApprovedCemeteryCatalog','loadApprovedCommunityCatalog','openMyCemeteryContribution','enableMyCemeteryEditing','saveMyCemeteryEdits','fillCemeteryEditGps','filterMyContributions','renderMyContributions','loadMyContributions','communityPlaceTypeLabel','inlineJsValue','showContributionOptions','selectAddCemeteryMode','resetCemeteryForm','updateCommunityCountry','communityRegion','loadCommunityPlaceCatalog','chooseCommunityCatalogPlace','updateCommunityPlaceType','resetCemeteryMatchConfirmation','loadCommunityMunicipalities','useInegiCemeteryMatch','currentCemeteryComparisonKey','formatProperName','normalizeSearchText','formatCoordinates','escapeHtml','previewCemeteryPhoto','captureCemeteryLocation','getGeolocationErrorMessage','readPhotoCoordinates','applyPhotoCoordinates','captureTombPhotoLocation','saveCommunityCemetery','checkCemeteryMatches','cemeteryNameSimilarity','cemeteryComparisonName','distanceInMeters'];
 const functions = names.map(name => {const m=original.match(new RegExp('(?:async )?function '+name+'\\([^]*?\\n}'));assert.ok(m,name);return m[0];}).join('\n');
 const server=http.createServer(async(req,res)=>{try{const url=new URL(req.url,'http://localhost');if(url.pathname==='/'){res.setHeader('Content-Type','text/html; charset=utf-8');res.end(source);return;}const file=path.resolve('www','.'+url.pathname);if(!file.startsWith(path.resolve('www')+path.sep)){res.writeHead(403);res.end();return;}res.setHeader('Content-Type',file.endsWith('.css')?'text/css':file.endsWith('.js')?'text/javascript':'application/octet-stream');res.end(await fs.readFile(file));}catch{res.writeHead(404);res.end();}});
 await new Promise(r=>server.listen(0,'127.0.0.1',r));
@@ -160,6 +160,21 @@ for(const [engine,type] of Object.entries({chromium,webkit})) {
  await page.evaluate(()=>{pendingCanvas={};document.getElementById('tomb-photo-latitude').value='20';document.getElementById('tomb-photo-longitude').value='-103';applyPhotoCoordinates('tomb');});
  assert.equal(await page.evaluate(()=>currentGeolocation.latitude),20);
  await fs.mkdir('.browser-check',{recursive:true});
+ await page.evaluate(async()=>{
+   window.accountFieldLabels={};
+   functionsApi={httpsCallable:()=>async()=>({data:{entries:[
+     {id:'activity1',summary:'Se aporto la tumba de Pedro <img src=x>',action:'created',createdAt:Date.now(),actorName:'Usuario',changes:[{field:'nombre_finado',before:null,after:'Pedro'}]},
+     {id:'activity2',summary:'Se sugirio corregir la direccion de la iglesia Catedral',action:'created',createdAt:Date.now(),actorName:'Usuario',changes:[{field:'description',before:null,after:'Calle Central 123'}]}
+   ],after:null}})};
+   await showUserHistory();
+ });
+ assert.equal(await page.locator('#user-history-dialog article').count(),2);
+ assert.ok((await page.locator('#user-history-dialog').textContent()).includes('Se aporto la tumba de Pedro <img src=x>'));
+ assert.ok((await page.locator('#user-history-dialog').textContent()).includes('Se sugirio corregir la direccion'));
+ assert.equal(await page.locator('#user-history-dialog img').count(),0);
+ assert.ok(!(await page.locator('#user-history-dialog').textContent()).includes('Registro actualizado'));
+ await page.locator('#user-history-dialog').screenshot({path:'.browser-check/user-activity-'+engine+'.png'});
+ await page.locator('#user-history-dialog').getByRole('button',{name:'Cerrar',exact:true}).click();
  console.log(engine+': menu, Mexico catalogue, church abroad, photo upload, manual coordinates and saved payload OK');
  } finally {await browser.close();}
 }

@@ -19,7 +19,7 @@
     <meta property="og:url" content="https://buscatumbas.lat/">
     <meta property="og:image" content="https://buscatumbas.lat/assets/brand/icon-512.png?v=3">
     <meta property="og:image:alt" content="Logotipo de Busca Tumbas: lápida con lupa">
-    <title>Busca Tumbas — VERSION 2.43.0</title>
+    <title>Busca Tumbas — VERSION 2.44.0</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
@@ -2181,7 +2181,7 @@
 /* ══════════════════════════════════════════════════════════════════
    CONFIGURACIÓN DE LA APLICACIÓN
 ══════════════════════════════════════════════════════════════════ */
-const APP_VERSION = "v2.43.0";
+const APP_VERSION = "v2.44.0";
 const MAX_IMAGE_FILE_SIZE = 15 * 1024 * 1024;
 const MAX_IMAGE_DIMENSION = 1920;
 
@@ -6039,7 +6039,7 @@ async function showUserHistory(uid = auth.currentUser?.uid, name = 'Mi actividad
         dialog.setAttribute('aria-label', 'Historial privado de usuario'); document.body.append(dialog);
     }
     if (!after) {
-        dialog.innerHTML = `<button class="btn btn-outline-secondary float-end" onclick="this.closest('dialog').close()">Cerrar</button><h2 class="h5">Historial: ${escapeHtml(name)}</h2><p class="small">Aquí puedes consultar los cambios de tus datos y tu actividad en la app. Solo tú y el administrador pueden verlos. Los movimientos nuevos pueden tardar unos segundos en aparecer.</p><div id="user-history-entries" aria-live="polite"></div><div id="user-history-more"></div>`;
+        dialog.innerHTML = `<button class="btn btn-outline-secondary float-end" onclick="this.closest('dialog').close()">Cerrar</button><h2 class="h5">Historial: ${escapeHtml(name)}</h2><p class="small">Aquí puedes consultar tus aportaciones, sugerencias, mensajes y cambios de cuenta. Solo tú y el administrador pueden verlos. Los movimientos nuevos pueden tardar unos segundos en aparecer.</p><div id="user-history-entries" aria-live="polite"></div><div id="user-history-more"></div>`;
     }
     if (!dialog.open) dialog.showModal();
     const caller = auth.currentUser.uid;
@@ -6050,11 +6050,11 @@ async function showUserHistory(uid = auth.currentUser?.uid, name = 'Mi actividad
         const response = await functionsApi.httpsCallable('obtenerHistorialUsuario')({uid, ...(after ? {after} : {})});
         if (auth.currentUser?.uid !== caller || !dialog.open || !more.isConnected) return;
         const labels = {created:'Registro creado',updated:'Registro actualizado',deleted:'Registro eliminado',account_updated:'Datos de la cuenta actualizados',completed:'Completada',started:'En proceso',failed:'No se pudo completar',contactarColaboradorTumba:'Mensaje a un colaborador',aportarFotoOUbicacionTumba:'Aportación de foto o ubicación',activarPlusAdmin:'Activación de Plus',enviarNotaError:'Reporte de un problema',resolverNotasErrorAdmin:'Resolución de reportes',auditarDuplicadosAdmin:'Revisión de duplicados',eliminarRegistroAdmin:'Eliminación de un registro',eliminarMiAportacion:'Eliminación de una aportación',actualizarAportacionTumba:'Actualización de una tumba',gestionarAporteAdmin:'Revisión de una aportación',vaciarBaseAdmin:'Eliminación de registros'};
-        const fieldLabels = {...accountFieldLabels,termsAccepted:'Aceptación de términos',termsAcceptedAt:'Fecha de aceptación',updatedAt:'Fecha de actualización',createdAt:'Fecha de creación',nombres:'Nombres',apellidos:'Apellidos',nombre:'Nombre',status:'Estado del registro',imageUrl:'Fotografía',geolocation:'Ubicación',messages:'Mensajes'};
-        const targetLabel = target => ({_accountProfiles:'Cuenta',tumbas:'Tumba',cementerios:'Cementerio',correction_requests:'Solicitud de corrección',_moderation:'Estado de moderación',_entitlements:'Beneficios de la cuenta'}[String(target || '').split('/')[0]] || (target ? 'Registro relacionado' : 'Actividad de la cuenta'));
-        const markup = response.data.entries.map(entry => `<article class="border rounded p-3 my-2"><strong>${escapeHtml(labels[entry.action] || 'Actividad registrada')}</strong><div class="small">${escapeHtml(entry.createdAt ? new Date(entry.createdAt).toLocaleString('es-MX') : 'Fecha pendiente')} · ${escapeHtml(entry.actorName?.startsWith('Sistema') ? 'Sistema' : entry.actorName || 'Usuario')}</div><div class="small">${escapeHtml(targetLabel(entry.target))} ${entry.status ? '· ' + escapeHtml(labels[entry.status] || entry.status) : ''}</div>${(entry.changes || []).map(change => `<details class="mt-2"><summary>${escapeHtml(fieldLabels[change.field] || change.field.replace(/([a-z])([A-Z])/g, '$1 $2').replaceAll('_', ' '))}</summary><p class="small">Anterior: ${escapeHtml(print(change.before))}</p><p class="small">Nuevo: ${escapeHtml(print(change.after))}</p></details>`).join('')}</article>`).join('');
-        document.getElementById('user-history-entries').insertAdjacentHTML('beforeend', markup || (!after ? '<p>No hay cambios registrados.</p>' : ''));
-        more.innerHTML = response.data.after ? `<button class="btn btn-outline-primary" onclick="showUserHistory(${inlineJsValue(uid)}, ${inlineJsValue(name)}, ${inlineJsValue(response.data.after)})">Ver cambios anteriores</button>` : '';
+        const fieldLabels = {...accountFieldLabels,termsAccepted:'Aceptación de términos',termsAcceptedAt:'Fecha de aceptación',updatedAt:'Fecha de actualización',createdAt:'Fecha de creación',name:'Nombre del lugar',locality:'Localidad',address:'Dirección o referencias',notes:'Observaciones',location:'Ubicación GPS',description:'Sugerencia o mensaje',tombName:'Tumba o lugar relacionado',photoUrl:'Fotografía',kind:'Tipo de mensaje',nombre_finado:'Nombre de la persona',placeType:'Tipo de lugar',nombres:'Nombres',apellidos:'Apellidos',nombre:'Nombre',status:'Estado del registro',imageUrl:'Fotografía',geolocation:'Ubicación',messages:'Mensajes'};
+        const targetLabel = target => ({_accountProfiles:'Cuenta',tumbas:'Tumba',cemeteries:'Lugar',cementerios:'Cementerio',correction_requests:'Solicitud de corrección',_moderation:'Estado de moderación',_entitlements:'Beneficios de la cuenta'}[String(target || '').split('/')[0]] || (target ? 'Registro relacionado' : 'Actividad de la cuenta'));
+        const markup = response.data.entries.map(entry => `<article class="border rounded p-3 my-2"><strong>${escapeHtml(entry.summary || labels[entry.action] || 'Actividad registrada')}</strong><div class="small">${escapeHtml(entry.createdAt ? new Date(entry.createdAt).toLocaleString('es-MX') : 'Fecha pendiente')} · ${escapeHtml(entry.actorName?.startsWith('Sistema') ? 'Sistema' : entry.actorName || 'Usuario')}</div><div class="small">${entry.summary ? '' : escapeHtml(targetLabel(entry.target))} ${entry.status ? '· ' + escapeHtml(labels[entry.status] || entry.status) : ''}</div>${(entry.changes || []).map(change => `<details class="mt-2"><summary>${escapeHtml(fieldLabels[change.field] || change.field.replace(/([a-z])([A-Z])/g, '$1 $2').replaceAll('_', ' '))}</summary><p class="small">Anterior: ${escapeHtml(print(change.before))}</p><p class="small">Nuevo: ${escapeHtml(print(change.after))}</p></details>`).join('')}</article>`).join('');
+        document.getElementById('user-history-entries').insertAdjacentHTML('beforeend', markup || (!after ? '<p>No hay actividad relevante registrada.</p>' : ''));
+        more.innerHTML = response.data.after ? `<button class="btn btn-outline-primary" onclick="showUserHistory(${inlineJsValue(uid)}, ${inlineJsValue(name)}, ${inlineJsValue(response.data.after)})">Ver actividad anterior</button>` : '';
     } catch (error) {
         more.innerHTML = `<p role="alert">${escapeHtml(getFirebaseErrorMessage(error, 'No se pudo cargar el historial.'))}</p><button class="btn btn-outline-primary" onclick="showUserHistory(${inlineJsValue(uid)}, ${inlineJsValue(name)}, ${inlineJsValue(after)})">Reintentar</button>`;
     }

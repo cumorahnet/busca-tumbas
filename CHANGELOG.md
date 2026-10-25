@@ -6237,3 +6237,12 @@ Se cerró una sesión de trabajo del proyecto buscatumbas. Se detectaron 18 camb
 - Verificación: 19 pruebas aprobadas, incluida selección y guardado de una tumba con ambos IDs y respaldo GPS; selectores y datos corregidos comprobados en Chromium y WebKit. Recursos www/ y versiones sincronizados en 2.43.0, Android versionCode 16 e iOS CURRENT_PROJECT_VERSION 14.
 - Sin modificación de registros existentes, cambios de backend, APK ni instalación.
 - Firebase Hosting publicado y verificado por HTTPS en ambos dominios con versión 2.43.0 y catálogo combinado de correcciones aprobadas.
+
+## v2.44.0 · 24/10/2026 · Historial de actividad comprensible
+
+- Cuenta/Historial de mi actividad describe aportaciones, cambios, eliminaciones, fotografías, GPS, aprobaciones, sugerencias y mensajes con el nombre de la persona o lugar. Las sugerencias incluyen una descripción breve de lo propuesto y los fallos se distinguen de las acciones completadas.
+- Se ocultan del historial personal las actualizaciones exclusivamente técnicas, fechas automáticas, confirmaciones de lectura, identificadores internos y operaciones completadas ya representadas por su cambio de datos. La auditoría original permanece guardada.
+- Lectura paginada de actividad relevante entre páginas de ruido técnico, con recorrido limitado y continuación. Los eventos antiguos se resumen con sus cambios guardados y, cuando es necesario y corresponde a un evento de base de datos, con el nombre del registro relacionado. Sin ampliar el acceso al historial de otros usuarios.
+- Verificación: 13 pruebas aprobadas sobre resúmenes, permisos, privacidad, fallos y paginación; lint Functions aprobado. Historial y contenido escapado comprobados en Chromium y WebKit; captura móvil revisada. Recursos www/ y versiones sincronizados en 2.44.0, Android versionCode 17 e iOS CURRENT_PROJECT_VERSION 15.
+- Sin eliminar ni modificar eventos históricos; sin APK ni instalación.
+- Publicados obtenerHistorialUsuario, registrarActividadBase, registrarActividadDetalle y Firebase Hosting. Ambos dominios verificados por HTTPS con 2.44.0; el endpoint privado responde y rechaza consultas sin sesión con 401. No se consultaron historiales reales durante la comprobación.
