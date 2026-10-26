@@ -57,6 +57,15 @@ test('password visibility preserves value and exposes state', () => {
  assert.equal(input.value,'secret-password');
 });
 
+test('credential rejection explains the independent password and leaves the panel closed', async () => {
+ const {context,calls,document}=harness();
+ context.autorizarSuperusuarioFunction=async()=>{throw Object.assign(new Error('Correo o contraseña de superusuario incorrectos.'),{code:'functions/permission-denied'});};
+ await context.handleSuperuserLogin({preventDefault(){}});
+ assert.match(document.getElementById('superuser-feedback').textContent,/distinta de tu contraseña de usuario/);
+ assert.equal(calls.includes('panel'),false);
+ assert.equal(calls.includes('signIn'),false);
+});
+
 test('administrative password is sent only to server authorization, not normal Firebase login',async()=>{
  const {context,calls}=harness();
  context.auth.signInWithEmailAndPassword=()=>{throw Error('must not use normal password login');};

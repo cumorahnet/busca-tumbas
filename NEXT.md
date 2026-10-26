@@ -1,6 +1,6 @@
 # Próximas tareas
 
-> Generado por CDC a partir de la sesión `session-20261023032511-a6faba`.
+> Generado por CDC a partir de la sesión `session-20261024215741-ea048a`.
 
 ## Pendientes
 
@@ -14,6 +14,6 @@
 
 ## Riesgos que deben revisarse
 
-- Se modificaron archivos de configuración o infraestructura (android/.gradle/8.14.3/checksums/checksums.lock, android/.gradle/8.14.3/executionHistory/executionHistory.bin, android/.gradle/8.14.3/executionHistory/executionHistory.lock, android/.gradle/8.14.3/fileChanges/last-build.bin, android/.gradle/8.14.3/fileHashes/fileHashes.bin). Valida compatibilidad y despliegue.
-- La sesión contiene 57 cambios. Considera dividir la revisión o el commit para reducir el riesgo de integración.
+- Se modificaron archivos de configuración o infraestructura (android/app/build.gradle, ios/App/App.xcodeproj/project.pbxproj). Valida compatibilidad y despliegue.
+- La sesión contiene 33 cambios. Considera dividir la revisión o el commit para reducir el riesgo de integración.
 - El análisis incluye archivos que ya tenían cambios al iniciar la sesión.

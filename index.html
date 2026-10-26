@@ -19,7 +19,7 @@
     <meta property="og:url" content="https://buscatumbas.lat/">
     <meta property="og:image" content="https://buscatumbas.lat/assets/brand/icon-512.png?v=3">
     <meta property="og:image:alt" content="Logotipo de Busca Tumbas: lápida con lupa">
-    <title>Busca Tumbas — VERSION 2.45.0</title>
+    <title>Busca Tumbas — VERSION 2.46.0</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
@@ -1869,7 +1869,7 @@
         <!-- Card de captura/subida de imagen -->
         <div class="card-custom" id="upload-capture-card">
             <h5 class="fw-bold mb-1">2. Captura o sube las lápidas</h5>
-            <p class="section-subtitle">Captura o sube una imagen de una lápida para extraer sus datos.</p>
+            <p class="section-subtitle">Al capturar o subir una fotografía, sus datos se escanean automáticamente. Revísalos antes de guardar.</p>
             <div class="capture-buttons mt-3">
                 <button class="btn btn-primary py-3" id="open-camera-btn" onclick="openScannerModal()">
                     <i class="fas fa-camera me-2"></i>ABRIR CÁMARA
@@ -1906,7 +1906,7 @@
                             <i class="fas fa-crop-alt me-1"></i>RECORTAR
                         </button>
                         <button class="btn btn-primary" id="accept-scan-btn" onclick="acceptImageAndScan()">
-                            <i class="fas fa-robot me-1"></i>ESCANEAR
+                            <i class="fas fa-robot me-1"></i>VOLVER A ESCANEAR
                         </button>
                         <button class="btn btn-outline-secondary" id="retry-image-btn" onclick="retryImageCapture()">
                             <i class="fas fa-redo-alt me-1"></i>REINTENTAR
@@ -2181,7 +2181,7 @@
 /* ══════════════════════════════════════════════════════════════════
    CONFIGURACIÓN DE LA APLICACIÓN
 ══════════════════════════════════════════════════════════════════ */
-const APP_VERSION = "v2.45.0";
+const APP_VERSION = "v2.46.0";
 const MAX_IMAGE_FILE_SIZE = 15 * 1024 * 1024;
 const MAX_IMAGE_DIMENSION = 1920;
 
@@ -2425,7 +2425,9 @@ function getFirebaseErrorMessage(error, defaultMessage = 'Ocurrió un error desc
     if (!error) return defaultMessage;
     // Cloud Functions errors are wrapped in a 'details' object
     if (error.code === 'functions/permission-denied') {
-        return 'Cloud Functions: Permisos insuficientes para invocar la función. Revisa las configuraciones de seguridad.';
+        return error.message && error.message !== 'PERMISSION_DENIED'
+            ? error.message
+            : 'No tienes autorización para realizar esta operación.';
     }
     if (error.code === 'functions/internal') {
         return `Cloud Functions: Error interno del servidor: ${error.details?.message || 'Error desconocido.'}`;
@@ -3801,7 +3803,7 @@ async function handleImageUpload(event) {
             setRotationControlsVisible(true);
             revealScanWorkflow();
 
-            showToast('✅ Imagen completa lista para escanear.', '#10b981');
+            await acceptImageAndScan();
         };
         img.onerror = () => {
             if (activeTombCemetery !== expectedPlace) return;
@@ -3822,6 +3824,7 @@ async function handleImageUpload(event) {
 
 async function captureIA() {
     if (!ensureActiveTombCemetery()) return;
+    if (document.getElementById('snap-btn').style.pointerEvents === 'none') return;
     const video = document.getElementById('cam-preview-ia');
     if (!video.srcObject || video.videoWidth === 0) {
         showToast('⚠ Cámara no lista', '#f59e0b');
@@ -3849,13 +3852,14 @@ async function captureIA() {
     setRotationControlsVisible(true);
     closeScanner();
     revealScanWorkflow();
-    showToast('✅ Imagen completa lista para escanear.', '#10b981');
 
     snapIcon.className = 'fas fa-camera fa-2x text-primary';
     document.getElementById('snap-btn').style.pointerEvents = 'auto';
+    await acceptImageAndScan();
 }
 
 async function acceptImageAndScan() {
+    if (document.getElementById('accept-scan-btn').disabled) return;
     if (!pendingCanvas) {
         showToast('⚠ No hay imagen para escanear.', '#f59e0b');
         return;
@@ -3879,7 +3883,7 @@ async function acceptImageAndScan() {
         acceptBtn.disabled = false;
         retryBtn.disabled = false;
         setRotationControlsDisabled(false);
-        acceptBtn.innerHTML = `<i class="fas fa-robot me-1"></i>ESCANEAR`;
+        acceptBtn.innerHTML = `<i class="fas fa-robot me-1"></i>VOLVER A ESCANEAR`;
     }
 }
 
@@ -4439,7 +4443,9 @@ async function handleSuperuserLogin(event) {
     } catch (error) {
         platformAdminUid = null;
         updateSuperuserIndicator();
-        feedback.textContent = getFirebaseErrorMessage(error, error.message || 'No se pudo autorizar el acceso de superusuario.');
+        feedback.textContent = !signedIn && error.code === 'functions/permission-denied'
+            ? 'No se pudo validar el acceso. Revisa el correo y la contraseña administrativa de superusuario, que es distinta de tu contraseña de usuario.'
+            : getFirebaseErrorMessage(error, error.message || 'No se pudo autorizar el acceso de superusuario.');
         if (signedIn) {
             try {
                 await auth.signOut();

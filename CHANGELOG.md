@@ -1,5 +1,68 @@
 # CHANGELOG
 
+## 2.46.0 — 2026-10-25
+
+- El acceso de superusuario explica el rechazo de credenciales y el uso de una contraseña administrativa independiente. Los errores de permisos conservan la explicación del servidor en lugar de atribuir todos los rechazos a la invocación de Cloud Functions.
+- Las fotografías tomadas o subidas para registrar tumbas se escanean automáticamente, también al avanzar por un lote. Se mantiene la revisión editable antes de guardar y la acción «Volver a escanear» para ajustes o fallos. Se bloquean escaneos simultáneos.
+- Diagnóstico remoto de solo lectura: la función de acceso acepta solicitudes sin sesión y devuelve INVALID_ARGUMENT para un payload vacío; la cuenta indicada está habilitada, verificada, con rol global y credencial administrativa existente. No se probó la contraseña real ni se modificaron credenciales, roles o IAM. El acceso real del usuario queda pendiente de comprobar con su contraseña administrativa.
+- Verificación: 42 pruebas aprobadas sobre acceso, errores, escaneo automático, concurrencia, recuperación de controles, lotes y lugar seleccionado. Recursos www/ generados y copiados a ambos proyectos nativos; versión y sintaxis comprobadas en las cuatro copias. Versión 2.46.0 en web, Android (versionCode 19) e iOS (CURRENT_PROJECT_VERSION 17).
+- Publicación autorizada y completada el 25/10/2026 en Firebase Hosting (buscatumbas-2e7cc). Verificación HTTPS 200 en https://buscatumbas.lat y https://buscatumbas-2e7cc.web.app: version.json 2.46.0 y HTML idéntico a la fuente local. Sin instalación ni APK nuevo.
+
+<!-- cdc-session:session-20261024215741-ea048a -->
+## Sesión 24/10/2026, 09:24 p.m.
+
+### Resumen
+
+La sesión se enfocó en: Revisar y resolver los riesgos detectados en este cierre.. Se detectaron 33 cambio(s): 9 creado(s), 24 modificado(s) y 0 eliminado(s).
+
+### Cambios
+
+- .browser-check/contribution-type-chromium.png
+- .browser-check/contribution-type-webkit.png
+- .browser-check/public-home-chromium.png
+- .browser-check/public-home-webkit.png
+- .browser-check/record-full-chromium.png
+- .browser-check/record-full-webkit.png
+- .browser-check/search-summary-chromium.png
+- .browser-check/search-summary-webkit.png
+- .browser-check/user-activity-chromium.png
+- .browser-check/user-activity-webkit.png
+- .browser-check/welcome-guest-chromium.png
+- .browser-check/welcome-guest-webkit.png
+- .firebase/hosting..cache
+- CHANGELOG.md
+- android/app/build.gradle
+- functions/activity-summary.js
+- functions/activity-summary.test.js
+- functions/duplicates.js
+- functions/duplicates.test.js
+- functions/handlers.js
+- functions/record-writes.js
+- functions/similarity.js
+- functions/user-audit.js
+- index.html
+- ios/App/App.xcodeproj/project.pbxproj
+- scripts/verify-contribution-flow.mjs
+- scripts/verify-public-home.mjs
+- security-tests/community-place-types.test.mjs
+- security-tests/contribution-type-summary.test.mjs
+- security-tests/tomb-cemetery-session.test.mjs
+- version.json
+- www/index.html
+- www/version.json
+
+### Riesgos
+
+- Se modificaron archivos de configuración o infraestructura (android/app/build.gradle, ios/App/App.xcodeproj/project.pbxproj). Valida compatibilidad y despliegue.
+- La sesión contiene 33 cambios. Considera dividir la revisión o el commit para reducir el riesgo de integración.
+- El análisis incluye archivos que ya tenían cambios al iniciar la sesión.
+
+### Próximo paso
+
+- Revisar y resolver los riesgos detectados en este cierre.
+- Ejecutar las pruebas automatizadas y validar el comportamiento afectado.
+- Revisar el diff y preparar un commit descriptivo.
+
 <!-- cdc-session:session-20261024045806-b5e329 -->
 ## Sesión 23/10/2026, 11:03 p.m.
 
