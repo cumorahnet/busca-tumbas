@@ -349,9 +349,10 @@ exports.obtenerEstadisticasAdmin = onCall(
     {enforceAppCheck: false},
     async (request) => {
       requireAdmin(request);
-      const [snapshot, cemeterySnapshot] = await Promise.all([
+      const [snapshot, cemeterySnapshot, totalAccounts] = await Promise.all([
         db.collection("tumbas").orderBy("timestamp", "desc").get(),
         db.collection("cemeteries").get(),
+        adminConsole.countAccounts(request),
       ]);
       const contributors = new Map();
       const records = [];
@@ -441,6 +442,7 @@ exports.obtenerEstadisticasAdmin = onCall(
           .localeCompare(String(first.timestamp || "")));
       return {
         totalRecords: snapshot.size,
+        totalAccounts,
         totalCemeteryContributions: cemeterySnapshot.size,
         totalContributors: contributors.size,
         contributors: [...contributors.values()]

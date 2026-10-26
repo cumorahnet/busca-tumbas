@@ -12,6 +12,16 @@ module.exports = ({db, auth, FieldValue, HttpsError, requireAdmin}) => {
   const userView = user => ({uid:user.uid, name:user.displayName || user.email || user.uid,
     email:user.email || "", disabled:user.disabled === true, verified:user.emailVerified === true,
     administrator:user.customClaims?.platform_admin === true, createdAt:user.metadata?.creationTime || null});
+  async function countAccounts(request) {
+    requireAdmin(request);
+    let total = 0, pageToken;
+    do {
+      const page = await auth.listUsers(1000, pageToken);
+      total += page.users.length;
+      pageToken = page.pageToken;
+    } while (pageToken);
+    return total;
+  }
   async function users(request) {
     requireAdmin(request);
     const query = request.data?.query || "";
@@ -100,5 +110,5 @@ module.exports = ({db, auth, FieldValue, HttpsError, requireAdmin}) => {
     const page = await query.limit(30).get();
     return {entries:page.docs.map(doc => ({id:doc.id,...safe(doc.data())})), after:page.size === 30 ? page.docs.at(-1).id : null};
   }
-  return {users, manageUser, history};
+  return {users, manageUser, history, countAccounts};
 };

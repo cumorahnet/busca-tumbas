@@ -2,6 +2,10 @@
 const adminWorkspace = {tab:'tomb', filters:{}, page:0, userPages:[], userIndex:0, generation:0};
 const adminTabs = {user:'Usuarios', tomb:'Tumbas / lápidas', cemetery:'Panteones', pending:'Pendientes'};
 const adminNormalize = value => String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+function adminAccountCreationDate(value) {
+    const date = value ? new Date(value) : null;
+    return date && Number.isFinite(date.getTime()) ? date.toLocaleString('es-MX') : 'Sin fecha';
+}
 
 function mountAdminConsole() {
     if (!isSuperuserActive()) return;
@@ -113,15 +117,16 @@ async function loadAdminUsers(after = null) {
         }
         if (generation !== adminWorkspace.generation || adminWorkspace.tab !== 'user') return;
         adminWorkspace.userPages[adminWorkspace.userIndex] = page;
-        host.innerHTML = `<p class="small text-muted">${page.users.length} cuentas en esta página</p><div class="table-responsive"><table class="table align-middle admin-table"><thead><tr><th>Usuario</th><th>Correo</th><th>Aportes</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>
+        host.innerHTML = `<p class="small text-muted">${page.users.length} cuentas en esta página</p><div class="table-responsive"><table class="table align-middle admin-table"><thead><tr><th>Usuario</th><th>Correo</th><th>Fecha de creación</th><th>Aportes</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>
             ${page.users.map(user => `<tr><td><strong>${escapeHtml(user.name)}</strong><div class="small text-muted">ID: ${escapeHtml(user.uid)}</div></td><td data-label="Correo">${escapeHtml(user.email)}</td>
+                <td data-label="Fecha de creación">${escapeHtml(adminAccountCreationDate(user.createdAt))}</td>
                 <td data-label="Aportes">${adminContributionRecords.filter(record => record.contributorUid === user.uid).length}</td><td data-label="Estado">${user.administrator ? 'Administrador · ' : ''}${user.disabled ? 'Suspendida' : 'Activa'}</td><td><div class="admin-row-actions">
                 <button class="btn btn-sm btn-outline-primary" onclick="viewAdminUser(${inlineJsValue(user.uid)})">Ver</button>
                 <button class="btn btn-sm btn-outline-primary" onclick="showUserHistory(${inlineJsValue(user.uid)}, ${inlineJsValue(user.name)})">Historial</button>
                 <button class="btn btn-sm btn-outline-primary" onclick="viewAdminUser(${inlineJsValue(user.uid)}, true)" ${user.administrator ? 'disabled' : ''}>Editar</button>
                 <button class="btn btn-sm btn-outline-secondary" onclick="changeAdminUser(${inlineJsValue(user.uid)}, '${user.disabled ? 'restore' : 'suspend'}')" ${user.administrator ? 'disabled' : ''}>${user.disabled ? 'Reactivar' : 'Suspender'}</button>
                 <button class="btn btn-sm btn-outline-danger" onclick="changeAdminUser(${inlineJsValue(user.uid)}, 'delete')" ${user.administrator ? 'disabled' : ''}>Eliminar</button>
-                </div></td></tr>`).join('') || '<tr><td colspan="5">No hay coincidencias en este tramo de cuentas. Puedes continuar la búsqueda con Siguiente si hay más.</td></tr>'}
+                </div></td></tr>`).join('') || '<tr><td colspan="6">No hay coincidencias en este tramo de cuentas. Puedes continuar la búsqueda con Siguiente si hay más.</td></tr>'}
             </tbody></table></div><div class="admin-pagination"><button class="btn btn-outline-secondary btn-sm" onclick="changeAdminUsersPage(-1)" ${adminWorkspace.userIndex === 0 ? 'disabled' : ''}>Anterior</button><span>Página ${adminWorkspace.userIndex + 1}</span>
             <button class="btn btn-outline-secondary btn-sm" onclick="changeAdminUsersPage(1)" ${page.after ? '' : 'disabled'}>Siguiente</button></div>`;
     } catch (error) {

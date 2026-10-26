@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2.47.0 — 2026-10-25
+
+- El resumen administrativo incluye «Total de cuentas creadas», calculado desde todas las páginas de Firebase Auth. Incluye cuentas actuales suspendidas y usuarios sin aportaciones; no representa un acumulado histórico de cuentas eliminadas. La consulta conserva el acceso exclusivo de superusuario.
+- La lista de usuarios muestra «Fecha de creación» desde metadata.creationTime de Firebase Auth, con fecha y hora en formato es-MX. Las cuentas sin fecha válida muestran «Sin fecha». La columna conserva su etiqueta visible en móvil y el estado vacío ocupa las seis columnas.
+- Verificación: 67 pruebas administrativas, de integración y seguridad aprobadas; lint de Functions aprobado. Revisión de la lista y sus fechas en Chromium a 1440 y 390 píxeles aprobada. Recursos www/ generados y copiados a Android e iOS.
+- Versión 2.47.0 en web, Android (versionCode 20) e iOS (CURRENT_PROJECT_VERSION 18). Publicación autorizada y completada el 25/10/2026 en Firebase Hosting y en la función obtenerEstadisticasAdmin de buscatumbas-2e7cc. Verificados por HTTPS el HTML, assets/admin-console.js y version.json, idénticos a la fuente, en buscatumbas.lat y buscatumbas-2e7cc.web.app. La función responde y rechaza solicitudes sin sesión. Sin APK nuevo ni instalación.
+
 ## 2.46.0 — 2026-10-25
 
 - El acceso de superusuario explica el rechazo de credenciales y el uso de una contraseña administrativa independiente. Los errores de permisos conservan la explicación del servidor en lugar de atribuir todos los rechazos a la invocación de Cloud Functions.

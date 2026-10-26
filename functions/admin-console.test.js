@@ -26,12 +26,52 @@ test("user search includes non-contributors, normalizes accents, and preserves p
   auth.listUsers = async (limit, token) => {
     assert.equal(limit,50);
     return !token ? {users:[{uid:"one",displayName:"Other"}],pageToken:"next"} :
-      {users:[{uid:"two",displayName:"José López",email:"jose@example.com",disabled:false}],pageToken:"last"};
+      {users:[{uid:"two",displayName:"José López",email:"jose@example.com",disabled:false,
+        metadata:{creationTime:"Sun, 25 Oct 2026 12:00:00 GMT"}}],pageToken:"last"};
   };
   const result = await api.users(request({query:"jose",status:"active"}));
   assert.deepEqual(result.users.map(user => user.uid), ["two"]);
   assert.equal(result.after,"last");
   assert.equal(result.users[0].email,"jose@example.com");
+  assert.equal(result.users[0].createdAt,"Sun, 25 Oct 2026 12:00:00 GMT");
+});
+
+test("account totals include every Auth page, including disabled accounts and non-contributors", async () => {
+  const {api,auth} = setup();
+  const cursors = [];
+  auth.listUsers = async (limit, token) => {
+    assert.equal(limit,1000); cursors.push(token);
+    return token ? {users:[{uid:"suspended",disabled:true}]} :
+      {users:[{uid:"no-contributions"},{uid:"admin"}],pageToken:"next"};
+  };
+  assert.equal(await api.countAccounts(request({})),3);
+  assert.deepEqual(cursors,[undefined,"next"]);
+});
+
+test("empty Auth returns zero and an Auth failure cannot become a partial total", async () => {
+  const {api,auth} = setup();
+  auth.listUsers = async () => ({users:[]});
+  assert.equal(await api.countAccounts(request({})),0);
+  auth.listUsers = async (_limit, token) => {
+    if (token) throw new Error("Auth unavailable");
+    return {users:[{uid:"one"}],pageToken:"next"};
+  };
+  await assert.rejects(api.countAccounts(request({})), /Auth unavailable/);
+});
+
+test("admin statistics return the Auth total independently of contributions", async () => {
+  const fs = require("node:fs"), vm = require("node:vm");
+  const source = fs.readFileSync(__dirname + "/handlers.js", "utf8");
+  const handler = source.slice(source.indexOf("exports.obtenerEstadisticasAdmin ="), source.indexOf("exports.eliminarRegistroAdmin ="));
+  const empty = {size:0,forEach() {}};
+  const query = {orderBy() {return this;},get:async () => empty};
+  const context = {exports:{},onCall:(_options, fn) => fn,requireAdmin() {},
+    db:{collection:() => query},adminConsole:{countAccounts:async req => {assert.equal(req.auth.uid,"admin");return 1234;}}};
+  vm.runInNewContext(handler,context);
+  const result = await context.exports.obtenerEstadisticasAdmin(request({}));
+  assert.equal(result.totalAccounts,1234);
+  assert.equal(result.totalContributors,0);
+  assert.equal(result.totalRecords,0);
 });
 test("user scans are bounded and expose the continuation even when no matches exist", async () => {
   const {api,auth} = setup(); let calls=0;

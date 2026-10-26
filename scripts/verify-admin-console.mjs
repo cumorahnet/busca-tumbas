@@ -36,7 +36,7 @@ try {
             adminContributionRecords.push({id:'cem1',type:'cemetery',cemetery:'Panteón Central',state:'Jalisco',municipality:'Guadalajara',locality:'Centro',contributor:'Ana Pérez',status:'approved'});
             window.functionsApi={httpsCallable:name => async data => {
                 calls.push({name,data});
-                if (name === 'listarUsuariosAdmin') return {data:{users:[{uid:'member',name:'Ana Pérez',email:'ana@example.com',disabled:false},{uid:'admin',name:'Administradora',administrator:true}],after:data.after ? null : 'next'}};
+                if (name === 'listarUsuariosAdmin') return {data:{users:[{uid:'member',name:'Ana Pérez',email:'ana@example.com',disabled:false,createdAt:'2026-10-25T12:00:00Z'},{uid:'admin',name:'Administradora',administrator:true}],after:data.after ? null : 'next'}};
                 if (name === 'gestionarUsuarioAdmin') return {data:{user:{uid:'member',name:'Ana Pérez',email:'ana@example.com',verified:true},profile:{phone:'1234567',country:'México'}}};
                 return {data:{entries:[{action:'updated',actorName:'Ana',createdAt:'2026-10-23T12:00:00Z',changes:[{field:'name',before:'Anterior',after:'Nuevo'}]}],after:null}};
             }};
@@ -76,6 +76,11 @@ try {
         assert.equal(await page.evaluate(() => calls.at(-1).name),'edit-cemetery');
         await page.getByRole('button',{name:'Usuarios',exact:true}).click();
         await page.getByText('ana@example.com',{exact:true}).waitFor();
+        assert.equal(await page.getByRole('columnheader',{name:'Fecha de creación',exact:true,includeHidden:true}).count(),1);
+        assert.equal(await page.locator('[data-label="Fecha de creación"]').first().isVisible(),true);
+        assert.match(await page.locator('[data-label="Fecha de creación"]').first().innerText(), /2026/);
+        assert.equal(await page.locator('[data-label="Fecha de creación"]').nth(1).innerText(),'Sin fecha');
+        assert.equal(await page.evaluate(() => adminAccountCreationDate('invalid')), 'Sin fecha');
         assert.equal(await page.locator('.admin-table tbody tr').nth(1).getByRole('button',{name:'Eliminar',exact:true}).isDisabled(),true);
         await page.getByRole('button',{name:'Editar',exact:true}).first().click();
         await page.locator('input[name="name"]').fill('Ana López');
