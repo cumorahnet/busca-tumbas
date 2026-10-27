@@ -7,7 +7,8 @@
 - Inicio muestra la condición y, con sesión, el avance o la fecha del beneficio obtenido. La documentación detalla los periodos de calendario y los registros que cuentan.
 - Verificación: 62 pruebas de beneficios, seguridad y sintaxis aprobadas; lint de Functions aprobado. Se comprobaron 49/50 registros, deduplicación, exclusión de fechas fuera del primer mes y registros inválidos, fin de mes, año bisiesto, consulta tardía, concesión única y presentación del avance. Inicio comprobado en Chrome y WebKit y revisado visualmente en móvil.
 - Recursos www/ generados y copiados a Android e iOS; versiones, fecha y condición de la promoción comprobadas en las cuatro copias. Verificación estructural de iOS aprobada.
-- Versión 2.52.0, Android versionCode 25 e iOS CURRENT_PROJECT_VERSION 23. Sin publicación, APK nuevo ni instalación; el beneficio requiere publicar también obtenerEstadoBeneficios.
+- Versión 2.52.0, Android versionCode 25 e iOS CURRENT_PROJECT_VERSION 23. Sin APK nuevo ni instalación.
+- Publicación autorizada y completada el 26/10/2026: cambios de la app subidos a GitHub main en el commit 140220db y desplegados en Firebase Hosting y las funciones obtenerEstadoBeneficios y activarPlusAdmin del proyecto buscatumbas-2e7cc. Antes del despliegue aprobaron 84 pruebas de captura, beneficios, seguridad y sintaxis, además del lint de Functions. Verificación HTTPS 200 en buscatumbas.lat y buscatumbas-2e7cc.web.app: HTML idéntico a la fuente local y version.json 2.52.0. Ambas funciones responden y rechazan llamadas sin sesión; no se realizaron aportaciones ni se concedieron beneficios en cuentas reales durante la comprobación.
 
 ## 2.51.0 — 2026-10-26
 
