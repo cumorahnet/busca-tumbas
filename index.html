@@ -19,7 +19,7 @@
     <meta property="og:url" content="https://buscatumbas.lat/">
     <meta property="og:image" content="https://buscatumbas.lat/assets/brand/icon-512.png?v=3">
     <meta property="og:image:alt" content="Logotipo de Busca Tumbas: lápida con lupa">
-    <title>Busca Tumbas — VERSION 2.47.0</title>
+    <title>Busca Tumbas — VERSION 2.52.0</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
@@ -1508,78 +1508,26 @@
         </button>
     </header>
 
-<section id="account-section" class="account-page" style="display:none;" aria-label="Cuenta"><div id="account-view"></div>        <details id="account-menu"><summary>Más opciones de la cuenta</summary>
-<div class="d-flex flex-wrap align-items-center gap-2 mt-2 mt-md-0">
-                <button type="button" class="btn btn-outline-secondary btn-sm" data-app-share hidden><i class="fas fa-share-nodes me-2" aria-hidden="true"></i>Compartir app</button>
-                <span class="badge text-bg-success">Catálogo colaborativo</span>
-                <span id="superuser-badge" class="badge rounded-pill text-bg-warning" style="display:none;" role="status"><i class="fas fa-user-shield me-1"></i>Superusuario</span>
+<section id="account-section" class="account-page" style="display:none;" aria-label="Cuenta">
+    <div id="account-view"></div>
+    <div class="d-flex flex-wrap align-items-center gap-2 mt-3" id="account-status-indicators">
+        <span id="superuser-badge" class="badge rounded-pill text-bg-warning" style="display:none;" role="status"><i class="fas fa-user-shield me-1"></i>Superusuario</span>
                 <span id="suspension-badge" class="badge text-bg-danger" style="display:none;" role="status"></span>
                 <button id="duplicate-dispute-alert" class="btn btn-warning btn-sm" hidden
                     onclick="showCorrectionsInbox()" aria-live="polite"></button>
-                <span class="badge rounded-pill text-bg-primary" id="verified-account-badge" style="display:none;">
-                    <i class="fas fa-circle-check me-1"></i>Correo verificado
-                </span>
-            </div>
-            <button type="button" class="btn btn-outline-primary my-2" onclick="selectAddCemeteryMode()">Registrar un lugar</button>
-            <section class="menu-group" aria-labelledby="menu-activity-title">
-            <h3 id="menu-activity-title" class="menu-group-title">Mi actividad</h3>
-            <button type="button" class="btn menu-action" onclick="showCorrectionsInbox()">
-                <span class="menu-action-icon"><i class="fas fa-comments" aria-hidden="true"></i></span>
-                <span class="menu-action-copy"><strong>Correcciones y mensajes <span class="badge text-bg-danger ms-2" id="correction-notification-count" style="display:none;">0</span></strong><small>Revisa sugerencias y conversaciones de la comunidad.</small></span>
-                <i class="fas fa-chevron-right menu-action-arrow" aria-hidden="true"></i>
-            </button>
-            <div>
-                <button type="button" class="btn menu-action position-relative" onclick="toggleMyContributionsMenu(this)"
-                    aria-expanded="false" aria-controls="my-contributions-submenu">
-                    <span class="menu-action-icon"><i class="fas fa-folder-open" aria-hidden="true"></i></span>
-                    <span class="menu-action-copy"><strong>Mis aportaciones <span class="dispute-notification" id="my-disputes-menu-count" hidden aria-live="polite">0</span></strong><small>Administra tus registros y consulta tus disputas.</small></span>
-                    <i class="fas fa-chevron-down menu-action-arrow" aria-hidden="true"></i>
-                </button>
-                <div class="mt-2" id="my-contributions-submenu" hidden>
-                    <nav class="d-grid gap-2 ps-3" aria-label="Mis aportaciones y disputas">
-                        <button type="button" class="btn module-menu-card contribution-module-card" onclick="showMyContributions()">
-                            <i class="fas fa-folder-open me-2" aria-hidden="true"></i><strong>Mis aportaciones</strong>
-                            <small class="d-block mt-1">Consulta y edita tus registros publicados.</small>
-                        </button>
-                        <button type="button" class="btn module-menu-card dispute-module-card" onclick="showMyContributions('disputes')">
-                            <i class="fas fa-triangle-exclamation me-2" aria-hidden="true"></i><strong>Mis disputas</strong> <span class="dispute-notification" id="my-disputes-submenu-count" hidden aria-live="polite">0</span>
-                            <small class="d-block mt-1">Revisa y aclara tus disputas pendientes.</small>
-                        </button>
-                    </nav>
-                </div>
-            </div>
-            </section>
-            <button class="btn btn-dark w-100 py-3" id="admin-panel-btn" style="display:none;"
+
+    </div>
+    <button class="btn btn-dark w-100 py-3" id="admin-panel-btn" style="display:none;"
                 onclick="showAdminPanel()">
                 <i class="fas fa-chart-line me-2"></i>Panel administrativo
-            </button>        <section class="card-custom benefits-card" id="benefits-card" aria-live="polite">
-        <div class="d-flex flex-wrap justify-content-between align-items-start gap-2">
-            <div>
-                <div class="d-flex align-items-center gap-2 mb-1">
-                    <strong id="benefits-title">Comprobando beneficios…</strong>
-                    <span class="badge text-bg-secondary" id="benefits-badge">Cuenta</span>
-                </div>
-                <div class="small text-muted" id="benefits-description">
-                    Cada 10 aportaciones válidas obtienes 30 días sin anuncios.
-                </div>
-            </div>
-            <button type="button" class="btn btn-sm btn-primary" id="request-plus-btn"
-                onclick="requestPlusPurchase()" hidden>Obtener Plus</button>
-        </div>
-        <div class="benefits-progress mt-3" role="progressbar" aria-label="Progreso para obtener un mes sin anuncios"
-            aria-valuemin="0" aria-valuemax="10" aria-valuenow="0" id="benefits-progress">
-            <div class="benefits-progress-bar" id="benefits-progress-bar" style="width:0%"></div>
-        </div>
-        <div class="small text-muted mt-1" id="benefits-progress-text">Cargando aportaciones…</div>
-    </section>
-
-    <aside class="card-custom ad-slot text-center py-3" data-ad-slot="menu" aria-label="Publicidad">
-        <div class="ad-label">Publicidad</div>
-        <strong>Espacio para patrocinadores de la comunidad</strong>
-        <div class="small mt-1">Tu apoyo ayuda a mantener Busca Tumbas disponible.</div>
-    </aside>
-            <div hidden><button id="logout-btn" type="button" onclick="logout()">Salir</button></div>
-        </details></section>
+            </button>
+    <div hidden aria-hidden="true">
+        <span id="correction-notification-count"></span>
+        <span id="my-disputes-menu-count"></span>
+        <span id="my-disputes-submenu-count"></span>
+        <button id="logout-btn" type="button" onclick="logout()">Salir</button>
+    </div>
+</section>
     <!-- Mode Selection Card -->
     <div class="card-custom" id="mode-selection-card">
 
@@ -1602,6 +1550,32 @@
         <div class="home-app-tools mt-3 mb-3">
             <button type="button" id="home-install-app" class="btn btn-outline-primary" data-pwa-install-action hidden><i class="fas fa-download me-2" aria-hidden="true"></i><span data-pwa-install-label>Instalar app</span></button>
         </div>
+        <section class="card-custom benefits-card" id="benefits-card" aria-live="polite">
+        <div class="d-flex flex-wrap justify-content-between align-items-start gap-2">
+            <div>
+                <div class="d-flex align-items-center gap-2 mb-1">
+                    <strong id="benefits-title">Lanzamiento sin anuncios</strong>
+                    <span class="badge text-bg-secondary" id="benefits-badge">Cuenta</span>
+                </div>
+                <div class="small text-muted" id="benefits-description">
+                    Por lanzamiento, todos navegan sin anuncios hasta el 1 de enero de 2027. No necesitas contratar Plus.
+                </div>
+                <p id="first-month-reward-description" class="small mt-2 mb-0">Si acumulas 50 aportaciones válidas durante tu primer mes de uso, obtendrás un año sin anuncios desde que completes la meta.</p>
+            </div>
+            <button type="button" class="btn btn-sm btn-primary" id="request-plus-btn"
+                onclick="requestPlusPurchase()" hidden>Obtener Plus</button>
+        </div>
+        <div class="benefits-progress mt-3" role="progressbar" aria-label="Progreso para obtener un mes sin anuncios"
+            aria-valuemin="0" aria-valuemax="10" aria-valuenow="0" id="benefits-progress">
+            <div class="benefits-progress-bar" id="benefits-progress-bar" style="width:0%"></div>
+        </div>
+        <div class="small text-muted mt-1" id="benefits-progress-text">Cargando aportaciones…</div>
+    </section>
+        <aside class="card-custom ad-slot text-center py-3" data-ad-slot="menu" aria-label="Publicidad">
+        <div class="ad-label">Publicidad</div>
+        <strong>Espacio para patrocinadores de la comunidad</strong>
+        <div class="small mt-1">Tu apoyo ayuda a mantener Busca Tumbas disponible.</div>
+    </aside>
         <section class="recent-tombs" aria-labelledby="recent-tombs-title"><h3 id="recent-tombs-title" class="h5 fw-bold">Lápidas recientes</h3><div id="recent-tombs-list" aria-live="polite"></div></section>
 
     </div>
@@ -1791,6 +1765,8 @@
             <button type="button" id="change-tomb-cemetery-btn" class="btn btn-outline-primary mb-2" hidden
                 onclick="changeTombCemetery()">Cambiar panteón o lugar</button>
             <div id="tomb-cemetery-editor">
+                <button type="button" class="btn btn-outline-primary mb-2" onclick="detectTombCemeteryGps()">Detectar panteón por GPS</button>
+                <p id="gps-cemetery-status" class="small">Confirma el panteón una vez. Cada tumba conservará su propio GPS. El escaneo y guardado requieren internet.</p>
                 <label class="field-label" for="tomb-place-type">Tipo de lugar</label>
                 <select id="tomb-place-type" class="form-select mb-3" onchange="changeTombCountry()">
                     <option value="">Selecciona el tipo de lugar</option>
@@ -2181,7 +2157,7 @@
 /* ══════════════════════════════════════════════════════════════════
    CONFIGURACIÓN DE LA APLICACIÓN
 ══════════════════════════════════════════════════════════════════ */
-const APP_VERSION = "v2.47.0";
+const APP_VERSION = "v2.52.0";
 const MAX_IMAGE_FILE_SIZE = 15 * 1024 * 1024;
 const MAX_IMAGE_DIMENSION = 1920;
 
@@ -2314,6 +2290,14 @@ function formatBenefitDate(value) {
     });
 }
 
+function renderPublicBenefitStatus() {
+    const launchEndsAt = '2027-01-02T00:00:00-06:00';
+    renderBenefitStatus({adFree: true, contributionCount: 0, contributionsToNextReward: 10, rewardDays: 30,
+        monetization: {adsEnabled: false, plusSalesEnabled: false, launchActive: Date.now() < Date.parse(launchEndsAt), launchEndsAt}});
+    document.getElementById('benefits-progress').hidden = true;
+    document.getElementById('benefits-progress-text').textContent = 'Tus aportaciones ayudan a conservar historias y conectar generaciones.';
+}
+
 function renderBenefitStatus(status) {
     const app = document.getElementById('main-app');
     const title = document.getElementById('benefits-title');
@@ -2324,7 +2308,18 @@ function renderBenefitStatus(status) {
     const progressText = document.getElementById('benefits-progress-text');
     const plusButton = document.getElementById('request-plus-btn');
     if (!app || !status) return;
+    progress.hidden = false;
     const policy = status.monetization || {};
+    const promotion = document.getElementById('first-month-reward-description');
+    const firstMonth = status.firstMonthReward;
+    const promotionText = 'Si acumulas 50 aportaciones válidas durante tu primer mes de uso, obtendrás un año sin anuncios desde que completes la meta.';
+    if (promotion) {
+        promotion.textContent = promotionText;
+        if (firstMonth?.qualified) promotion.textContent = `¡Meta cumplida! Ganaste un año sin anuncios desde tu aportación número 50. Beneficio hasta el ${formatBenefitDate(firstMonth.adFreeUntil)}.`;
+        else if (firstMonth?.deadline) promotion.textContent += Date.now() < Date.parse(firstMonth.deadline)
+            ? ` Llevas ${firstMonth.count} de 50 aportaciones; completa la meta antes del ${formatBenefitDate(firstMonth.deadline)}.`
+            : ' El primer mes de tu cuenta ya terminó. Puedes seguir obteniendo las recompensas habituales por tus aportaciones.';
+    }
     const adsEnabled = policy.adsEnabled === true;
     app.classList.toggle('show-ads', adsEnabled && !status.adFree);
     plusButton.hidden = policy.plusSalesEnabled !== true;
@@ -2366,20 +2361,26 @@ function renderBenefitStatus(status) {
 }
 
 async function loadBenefitStatus(force = false) {
-    if (!auth.currentUser) return;
+    const uid = auth.currentUser?.uid;
+    if (!uid) return;
     if (!force && benefitStatus && Date.now() - benefitStatusLoadedAt < 30000) {
         renderBenefitStatus(benefitStatus);
         return;
     }
     try {
         const response = await obtenerEstadoBeneficiosFunction({});
+        if (auth.currentUser?.uid !== uid) return;
         benefitStatus = response.data;
         benefitStatusLoadedAt = Date.now();
         renderBenefitStatus(benefitStatus);
+        if (benefitStatus.firstMonthReward?.newlyGranted) {
+            showToast('¡Completaste 50 aportaciones en tu primer mes! Ganaste un año sin anuncios desde que alcanzaste la meta.', '#7c3aed', 9000);
+        }
         if (benefitStatus.newlyGrantedMonths > 0) {
             showToast(`🎉 Obtuviste ${benefitStatus.newlyGrantedMonths * benefitStatus.rewardDays} días sin anuncios por tus aportaciones.`, '#7c3aed', 9000);
         }
     } catch (error) {
+        if (auth.currentUser?.uid !== uid) return;
         benefitStatus = null;
         console.error('Benefit status error:', error);
         document.getElementById('main-app')?.classList.remove('show-ads');
@@ -2608,6 +2609,36 @@ function setSavingState(button, text) {
 /* ══════════════════════════════════════════════════════════════════
    GEOLOCALIZACIÓN
 ══════════════════════════════════════════════════════════════════ */
+async function detectTombCemeteryGps() {
+    const status = document.getElementById('gps-cemetery-status');
+    status.textContent = 'Obteniendo GPS y buscando panteones cercanos…';
+    try {
+        const point = await getGeolocation();
+        if (!point) throw new Error('No se obtuvo GPS. Puedes elegir el lugar manualmente.');
+        const catalog = await loadCemeteryCatalog();
+        const nearby = catalog.filter(item => Number.isFinite(item.latitude) && Number.isFinite(item.longitude))
+            .map(item => ({...item, distance: distanceInMeters(point, item)}))
+            .filter(item => item.distance <= 1500 + Math.min(point.accuracy || 0, 300)).sort((a,b) => a.distance - b.distance).slice(0, 5);
+        status.replaceChildren();
+        const hint = document.createElement('p');
+        hint.textContent = nearby.length ? 'Elige y confirma el panteón. La cercanía no garantiza que estés dentro. Precisión GPS: ' + Math.round(point.accuracy || 0) + ' m.' : 'No se encontraron panteones cercanos en el catálogo descargado. Selecciona el lugar manualmente.';
+        status.append(hint);
+        for (const item of nearby) {
+            const button = document.createElement('button');
+            button.type = 'button'; button.className = 'btn btn-outline-primary m-1';
+            button.textContent = item.name + ' · ' + Math.round(item.distance) + ' m';
+            button.onclick = () => {
+                if (activeTombCemetery) return;
+                const draft = {placeType:'cemetery', country:'México', name:formatProperName(item.name), state:item.state,
+                    municipality:item.municipality, colony:item.colony || '', catalogEntry:{...item, source:'inegi'}};
+                if (!confirm('¿Registrar las siguientes tumbas en ' + draft.name + ', ' + draft.municipality + '?')) return;
+                activeTombCemetery = Object.freeze(draft); renderActiveTombCemetery();
+            };
+            status.append(button);
+        }
+    } catch (error) { status.textContent = error.message; }
+}
+
 function getGeolocation() {
     return new Promise((resolve) => {
         if ("geolocation" in navigator) {
@@ -2615,7 +2646,8 @@ function getGeolocation() {
                 (position) => {
                     resolve({
                         latitude: position.coords.latitude,
-                        longitude: position.coords.longitude
+                        longitude: position.coords.longitude,
+                        accuracy: position.coords.accuracy, capturedAt: new Date(position.timestamp).toISOString()
                     });
                 },
                 (error) => {
@@ -2623,7 +2655,7 @@ function getGeolocation() {
                     showToast('❌ Error de geolocalización', '#f59e0b');
                     resolve(null);
                 },
-                { enableHighAccuracy: false, timeout: 5000, maximumAge: 0 }
+                { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
             );
         } else {
             showToast('❌ Geolocalización no soportada', '#f59e0b');
@@ -3865,6 +3897,10 @@ async function acceptImageAndScan() {
         return;
     }
 
+    if (!navigator.onLine) {
+        showToast('Necesitas conexión a internet para escanear y extraer los datos automáticamente. Conserva esta foto y vuelve a escanear cuando tengas conexión.', '#f59e0b', 8000);
+        return;
+    }
     const acceptBtn = document.getElementById('accept-scan-btn');
     const retryBtn = document.getElementById('retry-image-btn');
     acceptBtn.disabled = true;
@@ -4159,8 +4195,8 @@ async function saveCurrentFormDataToHistory() {
     const coloniaPanteon = cemeteryContext.colony;
     const geolocationText = document.getElementById('display-geolocation').value;
 
-    if (!nombreFinado && !nombrePanteon && !fechaNacimientoDisplay && !fechaDefuncionDisplay) {
-        showToast('⚠ Al menos un campo de nombre o fecha es requerido para guardar.', '#f59e0b');
+    if (!nombreFinado) {
+        showToast('⚠ Escribe o escanea el nombre de la persona antes de guardar.', '#f59e0b');
         return;
     }
     const fechaNacimientoISO = parseSpanishDateToISO(fechaNacimientoDisplay);
@@ -6104,6 +6140,7 @@ function showModeSelection() {
     clearFormFields();
     document.getElementById('image-upload-input').value = '';
     if (auth.currentUser?.emailVerified) loadBenefitStatus();
+    else renderPublicBenefitStatus();
     loadRecentTombs();
 }
 
@@ -8375,11 +8412,6 @@ window.onload = () => {
             document.getElementById('auth-screen').style.display = 'none';
             document.getElementById('main-app').style.display = 'flex';
             document.getElementById('logout-btn').style.display = auth.currentUser ? 'block' : 'none';
-            const verifiedBadge = document.getElementById('verified-account-badge');
-            verifiedBadge.innerHTML = `<i class="fas fa-circle-check me-1"></i>
-                ${escapeHtml(user.displayName || user.email || 'Correo verificado')}`;
-            verifiedBadge.title = 'Identidad confirmada mediante correo electrónico';
-            verifiedBadge.style.display = 'inline-block';
             document.getElementById('auth-verification-status').style.display = 'none';
             document.getElementById('admin-panel-btn').style.display =
                 platformAdminUid === user.uid ? 'block' : 'none';
@@ -8430,7 +8462,6 @@ window.onload = () => {
             document.getElementById('auth-screen').style.display = logoutRequested ? 'flex' : 'none';
             setAuthMode('login');
             document.getElementById('logout-btn').style.display = 'none';
-            document.getElementById('verified-account-badge').style.display = 'none';
             document.getElementById('main-app').classList.remove('show-ads');
             benefitStatus = null;
             benefitStatusLoadedAt = 0;

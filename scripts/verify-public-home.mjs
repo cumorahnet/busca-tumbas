@@ -6,6 +6,7 @@ import {chromium, webkit} from 'playwright';
 const original = await fs.readFile('index.html', 'utf8');
 const source = (await fs.readFile('www/index.html', 'utf8')).replace(/<script\b[^>]*>[^]*?<\/script>/gi, '');
 const names = ['showContributionOptions', 'requireMember', 'continueBrowsing', 'showModeSelection', 'isPublicTomb', 'tombSummaryHtml', 'loadRecentTombs', 'displaySearchResults', 'scrollToSearchResultsStart', 'selectAddTombMode', 'renderTombDetail', 'recordDetailPhotoHtml', 'prepareForFamilySearch', 'openTombAction', 'renderTombActionCard', 'backRecordDetail', 'recordDetailMainMenu', 'enableTombDetailEditing', 'detailDataHtml', 'historyEntryHtml', 'toggleTombHistory', 'loadTombHistory', 'openHistoryContact', 'sendHistoryContact', 'formatCoordinates', 'formatTimestamp', 'formatProperName', 'escapeHtml', 'inlineJsValue', 'tombOwnerId'];
+names.push('renderPublicBenefitStatus', 'renderBenefitStatus', 'formatBenefitDate');
 const functions = names.map(name => {
     const match = original.match(new RegExp('(?:async )?function ' + name + '\\([^]*?\\n}'));
     assert.ok(match, name);
@@ -37,7 +38,7 @@ try {
         try {
             const page = await browser.newPage({viewport: {width: 390, height: 844}, isMobile: true, hasTouch: true});
             await page.goto('http://127.0.0.1:' + server.address().port, {waitUntil: 'networkidle'});
-            for (const id of ['admin-panel-btn', 'superuser-badge', 'suspension-badge', 'verified-account-badge', 'logout-btn', 'benefits-card', 'benefits-title', 'benefits-progress', 'request-plus-btn', 'correction-notification-count', 'my-disputes-menu-count', 'my-disputes-submenu-count']) {
+            for (const id of ['admin-panel-btn', 'superuser-badge', 'suspension-badge', 'logout-btn', 'benefits-card', 'benefits-title', 'benefits-progress', 'request-plus-btn', 'correction-notification-count', 'my-disputes-menu-count', 'my-disputes-submenu-count']) {
                 assert.equal(await page.locator('#' + id).count(), 1, id + ' must remain in the static page');
             }
             await page.evaluate(() => {
@@ -73,6 +74,13 @@ try {
             assert.equal(await page.locator('.home-actions button').count(), 2);
             assert.equal(await page.locator('.primary-navigation').isVisible(), false);
             assert.equal(await page.locator('#auth-screen').isVisible(), false);
+            assert.equal(await page.locator('#account-menu').count(), 0);
+            assert.equal(await page.locator('#account-section #benefits-card').count(), 0);
+            assert.equal(await page.locator('#mode-selection-card #benefits-card').isVisible(), true);
+            assert.match(await page.locator('#benefits-title').innerText(), /Lanzamiento sin anuncios/);
+            assert.match(await page.locator('#benefits-description').innerText(), /1 de enero de 2027/);
+            assert.match(await page.locator('#first-month-reward-description').innerText(), /50 aportaciones válidas.*primer mes.*un año sin anuncios/);
+            assert.equal(await page.locator('#benefits-progress').isVisible(), false);
             assert.deepEqual(await page.locator('#bottom-navigation button').allTextContents(), ['Inicio', 'Mensajes 0', 'Cuenta', 'Compartir']);
             await page.screenshot({path: `.browser-check/public-home-${engine}.png`, fullPage: true});
             await page.evaluate(async () => {

@@ -1,5 +1,68 @@
 # CHANGELOG
 
+## 2.52.0 — 2026-10-26
+
+- Lanzamiento sin anuncios hasta el 1 de enero de 2027 inclusive (Ciudad de México), sincronizado entre la tarjeta pública y la configuración del servidor. Los interruptores de anuncios y ventas siguen desactivados.
+- Se anuncia y se implementa el año sin anuncios por alcanzar 50 aportaciones válidas durante el primer mes de la cuenta. Por indicación del usuario, el año empieza al completar la aportación número 50. El servidor usa la fecha de creación de Firebase Auth y fechas de aportación guardadas por el servidor; deduplica tumbas y concede el derecho una sola vez. Se preservan beneficios y recompensas existentes.
+- Inicio muestra la condición y, con sesión, el avance o la fecha del beneficio obtenido. La documentación detalla los periodos de calendario y los registros que cuentan.
+- Verificación: 62 pruebas de beneficios, seguridad y sintaxis aprobadas; lint de Functions aprobado. Se comprobaron 49/50 registros, deduplicación, exclusión de fechas fuera del primer mes y registros inválidos, fin de mes, año bisiesto, consulta tardía, concesión única y presentación del avance. Inicio comprobado en Chrome y WebKit y revisado visualmente en móvil.
+- Recursos www/ generados y copiados a Android e iOS; versiones, fecha y condición de la promoción comprobadas en las cuatro copias. Verificación estructural de iOS aprobada.
+- Versión 2.52.0, Android versionCode 25 e iOS CURRENT_PROJECT_VERSION 23. Sin publicación, APK nuevo ni instalación; el beneficio requiere publicar también obtenerEstadoBeneficios.
+
+## 2.51.0 — 2026-10-26
+
+- Se elimina de Cuenta el distintivo azul de correo verificado que repetía el nombre ya mostrado en los datos del perfil. Se retiran sus referencias del ciclo de sesión; se mantiene la verificación de correo exigida para acceder.
+- Verificación: seis pruebas de sintaxis y acceso público aprobadas. Recursos www/ generados y copiados a Android e iOS; ausencia del distintivo y versión comprobadas en las cuatro copias.
+- Versión 2.51.0, Android versionCode 24 e iOS CURRENT_PROJECT_VERSION 22. Sin publicación, APK nuevo ni instalación.
+
+## 2.50.0 — 2026-10-26
+
+- Se elimina el desplegable «Más opciones de la cuenta» y sus accesos repetidos a registrar lugares, aportaciones, disputas, mensajes y compartir. Se conservan los avisos de cuenta y el acceso administrativo autorizado, sin desplegable adicional.
+- La tarjeta «Lanzamiento sin anuncios» se muestra en Inicio. También se presenta a visitantes, sin solicitar beneficios privados ni mostrar el progreso de otra cuenta. Las cuentas con sesión conservan sus beneficios y recompensas calculados por el servidor. El espacio publicitario acompaña la tarjeta en Inicio y mantiene sus reglas de visibilidad.
+- Verificación: nueve pruebas de beneficios, acceso público y sintaxis aprobadas. Navegación pública y ubicación de la tarjeta comprobadas en Chrome y WebKit; revisión visual del inicio móvil aprobada. Las respuestas de beneficios de una sesión anterior se descartan al cambiar de cuenta.
+- Recursos www/ regenerados y copiados a Android e iOS; versión, ausencia del desplegable y ubicación única de la tarjeta comprobadas en las cuatro copias. Verificación estructural de iOS aprobada.
+- Versión 2.50.0, Android versionCode 23 e iOS CURRENT_PROJECT_VERSION 21. Sin publicación, APK nuevo ni instalación.
+
+## 2.49.0 — 2026-10-26
+
+- Por indicación del usuario, se cancela la opción sin internet de 2.48.0 antes de publicarla. Se retiran la cola de fotografías en IndexedDB, la sincronización automática, la opción Wi-Fi, el perfil local y la caché de recursos para apertura sin conexión. Se restaura el guardado directo en el servidor y el service worker que requiere conexión.
+- Se conserva el escaneo automático al tomar o subir cada foto, con extracción de datos y revisión antes de guardar. Si falta conexión, el escaneo muestra un aviso y mantiene la foto en pantalla para reintentar; no se guarda como pendiente local.
+- Se mantienen la sugerencia de panteones cercanos por GPS, la confirmación del lugar una vez por sesión y la ubicación independiente por tumba con GPS de alta precisión. No se descargan mapas.
+- Se retiran los cambios de backend exclusivos de la cola; la versión utiliza el contrato de guardado existente. La validación del nombre se alinea con los requisitos del servidor.
+- Verificación: 24 pruebas de captura, extracción automática, recuperación de controles, lotes, guardado con conexión y sintaxis aprobadas. Recursos www/ regenerados y copiados a Android e iOS; verificación estructural de iOS aprobada.
+- Versión 2.49.0, Android versionCode 22 e iOS CURRENT_PROJECT_VERSION 20. Sin publicación, APK nuevo ni instalación.
+
+## 2.48.0 — 2026-10-26
+
+- Captura de tumbas sin conexión: la fotografía y los datos revisados se guardan en una cola persistente de IndexedDB, separada por cuenta. Se conserva el panteón entre registros y cada captura de cámara obtiene su propio GPS, precisión y fecha. Las fotos de galería no reciben la ubicación actual automáticamente.
+- Detección de panteones cercanos mediante GPS y el catálogo INEGI existente, con confirmación del usuario. No se descargan mapas ni se interpreta la proximidad como prueba de estar dentro del panteón.
+- Sincronización al recuperar conexión, volver a la app y mediante reintentos periódicos; opción de subida automática solo con Wi-Fi. Si el navegador no informa el tipo de red se requiere sincronización manual para esa opción. Los errores conservan el pendiente, con copia descargable de la foto y descarte explícito.
+- Sin conexión, los datos de la persona se introducen manualmente; el reconocimiento de texto requiere internet. Se mantiene el GPS y la revisión manual si falla el reconocimiento. La web conserva únicamente sus recursos estáticos y el catálogo público para reabrir sin conexión después de una primera carga completa. Iniciar sesión requiere conexión; el trabajo local usa una sesión previa y los permisos se vuelven a comprobar en el servidor al sincronizar.
+- Backend: validación de precisión y fecha GPS, y confirmación idempotente de reintentos del mismo registro, propietario y fotografía tras una respuesta perdida.
+- Verificación: 90 pruebas de captura, seguridad, duplicados y sintaxis aprobadas; lint de Functions aprobado. Pruebas en Chrome aprobadas para persistencia real de fotos/GPS tras recarga, aislamiento entre cuentas, recuperación de errores y preferencia Wi-Fi. Reapertura completa sin conexión con scripts y catálogo local comprobada en Chrome usando las dependencias empaquetadas.
+- Recursos www/ generados y copiados a Android e iOS; versión y módulo de pendientes idénticos en las cuatro copias. Verificación estructural de iOS y nueve pruebas de instalación web aprobadas. Aumento medido del código de ejecución: 15 295 bytes antes de compresión; no representa una medición del instalador.
+- Versión 2.48.0, Android versionCode 21 e iOS CURRENT_PROJECT_VERSION 19. Cambios locales; sin publicación, APK nuevo ni instalación. La función crearAportacionTumba y Hosting deben actualizarse conjuntamente para activar el flujo en producción.
+
+<!-- cdc-session:session-20261026042733-c0edda -->
+## Sesión 25/10/2026, 10:28 p.m.
+
+### Resumen
+
+La sesión se enfocó en: Revisar y resolver los riesgos detectados en este cierre.. Se detectaron 0 cambio(s): 0 creado(s), 0 modificado(s) y 0 eliminado(s).
+
+### Cambios
+
+- No se detectaron archivos modificados.
+
+### Riesgos
+
+- No se detectaron archivos modificados. Confirma que el trabajo se haya guardado dentro del proyecto y fuera de carpetas ignoradas.
+
+### Próximo paso
+
+- Revisar y resolver los riesgos detectados en este cierre.
+- Definir el siguiente objetivo de trabajo del proyecto.
+
 ## 2.47.0 — 2026-10-25
 
 - El resumen administrativo incluye «Total de cuentas creadas», calculado desde todas las páginas de Firebase Auth. Incluye cuentas actuales suspendidas y usuarios sin aportaciones; no representa un acumulado histórico de cuentas eliminadas. La consulta conserva el acceso exclusivo de superusuario.

@@ -149,7 +149,17 @@ function validDateMilliseconds(value) {
   return Number.isFinite(milliseconds) ? milliseconds : 0;
 }
 
-async function countRewardableContributions(uid) {
+function addCalendarMonths(milliseconds, months) {
+  const date = new Date(milliseconds);
+  const day = date.getUTCDate();
+  date.setUTCDate(1);
+  date.setUTCMonth(date.getUTCMonth() + months);
+  const lastDay = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth() + 1, 0)).getUTCDate();
+  date.setUTCDate(Math.min(day, lastDay));
+  return date.getTime();
+}
+
+async function countRewardableContributions(uid, createdAt) {
   const [byContributor, byOwner, approvedCemeteries] = await Promise.all([
     db.collection("tumbas").where("contributorId", "==", uid).get(),
     db.collection("tumbas").where("userId", "==", uid).get(),
@@ -161,7 +171,22 @@ async function countRewardableContributions(uid) {
     ...byContributor.docs.map((document) => document.id),
     ...byOwner.docs.map((document) => document.id),
   ]);
-  return tombIds.size + approvedCemeteries.size;
+  const firstMonthEndsAt = createdAt ? addCalendarMonths(createdAt, 1) : 0;
+  const dates = new Map();
+  for (const document of [...byContributor.docs, ...byOwner.docs]) {
+    const data = document.data?.() || {};
+    if (data.status && data.status !== "published" || data.visibility === "private") continue;
+    dates.set("tomb:" + document.id, validDateMilliseconds(data.timestamp));
+  }
+  for (const document of approvedCemeteries.docs) {
+    dates.set("cemetery:" + document.id, validDateMilliseconds(document.data?.()?.createdAt));
+  }
+  const firstMonthDates = createdAt ? [...dates.values()]
+      .filter(date => date >= createdAt && date < firstMonthEndsAt && date <= Date.now())
+      .sort((a, b) => a - b) : [];
+  const qualifiedAt = firstMonthDates[49] || 0;
+  return {total: tombIds.size + approvedCemeteries.size, firstMonthCount: firstMonthDates.length,
+    firstMonthEndsAt, qualifiedAt, firstMonthAdFreeUntil: qualifiedAt ? addCalendarMonths(qualifiedAt, 12) : 0};
 }
 
 function getMonetizationPolicy(now = Date.now(), config = require("./monetization-config.json")) {
@@ -184,7 +209,10 @@ exports.obtenerEstadoBeneficios = onCall(
     async (request) => {
       const uid = requireUser(request);
       const policy = getMonetizationPolicy();
-      const contributionCount = await countRewardableContributions(uid);
+      const user = await getAuth().getUser(uid);
+      const createdAt = validDateMilliseconds(user.metadata?.creationTime);
+      const counts = await countRewardableContributions(uid, createdAt);
+      const contributionCount = counts.total;
       const earnedMilestones = Math.floor(
           contributionCount / CONTRIBUTIONS_PER_REWARD,
       );
@@ -203,6 +231,9 @@ exports.obtenerEstadoBeneficios = onCall(
             current.contributionAdFreeUntil,
         );
         const paidUntil = validDateMilliseconds(current.paidUntil);
+        const previousFirstMonthUntil = validDateMilliseconds(current.firstMonthAdFreeUntil);
+        const firstMonthAdFreeUntil = previousFirstMonthUntil || counts.firstMonthAdFreeUntil;
+        const firstMonthNewlyGranted = !previousFirstMonthUntil && firstMonthAdFreeUntil > 0;
         if (newMilestones > 0) {
           contributionAdFreeUntil = Math.max(
               now,
@@ -211,7 +242,7 @@ exports.obtenerEstadoBeneficios = onCall(
           ) +
             newMilestones * REWARD_DAYS * DAY_IN_MILLISECONDS;
         }
-        const adFreeUntil = Math.max(contributionAdFreeUntil, paidUntil);
+        const adFreeUntil = Math.max(contributionAdFreeUntil, paidUntil, firstMonthAdFreeUntil);
         transaction.set(reference, {
           contributionCount,
           contributionMilestonesGranted: Math.max(
@@ -220,9 +251,12 @@ exports.obtenerEstadoBeneficios = onCall(
           ),
           contributionAdFreeUntil: contributionAdFreeUntil ?
             new Date(contributionAdFreeUntil) : null,
+          ...(firstMonthNewlyGranted ? {firstMonthAdFreeUntil: new Date(firstMonthAdFreeUntil),
+            firstMonthQualifiedAt: new Date(counts.qualifiedAt), firstMonthRewardGrantedAt: FieldValue.serverTimestamp()} : {}),
           updatedAt: FieldValue.serverTimestamp(),
         }, {merge: true});
-        return {adFreeUntil, paidUntil, newMilestones, pendingMilestones: pendingMilestones - newMilestones};
+        return {adFreeUntil, paidUntil, newMilestones, pendingMilestones: pendingMilestones - newMilestones,
+          firstMonthAdFreeUntil, firstMonthNewlyGranted};
       });
       const isAdmin = elevated(request.auth.token);
       return {
@@ -231,7 +265,11 @@ exports.obtenerEstadoBeneficios = onCall(
         pendingRewardMonths: result.pendingMilestones,
         source: policy.launchActive ? "launch" : !policy.adsEnabled ? "paused" : isAdmin ? "admin" :
           (result.paidUntil > now ? "paid" :
-            (result.adFreeUntil > now ? "contributions" : "free")),
+            (result.firstMonthAdFreeUntil > now ? "first-month" : result.adFreeUntil > now ? "contributions" : "free")),
+        firstMonthReward: {target: 50, count: counts.firstMonthCount,
+          deadline: counts.firstMonthEndsAt ? new Date(counts.firstMonthEndsAt).toISOString() : null,
+          qualified: result.firstMonthAdFreeUntil > 0, newlyGranted: result.firstMonthNewlyGranted,
+          adFreeUntil: result.firstMonthAdFreeUntil ? new Date(result.firstMonthAdFreeUntil).toISOString() : null},
         contributionCount,
         contributionsPerReward: CONTRIBUTIONS_PER_REWARD,
         contributionsToNextReward: CONTRIBUTIONS_PER_REWARD -

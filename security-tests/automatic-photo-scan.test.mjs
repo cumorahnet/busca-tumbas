@@ -10,7 +10,7 @@ function setup() {
         return nodes.get(id);
     };
     const canvas = {toDataURL: () => 'data:image/jpeg;base64,photo', getContext: () => ({drawImage() {}})};
-    const ctx = {document: {getElementById: get, createElement: () => canvas},
+    const ctx = {navigator: {onLine: true}, document: {getElementById: get, createElement: () => canvas},
         ensureActiveTombCemetery: () => true, activeTombCemetery: {},
         MAX_IMAGE_FILE_SIZE: 15e6, MAX_IMAGE_DIMENSION: 1600,
         captureOrientado: () => canvas, getGeolocation: async () => null,
@@ -39,6 +39,23 @@ test('camera and uploaded photograph automatically request extraction', async ()
         assert.equal(scans, 1);
     }
 });
+test('without internet the photograph stays available and automatic extraction resumes on retry', async () => {
+    const {ctx, canvas} = setup();
+    const notices = [];
+    let scans = 0;
+    ctx.pendingCanvas = canvas;
+    ctx.navigator.onLine = false;
+    ctx.showToast = message => notices.push(message);
+    ctx.processImageWithGemini = async () => { scans++; };
+    await ctx.acceptImageAndScan();
+    assert.equal(scans, 0);
+    assert.equal(ctx.pendingCanvas, canvas);
+    assert.ok(notices.some(message => message.includes('internet')));
+    ctx.navigator.onLine = true;
+    await ctx.acceptImageAndScan();
+    assert.equal(scans, 1);
+});
+
 test('an extraction in progress cannot run twice and controls recover after failure', async () => {
     const {ctx, get, canvas} = setup();
     ctx.pendingCanvas = canvas;

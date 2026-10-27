@@ -92,6 +92,18 @@ function setup() {
     return {ctx, get, records, notices, photo};
 }
 
+test('saving requires internet and preserves the current photo when disconnected', async () => {
+    const s = setup();
+    s.ctx.confirmTombCemetery();
+    s.photo('Ana', 'photo');
+    s.ctx.navigator.onLine = false;
+    await s.ctx.saveCurrentFormDataToHistory();
+    assert.equal(s.records.size, 0);
+    assert.ok(s.ctx.pendingCanvas);
+    assert.equal(s.get('display-nombres').value, 'Ana');
+    assert.ok(s.notices.some(message => message.includes('Internet')));
+});
+
 test('disputed uploads retain the photo for review, do not claim publication, and advance the capture flow', async () => {
     const s = setup();
     let deleted = false;
