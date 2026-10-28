@@ -19,7 +19,7 @@
     <meta property="og:url" content="https://buscatumbas.lat/">
     <meta property="og:image" content="https://buscatumbas.lat/assets/brand/icon-512.png?v=3">
     <meta property="og:image:alt" content="Logotipo de Busca Tumbas: lápida con lupa">
-    <title>Busca Tumbas — VERSION 2.53.0</title>
+    <title>Busca Tumbas — VERSION 2.54.0</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
@@ -1585,6 +1585,17 @@
         <p class="section-subtitle mb-3">
             Registra un panteón, iglesia, hospital, convento u otro lugar. Compararemos el nombre y la ubicación antes de guardarlo.
         </p>
+        <div id="community-nearby-picker">
+            <h6>Primero elige el lugar cercano</h6>
+            <p id="community-nearby-status" role="status" aria-live="polite"></p>
+            <div id="community-nearby-list"></div>
+            <div class="d-flex flex-wrap gap-2 mb-3">
+                <button type="button" class="btn btn-outline-primary" onclick="detectCommunityPlacesGps()">Volver a buscar cerca de mí</button>
+                <button type="button" class="btn btn-outline-secondary" onclick="continueCommunityPlaceManually()">No aparece mi lugar · Elegir manualmente</button>
+            </div>
+        </div>
+        <div id="community-place-form" hidden>
+        <button type="button" class="btn btn-outline-secondary mb-3" onclick="selectAddCemeteryMode()">Volver a elegir el lugar</button>
         <div class="alert alert-info py-2 small">
             Fotografía únicamente la entrada, el letrero o una vista general; evita personas identificables.
         </div>
@@ -1690,6 +1701,7 @@
         </div>
     </div>
 
+    </div>
     <div class="card-custom" id="corrections-section">
         <h5 class="fw-bold mb-1">Mensajes</h5>
         <p class="section-subtitle mb-3">Conversaciones, correcciones y disputas enviadas o recibidas.</p>
@@ -2157,7 +2169,7 @@
 /* ══════════════════════════════════════════════════════════════════
    CONFIGURACIÓN DE LA APLICACIÓN
 ══════════════════════════════════════════════════════════════════ */
-const APP_VERSION = "v2.53.0";
+const APP_VERSION = "v2.54.0";
 const MAX_IMAGE_FILE_SIZE = 15 * 1024 * 1024;
 const MAX_IMAGE_DIMENSION = 1920;
 
@@ -4948,7 +4960,117 @@ async function selectAddCemeteryMode() {
     document.getElementById('add-cemetery-section').style.display = 'block';
     document.getElementById('back-to-mode-selection').style.display = 'block';
     resetCemeteryForm();
-    await loadCommunityStates();
+    document.getElementById('community-place-form').hidden = true;
+    document.getElementById('community-nearby-picker').hidden = false;
+    await detectCommunityPlacesGps();
+}
+
+let communityNearbySequence = 0;
+let communityNearbyPlaces = [];
+
+function continueCommunityPlaceManually() {
+    ++communityNearbySequence;
+    document.getElementById('community-nearby-picker').hidden = true;
+    document.getElementById('community-place-form').hidden = false;
+    loadCommunityStates();
+}
+
+function nearbyCommunityPlaces(catalog, documents, point) {
+    const valid = item => item && ['latitude', 'longitude'].every(key =>
+        typeof item[key] === 'number' && Number.isFinite(item[key])) &&
+        Math.abs(item.latitude) <= 90 && Math.abs(item.longitude) <= 180;
+    if (!valid(point)) return [];
+    const approved = documents.filter(item => item.status === 'approved');
+    const overrides = new Set(approved.map(item => String(item.inegiCemeteryId || '')));
+    return [
+        ...catalog.filter(item => !overrides.has(String(item.id))).map(item =>
+            ({...item, country: 'México', placeType: 'cemetery', source: 'inegi'})),
+        ...approved.map(item => ({...item, source: 'community', colony: item.locality || '',
+            latitude: item.location?.latitude, longitude: item.location?.longitude}))
+    ].filter(valid).map(item => ({...item, distance: distanceInMeters(point, item)}))
+        .filter(item => item.distance <= 1500 + Math.min(Math.max(point.accuracy || 0, 0), 300))
+        .sort((a, b) => a.distance - b.distance).slice(0, 10);
+}
+
+async function detectCommunityPlacesGps() {
+    const sequence = ++communityNearbySequence;
+    const user = auth.currentUser;
+    const status = document.getElementById('community-nearby-status');
+    const list = document.getElementById('community-nearby-list');
+    communityNearbyPlaces = [];
+    list.replaceChildren();
+    status.textContent = 'Obteniendo tu ubicación para buscar lugares cercanos…';
+    try {
+        const point = await getGeolocation();
+        if (sequence !== communityNearbySequence || auth.currentUser !== user) return;
+        if (!point) throw new Error('No se obtuvo tu ubicación. Puedes reintentar o elegir el lugar manualmente.');
+        const [catalog, community] = await Promise.allSettled([
+            loadCemeteryCatalog(),
+            db.collection('cemeteries').where('status', '==', 'approved').get()
+        ]);
+        if (sequence !== communityNearbySequence || auth.currentUser !== user) return;
+        if (catalog.status === 'rejected' && community.status === 'rejected')
+            throw new Error('No se pudieron consultar los lugares. Reintenta o continúa manualmente.');
+        communityNearbyPlaces = nearbyCommunityPlaces(catalog.status === 'fulfilled' ? catalog.value : [],
+            community.status === 'fulfilled' ? community.value.docs.map(doc => ({...doc.data(), id: doc.id})) : [], point);
+        status.textContent = communityNearbyPlaces.length
+            ? 'Elige el lugar al que vas a aportar. La cercanía no confirma que estés dentro.'
+            : 'No encontramos lugares registrados a menos de 1.5 km. Puedes registrar uno manualmente.';
+        if (catalog.status === 'rejected' || community.status === 'rejected')
+            status.textContent += ' Una parte del catálogo no estuvo disponible; los resultados pueden estar incompletos.';
+        for (const item of communityNearbyPlaces) {
+            const button = document.createElement('button');
+            button.type = 'button'; button.className = 'btn btn-outline-primary text-start w-100 mb-2';
+            button.textContent = formatProperName(item.name) + ' · ' + communityPlaceTypeLabel(item) +
+                ' · ' + Math.round(item.distance) + ' m · ' + (item.municipality || '');
+            button.onclick = () => chooseNearbyCommunityPlace(item, sequence);
+            list.append(button);
+        }
+    } catch (error) {
+        if (sequence === communityNearbySequence) status.textContent = error.message;
+    }
+}
+
+async function chooseNearbyCommunityPlace(item, sequence) {
+    if (sequence !== communityNearbySequence) return;
+    const selection = ++communityNearbySequence;
+    const status = document.getElementById('community-nearby-status');
+    status.textContent = 'Preparando el lugar seleccionado…';
+    try {
+        document.getElementById('cemetery-country').value = item.country || 'México';
+        document.getElementById('cemetery-place-type').value = item.placeType || 'cemetery';
+        document.getElementById('cemetery-other-type').value = item.otherPlaceType || '';
+        updateCommunityCountry(); updateCommunityPlaceType();
+        await loadCommunityStates();
+        if (selection !== communityNearbySequence) return;
+        if (communityRegion().mexican) {
+            document.getElementById('cemetery-state').value = item.stateCode || '';
+            await loadCommunityMunicipalities();
+            if (selection !== communityNearbySequence) return;
+            document.getElementById('cemetery-municipality').value = item.municipalityCode || '';
+        } else {
+            document.getElementById('cemetery-state-manual').value = item.state || '';
+            document.getElementById('cemetery-municipality-manual').value = item.municipality || '';
+        }
+        await loadCommunityPlaceCatalog();
+        if (selection !== communityNearbySequence) return;
+        document.getElementById('cemetery-name').value = formatProperName(item.name);
+        document.getElementById('cemetery-locality').value = formatProperName(item.colony || '');
+        document.getElementById('cemetery-address').value = item.address || '';
+        // The place coordinate is a reference; taking a photo obtains its own GPS.
+        communityCemeteryLocation = {latitude: item.latitude, longitude: item.longitude};
+        communityCemeteryLocationSource = item.source;
+        document.getElementById('cemetery-location-status').textContent = 'Ubicación del lugar elegido: ' + formatCoordinates(communityCemeteryLocation);
+        if (item.source === 'inegi') {
+            communityCemeteryMatches = [{id: item.id, name: item.name, locality: item.colony,
+                source: 'INEGI', location: communityCemeteryLocation}];
+            useInegiCemeteryMatch(0);
+        }
+        document.getElementById('community-nearby-picker').hidden = true;
+        document.getElementById('community-place-form').hidden = false;
+    } catch (error) {
+        if (selection === communityNearbySequence) status.textContent = 'No se pudo preparar el lugar. Reintenta o continúa manualmente.';
+    }
 }
 
 function communityRegion() {

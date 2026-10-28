@@ -1,5 +1,59 @@
 # CHANGELOG
 
+<!-- cdc-session:session-20261028013831-7bde10 -->
+## Sesión 27/10/2026, 08:38 p.m.
+
+### Resumen
+
+La sesión se enfocó en: Revisar el diff y preparar un commit descriptivo.. Se detectaron 26 cambio(s): 4 creado(s), 22 modificado(s) y 0 eliminado(s).
+
+### Cambios
+
+- .browser-check/community-nearby-chromium.png
+- .browser-check/community-nearby-webkit.png
+- .browser-check/public-home-chromium.png
+- .browser-check/public-home-webkit.png
+- .browser-check/record-full-chromium.png
+- .browser-check/record-full-webkit.png
+- .browser-check/search-summary-chromium.png
+- .browser-check/search-summary-webkit.png
+- .browser-check/welcome-guest-chromium.png
+- .browser-check/welcome-guest-webkit.png
+- .firebase/hosting..cache
+- CHANGELOG.md
+- DOMAIN-MIGRATION.md
+- NEXT.md
+- android/app/build.gradle
+- android/app/src/main/assets/public/index.html
+- android/app/src/main/assets/public/version.json
+- index.html
+- ios/App/App.xcodeproj/project.pbxproj
+- ios/App/App/public/index.html
+- ios/App/App/public/version.json
+- scripts/verify-community-nearby.mjs
+- security-tests/community-nearby.test.mjs
+- version.json
+- www/index.html
+- www/version.json
+
+### Riesgos
+
+- Se modificaron archivos de configuración o infraestructura (DOMAIN-MIGRATION.md, android/app/build.gradle, android/app/src/main/assets/public/index.html, android/app/src/main/assets/public/version.json, ios/App/App.xcodeproj/project.pbxproj). Valida compatibilidad y despliegue.
+- La sesión contiene 26 cambios. Considera dividir la revisión o el commit para reducir el riesgo de integración.
+- El análisis incluye archivos que ya tenían cambios al iniciar la sesión.
+
+### Próximo paso
+
+- Revisar y resolver los riesgos detectados en este cierre.
+- Revisar el diff y preparar un commit descriptivo.
+
+## 2.54.0 — 2026-10-27
+
+- Aportar un panteón u otro lugar empieza solicitando GPS y mostrando hasta diez lugares cercanos ordenados por distancia (1.5 km más un margen de precisión de hasta 300 m). Se consultan panteones del catálogo INEGI y lugares aprobados de la comunidad con coordenadas. Iglesias, hospitales, conventos y otros lugares dependen de los registros comunitarios disponibles; no se añadió un proveedor externo de esos establecimientos.
+- Elegir un lugar completa nombre, tipo, país, estado, municipio y ubicación de referencia antes de mostrar el formulario de fotografía. Se conserva la vinculación INEGI; cada foto tomada obtiene su propio GPS. Se permite reintentar o continuar manualmente ante permiso denegado, ausencia del lugar o catálogo no disponible. Las consultas tardías no reemplazan la selección manual.
+- Verificación: 30 pruebas de selección inicial, coordenadas, alias, comunidad, GPS denegado, consulta parcial y regresión aprobadas. Selección y continuación manual comprobadas en Chrome y WebKit con GPS y catálogos simulados; captura inicial revisada visualmente. No se comprobó GPS físico en un teléfono. Estructura iOS y git diff --check aprobados.
+- Versión 2.54.0 sincronizada y comprobada en fuentes, www/ y recursos Android/iOS; Android versionCode 27 e iOS CURRENT_PROJECT_VERSION 25. Recursos web generados. Publicación 2.54.0 completada en Firebase Hosting el 27/10/2026 por solicitud del usuario: HTTPS 200, version.json y HTML idéntico a la fuente comprobados en buscatumbas.lat y buscatumbas-2e7cc.web.app, incluido el selector inicial de lugares cercanos. Redirección 301 del dominio antiguo comprobada conservando ruta y consulta. Sin APK nuevo ni instalación.
+
 ## 2.53.0 — 2026-10-27
 
 - Migración completada: certificados CERT_ACTIVE en ambos dominios y redirección del dominio antiguo hacia buscatumbas.lat aplicada en Firebase. HTTP 301 comprobado conservando rutas y parámetros.
