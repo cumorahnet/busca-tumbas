@@ -1,5 +1,104 @@
 # CHANGELOG
 
+## 2.53.0 — 2026-10-27
+
+- Migración completada: certificados CERT_ACTIVE en ambos dominios y redirección del dominio antiguo hacia buscatumbas.lat aplicada en Firebase. HTTP 301 comprobado conservando rutas y parámetros.
+- Verificación: 57 pruebas aprobadas; lint de Functions, configuración Google, interfaz pública Chromium/WebKit y estructura iOS comprobados. git diff --check sin errores. Se conservaron los cambios locales previos.
+- Versión 2.53.0 sincronizada en fuentes, www/ y recursos Android/iOS. Android versionCode 26 e iOS CURRENT_PROJECT_VERSION 24. Recursos web generados; sin APK ni instalación. Publicación completada en Firebase Hosting el 27/10/2026. HTTPS 200 y versión 2.53.0 comprobados en buscatumbas.lat y buscatumbas-2e7cc.web.app; HTML idéntico a la fuente local. Redirección HTTP 301 comprobada conservando ruta y parámetros.
+
+<!-- cdc-session:session-20261028013324-1b68f1 -->
+## Sesión 27/10/2026, 07:36 p.m.
+
+### Resumen
+
+La sesión se enfocó en: Revisar y resolver los riesgos detectados en este cierre.. Se detectaron 1 cambio(s): 0 creado(s), 1 modificado(s) y 0 eliminado(s).
+
+### Cambios
+
+- CHANGELOG.md
+
+### Riesgos
+
+- El análisis incluye archivos que ya tenían cambios al iniciar la sesión.
+
+### Próximo paso
+
+- Revisar el diff y preparar un commit descriptivo.
+
+<!-- cdc-session:session-20261027025023-f85a78 -->
+## Sesión 26/10/2026, 10:40 p.m.
+
+### Resumen
+
+La sesión se enfocó en: Revisar y resolver los riesgos detectados en este cierre.. Se detectaron 51 cambio(s): 0 creado(s), 45 modificado(s) y 6 eliminado(s).
+
+### Cambios
+
+- .browser-check/public-home-chromium.png
+- .browser-check/public-home-webkit.png
+- .browser-check/record-full-chromium.png
+- .browser-check/record-full-webkit.png
+- .browser-check/search-summary-chromium.png
+- .browser-check/search-summary-webkit.png
+- .browser-check/welcome-guest-chromium.png
+- .browser-check/welcome-guest-webkit.png
+- .firebase/hosting..cache
+- CHANGELOG.md
+- MONETIZATION.md
+- android/app/build.gradle
+- android/app/src/main/assets/capacitor.config.json
+- android/app/src/main/assets/public/cordova.js
+- android/app/src/main/assets/public/cordova_plugins.js
+- android/app/src/main/assets/public/index.html
+- android/app/src/main/assets/public/mobile/app.js
+- android/app/src/main/assets/public/mobile/offline.js
+- android/app/src/main/assets/public/version.json
+- android/app/src/main/res/xml/config.xml
+- android/capacitor-cordova-android-plugins/src/main/AndroidManifest.xml
+- functions/duplicates.test.js
+- functions/handlers.js
+- functions/monetization-config.json
+- functions/monetization.test.js
+- functions/record-writes.js
+- index.html
+- ios/App/App.xcodeproj/project.pbxproj
+- ios/App/App/capacitor.config.json
+- ios/App/App/config.xml
+- ios/App/App/public/cordova.js
+- ios/App/App/public/cordova_plugins.js
+- ios/App/App/public/index.html
+- ios/App/App/public/mobile/app.js
+- ios/App/App/public/mobile/offline.js
+- ios/App/App/public/version.json
+- mobile/app.js
+- mobile/offline.js
+- scripts/build-android.mjs
+- scripts/verify-offline-outbox.mjs
+- scripts/verify-offline-shell.mjs
+- scripts/verify-public-home.mjs
+- security-tests/automatic-photo-scan.test.mjs
+- security-tests/monetization.test.mjs
+- security-tests/tomb-cemetery-session.test.mjs
+- sw.js
+- version.json
+- www/index.html
+- www/mobile/app.js
+- www/mobile/offline.js
+- www/version.json
+
+### Riesgos
+
+- Se eliminaron 6 archivo(s). Confirma que las eliminaciones sean intencionales antes de integrar los cambios.
+- Se modificaron archivos de configuración o infraestructura (android/app/build.gradle, android/app/src/main/assets/capacitor.config.json, android/app/src/main/assets/public/cordova.js, android/app/src/main/assets/public/cordova_plugins.js, android/app/src/main/assets/public/index.html). Valida compatibilidad y despliegue.
+- La sesión contiene 51 cambios. Considera dividir la revisión o el commit para reducir el riesgo de integración.
+- El análisis incluye archivos que ya tenían cambios al iniciar la sesión.
+
+### Próximo paso
+
+- Revisar y resolver los riesgos detectados en este cierre.
+- Ejecutar las pruebas automatizadas y validar el comportamiento afectado.
+- Revisar el diff y preparar un commit descriptivo.
+
 ## 2.52.0 — 2026-10-26
 
 - Lanzamiento sin anuncios hasta el 1 de enero de 2027 inclusive (Ciudad de México), sincronizado entre la tarjeta pública y la configuración del servidor. Los interruptores de anuncios y ventas siguen desactivados.
@@ -6388,3 +6487,16 @@ Se cerró una sesión de trabajo del proyecto buscatumbas. Se detectaron 18 camb
 - Verificación: dos pruebas de seguridad y sintaxis aprobadas; Chromium y WebKit comprueban apertura, cierre, contenido oculto inicialmente y ausencia de desplegables vacíos. Captura móvil revisada. Recursos www/ y versiones sincronizados en 2.45.0, Android versionCode 18 e iOS CURRENT_PROJECT_VERSION 16.
 - Sin cambios de backend, datos históricos, APK ni instalación.
 - Firebase Hosting publicado y verificado por HTTPS en ambos dominios con versión 2.45.0 y fichas de actividad desplegables.
+## Pendiente de implementar — 2026-10-27
+
+Se acordó reorganizar el registro de tumbas, panteones y otros lugares con este flujo:
+
+1. Obtener la ubicación GPS y buscar lugares cercanos (panteón, iglesia, hospital u otros). La identificación del lugar requiere consultar los catálogos disponibles; el GPS aporta las coordenadas.
+2. Elegir qué se va a agregar: tumba, panteón, iglesia, hospital u otro lugar.
+3. Confirmar el lugar detectado, seleccionar otro o completar sus datos si no existe. Para panteones, conservar la revisión contra el catálogo de INEGI y el comunitario, mostrando coincidencias antes de permitir un registro nuevo para evitar duplicados.
+4. Tomar una fotografía de acuerdo con el tipo elegido: tumba, entrada del panteón, iglesia, hospital u otro sitio. Iniciar automáticamente el escaneo y la extracción de datos visibles cuando el extractor disponible lo permita; permitir revisar y corregir los resultados.
+5. Capturar las coordenadas GPS del elemento registrado (para tumbas, estando frente a la tumba), mostrar la precisión y revisar fotografía, datos, lugar y coordenadas antes de guardar. No suponer que una fotografía contiene coordenadas.
+
+Estado: cambios funcionales todavía NO implementados. El acceso al proyecto falló repetidamente con `helper_unknown_error: setup refresh had errors`; no fue posible inspeccionar el flujo actual ni ejecutar comprobaciones. Esta entrada documenta el punto de reanudación y no acredita implementación, compilación, instalación ni publicación.
+
+Al retomar: inspeccionar el código y las instrucciones locales, implementar el flujo acordado, verificar el comportamiento y actualizar una sola vez la versión más alta existente, sincronizando web, Android e iOS conforme a AGENTS.md. Esta nota exclusiva de documentación no requiere incremento de versión.
