@@ -18,8 +18,8 @@ for(const [placeType,label,otherPlaceType] of [['tomb','Tumba'],['church','Igles
   const rendered=get('my-contributions-list').innerHTML;
   assert.ok(rendered.includes('<strong>San José &lt;img src=x&gt;</strong>'),rendered);
   assert.ok(rendered.includes('contribution-type-badge\">'+label+'</span>'),rendered);
-  assert.equal(rendered.includes('contribution-status'),placeType!=='tomb');
-  assert.equal(rendered.includes('PENDIENTE'),placeType!=='tomb');
+  assert.equal(rendered.includes('contribution-status'),true);
+  assert.equal(rendered.includes('PENDIENTE'),true);
   assert.ok(!rendered.includes(label+': San José'));
   if(placeType && placeType!=='cemetery')assert.ok(!rendered.includes('Panteón:'));
   assert.equal(context.myContributions[0].placeType,placeType);

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
-const host = 'https://buscatumbas-2e7cc.web.app';
+const host = 'https://buscatumbas.lat';
 const version = await fetch(`${host}/version.json`, {cache:'no-store'});
 assert.equal(version.status,200);
 const localVersion = JSON.parse(await readFile('version.json','utf8'));

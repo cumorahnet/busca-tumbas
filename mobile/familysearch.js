@@ -34,7 +34,7 @@
         ];
         const description = [name ? `Fotografía de la lápida de ${name}.` : 'Fotografía de una lápida.', '',
             ...fields.filter(([, value]) => value).map(([label, value]) => `${label}: ${value}`), '',
-            'Preparado desde Busca Tumbas: https://buscatumbas-2e7cc.web.app/'].join('\n');
+            'Preparado desde Busca Tumbas: https://buscatumbas.lat/'].join('\n');
         const filename = (name || 'lapida').normalize('NFKD').replace(/[\u0300-\u036f]/g, '')
             .replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '').slice(0, 100) || 'lapida';
         return {title, description, imageUrl, filename: `lapida-${filename.toLowerCase()}`};

@@ -5,10 +5,11 @@ import vm from 'node:vm';
 const html=fs.readFileSync('index.html','utf8');
 function setup() {
     const nodes=new Map(), calls=[], notices=[];
-    const node=id=>{if(!nodes.has(id))nodes.set(id,{value:'',checked:false,style:{},dataset:{},textContent:'Button',focus(){calls.push('focus:'+id)},querySelector(){return null}});return nodes.get(id)};
+    const node=id=>{if(!nodes.has(id))nodes.set(id,{value:'',checked:false,style:{},dataset:{},textContent:'Button',focus(){calls.push('focus:'+id)},checkValidity(){return true},querySelector(){return null}});return nodes.get(id)};
     node('auth-full-name').value='Ana Perez';node('auth-email').value='ana@example.com';node('auth-password').value='example-password';
+    for(const [id,value] of Object.entries({'auth-phone':'5512345678','auth-country':'Mexico','auth-state':'Hidalgo','auth-municipality':'Ajacuba'})) node(id).value=value;
     const user={emailVerified:true,updateProfile:async()=>calls.push('profile')};
-    const ctx={document:{getElementById:node},console,authFlowInProgress:false,
+    const ctx={localStorage:{setItem(){}},document:{getElementById:node},console,authFlowInProgress:false,
         auth:{currentUser:null,createUserWithEmailAndPassword:async()=>{calls.push('create');return {user}},signInWithEmailAndPassword:async()=>{calls.push('login');return {user}},signOut:async()=>{}},
         showToast:text=>notices.push(text),resetPasswordVisibility(){},updateVerificationPendingUI(){},
         setVerificationPending(){},sendAccountVerification:async()=>{},showVerificationRequestAccepted(){},

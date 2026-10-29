@@ -57,7 +57,13 @@
       "apply-history-card.mjs",
       ".idea/**",
       "AGENTS.md",
-      "DOMAIN-MIGRATION.md"
+      "DOMAIN-MIGRATION.md",
+      "**/*.mjs",
+      "**/*.md",
+      "**/*.jks",
+      "**/*.keystore",
+      "**/keystore.properties",
+      "outputs/**"
     ],
     "rewrites": [
       {

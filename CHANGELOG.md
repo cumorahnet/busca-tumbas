@@ -1,5 +1,109 @@
 # CHANGELOG
 
+## 2.60.0 - 2026-10-28
+
+- Seguridad: dependencias vulnerables actualizadas, override npm reparado y auditorias raiz/backend con cero vulnerabilidades conocidas. Choices.js fijado a 11.1.0 y exclusiones de Hosting reforzadas.
+- Disputas: suscripciones reutilizadas para evitar reinicios y lecturas repetidas; se cancelan al cambiar privilegios o cerrar sesion.
+- Editar tumbas ya no descarga todo el catalogo del cliente. Duplicados validados por el servidor y fallos de hashes controlados.
+- Verificacion: 338 pruebas locales y 10 de emuladores aprobadas; backend Node 22, ESLint y comprobaciones Chromium/WebKit de inicio publico y areas seguras aprobadas. Hallazgos y limites en SECURITY-REVIEW.md.
+- 2.60.0 sincronizada en fuentes, www y recursos Android/iOS, codigos nativos 33. Sin despliegue ni APK/IPA nuevo.
+
+<!-- cdc-session:session-20261028205209-2fe491 -->
+## Sesión 28/10/2026, 02:52 p.m.
+
+### Resumen
+
+La sesión se enfocó en: Revisar el diff y preparar un commit descriptivo.. Se detectaron 0 cambio(s): 0 creado(s), 0 modificado(s) y 0 eliminado(s).
+
+### Cambios
+
+- No se detectaron archivos modificados.
+
+### Riesgos
+
+- No se detectaron archivos modificados. Confirma que el trabajo se haya guardado dentro del proyecto y fuera de carpetas ignoradas.
+- El análisis incluye archivos que ya tenían cambios al iniciar la sesión.
+
+### Próximo paso
+
+- Revisar y resolver los riesgos detectados en este cierre.
+- Definir el siguiente objetivo de trabajo del proyecto.
+
+## 2.59.0 — 2026-10-28
+
+- Publicación completada: gestionarAporteAdmin, actualizarAportacionTumba y actualizarAportacionPanteon actualizadas en us-central1 y Firebase Hosting desplegado. Verificación HTTPS de versión y fuentes en ambos dominios; las tres funciones rechazan solicitudes anónimas con 401. Sin cambios de reglas ni escrituras de prueba en aportaciones reales.
+
+- Rechazos administrativos: mensaje privado sin leer en Mensajes, con el motivo, instrucciones y acceso a Ver y corregir aportación. La revisión de lugares utiliza la misma función transaccional del backend para guardar decisión y aviso juntos; las revisiones desactualizadas se rechazan.
+- El autor puede corregir una tumba o lugar rechazado y reenviarlo a revisión. Se conserva el mismo identificador, autoría y fotografía; el estado pasa a pending, sin publicación automática. Los lugares aprobados no se habilitan para edición de propietarios y se conservan las comprobaciones de duplicados y permisos.
+- Mis aportaciones y la vista de detalle muestran el rechazo o revisión pendiente; el administrador incluye también las tumbas reenviadas entre las pendientes de revisión.
+- Validación: pruebas de backend, permisos, mensajes, edición, duplicados, consola administrativa y móviles aprobadas; ESLint de los módulos backend modificados sin errores. Recursos www y nativos sincronizados con 2.59.0, códigos Android/iOS 32.
+
+
+## 2.58.0 — 2026-10-28
+
+- Publicada en Firebase Hosting y comprobada por HTTPS en buscatumbas.lat: HTML, versión, CSS y script móvil coinciden byte por byte con las fuentes.
+
+- Aportar tumba: la confirmación de panteón cercano sustituye el aviso nativo del navegador por un diálogo de la app, con nombre y municipio, botones Cancelar y Usar este panteón, fondo atenuado y áreas seguras móviles.
+- Cancelar o Escape conserva la selección sin confirmar; el botón de aceptación confirma una sola vez. Atrás nativo cierra primero este diálogo. No cambia la lógica de guardado ni Firebase.
+- Versión 2.58.0 sincronizada en fuentes, www y recursos Android/iOS; códigos nativos 31.
+- Validación: 71 pruebas aprobadas. Chrome a 360 y 1280 px: sin desbordamiento; apertura desde la lista GPS, cancelar, Escape y confirmación única comprobados. Captura móvil revisada visualmente.
+
+
+## 2.57.0 — 2026-10-28
+
+### Publicación completada el 28/10/2026
+
+- Desplegado Firebase Hosting del proyecto buscatumbas-2e7cc con los cambios de lugares y actualización de la PWA. No hubo cambios de backend que requirieran despliegue.
+- 96 pruebas aprobadas antes del despliegue. Verificación HTTPS posterior en buscatumbas.lat y buscatumbas-2e7cc.web.app: HTML, versión 2.57.0, actualizador, instalador PWA, service worker y manifiesto idénticos byte por byte a las fuentes; cabeceras de revalidación e iconos PNG comprobados.
+- Las comprobaciones se realizaron contra Hosting; no se afirma haber actualizado una instalación concreta en un teléfono.
+
+### Preparación anterior a la publicación
+
+- Se corrige el alcance de la tarea anterior: la distribución actual es PWA instalada desde la web. Se retira la configuración remota de Capacitor y el runtime añadido a la web; no se necesita APK para actualizar la PWA.
+- La PWA instalada vuelve a registrar el service worker con updateViaCache: none, para comprobar sus actualizaciones sin mostrar ofertas de instalación. Se conservan el manifiesto con inicio /, las navegaciones sin caché y la comprobación de versión publicada.
+- Verificación: 53 pruebas móviles aprobadas; comprobación en Chrome con perfiles Android/iPhone del diálogo, instrucciones, iconos y service worker activo. No se puede simular la confirmación real del instalador del sistema con esta prueba.
+- Versión 2.57.0 sincronizada con www y recursos Android/iOS (códigos 30). Sin publicación: el Hosting sigue en la versión anterior hasta desplegar los cambios.
+
+
+## 2.56.0 — 2026-10-28
+
+- Android/iOS: origen de inicio configurado como https://buscatumbas.lat/ con HTTPS; runtime de Capacitor servido también en la web para mantener los plugins nativos.
+- Comprobación sin caché de version.json al abrir, reconectar y volver al primer plano. Las nuevas publicaciones ofrecen actualización con confirmación, conservando el trabajo pendiente hasta que el usuario acepte.
+- Navegaciones del service worker sin caché y migración desde los dominios Firebase anteriores. Enlaces de FamilySearch y verificador de despliegue apuntan al dominio actual.
+- Versiones sincronizadas en fuentes, www y recursos nativos: 2.56.0, Android 29 e iOS 29. Recursos copiados con Capacitor a ambos proyectos.
+- Validación: 52 pruebas móviles aprobadas; verificación estructural de iOS aprobada (sin compilar con Xcode ni probar en dispositivo). HTTPS del dominio y version.json devuelve 200 con revalidación obligatoria; la publicación existente sigue en 2.54.0. No se publicó Hosting, ni se generó o instaló un APK/IPA.
+
+
+## 2.55.0 — 2026-10-28
+
+- Aportar: el catálogo manual permite seleccionar iglesias, hospitales, conventos y otros lugares públicos aprobados, además de panteones. Conserva filtros de región, país y tipo y descarta respuestas de un tipo anterior.
+- Se aclaran los tipos disponibles y el registro manual cuando el lugar no aparece.
+- Versiones sincronizadas en web, www, Android (código 28) e iOS (compilación 28).
+- Comprobaciones: 39 pruebas existentes y 4 nuevas de consulta y selección por tipo aprobadas; recursos www generados con build:android y versiones verificadas. Sin APK nuevo ni despliegue.
+
+<!-- cdc-session:session-20261028024008-b3ec1c -->
+## Sesión 27/10/2026, 08:52 p.m.
+
+### Resumen
+
+La sesión se enfocó en: Revisar y resolver los riesgos detectados en este cierre.. Se detectaron 5 cambio(s): 0 creado(s), 5 modificado(s) y 0 eliminado(s).
+
+### Cambios
+
+- .browser-check/community-nearby-chromium.png
+- .browser-check/community-nearby-webkit.png
+- .firebase/hosting..cache
+- CHANGELOG.md
+- NEXT.md
+
+### Riesgos
+
+- El análisis incluye archivos que ya tenían cambios al iniciar la sesión.
+
+### Próximo paso
+
+- Revisar el diff y preparar un commit descriptivo.
+
 <!-- cdc-session:session-20261028013831-7bde10 -->
 ## Sesión 27/10/2026, 08:38 p.m.
 

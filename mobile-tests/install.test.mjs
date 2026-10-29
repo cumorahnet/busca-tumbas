@@ -59,7 +59,7 @@ test('iPhone provides manual instructions and never calls native prompt',async()
 });
 test('installed web apps, iOS standalone, native Android and disabled bridge never show offers',()=>{
  for(const options of [{standalone:true},{iosStandalone:true},{native:true},{enabled:false}]) {
-  const s=setup(options);s.handlers['buscatumbas:ready']?.();assert.ok(s.actions.every(b=>b.hidden));assert.ok(!s.calls.includes('dialog'));assert.ok(!s.calls.some(c=>Array.isArray(c)&&c[0]==='worker'));
+  const s=setup(options);s.handlers['buscatumbas:ready']?.();assert.ok(s.actions.every(b=>b.hidden));assert.ok(!s.calls.includes('dialog'));assert.equal(s.calls.some(c=>Array.isArray(c)&&c[0]==='worker'),Boolean(options.standalone || options.iosStandalone));
  }
 });
 test('prompt errors fall back to instructions and a rejected event cannot be reused',async()=>{
@@ -71,4 +71,10 @@ test('manifest icons have genuine PNG signatures and the declared sizes',()=>{
  for(const icon of manifest.icons){const png=fs.readFileSync(icon.src.split('?')[0]);assert.equal(png.subarray(0,8).toString('hex'),'89504e470d0a1a0a');assert.equal(icon.sizes,png.readUInt32BE(16)+'x'+png.readUInt32BE(20));}
  assert.ok(manifest.icons.some(i=>i.sizes==='192x192'));assert.ok(manifest.icons.some(i=>i.sizes==='512x512'));
  const s=setup();assert.ok(s.calls.some(c=>Array.isArray(c)&&c[0]==='worker'&&c[1]==='sw.js'&&c[2]==='./'));
+});
+
+test('standalone Android and iOS still check for worker updates without offering installation',()=>{
+ for(const options of [{standalone:true},{iosStandalone:true}]){
+  const s=setup(options);assert.ok(s.calls.some(call=>Array.isArray(call)&&call[0]==='worker'));assert.ok(s.actions.every(button=>button.hidden));
+ }
 });

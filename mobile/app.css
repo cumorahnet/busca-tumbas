@@ -26,7 +26,7 @@ body { display: block; height: auto; min-height: 100dvh; }
 #cam-top-bar { top: calc(1rem + var(--app-safe-top)); left: calc(1rem + var(--app-safe-left)); right: calc(1rem + var(--app-safe-right)); }
 #snap-btn { bottom: calc(1.5rem + var(--app-safe-bottom)); }
 #toast-msg, #connection-status { bottom: calc(1rem + var(--app-safe-bottom)); max-width: calc(100vw - var(--app-safe-left) - var(--app-safe-right) - 2rem); }
-#pwa-install-dialog, #app-share-dialog, #familysearch-preparation-dialog, #superuser-dialog {
+#pwa-install-dialog, #app-share-dialog, #familysearch-preparation-dialog, #superuser-dialog, #tomb-place-confirm-dialog {
     inset: calc(.75rem + var(--app-safe-top)) calc(.75rem + var(--app-safe-right)) calc(.75rem + var(--app-safe-bottom)) calc(.75rem + var(--app-safe-left));
     margin: auto;
     max-width: calc(100vw - var(--app-safe-left) - var(--app-safe-right) - 1.5rem);
@@ -129,7 +129,7 @@ body { display: block; height: auto; min-height: 100dvh; }
 #toast-msg, #connection-status { left: calc(50% + (var(--app-safe-left) - var(--app-safe-right)) / 2); max-height: calc(var(--app-visible-height, 100dvh) - var(--app-safe-top) - var(--app-safe-bottom) - 2rem); overflow-y: auto; }
 
 #auth-screen, #record-detail-modal, #image-zoom-modal, #ia-modal { top: var(--app-visible-top, 0px); bottom: auto; height: var(--app-visible-height, 100dvh); max-height: var(--app-visible-height, 100dvh); }
-#pwa-install-dialog, #app-share-dialog, #familysearch-preparation-dialog, #superuser-dialog { top: calc(var(--app-visible-top, 0px) + .75rem + var(--app-safe-top)); bottom: calc(var(--app-hidden-bottom, 0px) + .75rem + var(--app-safe-bottom)); }
+#pwa-install-dialog, #app-share-dialog, #familysearch-preparation-dialog, #superuser-dialog, #tomb-place-confirm-dialog { top: calc(var(--app-visible-top, 0px) + .75rem + var(--app-safe-top)); bottom: calc(var(--app-hidden-bottom, 0px) + .75rem + var(--app-safe-bottom)); }
 #toast-msg, #connection-status { bottom: calc(1rem + var(--app-safe-bottom) + var(--app-hidden-bottom, 0px)); }
 
 /* Public home and persistent navigation. */
@@ -189,3 +189,9 @@ body { padding-top: calc(100px + var(--app-safe-top)); }
 #account-section { width:100%; align-self:stretch; min-height:calc(100dvh - 190px - var(--app-safe-top) - var(--app-safe-bottom)); padding:1rem; overflow-wrap:anywhere; }
 #account-section #account-menu { margin-top:1rem; }
 @media(max-width:480px) { #header-account-user { max-width:17vw; } .brand-title-row { gap:.2rem; } }
+
+/* Cemetery confirmation shares the app's dialog shape, colors and safe areas. */
+#tomb-place-confirm-dialog { width: min(440px, calc(100% - 2rem)); border: 1px solid #e4deef; border-radius: 1.25rem; padding: 1.5rem; color: #302641; box-shadow: 0 20px 60px #0f172a40; overflow-wrap: anywhere; }
+#tomb-place-confirm-dialog::backdrop { background: #0f172a99; }
+#tomb-place-confirm-dialog .tomb-place-confirm-summary { background: #f1edf8; border-radius: .75rem; padding: 1rem; }
+#tomb-place-confirm-dialog button:focus-visible { outline: 3px solid #5c4e99; outline-offset: 3px; }

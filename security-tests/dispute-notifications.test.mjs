@@ -6,7 +6,7 @@ const html = fs.readFileSync('index.html','utf8');
 function setup(admin = true) {
     const nodes = new Map(); const notices = []; const listeners = [];
     const ctx = {duplicateDisputeUnsubscribe:null,myDuplicateDisputeUnsubscribe:null,
-        correctionInboxItems:[],adminDuplicateDisputes:[],myDuplicateDisputes:[],activeAdminDisputeId:null,duplicateDisputeListenerGeneration:0,
+        correctionInboxItems:[],adminDuplicateDisputes:[],myDuplicateDisputes:[],activeAdminDisputeId:null,duplicateDisputeListenerGeneration:0,duplicateDisputeListenerKey:null,
         duplicateDisputeComparisons:new Map(), duplicateDisputeSelections:new Map(), duplicateDisputeResolutionNotes:new Map(),
         auth:{currentUser:{uid:'owner',emailVerified:true}},isSuperuserActive:()=>admin,
         document:{getElementById:id=>{if(!nodes.has(id))nodes.set(id,{innerHTML:'',hidden:true,textContent:'',setAttribute(name,value){this[name]=value;}});return nodes.get(id);}},
@@ -114,3 +114,15 @@ for (const status of ['approved', 'rejected']) {
         assert.equal(s.nodes.get('my-disputes-menu-count').hidden,true);
     });
 }
+
+test('repeated session indicators reuse listeners and privilege changes replace them',()=>{
+ const s=setup(false);s.ctx.startDuplicateDisputeNotifications();
+ s.listeners[0].callback(s.snapshot([dispute]));
+ s.ctx.startDuplicateDisputeNotifications();
+ assert.equal(s.listeners.length,1);assert.equal(s.listeners[0].stopped,false);
+ assert.equal(s.ctx.myDuplicateDisputes.length,1);
+ s.ctx.isSuperuserActive=()=>true;s.ctx.startDuplicateDisputeNotifications();
+ assert.equal(s.listeners[0].stopped,true);assert.equal(s.listeners.length,3);
+ s.ctx.auth.currentUser=null;s.ctx.startDuplicateDisputeNotifications();
+ assert.ok(s.listeners.every(item=>item.stopped));
+});

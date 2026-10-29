@@ -204,3 +204,10 @@ test('owners can complete pending place GPS; invalid coordinates and foreign own
   await assert.rejects(api.actualizarAportacionPanteon(request('original',{...edit,location:{latitude:91,longitude:0}})),{code:'invalid-argument'});
   await assert.rejects(api.actualizarAportacionPanteon(request('original',edit,'intruder')),{code:'permission-denied'});
 });
+test('rejected place can be corrected and resubmitted only by its owner without creating another record',async()=>{
+ const {api,rows,request}=harness();rows.set('cemeteries/place',{name:'Lugar original',locality:'Centro',status:'rejected',contributorId:'owner',photoUrl:'original-photo',placeType:'church',stateCode:'14',municipalityCode:'039'});
+ await assert.rejects(api.actualizarAportacionPanteon(request('place',{name:'Lugar corregido',locality:'Centro'},'intruder')),{code:'permission-denied'});assert.equal(rows.get('cemeteries/place').status,'rejected');
+ await api.actualizarAportacionPanteon(request('place',{name:'Lugar corregido',locality:'Centro'}));
+ const place=rows.get('cemeteries/place');assert.equal(place.status,'pending');assert.equal(place.name,'Lugar corregido');assert.equal(place.photoUrl,'original-photo');assert.equal(place.contributorId,'owner');assert.ok(place.resubmittedAt);assert.equal([...rows.keys()].filter(p=>p.startsWith('cemeteries/')).length,1);
+ await assert.rejects(api.actualizarAportacionPanteon(request('place',{name:'Lugar corregido',locality:'Centro',status:'approved'})),{code:'invalid-argument'});
+});

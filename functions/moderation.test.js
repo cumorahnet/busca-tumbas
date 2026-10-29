@@ -96,3 +96,20 @@ test("withdrawal is reversible and warnings do not modify the record", async () 
   assert.ok(warn.writes.every(([path]) => path !== "tumbas/record"));
   await assert.rejects(warn.run({action: "warn", note: ""}), {code: "invalid-argument"});
 });
+for (const recordType of ['tomb','cemetery']) test(`${recordType} rejection atomically creates an unread message with reason and contributor`,async()=>{
+ const s=setup();s.record.name='Lugar';s.record.status='pending';
+ await s.run({recordType,action:'reject',expectedStatus:'pending'});
+ const record=s.writes.find(([p])=>p===`${recordType==='tomb'?'tumbas':'cemeteries'}/record`)[1];
+ assert.equal(record.status,'rejected');assert.equal(record.rejectionReason,'Dato incorrecto');
+ const notice=s.writes.find(([p])=>p.startsWith('correction_requests/'))[1];
+ assert.equal(notice.kind,'moderation');assert.equal(notice.action,'reject');assert.equal(notice.tombOwnerId,'owner');assert.equal(notice.status,'open');
+ assert.deepEqual(Array.from(notice.participants),['owner','admin']);assert.deepEqual(Array.from(notice.readBy),['admin']);assert.match(notice.messages[0].text,/Dato incorrecto/);assert.match(notice.description,/volver a enviarla/);
+});
+test('owner edits resubmit rejected tomb without changing original attribution or photograph',async()=>{
+ const s=setup();s.record.status='rejected';
+ const result=await s.editTomb({nombre_finado:'Corregido'});assert.equal(result.resubmitted,true);
+ const update=s.writes.find(([p])=>p==='tumbas/record')[1];assert.equal(update.status,'pending');assert.equal(update.nombre_finado,'Corregido');assert.equal(update.imageUrl,undefined);assert.equal(update.userId,undefined);assert.ok(update.resubmittedAt);
+});
+test('stale administrative reviews cannot overwrite a completed review or send another notice',async()=>{
+ const s=setup();s.record.status='approved';await assert.rejects(s.run({recordType:'cemetery',action:'reject',expectedStatus:'pending'}),{code:'failed-precondition'});assert.equal(s.writes.length,0);
+});

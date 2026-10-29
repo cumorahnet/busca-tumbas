@@ -114,7 +114,8 @@
     window.addEventListener('buscatumbas:ready', firstVisit);
     window.addEventListener('load', () => window.setTimeout(firstVisit, 3500), {once: true});
     render();
-    if (!installed() && 'serviceWorker' in navigator && window.isSecureContext) {
+    // Installed PWAs must also register the worker to check for new releases.
+    if ('serviceWorker' in navigator && window.isSecureContext) {
         navigator.serviceWorker.register('sw.js', {scope: './', updateViaCache: 'none'})
             .catch(error => console.warn('No se pudo preparar la instalación web.', error));
     }

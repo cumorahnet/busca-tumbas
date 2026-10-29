@@ -46,3 +46,28 @@ Comprobar con `npm run firebase:key:check`. Después de registrar una firma de p
 Referencia oficial: https://firebase.google.com/docs/projects/api-keys
 
 La alerta GitHub #3 quedó resuelta como false_positive por tratarse de configuración pública de cliente. Verificación posterior a la propagación: HTTP 403 sin identidad Android y HTTP 200 con el paquete y certificado registrados. No se revocó la clave ni se eliminó del historial: su valor forma parte de la configuración distribuida en la app y las restricciones se aplican en Google Cloud.
+
+## 2026-10-28: revision local 2.60.0
+
+Alcance: web/PWA, backend, reglas Firestore/Storage, dependencias y Hosting. Se conservaron los cambios previos. Sin despliegue ni cambios en datos de produccion.
+
+Correcciones:
+- Reparado EOVERRIDE de xcode que impedia npm audit. Actualizaciones compatibles en ambos lockfiles. Backend: @fastify/busboy 3.2.4, body-parser 2.4.0, proxy-addr 2.0.8 y qs 6.17.1. Auditorias finales de raiz y functions: cero vulnerabilidades conocidas. El aviso critico de proxy-addr depende de la configuracion de proxies; no demuestra una explotacion. Referencia: https://github.com/advisories/GHSA-jqcg-44mw-7w3h
+- Disputas: mismo usuario y privilegios reutilizan suscripciones. Cambiar privilegios o salir cancela las anteriores; generaciones descartan callbacks antiguos y un error permite reintentar.
+- Editar tumbas ya no descarga todo el catalogo del cliente. Se conserva la validacion transaccional del servidor y la tarjeta de comparacion. Fallos de hashes quedan dentro del manejo de errores.
+- Choices.js fijado a 11.1.0 en web y empaquetador nativo. Hosting excluye mjs, documentacion, outputs y archivos de firma.
+- Prueba de terminos adaptada al formulario obligatorio actual, sin retirar validaciones. Prueba movil de version usa version.json.
+
+Comprobaciones:
+- 338 pruebas locales aprobadas; 10 con emuladores, incluyendo permisos, perfiles incompletos, suspension, mensajes, archivos ajenos, disputas y creaciones concurrentes de duplicados. Metodo oficial: https://firebase.google.com/docs/rules/unit-tests
+- Backend probado tambien con Node 22. ESLint y git diff --check aprobados.
+- Chromium y WebKit: inicio publico, detalle, controles para invitados y cancelacion; areas seguras en cinco perfiles por navegador. Datos controlados, sin sesion real en produccion.
+- Fuentes, www y recursos Android/iOS sincronizados en 2.60.0, codigos nativos 33. Verificador estructural iOS aprobado. Sin APK/IPA ni compilacion Xcode.
+
+Limites y pendientes:
+- No se certifica ausencia absoluta de fallos. No se midieron carga o latencia en produccion ni se probaron camara/GPS en telefono o Gemini/INEGI con operaciones reales.
+- No se confirmaron IAM, configuracion Auth ni reglas desplegadas. App Check sigue desactivado en funciones; habilitarlo requiere configurar clientes.
+- Las reglas dejan leer documentos compartidos a cuentas verificadas; pueden contener correos de colaboradores o estados pendientes/rechazados. La proyeccion anonima filtra informacion privada. Restringir tambien el acceso autenticado requiere separar datos privados mediante una migracion compatible, pendiente.
+- Persisten lecturas amplias del catalogo en validaciones del servidor y listas sin paginacion completa. Requieren medicion e indices/paginacion que conserven comparacion aproximada y exclusion mutua. No se afirma una mejora medida de latencia.
+- Permisos y deduplicacion no certifican la veracidad de los aportes ni evitan por si solos abusos del programa de recompensas.
+- Cambios guardados localmente; necesitan despliegue posterior de Hosting y funciones con lockfiles actualizados para aplicarse a produccion.

@@ -33,6 +33,8 @@
         return element && element.getClientRects().length > 0;
     };
     app.addListener('backButton', async () => {
+        const confirmation = document.getElementById('tomb-place-confirm-dialog');
+        if (confirmation?.open) { confirmation.close(); return; }
         if (visible('auth-screen')) {
             if (visible('auth-name-wrapper')) setAuthMode('login');
             else continueBrowsing();

@@ -89,7 +89,7 @@ module.exports = function recordWrites({db, onCall, HttpsError, FieldValue, GeoP
       }
       const current = await transaction.get(reference);
       if (edit && !current.exists) throw new HttpsError("not-found", "El registro ya no existe.");
-      if (edit && (current.data().contributorId !== uid || current.data().status !== "pending")) {
+      if (edit && (current.data().contributorId !== uid || !["pending", "rejected"].includes(current.data().status))) {
         throw new HttpsError("permission-denied", "No puedes editar este lugar.");
       }
       const candidate = {...(edit ? current.data() : {}), ...fields};
@@ -144,7 +144,7 @@ module.exports = function recordWrites({db, onCall, HttpsError, FieldValue, GeoP
       }
       if (!edit && current.exists) throw new HttpsError("already-exists", "El identificador ya está ocupado.");
       if (published.location) published.location = new GeoPoint(published.location.latitude, published.location.longitude);
-      if (edit) transaction.update(reference, {...fields, auditActorId: uid, updatedAt: now});
+      if (edit) transaction.update(reference, {...fields, ...(current.data().status === "rejected" ? {status: "pending", resubmittedAt: now} : {}), auditActorId: uid, updatedAt: now});
       else transaction.create(reference, published);
       transaction.set(lock, {updatedAt: now});
       return {saved: true, recordId};

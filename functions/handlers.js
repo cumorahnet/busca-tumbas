@@ -564,6 +564,7 @@ exports.actualizarAportacionTumba = onCall({auditOperation:"actualizarAportacion
   }
   const reference = db.collection("tumbas").doc(recordId);
   let duplicate = null;
+  let resubmitted = false;
   await db.runTransaction(async (transaction) => {
     const lock = db.collection("_uniquenessLocks").doc("tumbas");
     await transaction.get(lock);
@@ -582,7 +583,8 @@ exports.actualizarAportacionTumba = onCall({auditOperation:"actualizarAportacion
       return require("./duplicates").tombDuplicate(updated, doc.data()) || suggestsDuplicate(assessSimilarity(updated, doc.data()));
     }) || null;
     if (duplicate) return;
-    transaction.update(reference, {...changes, last_updated: FieldValue.serverTimestamp(), last_updated_by: uid});
+    resubmitted = !admin && current.status === "rejected";
+    transaction.update(reference, {...changes, ...(resubmitted ? {status: "pending", resubmittedAt: FieldValue.serverTimestamp()} : {}), last_updated: FieldValue.serverTimestamp(), last_updated_by: uid});
     transaction.set(lock, {updatedAt: FieldValue.serverTimestamp()});
   });
   if (duplicate) {
@@ -592,12 +594,12 @@ exports.actualizarAportacionTumba = onCall({auditOperation:"actualizarAportacion
       nombre_panteon: data.nombre_panteon || null, estado_panteon: data.estado_panteon || null,
       municipio_panteon: data.municipio_panteon || null}};
   }
-  return {updated: true};
+  return {updated: true, resubmitted};
 });
 
 exports.gestionarAporteAdmin = onCall({auditOperation:"gestionarAporteAdmin", enforceAppCheck: false}, async (request) => {
   requireAdmin(request);
-  const {recordType, recordId, action, note, days, changes} = request.data || {};
+  const {recordType, recordId, action, note, days, changes, expectedStatus} = request.data || {};
   if (!["tomb", "cemetery"].includes(recordType) ||
       typeof recordId !== "string" || !/^[A-Za-z0-9_-]{1,128}$/.test(recordId) ||
       !["edit", "warn", "reject", "restore", "suspend", "lift"].includes(action)) {
@@ -648,6 +650,9 @@ exports.gestionarAporteAdmin = onCall({auditOperation:"gestionarAporteAdmin", en
     const snapshot = await transaction.get(reference);
     if (!snapshot.exists) throw new HttpsError("not-found", "El aporte ya no existe.");
     const record = snapshot.data();
+    if (expectedStatus !== undefined && record.status !== expectedStatus) {
+      throw new HttpsError("failed-precondition", "Esta aportación ya fue revisada. Actualiza la lista.");
+    }
     if (action === "edit" || action === "restore") {
       const candidates = await transaction.get(db.collection(recordType === "tomb" ? "tumbas" : "cemeteries"));
       const candidate = {...record, ...(action === "edit" ? changes : {})};
@@ -673,19 +678,19 @@ exports.gestionarAporteAdmin = onCall({auditOperation:"gestionarAporteAdmin", en
     }
     let update = {};
     if (action === "edit") update = {...changes};
-    if (action === "reject") update = {status: "rejected"};
-    if (action === "restore") update = {status: recordType === "tomb" ? "published" : "approved"};
+    if (action === "reject") update = {status: "rejected", rejectionReason: note.trim()};
+    if (action === "restore") update = {status: recordType === "tomb" ? "published" : "approved", rejectionReason: null};
     if (Object.keys(update).length) transaction.update(reference, {
       ...update,
       ...(recordType === "tomb" ? {last_updated: FieldValue.serverTimestamp(), last_updated_by: request.auth.uid} :
         {updatedAt: FieldValue.serverTimestamp(), reviewedAt: FieldValue.serverTimestamp(), reviewedBy: request.auth.uid}),
     });
     const labels = {edit: "Corrección administrativa", warn: "Llamada de atención",
-      reject: "Aporte retirado", restore: "Aporte restaurado",
+      reject: "Tu aportación fue rechazada. Puedes corregirla en Mis aportaciones y volver a enviarla a revisión. Motivo", restore: "Aporte restaurado",
       suspend: "Suspensión de aportaciones", lift: "Suspensión levantada"};
     const message = `${labels[action]}: ${note.trim()}${until ? ` Hasta ${until.toISOString()}. Puedes consultar tus aportes y responder aquí.` : ""}`;
     if (owner !== request.auth.uid) transaction.set(notification, {
-      tombId: recordId, recordType, tombName: record.nombre_finado || record.name || "Aporte",
+      kind: "moderation", action, tombId: recordId, recordType, tombName: record.nombre_finado || record.name || "Aporte",
       tombOwnerId: owner, requesterId: request.auth.uid, requesterName: "Administración de Busca Tumbas",
       description: message, status: "open", participants: [owner, request.auth.uid],
       readBy: [request.auth.uid], messages: [{senderId: request.auth.uid,
