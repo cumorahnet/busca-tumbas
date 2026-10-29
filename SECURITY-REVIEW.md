@@ -71,3 +71,7 @@ Limites y pendientes:
 - Persisten lecturas amplias del catalogo en validaciones del servidor y listas sin paginacion completa. Requieren medicion e indices/paginacion que conserven comparacion aproximada y exclusion mutua. No se afirma una mejora medida de latencia.
 - Permisos y deduplicacion no certifican la veracidad de los aportes ni evitan por si solos abusos del programa de recompensas.
 - Cambios guardados localmente; necesitan despliegue posterior de Hosting y funciones con lockfiles actualizados para aplicarse a produccion.
+
+### Publicacion posterior de 2.60.0 (2026-10-28)
+
+Hosting y las 38 funciones desplegados. Una funcion agoto el plazo de aprovisionamiento de Cloud Run en el primer intento; el reintento termino correctamente. Ambos dominios sirven archivos identicos a las fuentes y excluyen los archivos internos comprobados. Las llamadas anonimas a actualizarAportacionTumba y gestionarAporteAdmin devuelven 401. No se modificaron reglas ni datos reales para las verificaciones. Los limites de la auditoria anteriores siguen vigentes. Codigo subido a origin/main, commit a36edfe5; sin APK/IPA nuevo.

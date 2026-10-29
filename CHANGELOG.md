@@ -2,6 +2,14 @@
 
 ## 2.60.0 - 2026-10-28
 
+### Publicacion completada
+
+- Hosting y las 38 funciones actualizados en buscatumbas-2e7cc. eliminarRegistroAdmin requirio un reintento por tiempo de aprovisionamiento de Cloud Run; el segundo despliegue termino correctamente.
+- Verificacion HTTPS en buscatumbas.lat y buscatumbas-2e7cc.web.app: HTML, version, CSS, scripts moviles, service worker y manifiesto identicos a las fuentes. Cabeceras de seguridad y archivos internos inaccesibles comprobados. actualizarAportacionTumba y gestionarAporteAdmin rechazan llamadas anonimas con 401. Sin escrituras de prueba sobre aportaciones reales.
+- Cambios de la entrega subidos a origin/main en a36edfe5. Sin APK/IPA ni instalacion en dispositivos.
+
+### Preparacion previa
+
 - Seguridad: dependencias vulnerables actualizadas, override npm reparado y auditorias raiz/backend con cero vulnerabilidades conocidas. Choices.js fijado a 11.1.0 y exclusiones de Hosting reforzadas.
 - Disputas: suscripciones reutilizadas para evitar reinicios y lecturas repetidas; se cancelan al cambiar privilegios o cerrar sesion.
 - Editar tumbas ya no descarga todo el catalogo del cliente. Duplicados validados por el servidor y fallos de hashes controlados.
